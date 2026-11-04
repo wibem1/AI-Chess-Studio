@@ -97,8 +97,8 @@ function record(value: unknown): Record<string, unknown> {
 }
 function validateAnnotation(value: unknown): asserts value is Annotation {
   const a = record(value);
-  if (typeof a.nodeId !== 'string' || !['dialogue', 'memory'].includes(String(a.kind)) ||
-      !['human', 'simulation', 'model'].includes(String(a.source)) || typeof a.text !== 'string' ||
+  if (typeof a.nodeId !== 'string' || typeof a.kind !== 'string' || !['dialogue', 'memory'].includes(a.kind) ||
+      typeof a.source !== 'string' || !['human', 'simulation', 'model'].includes(a.source) || typeof a.text !== 'string' ||
       typeof a.hypothesis !== 'boolean' || !Array.isArray(a.openQuestions) ||
       !a.openQuestions.every(q => typeof q === 'string')) throw new Error('Ungültige Annotation');
 }

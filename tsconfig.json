@@ -11,10 +11,18 @@
     "declaration": true,
     "types": [
       "node"
+    ],
+    "lib": [
+      "ES2023",
+      "DOM",
+      "DOM.Iterable"
     ]
   },
   "include": [
     "src/**/*.ts",
-    "test/**/*.ts"
+    "test/**/*.ts",
+    "web/**/*.ts",
+    "e2e/**/*.ts",
+    "playwright.config.ts"
   ]
 }

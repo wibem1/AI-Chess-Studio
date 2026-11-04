@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="de">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>AI-Chess-Studio · Schachlabor</title></head>
+<body>
+<header><p class="eyebrow">AI-CHESS-STUDIO / LOKALES LABOR</p><h1>Ein Zug. Mehrere Pläne.</h1><p>Stellungen erforschen, Absichten hinterfragen und eigene Ideen festhalten.</p><p class="badge">Simulation · Keine reale KI · Keine Modellanfragen</p></header>
+<main>
+<section class="panel position"><h2>Stellung untersuchen</h2><p id="position-status" aria-live="polite"></p><div id="board" role="group" aria-label="Schachbrett"></div>
+<p class="hint">Start- und Zielfeld anklicken oder einen Zug in SAN eingeben, z. B. e4, Nf3, O-O.</p>
+<form id="move-form"><label for="move">Zug (SAN)</label><div class="row"><input id="move" autocomplete="off" required><button>Zug spielen</button></div></form>
+<label for="promotion">Umwandlung beim Brettzug</label><select id="promotion"><option value="q">Dame</option><option value="r">Turm</option><option value="b">Läufer</option><option value="n">Springer</option></select>
+<details><summary>Legale Züge</summary><p id="legal-moves"></p></details><p id="move-feedback" role="status"></p></section>
+<section class="panel"><h2>Variantenbaum</h2><p class="hint">Eine frühere Stellung wählen und einen anderen Zug spielen, um abzuzweigen.</p><nav id="variations" aria-label="Variantenbaum"></nav></section>
+<section class="panel discussion"><h2>Planwerkstatt</h2><p class="hint">Antworten sind deterministische Beispieldaten und Hypothesen. Sie bewerten die Stellung nicht.</p>
+<form id="dialogue-form"><label for="question">Deine Planfrage</label><textarea id="question" required placeholder="Welchen Plan möchte ich verfolgen?"></textarea><button id="ask">Plan diskutieren (Simulation)</button></form>
+<details><summary>Simulation prüfen</summary><label for="simulation-mode">Testverhalten</label><select id="simulation-mode"><option value="normal">Normale Beispielantwort</option><option value="slow">Verzögerte Beispielantwort</option><option value="invalid">Ungültige Antwort</option><option value="failure">Anfragefehler</option></select></details>
+<p id="dialogue-feedback" role="status"></p><div id="dialogue" aria-label="Stellungsdialog"></div>
+<h3>Strategisches Gedächtnis</h3><form id="memory-form"><label for="memory">Eigene Notiz zur Stellung</label><textarea id="memory" required></textarea><label for="open-question">Offene Frage (optional)</label><input id="open-question"><label class="check"><input id="hypothesis" type="checkbox" checked> Als Hypothese kennzeichnen</label><button>Notiz merken</button></form><div id="memories" aria-label="Stellungsgedächtnis"></div></section>
+<section class="panel storage"><h2>Sitzung sichern</h2><p>Varianten, Dialog und Gedächtnis bleiben bis zum Neuladen im Arbeitsspeicher. Exportiere sie zur dauerhaften Sicherung.</p><button id="export">Sitzung als JSON exportieren</button><label for="session-file">JSON-Datei importieren</label><input id="session-file" type="file" accept=".json,application/json"><label for="session-json">Sitzungsdaten (JSON)</label><textarea id="session-json" spellcheck="false"></textarea><button id="import">Sitzung aus JSON wiederherstellen</button><p id="storage-feedback" role="status"></p></section>
+</main><footer>Phase 2 · Lokaler Prototyp mit Testadapter · Stockfish ist nicht angebunden.</footer>
+<script type="module" src="/web/main.ts"></script></body></html>

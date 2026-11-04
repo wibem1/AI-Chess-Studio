@@ -69,6 +69,7 @@ test('late dialogue and strategic memory retain provenance and request position'
 test('invalid annotations are rejected without mutating state', () => {
   const s = new Session(); const before = s.export();
   assert.throws(() => s.annotate({ nodeId: 'n0', kind: 'memory', source: 'unknown' } as unknown as Annotation));
+  assert.throws(() => s.annotate({ nodeId: 'n0', kind: ['memory'], source: ['human'], text: 'x', hypothesis: true, openQuestions: [] } as unknown as Annotation));
   assert.equal(s.export(), before);
 });
 test('import rejects malformed, unsupported, forged and disconnected data', () => {
