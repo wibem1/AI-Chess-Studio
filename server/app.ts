@@ -1,3 +1,6 @@
+import { FileCredentialsStore, credentialsPath } from './credentials.js';
+import { CostControl } from './costs.js';
+import { UpdateService } from './updates.js';
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
@@ -7,10 +10,12 @@ import { StockfishService } from './stockfish.js';
 import { modelMiddleware } from './http.js';
 
 /** Local application server. Serves only built public assets, never the checkout. */
-export function createStudioServer(options: { webRoot?: string; env?: NodeJS.ProcessEnv } = {}) {
+export function createStudioServer(options: { webRoot?: string; env?: NodeJS.ProcessEnv; credentialsPath?: string } = {}) {
   const webRoot = options.webRoot ?? fileURLToPath(new URL('../../web-dist/',import.meta.url));
   const stockfish = new StockfishService();
-  const api = modelMiddleware(new ModelService(readConfig(options.env ?? process.env)), raw => stockfish.check(raw));
+  const env = options.env ?? process.env;
+  const store = new FileCredentialsStore(options.credentialsPath ?? credentialsPath(env));
+  const api = modelMiddleware(new ModelService(readConfig(env), fetch, store,new CostControl((options.credentialsPath ?? credentialsPath(env))+'.usage.json')), raw => stockfish.check(raw),new UpdateService(fileURLToPath(new URL('../../',import.meta.url))));
   return createServer((req,res) => {
     res.setHeader('X-Content-Type-Options','nosniff');
     res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'");

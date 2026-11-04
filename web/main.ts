@@ -26,7 +26,7 @@ async function refreshModelStatus() {
     if (!response.ok) throw new Error();
     const status = await response.json();
     modelAvailable = status.available === true && status.remaining > 0;
-    message('model-status', modelAvailable ? `Reale KI freigegeben. Verbleibende Anfragen im Serverprozess: ${status.remaining}. Keine Kostengarantie.` : 'Reale KI gesperrt oder Anfragelimit erreicht. Simulation ist verfügbar.');
+    message('model-status', modelAvailable ? `KI-Zugang konfiguriert, noch kein Verbindungsnachweis. Verbleibende Anfragen im Serverprozess: ${status.remaining}. Keine Kostengarantie.` : 'Reale KI gesperrt oder Anfragelimit erreicht. Simulation ist verfügbar.');
   } catch { modelAvailable = false; message('model-status', 'Modellserver nicht verfügbar. Simulation ist verfügbar.'); }
   updateMode();
 }
@@ -136,7 +136,7 @@ $('dialogue-form').addEventListener('submit', async event => {
     render();
   } catch (error) {
     message('dialogue-feedback', studio.session !== session ? 'Veraltete Anfrage nach Sitzungswechsel verworfen.' : error instanceof Error ? error.message : 'Anfrage fehlgeschlagen.');
-  } finally { pending = false; updateMode(); if (real) void refreshModelStatus(); }
+  } finally { pending = false; updateMode(); if (real) {void refreshModelStatus();void refreshCosts();} }
 });
 $('export').addEventListener('click', () => {
   text('session-json').value = studio.session.export();
@@ -170,4 +170,89 @@ $('tactical-form').addEventListener('submit', async event => {
   } catch (error) {
     message('tactical-feedback', studio.session !== session ? 'Veralteter Faktencheck verworfen.' : error instanceof Error ? error.message : 'Faktencheck fehlgeschlagen.');
   } finally { tacticalPending = false; render(); }
+});
+
+$('api-form').addEventListener('submit', async event => {
+  event.preventDefault();
+  if (!input('api-cost-consent').checked) return;
+  const button = $<HTMLButtonElement>('api-connect'); button.disabled = true;
+  try {
+    // The field is cleared immediately after transmission; no browser storage or session annotation.
+    const responsePromise = fetch('/api/model-config', { method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'connect',apiKey:input('api-key').value,model:input('api-model').value.trim(),allowPaid:true}),
+      signal:AbortSignal.timeout(5000) });
+    input('api-key').value = ''; input('api-cost-consent').checked = false;
+    const response = await responsePromise;
+    if (!response.ok) throw new Error('KI-Zugang konnte nicht eingerichtet werden. Schlüssel, Modell und laufende Anfragen prüfen.');
+    await refreshModelStatus();
+    $<HTMLSelectElement>('dialogue-mode').value = 'model'; updateMode();
+    message('api-feedback','Schlüssel lokal gespeichert und für den nächsten Start hinterlegt. Noch keine Modellanfrage ausgeführt. Stelle jetzt eine Planfrage.');
+  } catch (error) { message('api-feedback', error instanceof Error ? error.message : 'Lokaler Server nicht erreichbar.'); }
+  finally { input('api-key').value = ''; button.disabled = false; }
+});
+$('api-disconnect').addEventListener('click', async () => {
+  try {
+    const response = await fetch('/api/model-config', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'disconnect'}),signal:AbortSignal.timeout(5000)});
+    if (!response.ok) throw new Error();
+    input('api-key').value = ''; input('api-cost-consent').checked = false;
+    $<HTMLSelectElement>('dialogue-mode').value = 'simulation';
+    await refreshModelStatus();
+    message('api-feedback','Gespeicherter Schlüssel gelöscht. Reale KI ist gesperrt.');
+  } catch { message('api-feedback','Schlüssel konnte nicht entfernt werden. Eine laufende Anfrage abwarten und das Löschen erneut versuchen.'); }
+});
+
+async function localPost(path:string,body:unknown):Promise<any> {
+  const response=await fetch(path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:AbortSignal.timeout(20000)});
+  if(!response.ok)throw new Error('Aktion fehlgeschlagen. Konfiguration, Projektänderungen und Zugriff prüfen.');
+  return response.json();
+}
+async function diagnosticData() {
+  const response=await fetch('/api/diagnostics');if(!response.ok)throw new Error('Diagnose nicht verfügbar.');return response.json();
+}
+async function refreshCosts(fill=false) {
+  try{
+    const d=await diagnosticData(), c=d.model.costs;
+    message('cost-summary',`Geschätzter Verbrauch: ${Number(c.estimatedUsd).toFixed(6)} USD / ${c.budgetUsd} USD · ${c.requests}/3 Anfragen · ${c.promptTokens} Eingabe- und ${c.completionTokens} Ausgabe-Tokens bestätigt · ${c.uncertainRequests} Anfragen mit unsicherer Abrechnung.`);
+    if(fill){input('cost-budget').value=String(c.budgetUsd);input('cost-input').value=String(c.inputUsdPerMillion);input('cost-output').value=String(c.outputUsdPerMillion);}
+  }catch{message('cost-summary','Kostenstatus nicht verfügbar.');}
+}
+void refreshCosts(true);
+$('cost-form').addEventListener('submit',async event=>{
+  event.preventDefault();try{
+    await localPost('/api/costs',{action:'configure',budgetUsd:Number(input('cost-budget').value),inputUsdPerMillion:Number(input('cost-input').value),outputUsdPerMillion:Number(input('cost-output').value)});
+    await refreshCosts();message('cost-feedback','Budget und Preisannahmen lokal gespeichert.');
+  }catch{message('cost-feedback','Kostenlimit konnte nicht gespeichert werden. Werte und laufende Anfrage prüfen.');}
+});
+$('cost-reset').addEventListener('click',async()=>{
+  if(!input('cost-reset-consent').checked){message('cost-feedback','Bitte den Neustart der Budgetperiode bestätigen.');return;}
+  try{await localPost('/api/costs',{action:'reset',confirm:true});input('cost-reset-consent').checked=false;await refreshCosts();await refreshModelStatus();message('cost-feedback','Neue Budgetperiode gespeichert. Das zusätzliche Limit pro Serverstart bleibt bestehen.');}
+  catch{message('cost-feedback','Budgetperiode konnte nicht neu gestartet werden.');}
+});
+$('diagnose').addEventListener('click',async()=>{
+  try{const d=await diagnosticData();message('diagnostic-output',`Node.js: ${d.node} · System: ${d.platform}\nKI-Zugang: ${d.model.configured?'konfiguriert (noch kein Verbindungsnachweis)':'nicht konfiguriert'}\nModell: ${d.model.model??'keines'}\nVerbleibende Anfragen: ${d.model.remaining}\nUpdate: ${d.update?.message??'nicht verfügbar'}\nKeine Schlüsselwerte oder Sitzungstexte in dieser Diagnose.`);await refreshCosts();}
+  catch{message('diagnostic-output','Lokaler Server nicht erreichbar.');}
+});
+$('diagnose-access').addEventListener('click',async()=>{
+  const button=$<HTMLButtonElement>('diagnose-access');button.disabled=true;
+  try{const d=await localPost('/api/diagnostics',{});message('diagnostic-output',`${d.message}${d.httpStatus?` (HTTP ${d.httpStatus})`:''}`);}
+  catch{message('diagnostic-output','Zugangsdiagnose nicht verfügbar.');}finally{button.disabled=false;}
+});
+let updateTarget:string|null=null;
+$('update-check').addEventListener('click',async()=>{
+  const button=$<HTMLButtonElement>('update-check');button.disabled=true;updateTarget=null;$<HTMLButtonElement>('update-install').disabled=true;
+  try{const d=await localPost('/api/update',{action:'check'});updateTarget=d.canInstall?d.target:null;
+    message('update-info',d.dirty?'Eigene Codeänderungen vorhanden. Keine Installation möglich.':d.available?`Update auf ${d.target.slice(0,7)} verfügbar (Branch ${d.branch}).`:'Die lokale App ist auf dem aktuellen Stand.');
+    $<HTMLButtonElement>('update-install').disabled=!updateTarget;
+  }catch{message('update-info','Updateprüfung fehlgeschlagen. GitHub-Zugriff und Git-Installation prüfen.');}finally{button.disabled=false;}
+});
+$('update-install').addEventListener('click',async()=>{
+  if(!updateTarget || !input('update-consent').checked){message('update-feedback','Bitte die Updateinstallation bestätigen.');return;}
+  $<HTMLButtonElement>('update-install').disabled=true;
+  try{await localPost('/api/update',{action:'install',target:updateTarget});
+    for(let i=0;i<360;i++){
+      await new Promise(resolve=>setTimeout(resolve,1000));const d=await diagnosticData();message('update-feedback',d.update.message);
+      if(d.update.stage!=='installing')return;
+    }
+    message('update-feedback','Installation läuft länger. Diagnose erneut öffnen; nicht mehrfach installieren.');
+  }catch{message('update-feedback','Update nicht abgeschlossen. Diagnose und lokalen Projektstand prüfen.');}
 });

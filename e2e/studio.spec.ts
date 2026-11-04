@@ -143,7 +143,7 @@ test('local model API fixture exercises UI transport and provenance without any 
       risks:'Test-Risiko', playability:'Test-Spielbarkeit', openQuestions:['Testfrage?'] } });
   });
   await page.goto('/');
-  await expect(page.locator('#model-status')).toContainText('Reale KI freigegeben');
+  await expect(page.locator('#model-status')).toContainText('KI-Zugang konfiguriert');
   await page.getByLabel('Dialogmodus').selectOption('model');
   await page.getByLabel('Deine Planfrage').fill('Was könnte Schwarz planen?');
   await page.getByRole('button', { name:'Plan diskutieren (reale KI)' }).click();
@@ -185,4 +185,60 @@ test('Stockfish failure leaves the session unchanged and allows retry', async ({
   await expect(page.locator('#tactical-results')).toBeEmpty();
   await expect(page.getByRole('button',{name:'Taktischen Faktencheck starten'})).toBeEnabled();
   expect(JSON.parse(await exportData(page)).annotations).toHaveLength(0);
+});
+
+test('API key can be saved locally, stays out of browser storage/export and is removable', async ({page}) => {
+  const sentinel='local-ui-test-key-not-a-real-credential';
+  let modelCalls=0;
+  page.on('request',r => {if(r.url().endsWith('/api/dialogue')) modelCalls++;});
+  await page.goto('/');
+  await page.getByText('Eigenen API-Schlüssel eingeben',{exact:true}).click();
+  await expect(page.getByLabel('OpenAI-API-Schlüssel',{exact:true})).toHaveAttribute('type','password');
+  await page.getByLabel('OpenAI-API-Schlüssel',{exact:true}).fill(sentinel);
+  await page.getByRole('button',{name:'Schlüssel lokal speichern und KI aktivieren',exact:true}).click();
+  await expect(page.locator('#api-feedback')).toBeEmpty(); // unchecked consent prevents submission
+  await page.locator('#api-cost-consent').check();
+  await page.getByRole('button',{name:'Schlüssel lokal speichern und KI aktivieren',exact:true}).click();
+  await expect(page.locator('#api-feedback')).toContainText('Noch keine Modellanfrage');
+  await expect(page.getByLabel('OpenAI-API-Schlüssel',{exact:true})).toHaveValue('');
+  await expect(page.getByLabel('Dialogmodus')).toHaveValue('model');
+  expect(modelCalls).toBe(0);
+  const stores=await page.evaluate(() => JSON.stringify({local:{...localStorage},session:{...sessionStorage}}));
+  expect(stores).not.toContain(sentinel);
+  expect(await exportData(page)).not.toContain(sentinel);
+  await page.reload();
+  await expect(page.locator('#model-status')).toContainText('KI-Zugang konfiguriert');
+  await page.getByText('Eigenen API-Schlüssel eingeben',{exact:true}).click();
+  await page.getByRole('button',{name:'Gespeicherten Schlüssel löschen'}).click();
+  await expect(page.locator('#api-feedback')).toContainText('Gespeicherter Schlüssel gelöscht');
+  await expect(page.locator('#model-status')).toContainText('Reale KI gesperrt');
+  expect(modelCalls).toBe(0);
+});
+
+test('diagnosis and cost settings work without exposing credentials or generating text',async({page})=>{
+ let calls=0;page.on('request',r=>{if(r.url().endsWith('/api/dialogue'))calls++;});
+ await page.goto('/');await page.getByRole('button',{name:'Lokale Diagnose anzeigen'}).click();
+ await expect(page.locator('#diagnostic-output')).toContainText('Node.js');
+ await page.getByLabel('Budget pro Periode (USD)').fill('0.03');
+ await page.getByRole('button',{name:'Kostenlimit speichern'}).click();
+ await expect(page.locator('#cost-feedback')).toContainText('lokal gespeichert');
+ await page.reload();await expect(page.getByLabel('Budget pro Periode (USD)')).toHaveValue('0.03');
+ await page.getByRole('button',{name:'Neue Budgetperiode starten'}).click();
+ await expect(page.locator('#cost-feedback')).toContainText('bestätigen');
+ await page.getByRole('button',{name:'OpenAI-Zugang prüfen (ohne Textgenerierung)'}).click();
+ await expect(page.locator('#diagnostic-output')).toContainText('Kein API-Schlüssel');
+ expect(calls).toBe(0);
+});
+test('update UI checks target and requires explicit install consent',async({page})=>{
+ let installs=0;
+ await page.route('**/api/update',route=>{
+  const r=route.request().postDataJSON();if(r.action==='install'){installs++;return route.fulfill({status:400,json:{error:'test failure'}});}
+  return route.fulfill({json:{current:'a'.repeat(40),target:'b'.repeat(40),available:true,canInstall:true,dirty:false,branch:'work'}});
+ });
+ await page.goto('/');await page.getByRole('button',{name:'Nach Updates suchen'}).click();
+ await expect(page.locator('#update-info')).toContainText('bbbbbbb');
+ await page.getByRole('button',{name:'Update installieren'}).click();expect(installs).toBe(0);
+ await expect(page.locator('#update-feedback')).toContainText('bestätigen');
+ await page.locator('#update-consent').check();await page.getByRole('button',{name:'Update installieren'}).click();
+ await expect(page.locator('#update-feedback')).toContainText('nicht abgeschlossen');expect(installs).toBe(1);
 });

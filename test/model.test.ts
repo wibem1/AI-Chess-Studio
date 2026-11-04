@@ -107,3 +107,44 @@ test('enabled local HTTP service returns validated fixture with no secret exposu
     assert.equal(calls,1);
   } finally { await new Promise<void>((resolve,reject) => server.close(e => e ? reject(e) : resolve())); }
 });
+
+test('app credential input configures memory only, makes no provider call, and can be cleared', async () => {
+  let calls=0;
+  const service=new ModelService(readConfig({}),fake(async (_url,init) => {
+    calls++;assert.equal((init!.headers as Record<string,string>).Authorization,'Bearer local-ui-test-key');
+    return response();
+  }));
+  assert.throws(() => service.configure({action:'connect',apiKey:'local-ui-test-key',model:'gpt-4.1-mini',allowPaid:false}));
+  assert.deepEqual(service.configure({action:'connect',apiKey:'local-ui-test-key',model:'gpt-4.1-mini',allowPaid:true}),{available:true,remaining:3});
+  assert.equal(calls,0);assert.ok(!JSON.stringify(service.status()).includes('local-ui-test-key'));
+  await service.reply(request());assert.equal(calls,1);
+  assert.deepEqual(service.configure({action:'disconnect'}),{available:false,remaining:2});
+  await assert.rejects(service.reply(request()),(e:unknown) => e instanceof ApiError && e.status===403);
+  assert.deepEqual(service.configure({action:'connect',apiKey:'replacement-test-key',model:'gpt-4.1-mini',allowPaid:true}),{available:true,remaining:2});
+  assert.equal(new ModelService(readConfig({})).status().available,false);
+});
+test('actual credential endpoint requires local origin and never returns entered key', async () => {
+  let calls=0;
+  const middleware=modelMiddleware(new ModelService(readConfig({}),fake(async () => {calls++;return response();})));
+  const server=createServer((req,res) => {void middleware(req,res,() => {res.writeHead(404);res.end();});});
+  await new Promise<void>(r => server.listen(0,'127.0.0.1',r));
+  const address=server.address();assert.ok(address && typeof address!=='string');
+  const base=`http://127.0.0.1:${address.port}`;
+  const body={action:'connect',apiKey:'local-ui-test-key',model:'gpt-4.1-mini',allowPaid:true};
+  try {
+    const post=(origin:string,value:unknown) => fetch(base+'/api/model-config',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json'},body:JSON.stringify(value)});
+    assert.equal((await post('https://foreign.example',body)).status,403);
+    const connected=await post(base,body);assert.equal(connected.status,200);
+    assert.deepEqual(await connected.json(),{available:true,remaining:3});
+    const status=await (await fetch(base+'/api/status')).text();assert.ok(!status.includes(body.apiKey));
+    assert.equal((await post(base,{action:'disconnect'})).status,200);
+    assert.equal((await (await fetch(base+'/api/status')).json()).available,false);
+    assert.equal(calls,0);
+  } finally {await new Promise<void>((resolve,reject) => server.close(e => e ? reject(e) : resolve()));}
+});
+test('access diagnosis checks model metadata without generation or consuming paid request budget',async()=>{
+ let calls=0;
+ const service=new ModelService(config,fake(async(url,init)=>{calls++;assert.match(String(url),/\/v1\/models\/explicit-test-model$/);assert.equal(init!.method,'GET');return new Response('{}');}));
+ assert.equal((await service.probeAccess()).ok,true);assert.equal(calls,1);assert.equal(service.status().remaining,3);
+ assert.equal(service.diagnostics().costs.requests,0);
+});

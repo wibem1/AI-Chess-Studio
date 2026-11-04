@@ -11,7 +11,7 @@ export class ServerModelAdapter implements DialogueAdapter {
         body: JSON.stringify(request), signal: AbortSignal.timeout(20_000)
       });
     } catch { throw new Error('Modellserver nicht erreichbar oder Zeitlimit überschritten.'); }
-    if (!response.ok) throw new Error(response.status === 403
+    if (!response.ok) throw new Error(response.status === 402 ? 'Lokales Kosten- oder Anfragebudget erreicht. Kostenkontrolle öffnen.' : response.status === 403
       ? 'Reale KI ist serverseitig gesperrt. Die Simulation bleibt verfügbar.'
       : response.status === 429 ? 'Anfragelimit erreicht oder Anfrage läuft bereits.'
       : 'Modellanfrage fehlgeschlagen. Keine Antwort gespeichert.');

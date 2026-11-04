@@ -1,10 +1,17 @@
 # AI-Chess-Studio
 
-Ein dialogorientiertes strategisches Schachlabor: Mensch und KI entwickeln und hinterfragen Pläne, untersuchen gegnerische Möglichkeiten und vergleichen praktisch spielbare Varianten.
+Lokales, deutschsprachiges Schachlabor mit Variantenbaum, strategischem
+Gedächtnis, Dialog und optionalem Stockfish-Faktencheck.
 
-## Lokal starten
+## Start auf deinem PC
 
-Voraussetzung: Node.js 24 und npm.
+Voraussetzung: **Node.js 24**. Im Projektordner unter Windows
+**AI-Chess-Studio-starten.cmd** doppelklicken. Das Skript installiert bei Bedarf
+Abhängigkeiten, baut die App und öffnet nach dem Start den Browser. Das
+Serverfenster während der Nutzung geöffnet lassen. Der Windows-Startweg und
+DPAPI sind implementiert, aber in dieser Linux-Umgebung nicht nativ geprüft.
+
+Alternativ im Projektordner:
 
 ```bash
 npm ci
@@ -12,205 +19,104 @@ npm run build
 npm start
 ```
 
-`npm start` startet die gebaute Anwendung samt Modell-/Stockfish-API nur lokal
-auf Port 5173. `CHESS_PORT` kann den Port ändern. Für Quellcodeentwicklung gibt
-es weiterhin `npm run dev`. Kein Deployment und keine Veröffentlichung nötig.
-Alle 33 Einzeltests und neun Browsertests sind bestanden; die Browsertests
-laufen gegen denselben gebauten Anwendungsserver.
+Die App läuft nur lokal, standardmäßig auf Port 5173 (`CHESS_PORT` ist optional).
+Der reine statische Web-Build hat keine Modell-/Engine-API; npm start stellt
+beides bereit. Quellcodeentwicklung ist mit npm run dev möglich.
 
-**Nutzbar:** Schachbrett, Varianten, Gedächtnis, Sitzungsexport/-import,
-Simulationsdialog und echter lokaler Stockfish-Faktencheck. **Noch offen:**
-reale KI-Validierung und manuelle Nutzerabnahme. Echte KI ist standardmäßig
-gesperrt; inzwischen wurde ein begrenzter realer Funktionstest freigegeben,
-der sichere API-Schlüssel dafür fehlt noch.
+## Eigenen API-Schlüssel direkt eingeben
 
-## Ziel des vollständigen Prototyps
+1. In der App „Eigenen API-Schlüssel eingeben“ öffnen.
+2. Schlüssel und Modell eingeben (vorbelegt: gpt-4.1-mini).
+3. Preisannahmen/Budget in „Kostenkontrolle“ prüfen.
+4. Kostenpflichtige Anfragen bewusst erlauben und „Schlüssel lokal speichern
+   und KI aktivieren“ anklicken. Dies erzeugt noch keine Modellantwort.
+5. Unter „Diagnose und Updates“ kann der Zugang ohne Textgenerierung geprüft
+   werden. Anschließend eine Planfrage im realen Modus stellen.
 
-- Lokale Weboberfläche mit Schachbrett und legaler Zugeingabe.
-- Variantenbaum: Abzweigungen anlegen und zwischen Stellungen wechseln.
-- Stellungsbezogener Dialog zu Plan, Gegenplan, Kandidatenzügen, Risiken und praktischer Spielbarkeit.
-- Strategisches Gedächtnis mit Herkunft, Stellung, Hypothesen und offenen Fragen.
-- Export und Import einer Sitzung einschließlich Varianten und Gedächtnis.
-- KI-Zugvorschläge werden gegen die Schachregeln geprüft. Veraltete Antworten dürfen nach einem Stellungswechsel nicht der neuen Stellung zugeordnet werden.
+**Dauerhafte lokale Speicherung:** Die Datei liegt im Benutzerprofil des
+Rechners, auf dem der App-Server läuft: unter Windows
+`%USERPROFILE%\.ai-chess-studio\credentials.json`, unter Linux/macOS
+`~/.ai-chess-studio/credentials.json`. Windows nutzt benutzergebundene DPAPI-
+Verschlüsselung über PowerShell; POSIX nutzt private Datei-/Verzeichnisrechte
+(0600/0700), dort keine Verschlüsselung. Die Eingabe wird im Browser sofort
+geleert, nicht in localStorage/sessionStorage oder Sitzungsexport übernommen.
+„Gespeicherten Schlüssel löschen“ entfernt die Datei und sperrt den Zugang.
 
-Ein deterministischer Testadapter ermöglicht automatisierte Tests ohne API-Kosten. Er wird klar als Simulation gekennzeichnet. Ein funktionaler KI-Prototyp benötigt zusätzlich einen tatsächlich geprüften Modelladapter; vorgetäuschte KI-Antworten genügen nicht.
+Für Speicherung **auf deinem PC** muss die App dort laufen. Bei Cloudbetrieb
+liegt diese Datei auf dem Cloud-Rechner. Cloud-Secrets sind für den lokalen
+PC-Betrieb nicht mehr erforderlich. Bestehende serverseitige CHESS_*-Variablen
+werden aus Kompatibilitätsgründen weiterhin unterstützt.
 
-Stockfish ist separat angebunden und wird ausschließlich auf Abruf verwendet. Seine Ergebnisse belegen taktische Befunde unter den angegebenen Suchbedingungen, keine absolute strategische Wahrheit.
+## Kostenkontrolle
 
-## Entwicklungsphasen
+Voreinstellung: **0,05 USD pro Budgetperiode**, höchstens drei Modellanfragen
+pro Periode und zusätzlich pro Serverstart, je maximal 800 Ausgabe-Tokens.
+Verbrauch und Preisannahmen werden lokal in `credentials.json.usage.json`
+gespeichert und über Neustarts weitergeführt. Eine neue Periode erfordert eine
+explizite Bestätigung; sie hebt das zusätzliche Prozesslimit nicht auf.
 
-0. Projektgrundlage und Prüfkriterien sichern.
-1. Schachkern, Variantenbaum und Sitzungsformat implementieren und isoliert testen.
-2. Kleine Oberfläche und strategischen Dialog mit Testadapter integrieren; automatisierten Browserdurchlauf prüfen.
-3. Reale KI-Anbindung mit serverseitiger Schlüsselverwaltung und begrenztem Kontext testen.
-4. Optionalen Stockfish-Faktencheck separat integrieren.
+Die Eingabe-/Ausgabepreise sind editierbare **Preisannahmen**, keine aktuelle
+Anbieterpreisauskunft. Vor einem anderen Modell die Preise anpassen. Vor jeder
+Anfrage wird eine vorsichtige Reservierung berechnet; reicht das Budget nicht,
+wird kein Provideraufruf gestartet. Bestätigte Token-Nutzung korrigiert die
+Schätzung. Bei Fehlern/fehlenden Nutzungsdaten bleibt die Reservierung bestehen.
+Keine automatischen Wiederholungen. Preise/Schätzungen sind **kein verbindliches
+Geldlimit der Anbieterrechnung**; ein separates Anbieterlimit ist weiterhin sinnvoll.
+Nur eine App-Instanz mit demselben Benutzerprofil verwenden.
 
-Implementiert mit TypeScript, chess.js, Vite für den Web-Build, Node.js als lokalem Anwendungsserver und automatisierten Unit-/Browsertests.
+## Diagnose
 
-## Abnahme des ersten Prototyps
+„Lokale Diagnose anzeigen“ meldet Laufzeit, Modellkonfiguration, Restanfragen
+und Updatestatus ohne Schlüsselwerte oder Sitzungstexte. „OpenAI-Zugang prüfen“
+ruft nur Modellmetadaten ab, keine Textgenerierung; Statusmeldungen unterscheiden
+fehlende Konfiguration, abgelehnten Schlüssel, fehlendes Modell und
+Verbindungsprobleme. Konfiguriert heißt noch nicht real erfolgreich geprüft.
 
-Automatisiert nachweisen: legale/illegale Züge einschließlich Rochade, en passant und Umwandlung; getrennte Varianten; korrekte Dialogzuordnung; Erhalt und Export/Import des strategischen Gedächtnisses; Behandlung ungültiger KI-Ausgaben und fehlgeschlagener Anfragen. Danach ein kurzer manueller Durchlauf: Stellung spielen, Plan diskutieren, Variante abzweigen, Sitzung wiederherstellen.
+Die App nutzt OpenAI Chat Completions über einen festen HTTPS-Endpunkt.
+Unter einer verwalteten Cloud gelten weiterhin deren Netzwerkfreigaben.
+Bei geerbtem Proxy Node mit `NODE_USE_ENV_PROXY=1` starten; der Windows-Starter
+setzt dies. Die App umgeht keine Netzwerkbeschränkungen.
 
-Aktueller Nachweisstand und nächster Schritt: siehe [PROJECT_STATE.md](PROJECT_STATE.md).
+## Updates
 
-## Phase 1 – lokaler Schachkern
+„Nach Updates suchen“ prüft den Entwicklungsbranch **work** von
+wibem1/AI-Chess-Studio. Git muss installiert und der Repositoryzugriff vorhanden
+sein. Nach Anzeige des Zielcommits und ausdrücklicher Zustimmung kann die App
+fetch, reines Fast-forward, npm ci und Build/Unit-Prüfungen ausführen. Eigene
+ungesicherte Codeänderungen, abweichende Quelle oder ein verändertes Ziel
+blockieren die Installation. Kein Force/Reset, kein automatisches Deployment.
 
-Voraussetzung: Node.js 24 und npm. Installation mit `npm ci`, Typprüfung mit
-`npm run check`, Build und isolierte Tests mit `npm test`.
-Die Phase-1-Basis umfasst zehn einzelne Testfälle; Phase 2 ergänzt vier Dialogtests. Eine alleinige Dateizählung
-ist kein ausreichender Nachweis (in eingeschränkten Umgebungen sind gegebenenfalls
-zusätzliche Prozessrechte erforderlich).
+Nach erfolgreichem Update die App beenden und neu starten. Bei einem Fehler
+bleibt die Installation als unvollständig markiert; es gibt keinen behaupteten
+atomaren Rollback. Die vorherigen Commits bleiben in Git erhalten. Während
+des Updates keine zweite Installation starten und keinen Quellcode bearbeiten.
 
-`src/session.ts` exportiert `Session`: `play` akzeptiert SAN oder
-`{from, to, promotion?}`, `select` wechselt Variantenknoten, `legalMoves` und
-`status` prüfen die ausgewählte Variante mit chess.js einschließlich ihrer
-Zughistorie. Ein bereits vorhandener identischer Kindzug wird wiederverwendet.
-Nach einem von chess.js erkannten Partieende werden weitere Züge abgewiesen.
-Eine alternative Analyse kann an einem früheren Knoten fortgesetzt werden.
+## Schach, Dialog und Sitzungen
 
-`snapshot` liefert eine unabhängige Kopie. `annotate` speichert Dialog und
-strategisches Gedächtnis mit Knoten-ID, Herkunft, Hypothesenkennzeichnung und
-offenen Fragen. Für spätere asynchrone Antworten muss die Knoten-ID beim
-Anfragestart festgehalten werden. Dies ist ein Datenmodell, noch kein Modelladapter.
-`export`/`Session.import` verwenden JSON-Schema-Version 1. Beim Import werden
-Elternbeziehungen, legale Züge und abgeleitete FEN-Stellungen rekonstruiert und
-geprüft; ungültige Sitzungen werden vollständig abgelehnt.
+- Brettklicks oder SAN-Züge (e4, Nf3, O-O); Sonderzüge und legale Züge mit chess.js.
+- Frühere Variantenknoten wählen und andere Züge spielen, um abzuzweigen.
+- Simulation ist klar markiert und nutzt deterministische Beispieldaten.
+  Sie belegt keine strategische Analysequalität eines Modells.
+- Dialog, eigene Hypothesen und offene Fragen bleiben an ihrer Stellung;
+  verspätete Antworten werden nach Sitzungsersatz verworfen.
+- Stockfish 19 Lite WASM startet ausschließlich nach Klick. Optional einen
+  eigenen SAN-Kandidaten prüfen: keine automatische Bewertungsleiste oder
+  Zugvorgabe. Bedingungen: ein Thread, 16 MiB Hash, Tiefe 12 / 20.000 Knoten /
+  1 s Suchzeit, 8 s Prozess-Timeout. Aktuelle FEN ohne Wiederholungshistorie
+  oder Tablebases. Angezeigte Varianten sind regelgeprüft; Werte gelten unter
+  diesen Suchbedingungen und sind keine absolute strategische Wahrheit.
+- Sitzungsdaten liegen bis zum JSON-Export nur im Arbeitsspeicher. Vor Neuladen
+  exportieren; Datei-/Textimport validiert Varianten und erhält Gedächtnis und
+  Suchbefunde. API-Schlüssel und Kostenkonto gehören nicht zum Export.
 
-Phase 2 ergänzt eine lokale Oberfläche und simulierte Dialoge. Eine serverseitige Modellanbindung ist inzwischen vorbereitet (siehe Phase 3);
-reale Modelltests stehen weiterhin aus; Stockfish ist lokal angebunden (siehe Phase 4).
-Prüfgrundlage: [docs/VALIDATION.md](docs/VALIDATION.md).
+## Nachweise und Grenzen
 
+`npm run test:all`: Typprüfung, Build, **47 Einzeltests und 12 Chromium-
+Browsertests**. Der gebaute Anwendungsserver wird getestet, einschließlich
+echtem lokalem Stockfish. Schlüsseltests verwenden ausschließlich bedeutungslose
+Testwerte, Provider-/Update-Tests lokale Fixtures. Es wurde kein echtes Update
+auf diesen Arbeitsstand und keine kostenpflichtige Textgenerierung ausgeführt.
+Ein realer Modelltest und manuelle Nutzerabnahme stehen aus.
 
-## Phase 2 – lokale Oberfläche und Testadapter
-
-Nach `npm ci` mit `npm run dev` lokal starten. Der Entwicklungsserver bindet nur
-an die Loopback-Adresse. Es erfolgt kein Deployment. Das Schachbrett unterstützt
-Start-/Zielfeld-Auswahl und Umwandlungen; alternativ können SAN-Züge eingegeben
-werden. Frühere Knoten im Variantenbaum erlauben neue Abzweigungen.
-
-Im voreingestellten Simulationsmodus verwendet die Planwerkstatt den deterministischen lokalen
-`SimulationAdapter`. Die Kandidaten sind ungeordnete legale Beispielzüge,
-keine strategischen Empfehlungen oder Enginebewertungen. Die Beispieldaten
-zeigen Plan, mögliche gegnerische Absicht als Hypothese, Risiken, Spielbarkeit
-und offene Fragen. Der Simulationsdialog führt keine Modell- oder Stockfish-Anfragen aus.
-Unter „Simulation prüfen“ lassen sich ungültige Antworten, Anfragefehler und
-verzögerte Antworten gezielt auslösen.
-
-Antworten bleiben am Knoten der Anfrage. Nach dem Import einer anderen Sitzung
-werden ausstehende Antworten verworfen. Ungültige Antworten und illegale
-Kandidaten werden abgewiesen. Eigene Notizen können als Hypothese samt offener
-Frage gespeichert werden. Die Daten liegen nur im Arbeitsspeicher: vor dem
-Neuladen als JSON-Datei exportieren; Wiederherstellung über Dateiauswahl oder
-JSON-Text. Fehlgeschlagener Import erhält die bisherige Sitzung. Im Browser gibt es keine
-API-Schlüssel und keine automatische Speicherung.
-
-`npm run test:all` prüft Typen, Build, 33 isolierte Tests und neun echte
-Chromium-Browserdurchläufe. Playwright nutzt `CHROMIUM_PATH`, wenn gesetzt,
-ansonsten `/usr/bin/chromium`, falls vorhanden, oder seinen installierten
-Chromium. In dieser Cloud-Umgebung ist System-Chromium vorhanden. Außerhalb
-dieser Umgebung bei Bedarf `npx playwright install chromium` ausführen.
-Der Browserlauf startet und beendet seinen eigenen gebauten Anwendungsserver auf Port
-5173; dort darf währenddessen kein anderer Server laufen.
-
-Noch nicht vom Nutzer bestätigt: ein kurzer manueller Durchlauf mit eigenem
-Plan, Abzweigung und anschließender Wiederherstellung. Kein Nachweis realer KI.
-
-
-## Phase 3 – serverseitige Modellanbindung vorbereitet
-
-Die lokale Anwendung (npm start oder npm run dev) stellt `/api/status` und `/api/dialogue` bereit.
-`ServerModelAdapter` im Browser kennt nur diese relativen Endpunkte. Der
-Node-Server kann OpenAI Chat Completions am festen HTTPS-Endpunkt
-`api.openai.com/v1/chat/completions` aufrufen. Im statischen Web-Build ist kein
-API-Server enthalten; `vite preview` bietet diese Anbindung nicht an.
-
-**Die reale Anbindung wurde noch nicht mit OpenAI getestet.** Inzwischen hat
-der Nutzer einen begrenzten Funktionstest freigegeben (höchstens drei Versuche
-in dieser Aufgabe mit je maximal 800 Completion-Tokens). Dafür ist gpt-4.1-mini
-im Cloud-Konfigurationsentwurf vorbereitet. Der sichere Schlüssel fehlt noch;
-der gespeicherte Entwurf ist noch kein angewendeter Laufzeitstand.
-Der Server benötigt:
-
-- `CHESS_API_KEY`: Schlüssel ausschließlich als sichere serverseitige
-  Umgebungsbindung; niemals im Browser, Repository, `VITE_*` oder Chat.
-- `CHESS_MODEL`: ausdrücklich ausgewähltes Modell, das Chat Completions mit
-  JSON-Ausgabe und `max_completion_tokens` unterstützt; kein im Code festgelegtes Defaultmodell. Im Umgebungsentwurf: gpt-4.1-mini.
-- `CHESS_ENABLE_PAID_API=1`: separate bewusste Aktivierung. Nur bei vorliegender
-  Autorisierung aktivieren; für den begrenzten Test ist sie inzwischen erteilt. Eine Aktivierung kann kostenpflichtige
-  Anfragen durch den Nutzer auslösen.
-
-Bei Proxybetrieb muss Node mit `NODE_USE_ENV_PROXY=1` gestartet werden,
-damit die geerbte HTTPS-Proxy-/CA-Konfiguration für fetch verwendet wird.
-Der Zugang zu `api.openai.com` muss in der Umgebung erlaubt sein.
-Im Cloud-Entwurf wurden eine Secret-Anforderung für CHESS_API_KEY und deren
-Ziel api.openai.com gespeichert; damit wurde diese Domain der gewünschten
-Netzfreigabe hinzugefügt. Der Nutzer trägt den Wert sicher in den
-Umgebungseinstellungen ein. Keine Schlüsselwerte im Chat oder Repository.
-
-Der Server erlaubt nur gleichursprüngliche lokale JSON-POSTs, höchstens
-16 KiB Eingabedaten, 1000 Zeichen pro Planfrage und sechs stellungsbezogene
-Kontexteinträge à 800 Zeichen. FEN und Zugliste werden serverseitig geprüft.
-Ausgabe: höchstens 800 Completion-Tokens, 64 KiB Antwortdaten, 15 Sekunden
-Wartezeit; keine Wiederholungsversuche. Es gilt eine parallele Anfrage und
-ein Limit von drei Versuchen je Serverprozess, auch bei Fehlern. Ein Neustart
-setzt dieses Limit zurück. Dies ist **keine Geld- oder Gesamtkostengarantie**;
-ein tatsächliches Geldlimit muss zusätzlich beim Anbieter eingerichtet werden.
-
-Providerfehler und Schlüssel werden nicht an den Browser weitergegeben.
-Ungültige, verweigerte, abgebrochene oder illegale Antworten werden verworfen.
-Modellantworten werden mit Herkunft „Modell“ und als Hypothese gespeichert;
-Simulation und Modell sind getrennte Dialogmodi. Die Tests erzwingen für den
-Browser-Testserver die API-Sperre und verwenden ausschließlich lokale
-Transport-/HTTP-Fixtures. Sie belegen keine reale Modellqualität oder
-Anbieterkompatibilität. Manuelle Nutzerabnahme steht weiterhin aus.
-
-
-## Phase 4 – optionaler lokaler Stockfish-Faktencheck
-
-„Taktischen Faktencheck starten“ führt ausschließlich nach diesem Klick eine
-lokale Suche aus. Optional kann ein eigener legaler SAN-Kandidat angegeben
-werden; dann wird nur dieser Wurzelzug untersucht. Ohne Kandidaten wird die
-Stellung untersucht. Es gibt keine automatische Bewertungsleiste, keinen
-vorgegebenen besten Zug und keine automatische Übernahme eines Enginezuges.
-
-Genutzt wird Stockfish.js 19.0.1 mit **Stockfish 19 Lite WASM**, single-threaded,
-serverseitig im eigenen Node-Prozess. Die kleinere Lite-Netzvariante ist nicht
-mit dem vollständigen Stockfish-Netz gleichzusetzen. `npm ci` installiert die
-verifizierten Paketartefakte über das Lockfile; ein C++-/WASM-Build ist unnötig.
-Das npm-Paket enthält mehrere Varianten (insgesamt etwa 205 MB entpackt),
-ausgeführt wird die etwa 1,7 MB große Lite-Single-Variante.
-
-Suchgrenzen: Tiefe 12, 20.000 Knoten, eine Sekunde Suchzeit, ein Thread und
-16 MiB Hash. Es gilt die zuerst erreichte Suchgrenze; die UCI-Engine prüft
-Knoten-/Zeitgrenzen in Intervallen, daher sind sie keine exakten harten
-CPU-Grenzen. Ein zusätzlicher Prozess-Timeout von acht Sekunden umfasst den
-Engine-Start. Maximal eine Prüfung zugleich; Prozesse werden nach Ergebnis
-oder Fehler beendet. Der Engineprozess erhält keine Server-Umgebungsvariablen
-und somit keine Modellschlüssel.
-
-Die Anzeige nennt Engine, tatsächlich erreichte Tiefe/Knotenzahl, Gesamtdauer,
-Suchbedingungen, eine legal geprüfte untersuchte Variante und den Suchwert.
-Centipawns sind aus Sicht von Weiß; Mattdistanzen benennen die begünstigte
-Farbe. Das ist ein taktischer Suchbefund unter diesen Bedingungen, keine
-absolute strategische Wahrheit. Untersucht wird die aktuelle FEN ohne
-Wiederholungshistorie und ohne Tablebases. Beendete Varianten werden abgewiesen.
-
-Befunde bleiben an der angefragten Stellung, auch wenn während der Suche
-gewechselt wird. Ein Sitzungsimport verwirft ausstehende Ergebnisse. Herkunft
-`stockfish`, Kandidat und Suchbedingungen werden als separater `factcheck`
-in Schema 1 gespeichert. Bestehende Sitzungen ohne Befunde bleiben importierbar;
-ältere App-Stände unterstützen die neue Befundart nicht. Importierte Befunde
-werden auf Struktur, Stellung und legale Varianten geprüft, sind aber kein
-kryptografisch beglaubigter Nachweis einer früheren Engineausführung.
-
-Die Engine läuft nur am lokalen Node-Server (`npm start` oder `npm run dev`), nicht im statischen
-Web-Build. Es sind weder API-Schlüssel noch kostenpflichtige Dienste erforderlich.
-Echte lokale Engine- und Browserprüfungen sind in docs/VALIDATION.md dokumentiert.
-Lizenz-/Quellenhinweise: [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
-
-
-Der aktuell freigegebene reale Funktionstest ist noch nicht ausgeführt.
-Nach sicherer Schlüsselbindung die aktuellen Umgebungswerte/Netzfreigabe prüfen
-und den Server mit geerbtem Proxy starten: `NODE_USE_ENV_PROXY=1 npm start`.
-Nach dem begrenzten Test den bezahlten Modus ohne weitere Nutzungsfreigabe
-wieder deaktivieren. Die automatisierten Tests bleiben vollständig kostenfrei.
+[Projektstand](PROJECT_STATE.md) · [Prüfergebnisse](docs/VALIDATION.md) ·
+[Engine-Lizenz und Quellen](THIRD_PARTY_NOTICES.md)

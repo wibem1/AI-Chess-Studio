@@ -174,3 +174,38 @@ Kein echter Modellaufruf erfolgt, da der Schlüsselwert noch fehlt. Keine
 Aktivierung/Veröffentlichung des Entwurfs behauptet. Anwendungscode unverändert;
 vorheriger Nachweis mit 33 Einzeltests und neun Browsertests bleibt bestehen,
 kein unnötiger erneuter Testlauf für reine Dokumentationsänderungen.
+
+## Lokaler Schlüssel, Diagnose, Kosten und Updates
+
+4. November 2026: Nutzer verlangt ausdrücklich direkte App-Eingabe und dauerhafte
+lokale Speicherung des Schlüssels sowie Diagnose, Kostenkontrolle und Updates.
+Vorherige Cloud-Secret-Bedienung ist nicht mehr der erforderliche lokale Weg.
+
+`npm run test:all`: Typprüfung und Build erfolgreich; **47 Einzeltests und
+12 Chromium-Browsertests bestanden**, null Fehler/übersprungene Tests.
+
+Zusätzlich geprüft:
+
+- Lokale Schlüsseldatei über Service-Neustart geladen, POSIX-Rechte 0600/0700,
+  explizites Löschen, fehlerhafte Datei fail-closed ohne Inhaltsausgabe.
+- Realer lokaler Konfigurationsendpunkt mit Originprüfung, Kosten-Zustimmung,
+  leerem Passwortfeld nach Übernahme, ohne Schlüssel in Status oder Export.
+  Keine Provideranfrage allein durch Eingabe/Speichern. Browser-Storage geprüft.
+- Kostenbudget blockiert vor dem Transport, bestätigt Token-Schätzungen,
+  reserviert unklare Fehlversuche, speichert Verbrauch/Preisannahmen über
+  Neustart und verlangt Zustimmung zum Perioden-Neustart. Ungültige Preise
+  und Budgets werden abgewiesen.
+- Diagnose der Modellmetadaten über injizierten Transport: GET statt
+  Textgenerierung, keine bezahlte Anfrage verbucht; keine Schlüssel ausgegeben.
+- Updateprüfung/Installation mit injizierten Git-/npm-Abläufen: erlaubte Quelle,
+  Zielcommit, Dirty-Checkout-Sperre, Fast-forward, Build/Unit-Prüfung,
+  Fehlerstatus und kein Force/Reset. Browser prüft Update-Zustimmung und Fehler.
+- Browser prüft lokale Diagnose und dauerhafte Budgeteinstellung; weiterhin
+  sämtliche Schach-/Sitzungs-/echten Engineabläufe erfolgreich.
+
+Keine echte Modellanfrage, keine echten Git-/npm-Selbstupdates durchgeführt.
+Die Windows-DPAPI- und Doppelklickstarter-Pfade sind implementiert, können in
+Linux nicht nativ ausgeführt werden und gelten nicht als Windows-abgenommen.
+Preisannahmen sind nicht gegen eine aktuelle Anbieterrechnung verifiziert.
+Updateinstallation ist nicht atomar; bei Fehlern wird ein unvollständiger Stand
+angezeigt und kein angeblicher Rollback oder erfolgreicher Neustart behauptet.
