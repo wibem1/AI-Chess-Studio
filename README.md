@@ -13,7 +13,7 @@ Ein dialogorientiertes strategisches Schachlabor: Mensch und KI entwickeln und h
 
 Ein deterministischer Testadapter ermöglicht automatisierte Tests ohne API-Kosten. Er wird klar als Simulation gekennzeichnet. Ein funktionaler KI-Prototyp benötigt zusätzlich einen tatsächlich geprüften Modelladapter; vorgetäuschte KI-Antworten genügen nicht.
 
-Stockfish wird später separat angebunden und ausschließlich auf Abruf verwendet. Seine Ergebnisse belegen taktische Befunde unter den angegebenen Suchbedingungen, keine absolute strategische Wahrheit.
+Stockfish ist separat angebunden und wird ausschließlich auf Abruf verwendet. Seine Ergebnisse belegen taktische Befunde unter den angegebenen Suchbedingungen, keine absolute strategische Wahrheit.
 
 ## Entwicklungsphasen
 
@@ -55,7 +55,7 @@ Elternbeziehungen, legale Züge und abgeleitete FEN-Stellungen rekonstruiert und
 geprüft; ungültige Sitzungen werden vollständig abgelehnt.
 
 Phase 2 ergänzt eine lokale Oberfläche und simulierte Dialoge. Eine serverseitige Modellanbindung ist inzwischen vorbereitet (siehe Phase 3);
-reale Modelltests und Stockfish stehen weiterhin aus.
+reale Modelltests stehen weiterhin aus; Stockfish ist lokal angebunden (siehe Phase 4).
 Prüfgrundlage: [docs/VALIDATION.md](docs/VALIDATION.md).
 
 
@@ -70,7 +70,7 @@ Im voreingestellten Simulationsmodus verwendet die Planwerkstatt den determinist
 `SimulationAdapter`. Die Kandidaten sind ungeordnete legale Beispielzüge,
 keine strategischen Empfehlungen oder Enginebewertungen. Die Beispieldaten
 zeigen Plan, mögliche gegnerische Absicht als Hypothese, Risiken, Spielbarkeit
-und offene Fragen. Es werden keine Modell- oder Stockfish-Anfragen ausgeführt.
+und offene Fragen. Der Simulationsdialog führt keine Modell- oder Stockfish-Anfragen aus.
 Unter „Simulation prüfen“ lassen sich ungültige Antworten, Anfragefehler und
 verzögerte Antworten gezielt auslösen.
 
@@ -82,7 +82,7 @@ Neuladen als JSON-Datei exportieren; Wiederherstellung über Dateiauswahl oder
 JSON-Text. Fehlgeschlagener Import erhält die bisherige Sitzung. Im Browser gibt es keine
 API-Schlüssel und keine automatische Speicherung.
 
-`npm run test:all` prüft Typen, Build, 23 isolierte Tests und sieben echte
+`npm run test:all` prüft Typen, Build, 32 isolierte Tests und neun echte
 Chromium-Browserdurchläufe. Playwright nutzt `CHROMIUM_PATH`, wenn gesetzt,
 ansonsten `/usr/bin/chromium`, falls vorhanden, oder seinen installierten
 Chromium. In dieser Cloud-Umgebung ist System-Chromium vorhanden. Außerhalb
@@ -136,3 +136,47 @@ Simulation und Modell sind getrennte Dialogmodi. Die Tests erzwingen für den
 Browser-Testserver die API-Sperre und verwenden ausschließlich lokale
 Transport-/HTTP-Fixtures. Sie belegen keine reale Modellqualität oder
 Anbieterkompatibilität. Manuelle Nutzerabnahme steht weiterhin aus.
+
+
+## Phase 4 – optionaler lokaler Stockfish-Faktencheck
+
+„Taktischen Faktencheck starten“ führt ausschließlich nach diesem Klick eine
+lokale Suche aus. Optional kann ein eigener legaler SAN-Kandidat angegeben
+werden; dann wird nur dieser Wurzelzug untersucht. Ohne Kandidaten wird die
+Stellung untersucht. Es gibt keine automatische Bewertungsleiste, keinen
+vorgegebenen besten Zug und keine automatische Übernahme eines Enginezuges.
+
+Genutzt wird Stockfish.js 19.0.1 mit **Stockfish 19 Lite WASM**, single-threaded,
+serverseitig im eigenen Node-Prozess. Die kleinere Lite-Netzvariante ist nicht
+mit dem vollständigen Stockfish-Netz gleichzusetzen. `npm ci` installiert die
+verifizierten Paketartefakte über das Lockfile; ein C++-/WASM-Build ist unnötig.
+Das npm-Paket enthält mehrere Varianten (insgesamt etwa 205 MB entpackt),
+ausgeführt wird die etwa 1,7 MB große Lite-Single-Variante.
+
+Suchgrenzen: Tiefe 12, 20.000 Knoten, eine Sekunde Suchzeit, ein Thread und
+16 MiB Hash. Es gilt die zuerst erreichte Suchgrenze; die UCI-Engine prüft
+Knoten-/Zeitgrenzen in Intervallen, daher sind sie keine exakten harten
+CPU-Grenzen. Ein zusätzlicher Prozess-Timeout von acht Sekunden umfasst den
+Engine-Start. Maximal eine Prüfung zugleich; Prozesse werden nach Ergebnis
+oder Fehler beendet. Der Engineprozess erhält keine Server-Umgebungsvariablen
+und somit keine Modellschlüssel.
+
+Die Anzeige nennt Engine, tatsächlich erreichte Tiefe/Knotenzahl, Gesamtdauer,
+Suchbedingungen, eine legal geprüfte untersuchte Variante und den Suchwert.
+Centipawns sind aus Sicht von Weiß; Mattdistanzen benennen die begünstigte
+Farbe. Das ist ein taktischer Suchbefund unter diesen Bedingungen, keine
+absolute strategische Wahrheit. Untersucht wird die aktuelle FEN ohne
+Wiederholungshistorie und ohne Tablebases. Beendete Varianten werden abgewiesen.
+
+Befunde bleiben an der angefragten Stellung, auch wenn während der Suche
+gewechselt wird. Ein Sitzungsimport verwirft ausstehende Ergebnisse. Herkunft
+`stockfish`, Kandidat und Suchbedingungen werden als separater `factcheck`
+in Schema 1 gespeichert. Bestehende Sitzungen ohne Befunde bleiben importierbar;
+ältere App-Stände unterstützen die neue Befundart nicht. Importierte Befunde
+werden auf Struktur, Stellung und legale Varianten geprüft, sind aber kein
+kryptografisch beglaubigter Nachweis einer früheren Engineausführung.
+
+Die Engine läuft nur am lokalen Node-Server (`npm run dev`), nicht im statischen
+Web-Build. Es sind weder API-Schlüssel noch kostenpflichtige Dienste erforderlich.
+Echte lokale Engine- und Browserprüfungen sind in docs/VALIDATION.md dokumentiert.
+Lizenz-/Quellenhinweise: [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

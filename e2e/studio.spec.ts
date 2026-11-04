@@ -154,3 +154,35 @@ test('local model API fixture exercises UI transport and provenance without any 
   expect(data.annotations.at(-1).source).toBe('model');
   expect(data.annotations.at(-1).text).toContain('Lokale Modell-Testantwort');
 });
+
+test('real Stockfish runs only on demand and preserves its factcheck through export/import', async ({ page }) => {
+  let calls = 0; page.on('request', r => { if (r.url().endsWith('/api/tactics')) calls++; });
+  await page.goto('/');
+  await play(page,'e4'); expect(calls).toBe(0);
+  const mate = new Session('7k/8/5KQ1/8/8/8/8/8 w - - 0 1');
+  await importData(page,mate.export());
+  await page.getByLabel('Kandidatenzug prüfen (SAN, optional)').fill('Qg7#');
+  await page.getByRole('button',{name:'Taktischen Faktencheck starten'}).click();
+  await expect(page.locator('#tactical-results')).toContainText('Stockfish 19 Lite');
+  await expect(page.locator('#tactical-results')).toContainText('Mattdistanz 1 für Weiß');
+  await expect(page.locator('#tactical-results')).toContainText('Tiefe 12 / 20.000 Knoten');
+  expect(calls).toBe(1);
+  const data = await exportData(page);
+  await play(page,'Qg7#');
+  await expect(page.locator('#tactical-results')).toBeEmpty();
+  await expect(page.getByRole('button',{name:'Taktischen Faktencheck starten'})).toBeDisabled();
+  await importData(page,data);
+  await expect(page.locator('#tactical-results')).toContainText('Qg7#');
+  expect(calls).toBe(1);
+  expect(JSON.parse(data).annotations[0].source).toBe('stockfish');
+});
+
+test('Stockfish failure leaves the session unchanged and allows retry', async ({ page }) => {
+  await page.route('**/api/tactics',route => route.fulfill({status:503,json:{error:'Unavailable'}}));
+  await page.goto('/');
+  await page.getByRole('button',{name:'Taktischen Faktencheck starten'}).click();
+  await expect(page.locator('#tactical-feedback')).toContainText('fehlgeschlagen');
+  await expect(page.locator('#tactical-results')).toBeEmpty();
+  await expect(page.getByRole('button',{name:'Taktischen Faktencheck starten'})).toBeEnabled();
+  expect(JSON.parse(await exportData(page)).annotations).toHaveLength(0);
+});

@@ -1,14 +1,16 @@
 import { Chess, DEFAULT_POSITION } from 'chess.js';
+import { validateTacticalReport, type TacticalReport } from './tactics.js';
 
 export type MoveInput = string | { from: string; to: string; promotion?: string };
 export interface PositionNode { id: string; parentId: string | null; san: string | null; fen: string }
 export interface Annotation {
   nodeId: string;
-  kind: 'dialogue' | 'memory';
-  source: 'human' | 'simulation' | 'model';
+  kind: 'dialogue' | 'memory' | 'factcheck';
+  source: 'human' | 'simulation' | 'model' | 'stockfish';
   text: string;
   hypothesis: boolean;
   openQuestions: string[];
+  engine?: TacticalReport;
 }
 export interface SessionData {
   schemaVersion: 1;
@@ -61,8 +63,9 @@ export class Session {
   }
   /** Caller captures the request's node ID; delayed replies never follow the current selection. */
   annotate(annotation: Annotation): void {
-    this.node(annotation.nodeId);
+    const node = this.node(annotation.nodeId);
     validateAnnotation(annotation);
+    if (annotation.kind === 'factcheck') validateTacticalReport(annotation.engine, node.fen);
     this.data.annotations.push(structuredClone(annotation));
   }
   export(): string { return JSON.stringify(this.data, null, 2); }
@@ -97,8 +100,9 @@ function record(value: unknown): Record<string, unknown> {
 }
 function validateAnnotation(value: unknown): asserts value is Annotation {
   const a = record(value);
-  if (typeof a.nodeId !== 'string' || typeof a.kind !== 'string' || !['dialogue', 'memory'].includes(a.kind) ||
-      typeof a.source !== 'string' || !['human', 'simulation', 'model'].includes(a.source) || typeof a.text !== 'string' ||
+  if (typeof a.nodeId !== 'string' || typeof a.kind !== 'string' || !['dialogue', 'memory', 'factcheck'].includes(a.kind) ||
+      typeof a.source !== 'string' || !['human', 'simulation', 'model', 'stockfish'].includes(a.source) || typeof a.text !== 'string' ||
       typeof a.hypothesis !== 'boolean' || !Array.isArray(a.openQuestions) ||
       !a.openQuestions.every(q => typeof q === 'string')) throw new Error('Ungültige Annotation');
+  if (a.kind === 'factcheck' ? a.source !== 'stockfish' || a.hypothesis !== false || !a.engine : a.source === 'stockfish' || a.engine !== undefined) throw new Error('Ungültige Befundherkunft');
 }

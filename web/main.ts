@@ -1,6 +1,7 @@
 import { Chess, type Square } from 'chess.js';
 import { Studio, SimulationAdapter, type SimulationMode } from '../src/dialogue.js';
 import { ServerModelAdapter } from '../src/model-client.js';
+import { checkTactics, ServerTacticalAdapter } from '../src/tactics.js';
 import './style.css';
 
 const studio = new Studio();
@@ -9,6 +10,7 @@ const input = (id: string) => $<HTMLInputElement>(id);
 const text = (id: string) => $<HTMLTextAreaElement>(id);
 let selected: Square | null = null;
 let pending = false;
+let tacticalPending = false;
 let modelAvailable = false;
 const modelMode = () => $<HTMLSelectElement>('dialogue-mode').value === 'model';
 function updateMode() {
@@ -72,6 +74,19 @@ function render() {
     }
   }
   message('legal-moves', status.gameOver ? 'Partie beendet.' : studio.session.legalMoves().join(', '));
+  $<HTMLButtonElement>('tactical-check').disabled = tacticalPending || status.gameOver;
+  const reports = $('tactical-results'); reports.replaceChildren();
+  for (const a of data.annotations.filter(a => a.nodeId === current.id && a.kind === 'factcheck')) {
+    const r = a.engine!;
+    const article = document.createElement('article'); article.className = 'entry';
+    const meta = document.createElement('small'); meta.textContent = `${a.nodeId} · ${r.engine} · Lokaler Suchbefund`;
+    const result = document.createElement('div');
+    const score = r.score.unit === 'cp' ? `${r.score.value} Centipawns (positive Werte für Weiß)`
+      : `Mattdistanz ${Math.abs(r.score.value)} für ${r.score.value > 0 ? 'Weiß' : 'Schwarz'}`;
+    result.textContent = `Suchwert: ${score}\nUntersuchte Variante: ${r.line.join(' ')}\n${r.candidate ? `Geprüfter eigener Kandidat: ${r.candidate}` : 'Stellung untersucht, keine Zugvorgabe.'}\nErreicht: Tiefe ${r.depth}, ${r.nodes} Knoten, ${r.elapsedMs} ms einschließlich Engine-Start.\nGrenzen: Tiefe 12 / 20.000 Knoten / 1 Sekunde Suchzeit, 1 Thread, 16 MiB Hash.\nFEN ohne Wiederholungshistorie. Keine strategische Freigabe.`;
+    article.append(meta,result); reports.append(article);
+  }
+
   const variants = $('variations'); variants.replaceChildren();
   // Build iteratively so deeply imported lines do not overflow the render stack.
   const lists = new Map<string | null, HTMLUListElement>();
@@ -142,4 +157,17 @@ $('session-file').addEventListener('change', async () => {
     attempt(() => { studio.restore(json); text('session-json').value = json; }, 'storage-feedback', 'Sitzung aus Datei wiederhergestellt.');
   } catch { message('storage-feedback', 'Datei konnte nicht gelesen werden.'); }
   $<HTMLInputElement>('session-file').value = '';
+});
+
+$('tactical-form').addEventListener('submit', async event => {
+  event.preventDefault(); if (tacticalPending) return;
+  const session = studio.session;
+  tacticalPending = true; render();
+  message('tactical-feedback', 'Lokaler Faktencheck läuft … Stellungswechsel ist weiterhin möglich.');
+  try {
+    const result = await checkTactics(session, () => studio.session, new ServerTacticalAdapter(), input('tactical-candidate').value.trim() || null);
+    message('tactical-feedback', result === 'stored' ? 'Suchbefund an der angefragten Stellung gespeichert.' : 'Veralteter Suchbefund nach Sitzungswechsel verworfen.');
+  } catch (error) {
+    message('tactical-feedback', studio.session !== session ? 'Veralteter Faktencheck verworfen.' : error instanceof Error ? error.message : 'Faktencheck fehlgeschlagen.');
+  } finally { tacticalPending = false; render(); }
 });

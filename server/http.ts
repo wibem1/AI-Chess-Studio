@@ -1,9 +1,9 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { ApiError, ModelService } from './model.js';
 
-export function modelMiddleware(service: ModelService) {
+export function modelMiddleware(service: ModelService, tactics?: (raw: unknown) => Promise<unknown>) {
   return async (req: IncomingMessage, res: ServerResponse, next: () => void) => {
-    if (req.url !== '/api/status' && req.url !== '/api/dialogue') { next(); return; }
+    if (req.url !== '/api/status' && req.url !== '/api/dialogue' && req.url !== '/api/tactics') { next(); return; }
     const send = (status: number, body: unknown) => {
       res.writeHead(status, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' });
       res.end(JSON.stringify(body));
@@ -26,7 +26,10 @@ export function modelMiddleware(service: ModelService) {
       let raw: unknown;
       try { raw = JSON.parse(Buffer.concat(chunks).toString('utf8')); }
       catch { throw new ApiError(400, 'Ungültiges JSON.'); }
-      send(200, await service.reply(raw));
+      if (req.url === '/api/tactics') {
+        if (!tactics) throw new ApiError(503, 'Stockfish nicht verfügbar.');
+        send(200, await tactics(raw));
+      } else send(200, await service.reply(raw));
     } catch (error) {
       send(error instanceof ApiError ? error.status : 500,
         { error: error instanceof ApiError ? error.message : 'Interner Fehler.' });

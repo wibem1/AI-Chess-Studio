@@ -10,43 +10,46 @@ Spielbarkeit. Stockfish ausschließlich als optionaler taktischer Faktencheck.
 
 ## Belegter Bestand
 
-- Globale und lokale Regeln vollständig gelesen; sauberer Phase-2-Ausgangsstand
-  76bc06c erhalten (Phase 1: 51ba463).
-- Lokale deutsche Oberfläche mit legalen Brett-/SAN-Zügen, Variantenbaum,
-  Planwerkstatt, stellungsbezogenem Gedächtnis und JSON-Datei-/Textimport.
-- Simulation bleibt voreingestellt und ausdrücklich gekennzeichnet.
-- Phase 3 vorbereitet: serverseitiger OpenAI-Chat-Completions-Transport,
-  gleichursprüngliche lokale API und getrennt auswählbarer realer Dialogmodus.
-- Schlüssel ausschließlich serverseitig; bewusste Freigabe und Modellname
-  erforderlich. Standardmäßig gesperrt. Keine Secrets eingerichtet.
-- Begrenzter Kontext, validierte FEN/Züge und Antworten, bereinigte Fehler;
-  800 Completion-Tokens, 15 Sekunden, keine Retries, eine parallele Anfrage,
-  drei Versuche je Serverprozess. Kein dauerhaftes Geldlimit.
-- Modellherkunft als Hypothese serialisierbar; Antworten bleiben am Anfrageknoten
-  und werden bei Sitzungsersatz verworfen.
-- Strikte Typprüfung und Web-Build bestanden; 23 Einzeltests und sieben
-  echte Chromium-Browsertests bestanden, keine fehlgeschlagen/übersprungen.
-  Provider- und Modell-API-Antworten ausschließlich lokal ersetzt.
-  Prüfgrundlage: docs/VALIDATION.md.
+- Globale und lokale Regeln gelesen; letzter verifizierter Stand c4acb74 erhalten.
+- Phasen 1/2: lokale deutsche Oberfläche mit legalen Brett-/SAN-Zügen,
+  Variantenbaum, Planwerkstatt, Gedächtnis und JSON-Datei-/Textimport.
+- Phase 3 vorbereitet: serverseitiger OpenAI-Transport, sichere Schlüsseltrennung,
+  begrenzter Kontext und getrennt auswählbarer realer Dialogmodus. Keine reale
+  Modellvalidierung; Simulation bleibt voreingestellt, reale KI gesperrt.
+- Phase 4 implementiert und mit realer lokaler Komponente getestet:
+  Stockfish.js 19.0.1 / Stockfish 19 Lite WASM, single-threaded, nur auf Klick.
+  Optional eigener Kandidat, keine automatische Bewertungsleiste/Zugvorgabe.
+- Enginebefunde mit weißer Werteperspektive, legaler untersuchter Variante,
+  Kandidat und Suchbedingungen; als separate stellungsgebundene factchecks
+  serialisiert. Verspätete Befunde bleiben am Anfrageknoten; nach Import verworfen.
+- Grenzen: Tiefe 12 / 20.000 Knoten / 1 s Suchzeit, 1 Thread, 16 MiB Hash;
+  Prozess-Timeout 8 s, maximal eine Prüfung gleichzeitig. Suchwerte gelten nur
+  unter diesen Bedingungen, keine absolute strategische Wahrheit.
+- Reproduzierbare Lockfile-Installation, Typprüfung und Web-Build bestanden;
+  32 Einzeltests und neun echte Chromium-Browsertests bestanden, keine
+  Fehler/übersprungenen Tests. Reale lokale Engine-Mattprüfungen für beide Farben
+  und vollständiger Browser-/HTTP-Durchlauf nachgewiesen. docs/VALIDATION.md.
 
 ## Blocker und Grenzen
 
-Keine reale Modellanfrage ausgeführt oder freigegeben; Phase 3 deshalb nicht
-vollständig mit realem Anbieter validiert. Vorhandene Konfiguration und
-Variablennamen geprüft: kein CHESS_API_KEY, CHESS_MODEL oder
-CHESS_ENABLE_PAID_API vorhanden. api.openai.com nicht zusätzlich freigegeben.
-Keine API-Schlüssel im Browser/Repository. Keine kostenpflichtigen Aufrufe,
-Veröffentlichungen, Deployments oder Actions. Stockfish fehlt weiterhin.
+Phase 3 real weiterhin offen: keine Autorisierung kostenpflichtiger Aufrufe,
+kein gewähltes reales Modell, keine sichere Schlüsselbindung und keine zusätzliche
+Netzfreigabe für api.openai.com. Keine Secrets im Browser/Repository.
+Providerprüfungen verwenden ausschließlich lokale Fixtures, kein KI-Qualitätsnachweis.
 
-Der statische Web-Build enthält keinen API-Server; die lokale Anbindung läuft
-über npm run dev. Daten bleiben bis zum JSON-Export im Arbeitsspeicher.
-Manuelle Nutzerabnahme ist noch offen; nicht als erfolgt behaupten.
+Stockfish arbeitet mit FEN ohne Wiederholungshistorie/Tablebases. Die Lite-Engine
+nutzt ein kleineres Netz als die volle Engine. UCI-Knoten-/Zeitgrenzen sind
+intervallgeprüft, kein exaktes CPU-Limit. Lizenzhinweise: THIRD_PARTY_NOTICES.md.
+
+Node-Server über npm run dev erforderlich; statischer Build enthält weder Modell-
+noch Engine-API. Sitzungsdaten bis zum Export nur im Arbeitsspeicher.
+Keine manuelle Nutzerabnahme, keine Veröffentlichung/Deployments/Actions,
+keine kostenpflichtigen Modellaufrufe.
 
 ## Nächster einzelner Schritt
 
-Phase 3 real prüfen, sobald ausdrücklich kostenpflichtige Modelltests erlaubt
-und Modell, sichere serverseitige Schlüsselbindung sowie Netzzugang festgelegt
-sind. Anbieter-Geldlimit separat einrichten; Prozess-/Tokenlimits ersetzen es
-nicht. Dann einen begrenzten realen Plan-/Gegenplan-Durchlauf einschließlich
-Fehlerfall und Herkunft prüfen und Ergebnisse gemeinsam sichern. Bis dahin
-bleiben Simulation und alle lokalen Tests ohne Provideraufrufe nutzbar.
+Lokalen Anwendungstest mit dem Nutzer durchführen: Stellung spielen, Plan in der
+Simulation diskutieren, Variante abzweigen, eigenen Kandidaten explizit mit
+Stockfish prüfen, Sitzung exportieren und wiederherstellen. Reale KI danach
+nur bei ausdrücklicher Kostenfreigabe, Modellwahl, sicherem Schlüssel und
+Netzfreigabe testen; diese Voraussetzungen bleiben offen.

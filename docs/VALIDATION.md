@@ -94,3 +94,41 @@ Es fand **kein Aufruf von OpenAI oder einem anderen Modellanbieter** statt.
 keine nachgewiesene Geldkostengarantie. Proxybetrieb und Kompatibilität eines
 konkreten realen Modells bleiben ungeprüft. Die Gesamtphase 3 ist damit
 noch nicht real integriert abgenommen. Nutzerabnahme von Phase 2 weiterhin offen.
+
+## Phase 4 – realer lokaler Stockfish-Faktencheck
+
+4. November 2026: reproduzierbare Lockfile-Installation mit `npm ci --no-audit
+--no-fund`, anschließend `npm run test:all`. Typprüfung und Web-Build bestanden;
+**32 Einzeltests und neun Chromium-Browsertests bestanden**, keine Fehler oder
+übersprungenen Tests. Stockfish.js 19.0.1, Engine-ID „Stockfish 19 Lite WASM“.
+
+Reale Engineprüfungen (keine Engine-Mocks):
+
+- Weißes Matt in einem mit eigenem Kandidaten Qg7# wird als Mattdistanz +1
+  gemeldet; erzeugte Variante ist nach chess.js legal.
+- Schwarzes Matt in einem Qg2# wird aus weißer Perspektive korrekt als -1 gemeldet.
+- Normale Ausgangsstellung liefert einen Centipawn-Befund und legale Variante.
+- Parallele Anfrage wird gesperrt, Engineprozess beendet nach Ergebnis.
+- Ein real gestarteter Prozess mit extrem kurzem Test-Timeout wird beendet;
+  der Service bleibt nach Timeout erneut verwendbar. Fehlender Enginepfad
+  wird als Fehler behandelt, nicht als erfolgreicher Suchbefund.
+
+Isolierte Fehler-/Datenprüfungen: illegale Kandidaten einschließlich
+Zeilenumbruch/UCI-Injektion, ungültige FEN und beendete Stellungen abgewiesen;
+verspätete Befunde bleiben am Anfrageknoten, nach Sitzungsersatz verworfen;
+Export/Import erhält Engine, Kandidat, Wert, Variante und Suchbedingungen;
+manipulierte Metadaten, illegale Varianten und falsche Herkunft abgewiesen;
+Antwort zu einem anderen Kandidaten wird nicht gespeichert.
+
+Zwei zusätzliche Browserdurchläufe: echtes lokales Stockfish über den
+lokalen HTTP-Endpunkt und die UI; null Engineanfragen beim Laden/Spielen,
+exakt eine nach Klick; Mattbefund mit sichtbaren Suchgrenzen und Erhalt nach
+Export/Import. Separater HTTP-Fehlerfixture verändert die Sitzung nicht und
+lässt erneute Prüfung zu. Keine automatische Zugübernahme/Bewertungsleiste.
+
+Suchbedingungen: ein Thread, 16 MiB Hash, Tiefe 12, 20.000 Knoten, 1000 ms
+Suchzeit, 8000 ms Prozess-Timeout; tatsächlich erreichte Werte werden gespeichert.
+Der zusätzliche Timeout-Test verwendet absichtlich 1 ms. Stockfish untersucht
+FEN ohne Wiederholungshistorie/Tablebases; keine Aussage über uneingeschränkte
+Suchtiefe oder strategische Wahrheit. Reale Modellanbieter weiterhin nicht
+aufgerufen; Nutzerabnahme weiterhin offen. Kein Deployment/Release/Publish.
