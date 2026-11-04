@@ -122,3 +122,35 @@ test('imported text is displayed literally and mobile layout fits', async ({ pag
   await expect(page.locator('#memories img')).toHaveCount(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
+
+test('real model is locked by default while simulation remains usable', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('#model-status')).toContainText('Reale KI gesperrt');
+  await page.getByLabel('Dialogmodus').selectOption('model');
+  await expect(page.getByRole('button', { name:'Plan diskutieren (reale KI)' })).toBeDisabled();
+  await page.getByLabel('Dialogmodus').selectOption('simulation');
+  await page.getByLabel('Deine Planfrage').fill('Plan?');
+  await page.getByRole('button', { name:'Plan diskutieren (Simulation)' }).click();
+  await expect(page.locator('#dialogue')).toContainText('Simulation · Keine reale KI');
+});
+
+test('local model API fixture exercises UI transport and provenance without any provider call', async ({ page }) => {
+  await page.route('**/api/status', route => route.fulfill({ json:{ available:true, remaining:3 } }));
+  let received: Record<string, unknown> | undefined;
+  await page.route('**/api/dialogue', route => {
+    received = route.request().postDataJSON();
+    return route.fulfill({ json:{ plan:'Lokale Modell-Testantwort', opponent:'Hypothese: Zentrum angreifen', candidates:['e4'],
+      risks:'Test-Risiko', playability:'Test-Spielbarkeit', openQuestions:['Testfrage?'] } });
+  });
+  await page.goto('/');
+  await expect(page.locator('#model-status')).toContainText('Reale KI freigegeben');
+  await page.getByLabel('Dialogmodus').selectOption('model');
+  await page.getByLabel('Deine Planfrage').fill('Was könnte Schwarz planen?');
+  await page.getByRole('button', { name:'Plan diskutieren (reale KI)' }).click();
+  await expect(page.locator('#dialogue')).toContainText('Modell · Hypothese');
+  expect(received?.nodeId).toBe('n0');
+  expect(received).not.toHaveProperty('apiKey');
+  const data = JSON.parse(await exportData(page));
+  expect(data.annotations.at(-1).source).toBe('model');
+  expect(data.annotations.at(-1).text).toContain('Lokale Modell-Testantwort');
+});

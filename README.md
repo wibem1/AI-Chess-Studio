@@ -54,8 +54,8 @@ Anfragestart festgehalten werden. Dies ist ein Datenmodell, noch kein Modelladap
 Elternbeziehungen, legale Züge und abgeleitete FEN-Stellungen rekonstruiert und
 geprüft; ungültige Sitzungen werden vollständig abgelehnt.
 
-Phase 2 ergänzt eine lokale Oberfläche und simulierte Dialoge. Reale Modellanbindung
-und Stockfish sind weiterhin nicht implementiert.
+Phase 2 ergänzt eine lokale Oberfläche und simulierte Dialoge. Eine serverseitige Modellanbindung ist inzwischen vorbereitet (siehe Phase 3);
+reale Modelltests und Stockfish stehen weiterhin aus.
 Prüfgrundlage: [docs/VALIDATION.md](docs/VALIDATION.md).
 
 
@@ -66,7 +66,7 @@ an die Loopback-Adresse. Es erfolgt kein Deployment. Das Schachbrett unterstütz
 Start-/Zielfeld-Auswahl und Umwandlungen; alternativ können SAN-Züge eingegeben
 werden. Frühere Knoten im Variantenbaum erlauben neue Abzweigungen.
 
-Die Planwerkstatt verwendet ausschließlich den deterministischen lokalen
+Im voreingestellten Simulationsmodus verwendet die Planwerkstatt den deterministischen lokalen
 `SimulationAdapter`. Die Kandidaten sind ungeordnete legale Beispielzüge,
 keine strategischen Empfehlungen oder Enginebewertungen. Die Beispieldaten
 zeigen Plan, mögliche gegnerische Absicht als Hypothese, Risiken, Spielbarkeit
@@ -79,10 +79,10 @@ werden ausstehende Antworten verworfen. Ungültige Antworten und illegale
 Kandidaten werden abgewiesen. Eigene Notizen können als Hypothese samt offener
 Frage gespeichert werden. Die Daten liegen nur im Arbeitsspeicher: vor dem
 Neuladen als JSON-Datei exportieren; Wiederherstellung über Dateiauswahl oder
-JSON-Text. Fehlgeschlagener Import erhält die bisherige Sitzung. Es gibt keine
-API-Schlüssel und keine automatische Speicherung im Browser.
+JSON-Text. Fehlgeschlagener Import erhält die bisherige Sitzung. Im Browser gibt es keine
+API-Schlüssel und keine automatische Speicherung.
 
-`npm run test:all` prüft Typen, Build, 14 isolierte Tests und fünf echte
+`npm run test:all` prüft Typen, Build, 23 isolierte Tests und sieben echte
 Chromium-Browserdurchläufe. Playwright nutzt `CHROMIUM_PATH`, wenn gesetzt,
 ansonsten `/usr/bin/chromium`, falls vorhanden, oder seinen installierten
 Chromium. In dieser Cloud-Umgebung ist System-Chromium vorhanden. Außerhalb
@@ -92,3 +92,47 @@ Der Browserlauf startet und beendet seinen eigenen lokalen Server auf Port
 
 Noch nicht vom Nutzer bestätigt: ein kurzer manueller Durchlauf mit eigenem
 Plan, Abzweigung und anschließender Wiederherstellung. Kein Nachweis realer KI.
+
+
+## Phase 3 – serverseitige Modellanbindung vorbereitet
+
+Die lokale Vite-Anwendung stellt `/api/status` und `/api/dialogue` bereit.
+`ServerModelAdapter` im Browser kennt nur diese relativen Endpunkte. Der
+Node-Server kann OpenAI Chat Completions am festen HTTPS-Endpunkt
+`api.openai.com/v1/chat/completions` aufrufen. Im statischen Web-Build ist kein
+API-Server enthalten; `vite preview` bietet diese Anbindung nicht an.
+
+**Der aktuelle Arbeitsauftrag untersagt kostenpflichtige API-Aufrufe. Die
+reale Anbindung wurde deshalb nicht aktiviert oder mit OpenAI getestet.**
+Standardmäßig bleibt sie gesperrt. Es wurden keine Schlüssel angelegt.
+Nach einer künftigen ausdrücklichen Autorisierung benötigt der Server:
+
+- `CHESS_API_KEY`: Schlüssel ausschließlich als sichere serverseitige
+  Umgebungsbindung; niemals im Browser, Repository, `VITE_*` oder Chat.
+- `CHESS_MODEL`: ausdrücklich ausgewähltes Modell, das Chat Completions mit
+  JSON-Ausgabe und `max_completion_tokens` unterstützt; kein Defaultmodell.
+- `CHESS_ENABLE_PAID_API=1`: separate bewusste Aktivierung. Bis zur
+  Autorisierung nicht setzen. Eine Aktivierung kann kostenpflichtige
+  Anfragen durch den Nutzer auslösen.
+
+Bei Proxybetrieb muss Node mit `NODE_USE_ENV_PROXY=1` gestartet werden,
+damit die geerbte HTTPS-Proxy-/CA-Konfiguration für fetch verwendet wird.
+Der Zugang zu `api.openai.com` muss in der Umgebung erlaubt sein.
+Es wurden weder Netzfreigaben noch Secret-Anforderungen verändert.
+
+Der Server erlaubt nur gleichursprüngliche lokale JSON-POSTs, höchstens
+16 KiB Eingabedaten, 1000 Zeichen pro Planfrage und sechs stellungsbezogene
+Kontexteinträge à 800 Zeichen. FEN und Zugliste werden serverseitig geprüft.
+Ausgabe: höchstens 800 Completion-Tokens, 64 KiB Antwortdaten, 15 Sekunden
+Wartezeit; keine Wiederholungsversuche. Es gilt eine parallele Anfrage und
+ein Limit von drei Versuchen je Serverprozess, auch bei Fehlern. Ein Neustart
+setzt dieses Limit zurück. Dies ist **keine Geld- oder Gesamtkostengarantie**;
+ein tatsächliches Geldlimit muss zusätzlich beim Anbieter eingerichtet werden.
+
+Providerfehler und Schlüssel werden nicht an den Browser weitergegeben.
+Ungültige, verweigerte, abgebrochene oder illegale Antworten werden verworfen.
+Modellantworten werden mit Herkunft „Modell“ und als Hypothese gespeichert;
+Simulation und Modell sind getrennte Dialogmodi. Die Tests erzwingen für den
+Browser-Testserver die API-Sperre und verwenden ausschließlich lokale
+Transport-/HTTP-Fixtures. Sie belegen keine reale Modellqualität oder
+Anbieterkompatibilität. Manuelle Nutzerabnahme steht weiterhin aus.

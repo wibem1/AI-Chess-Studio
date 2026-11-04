@@ -62,3 +62,35 @@ visuell geprüft. Kein manueller Nutzerabnahmetest, keine reale Modell- oder
 Stockfish-Integration, keine kostenpflichtigen API-Aufrufe, kein Deployment.
 Die simulierten Antworten sind bewusst allgemein und belegen keine
 strategische Analysequalität. Daten bleiben bis zum Export im Arbeitsspeicher.
+
+## Phase 3 – Modellanbindung lokal vorbereitet
+
+4. November 2026: `npm run test:all` erfolgreich. Typprüfung und Web-Build
+bestanden; **23 Einzeltests und sieben Chromium-Browsertests bestanden**,
+keine fehlgeschlagen oder übersprungen. Keine neuen Paketabhängigkeiten.
+
+Zusätzliche Nachweise mit ausschließlich lokalen Fixtures:
+
+- Standard-/Konfigurationssperre erzeugt keinen Provideraufruf.
+- Transportvertrag: fester OpenAI-HTTPS-Endpunkt, serverseitiger Authorization-
+  Header, keine Weiterleitungen, begrenzte Ausgabe, Abbruchsignal.
+- Ungültiger Kontext, FEN und illegale Zuglisten werden vor Transport abgelehnt.
+- Drei Versuche je Prozess einschließlich Fehler; Sperre paralleler Anfragen.
+- Providerfehler werden bereinigt; illegale Kandidaten, Verweigerungen,
+  abgeschnittene und zu große Antworten werden verworfen.
+- Modellherkunft und begrenzter Kontext bleiben im Sitzungsmodell erhalten.
+- Tatsächlicher lokaler HTTP-Durchlauf prüft Herkunft, Bodylimit und
+  Standardsperre; separater erfolgreicher HTTP-Durchlauf mit injiziertem
+  Providertransport prüft validierte Antwort und fehlende Secret-Ausgabe.
+- Zwei zusätzliche Browsertests prüfen den gesperrten realen Modus und
+  die Modell-UI mit lokal ersetztem API-Endpunkt einschließlich Exportherkunft.
+- Der erzeugte Browser-Build enthält weder CHESS_API_KEY, den Providerendpunkt
+  noch einen Bearer-Header (Suche im erzeugten web-dist ohne Treffer).
+
+Der Browser-Testserver erzwingt CHESS_ENABLE_PAID_API=0. Die HTTP-Fixtures
+verwenden einen bedeutungslosen lokalen Testwert und keinen realen Schlüssel.
+Es fand **kein Aufruf von OpenAI oder einem anderen Modellanbieter** statt.
+15-Sekunden-Timeout und 800 Completion-Tokens sind konfigurierte Grenzen,
+keine nachgewiesene Geldkostengarantie. Proxybetrieb und Kompatibilität eines
+konkreten realen Modells bleiben ungeprüft. Die Gesamtphase 3 ist damit
+noch nicht real integriert abgenommen. Nutzerabnahme von Phase 2 weiterhin offen.

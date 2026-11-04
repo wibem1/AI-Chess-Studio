@@ -2,7 +2,7 @@
 <html lang="de">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>AI-Chess-Studio · Schachlabor</title></head>
 <body>
-<header><p class="eyebrow">AI-CHESS-STUDIO / LOKALES LABOR</p><h1>Ein Zug. Mehrere Pläne.</h1><p>Stellungen erforschen, Absichten hinterfragen und eigene Ideen festhalten.</p><p class="badge">Simulation · Keine reale KI · Keine Modellanfragen</p></header>
+<header><p class="eyebrow">AI-CHESS-STUDIO / LOKALES LABOR</p><h1>Ein Zug. Mehrere Pläne.</h1><p>Stellungen erforschen, Absichten hinterfragen und eigene Ideen festhalten.</p><p class="badge" id="mode-badge">Simulation · Keine reale KI · Keine Modellanfragen</p></header>
 <main>
 <section class="panel position"><h2>Stellung untersuchen</h2><p id="position-status" aria-live="polite"></p><div id="board" role="group" aria-label="Schachbrett"></div>
 <p class="hint">Start- und Zielfeld anklicken oder einen Zug in SAN eingeben, z. B. e4, Nf3, O-O.</p>
@@ -10,8 +10,8 @@
 <label for="promotion">Umwandlung beim Brettzug</label><select id="promotion"><option value="q">Dame</option><option value="r">Turm</option><option value="b">Läufer</option><option value="n">Springer</option></select>
 <details><summary>Legale Züge</summary><p id="legal-moves"></p></details><p id="move-feedback" role="status"></p></section>
 <section class="panel"><h2>Variantenbaum</h2><p class="hint">Eine frühere Stellung wählen und einen anderen Zug spielen, um abzuzweigen.</p><nav id="variations" aria-label="Variantenbaum"></nav></section>
-<section class="panel discussion"><h2>Planwerkstatt</h2><p class="hint">Antworten sind deterministische Beispieldaten und Hypothesen. Sie bewerten die Stellung nicht.</p>
-<form id="dialogue-form"><label for="question">Deine Planfrage</label><textarea id="question" required placeholder="Welchen Plan möchte ich verfolgen?"></textarea><button id="ask">Plan diskutieren (Simulation)</button></form>
+<section class="panel discussion"><h2>Planwerkstatt</h2><p class="hint" id="simulation-hint">Antworten sind deterministische Beispieldaten und Hypothesen. Sie bewerten die Stellung nicht.</p>
+<label for="dialogue-mode">Dialogmodus</label><select id="dialogue-mode"><option value="simulation">Simulation (kostenfrei)</option><option value="model">Reale KI (serverseitige Freigabe nötig)</option></select><p id="model-status" role="status"></p><form id="dialogue-form"><label for="question">Deine Planfrage</label><textarea id="question" required placeholder="Welchen Plan möchte ich verfolgen?"></textarea><button id="ask">Plan diskutieren (Simulation)</button></form>
 <details><summary>Simulation prüfen</summary><label for="simulation-mode">Testverhalten</label><select id="simulation-mode"><option value="normal">Normale Beispielantwort</option><option value="slow">Verzögerte Beispielantwort</option><option value="invalid">Ungültige Antwort</option><option value="failure">Anfragefehler</option></select></details>
 <p id="dialogue-feedback" role="status"></p><div id="dialogue" aria-label="Stellungsdialog"></div>
 <h3>Strategisches Gedächtnis</h3><form id="memory-form"><label for="memory">Eigene Notiz zur Stellung</label><textarea id="memory" required></textarea><label for="open-question">Offene Frage (optional)</label><input id="open-question"><label class="check"><input id="hypothesis" type="checkbox" checked> Als Hypothese kennzeichnen</label><button>Notiz merken</button></form><div id="memories" aria-label="Stellungsgedächtnis"></div></section>

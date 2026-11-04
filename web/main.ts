@@ -1,5 +1,6 @@
 import { Chess, type Square } from 'chess.js';
 import { Studio, SimulationAdapter, type SimulationMode } from '../src/dialogue.js';
+import { ServerModelAdapter } from '../src/model-client.js';
 import './style.css';
 
 const studio = new Studio();
@@ -8,6 +9,27 @@ const input = (id: string) => $<HTMLInputElement>(id);
 const text = (id: string) => $<HTMLTextAreaElement>(id);
 let selected: Square | null = null;
 let pending = false;
+let modelAvailable = false;
+const modelMode = () => $<HTMLSelectElement>('dialogue-mode').value === 'model';
+function updateMode() {
+  const real = modelMode();
+  $<HTMLButtonElement>('ask').textContent = real ? 'Plan diskutieren (reale KI)' : 'Plan diskutieren (Simulation)';
+  $<HTMLButtonElement>('ask').disabled = pending || (real && !modelAvailable);
+  $('simulation-hint').hidden = real;
+  message('mode-badge', real ? 'Reale KI · Hypothesen · Kann API-Kosten verursachen' : 'Simulation · Keine reale KI · Keine Modellanfragen');
+}
+async function refreshModelStatus() {
+  try {
+    const response = await fetch('/api/status');
+    if (!response.ok) throw new Error();
+    const status = await response.json();
+    modelAvailable = status.available === true && status.remaining > 0;
+    message('model-status', modelAvailable ? `Reale KI freigegeben. Verbleibende Anfragen im Serverprozess: ${status.remaining}. Keine Kostengarantie.` : 'Reale KI gesperrt oder Anfragelimit erreicht. Simulation ist verfügbar.');
+  } catch { modelAvailable = false; message('model-status', 'Modellserver nicht verfügbar. Simulation ist verfügbar.'); }
+  updateMode();
+}
+$('dialogue-mode').addEventListener('change', updateMode);
+void refreshModelStatus();
 function message(id: string, value: string) { $(id).textContent = value; }
 function attempt(action: () => void, target: string, success: string) {
   try { action(); selected = null; render(); message(target, success); }
@@ -87,18 +109,19 @@ $('memory-form').addEventListener('submit', event => {
   }, 'dialogue-feedback', 'Notiz an dieser Stellung gespeichert.');
 });
 $('dialogue-form').addEventListener('submit', async event => {
-  event.preventDefault(); if (pending) return;
+  event.preventDefault(); if (pending || (modelMode() && !modelAvailable)) return;
+  const real = modelMode();
   const question = text('question').value;
   const session = studio.session;
   pending = true; $<HTMLButtonElement>('ask').disabled = true;
-  message('dialogue-feedback', 'Simulation läuft … Stellungswechsel ist weiterhin möglich.');
+  message('dialogue-feedback', `${real ? 'Modellanfrage' : 'Simulation'} läuft … Stellungswechsel ist weiterhin möglich.`);
   try {
-    const result = await studio.ask(question, new SimulationAdapter($<HTMLSelectElement>('simulation-mode').value as SimulationMode));
-    message('dialogue-feedback', result === 'stored' ? 'Beispielantwort an der angefragten Stellung gespeichert.' : 'Veraltete Antwort nach Sitzungswechsel verworfen.');
+    const result = await studio.ask(question, real ? new ServerModelAdapter() : new SimulationAdapter($<HTMLSelectElement>('simulation-mode').value as SimulationMode));
+    message('dialogue-feedback', result === 'stored' ? `${real ? 'Modellantwort' : 'Beispielantwort'} an der angefragten Stellung gespeichert.` : 'Veraltete Antwort nach Sitzungswechsel verworfen.');
     render();
   } catch (error) {
     message('dialogue-feedback', studio.session !== session ? 'Veraltete Anfrage nach Sitzungswechsel verworfen.' : error instanceof Error ? error.message : 'Anfrage fehlgeschlagen.');
-  } finally { pending = false; $<HTMLButtonElement>('ask').disabled = false; }
+  } finally { pending = false; updateMode(); if (real) void refreshModelStatus(); }
 });
 $('export').addEventListener('click', () => {
   text('session-json').value = studio.session.export();
