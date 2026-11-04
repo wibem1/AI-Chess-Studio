@@ -10,7 +10,7 @@ Spielbarkeit. Stockfish ausschließlich als optionaler taktischer Faktencheck.
 
 ## Belegter Bestand
 
-- Globale und lokale Regeln gelesen; letzter verifizierter Stand c4acb74 erhalten.
+- Globale und lokale Regeln gelesen; letzter verifizierter Stand 3372613 erhalten.
 - Phasen 1/2: lokale deutsche Oberfläche mit legalen Brett-/SAN-Zügen,
   Variantenbaum, Planwerkstatt, Gedächtnis und JSON-Datei-/Textimport.
 - Phase 3 vorbereitet: serverseitiger OpenAI-Transport, sichere Schlüsseltrennung,
@@ -25,8 +25,11 @@ Spielbarkeit. Stockfish ausschließlich als optionaler taktischer Faktencheck.
 - Grenzen: Tiefe 12 / 20.000 Knoten / 1 s Suchzeit, 1 Thread, 16 MiB Hash;
   Prozess-Timeout 8 s, maximal eine Prüfung gleichzeitig. Suchwerte gelten nur
   unter diesen Bedingungen, keine absolute strategische Wahrheit.
+- Lokaler Abschluss: npm run build und npm start liefern Oberfläche und beide
+  APIs ohne Vite-Entwicklungsserver. Nur gebaute öffentliche Assets werden
+  ausgeliefert, keine Repository-/Secret-Dateien; lokale Herkunft und CSP geprüft.
 - Reproduzierbare Lockfile-Installation, Typprüfung und Web-Build bestanden;
-  32 Einzeltests und neun echte Chromium-Browsertests bestanden, keine
+  33 Einzeltests und neun echte Chromium-Browsertests bestanden, keine
   Fehler/übersprungenen Tests. Reale lokale Engine-Mattprüfungen für beide Farben
   und vollständiger Browser-/HTTP-Durchlauf nachgewiesen. docs/VALIDATION.md.
 
@@ -41,14 +44,16 @@ Stockfish arbeitet mit FEN ohne Wiederholungshistorie/Tablebases. Die Lite-Engin
 nutzt ein kleineres Netz als die volle Engine. UCI-Knoten-/Zeitgrenzen sind
 intervallgeprüft, kein exaktes CPU-Limit. Lizenzhinweise: THIRD_PARTY_NOTICES.md.
 
-Node-Server über npm run dev erforderlich; statischer Build enthält weder Modell-
-noch Engine-API. Sitzungsdaten bis zum Export nur im Arbeitsspeicher.
+Gebauter lokaler Anwendungsserver mit npm start fertiggestellt und geprüft;
+Entwicklungsserver weiterhin mit npm run dev verfügbar. Der reine statische
+Web-Build allein enthält weder Modell- noch Engine-API. Sitzungsdaten bis zum Export nur im Arbeitsspeicher.
 Keine manuelle Nutzerabnahme, keine Veröffentlichung/Deployments/Actions,
 keine kostenpflichtigen Modellaufrufe.
 
 ## Nächster einzelner Schritt
 
-Lokalen Anwendungstest mit dem Nutzer durchführen: Stellung spielen, Plan in der
+Der lokale Funktionsumfang ist implementiert und automatisiert geprüft.
+Noch offen bleibt die Nutzerabnahme (nicht durch automatisierte Tests ersetzt): Stellung spielen, Plan in der
 Simulation diskutieren, Variante abzweigen, eigenen Kandidaten explizit mit
 Stockfish prüfen, Sitzung exportieren und wiederherstellen. Reale KI danach
 nur bei ausdrücklicher Kostenfreigabe, Modellwahl, sicherem Schlüssel und

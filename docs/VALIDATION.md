@@ -132,3 +132,25 @@ Der zusätzliche Timeout-Test verwendet absichtlich 1 ms. Stockfish untersucht
 FEN ohne Wiederholungshistorie/Tablebases; keine Aussage über uneingeschränkte
 Suchtiefe oder strategische Wahrheit. Reale Modellanbieter weiterhin nicht
 aufgerufen; Nutzerabnahme weiterhin offen. Kein Deployment/Release/Publish.
+
+## Lokaler Anwendungsabschluss
+
+4. November 2026: `npm run test:all` erneut nach Ergänzung des normalen
+Anwendungsservers erfolgreich. **33 Einzeltests und neun Chromium-Browsertests**,
+keine fehlgeschlagen/übersprungen; Typprüfung und Web-Build erfolgreich.
+
+Der Browserlauf startet jetzt `npm start` und verwendet die gebauten Assets
+samt denselben lokalen Modell-/Stockfish-APIs; kein Vite-Entwicklungsserver.
+Damit wurden Brett, Varianten, Dialog, Datei-Download/-Import und echter
+Stockfish auch im normalen lokalen Betriebsweg geprüft.
+
+Ein zusätzlicher HTTP-Test bestätigt öffentliches HTML/JS mit passenden
+Content-Types, CSP und nosniff, Ablehnung von Repository-/Secret-Pfaden,
+unerlaubten Methoden und fremden Origins sowie die gesperrte Modell-API.
+Der JavaScript-Build enthält keine CHESS_API_KEY-Konfiguration. Der Server
+bindet ausschließlich an Loopback. Keine Deployment-/Veröffentlichungsprüfung,
+keine reale Modellanfrage und keine manuelle Nutzerabnahme behauptet.
+
+Es wurde keine installierte Ollama-/llama-server-Laufzeit gefunden. Ein
+kostenfreies lokales Sprachmodell wurde deshalb nicht als vorhanden oder
+integriert ausgewiesen; hierfür wurden keine Modelle nachgeladen.

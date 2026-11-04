@@ -10,8 +10,9 @@
     "test": "npm run build && node --test dist/test/*.test.js",
     "check": "tsc --noEmit",
     "dev": "vite --host 127.0.0.1",
-    "test:e2e": "playwright test",
-    "test:all": "npm run check && npm test && npm run test:e2e"
+    "test:e2e": "npm run build && playwright test",
+    "test:all": "npm run check && npm test && playwright test",
+    "start": "node dist/server/start.js"
   },
   "dependencies": {
     "chess.js": "1.4.0",

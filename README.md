@@ -2,7 +2,28 @@
 
 Ein dialogorientiertes strategisches Schachlabor: Mensch und KI entwickeln und hinterfragen Pläne, untersuchen gegnerische Möglichkeiten und vergleichen praktisch spielbare Varianten.
 
-## Erster funktionaler Prototyp – geplant
+## Lokal starten
+
+Voraussetzung: Node.js 24 und npm.
+
+```bash
+npm ci
+npm run build
+npm start
+```
+
+`npm start` startet die gebaute Anwendung samt Modell-/Stockfish-API nur lokal
+auf Port 5173. `CHESS_PORT` kann den Port ändern. Für Quellcodeentwicklung gibt
+es weiterhin `npm run dev`. Kein Deployment und keine Veröffentlichung nötig.
+Alle 33 Einzeltests und neun Browsertests sind bestanden; die Browsertests
+laufen gegen denselben gebauten Anwendungsserver.
+
+**Nutzbar:** Schachbrett, Varianten, Gedächtnis, Sitzungsexport/-import,
+Simulationsdialog und echter lokaler Stockfish-Faktencheck. **Noch offen:**
+reale KI-Validierung und manuelle Nutzerabnahme. Echte KI ist standardmäßig
+gesperrt; die bisherige Vorgabe verbietet kostenpflichtige API-Aufrufe.
+
+## Ziel des vollständigen Prototyps
 
 - Lokale Weboberfläche mit Schachbrett und legaler Zugeingabe.
 - Variantenbaum: Abzweigungen anlegen und zwischen Stellungen wechseln.
@@ -23,7 +44,7 @@ Stockfish ist separat angebunden und wird ausschließlich auf Abruf verwendet. S
 3. Reale KI-Anbindung mit serverseitiger Schlüsselverwaltung und begrenztem Kontext testen.
 4. Optionalen Stockfish-Faktencheck separat integrieren.
 
-Der Technologieentscheid erfolgt beim Start von Phase 1 anhand der verfügbaren Entwicklungsumgebung. Bevorzugt: TypeScript mit etablierter Schachbibliothek und automatisierten Unit- und Browsertests.
+Implementiert mit TypeScript, chess.js, Vite für den Web-Build, Node.js als lokalem Anwendungsserver und automatisierten Unit-/Browsertests.
 
 ## Abnahme des ersten Prototyps
 
@@ -82,12 +103,12 @@ Neuladen als JSON-Datei exportieren; Wiederherstellung über Dateiauswahl oder
 JSON-Text. Fehlgeschlagener Import erhält die bisherige Sitzung. Im Browser gibt es keine
 API-Schlüssel und keine automatische Speicherung.
 
-`npm run test:all` prüft Typen, Build, 32 isolierte Tests und neun echte
+`npm run test:all` prüft Typen, Build, 33 isolierte Tests und neun echte
 Chromium-Browserdurchläufe. Playwright nutzt `CHROMIUM_PATH`, wenn gesetzt,
 ansonsten `/usr/bin/chromium`, falls vorhanden, oder seinen installierten
 Chromium. In dieser Cloud-Umgebung ist System-Chromium vorhanden. Außerhalb
 dieser Umgebung bei Bedarf `npx playwright install chromium` ausführen.
-Der Browserlauf startet und beendet seinen eigenen lokalen Server auf Port
+Der Browserlauf startet und beendet seinen eigenen gebauten Anwendungsserver auf Port
 5173; dort darf währenddessen kein anderer Server laufen.
 
 Noch nicht vom Nutzer bestätigt: ein kurzer manueller Durchlauf mit eigenem
@@ -96,7 +117,7 @@ Plan, Abzweigung und anschließender Wiederherstellung. Kein Nachweis realer KI.
 
 ## Phase 3 – serverseitige Modellanbindung vorbereitet
 
-Die lokale Vite-Anwendung stellt `/api/status` und `/api/dialogue` bereit.
+Die lokale Anwendung (npm start oder npm run dev) stellt `/api/status` und `/api/dialogue` bereit.
 `ServerModelAdapter` im Browser kennt nur diese relativen Endpunkte. Der
 Node-Server kann OpenAI Chat Completions am festen HTTPS-Endpunkt
 `api.openai.com/v1/chat/completions` aufrufen. Im statischen Web-Build ist kein
@@ -176,7 +197,7 @@ in Schema 1 gespeichert. Bestehende Sitzungen ohne Befunde bleiben importierbar;
 werden auf Struktur, Stellung und legale Varianten geprüft, sind aber kein
 kryptografisch beglaubigter Nachweis einer früheren Engineausführung.
 
-Die Engine läuft nur am lokalen Node-Server (`npm run dev`), nicht im statischen
+Die Engine läuft nur am lokalen Node-Server (`npm start` oder `npm run dev`), nicht im statischen
 Web-Build. Es sind weder API-Schlüssel noch kostenpflichtige Dienste erforderlich.
 Echte lokale Engine- und Browserprüfungen sind in docs/VALIDATION.md dokumentiert.
 Lizenz-/Quellenhinweise: [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
