@@ -154,3 +154,23 @@ keine reale Modellanfrage und keine manuelle Nutzerabnahme behauptet.
 Es wurde keine installierte Ollama-/llama-server-Laufzeit gefunden. Ein
 kostenfreies lokales Sprachmodell wurde deshalb nicht als vorhanden oder
 integriert ausgewiesen; hierfür wurden keine Modelle nachgeladen.
+
+## Vorbereitung des freigegebenen realen KI-Tests
+
+4. November 2026: Nutzerfreigabe für einen kleinen realen KI-Funktionstest;
+Umfang auf höchstens drei Versuche in dieser Aufgabe begrenzt, je 800
+Completion-Tokens. Keine Freigabe für unbegrenzte Nutzung und kein Geldlimit
+allein durch Token-/Prozessgrenzen.
+
+Konfiguration und tatsächliche Variablennamen geprüft: CHESS_API_KEY,
+CHESS_MODEL, CHESS_ENABLE_PAID_API fehlen in der laufenden Umgebung. Keine
+bestehenden Secret-/Variablenbindungen vorhanden. Keine Werte ausgegeben.
+Gespeicherter Cloud-Entwurf ergänzt gpt-4.1-mini, Aktivierungswert 1 und
+CHESS_API_KEY als sichere Anforderung ausschließlich für api.openai.com;
+die Domain wurde automatisch zu den gewünschten Netzwerkzielen hinzugefügt.
+Startanweisungen berücksichtigen Proxy und bestehenden Testumfang.
+
+Kein echter Modellaufruf erfolgt, da der Schlüsselwert noch fehlt. Keine
+Aktivierung/Veröffentlichung des Entwurfs behauptet. Anwendungscode unverändert;
+vorheriger Nachweis mit 33 Einzeltests und neun Browsertests bleibt bestehen,
+kein unnötiger erneuter Testlauf für reine Dokumentationsänderungen.

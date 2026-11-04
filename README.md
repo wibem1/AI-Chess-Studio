@@ -21,7 +21,8 @@ laufen gegen denselben gebauten Anwendungsserver.
 **Nutzbar:** Schachbrett, Varianten, Gedächtnis, Sitzungsexport/-import,
 Simulationsdialog und echter lokaler Stockfish-Faktencheck. **Noch offen:**
 reale KI-Validierung und manuelle Nutzerabnahme. Echte KI ist standardmäßig
-gesperrt; die bisherige Vorgabe verbietet kostenpflichtige API-Aufrufe.
+gesperrt; inzwischen wurde ein begrenzter realer Funktionstest freigegeben,
+der sichere API-Schlüssel dafür fehlt noch.
 
 ## Ziel des vollständigen Prototyps
 
@@ -123,23 +124,28 @@ Node-Server kann OpenAI Chat Completions am festen HTTPS-Endpunkt
 `api.openai.com/v1/chat/completions` aufrufen. Im statischen Web-Build ist kein
 API-Server enthalten; `vite preview` bietet diese Anbindung nicht an.
 
-**Der aktuelle Arbeitsauftrag untersagt kostenpflichtige API-Aufrufe. Die
-reale Anbindung wurde deshalb nicht aktiviert oder mit OpenAI getestet.**
-Standardmäßig bleibt sie gesperrt. Es wurden keine Schlüssel angelegt.
-Nach einer künftigen ausdrücklichen Autorisierung benötigt der Server:
+**Die reale Anbindung wurde noch nicht mit OpenAI getestet.** Inzwischen hat
+der Nutzer einen begrenzten Funktionstest freigegeben (höchstens drei Versuche
+in dieser Aufgabe mit je maximal 800 Completion-Tokens). Dafür ist gpt-4.1-mini
+im Cloud-Konfigurationsentwurf vorbereitet. Der sichere Schlüssel fehlt noch;
+der gespeicherte Entwurf ist noch kein angewendeter Laufzeitstand.
+Der Server benötigt:
 
 - `CHESS_API_KEY`: Schlüssel ausschließlich als sichere serverseitige
   Umgebungsbindung; niemals im Browser, Repository, `VITE_*` oder Chat.
 - `CHESS_MODEL`: ausdrücklich ausgewähltes Modell, das Chat Completions mit
-  JSON-Ausgabe und `max_completion_tokens` unterstützt; kein Defaultmodell.
-- `CHESS_ENABLE_PAID_API=1`: separate bewusste Aktivierung. Bis zur
-  Autorisierung nicht setzen. Eine Aktivierung kann kostenpflichtige
+  JSON-Ausgabe und `max_completion_tokens` unterstützt; kein im Code festgelegtes Defaultmodell. Im Umgebungsentwurf: gpt-4.1-mini.
+- `CHESS_ENABLE_PAID_API=1`: separate bewusste Aktivierung. Nur bei vorliegender
+  Autorisierung aktivieren; für den begrenzten Test ist sie inzwischen erteilt. Eine Aktivierung kann kostenpflichtige
   Anfragen durch den Nutzer auslösen.
 
 Bei Proxybetrieb muss Node mit `NODE_USE_ENV_PROXY=1` gestartet werden,
 damit die geerbte HTTPS-Proxy-/CA-Konfiguration für fetch verwendet wird.
 Der Zugang zu `api.openai.com` muss in der Umgebung erlaubt sein.
-Es wurden weder Netzfreigaben noch Secret-Anforderungen verändert.
+Im Cloud-Entwurf wurden eine Secret-Anforderung für CHESS_API_KEY und deren
+Ziel api.openai.com gespeichert; damit wurde diese Domain der gewünschten
+Netzfreigabe hinzugefügt. Der Nutzer trägt den Wert sicher in den
+Umgebungseinstellungen ein. Keine Schlüsselwerte im Chat oder Repository.
 
 Der Server erlaubt nur gleichursprüngliche lokale JSON-POSTs, höchstens
 16 KiB Eingabedaten, 1000 Zeichen pro Planfrage und sechs stellungsbezogene
@@ -201,3 +207,10 @@ Die Engine läuft nur am lokalen Node-Server (`npm start` oder `npm run dev`), n
 Web-Build. Es sind weder API-Schlüssel noch kostenpflichtige Dienste erforderlich.
 Echte lokale Engine- und Browserprüfungen sind in docs/VALIDATION.md dokumentiert.
 Lizenz-/Quellenhinweise: [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
+
+Der aktuell freigegebene reale Funktionstest ist noch nicht ausgeführt.
+Nach sicherer Schlüsselbindung die aktuellen Umgebungswerte/Netzfreigabe prüfen
+und den Server mit geerbtem Proxy starten: `NODE_USE_ENV_PROXY=1 npm start`.
+Nach dem begrenzten Test den bezahlten Modus ohne weitere Nutzungsfreigabe
+wieder deaktivieren. Die automatisierten Tests bleiben vollständig kostenfrei.

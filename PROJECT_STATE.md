@@ -35,9 +35,16 @@ Spielbarkeit. Stockfish ausschließlich als optionaler taktischer Faktencheck.
 
 ## Blocker und Grenzen
 
-Phase 3 real weiterhin offen: keine Autorisierung kostenpflichtiger Aufrufe,
-kein gewähltes reales Modell, keine sichere Schlüsselbindung und keine zusätzliche
-Netzfreigabe für api.openai.com. Keine Secrets im Browser/Repository.
+Phase 3 real weiterhin offen: Nutzer hat inzwischen einen kleinen realen
+KI-Funktionstest freigegeben (höchstens drei Versuche in dieser Aufgabe,
+jeweils maximal 800 Completion-Tokens, keine automatische Wiederholung).
+Als Modell ist gpt-4.1-mini vorbereitet. Im Cloud-Entwurf gespeichert:
+CHESS_MODEL=gpt-4.1-mini, CHESS_ENABLE_PAID_API=1, Secret-Anforderung
+CHESS_API_KEY ausschließlich für api.openai.com und aktualisierte Startanweisungen.
+Die Secret-Destination wurde der gewünschten Netzwerkfreigabe hinzugefügt.
+Der tatsächliche Schlüssel fehlt; laufende Umgebung hat keine CHESS_*-Bindungen.
+Entwurf gespeichert bedeutet nicht angewendet oder veröffentlicht.
+Keine Secrets im Browser/Repository; kein realer Modellaufruf ausgeführt.
 Providerprüfungen verwenden ausschließlich lokale Fixtures, kein KI-Qualitätsnachweis.
 
 Stockfish arbeitet mit FEN ohne Wiederholungshistorie/Tablebases. Die Lite-Engine
@@ -56,5 +63,8 @@ Der lokale Funktionsumfang ist implementiert und automatisiert geprüft.
 Noch offen bleibt die Nutzerabnahme (nicht durch automatisierte Tests ersetzt): Stellung spielen, Plan in der
 Simulation diskutieren, Variante abzweigen, eigenen Kandidaten explizit mit
 Stockfish prüfen, Sitzung exportieren und wiederherstellen. Reale KI danach
-nur bei ausdrücklicher Kostenfreigabe, Modellwahl, sicherem Schlüssel und
-Netzfreigabe testen; diese Voraussetzungen bleiben offen.
+nach sicherer Schlüsseleingabe und Anwendung der gespeicherten Umgebungseinstellungen
+testen. Vor dem Aufruf aktuelle Bindungen und Netzfreigabe prüfen. Die vorhandene
+Freigabe für bis zu drei begrenzte Testversuche nicht erneut erfragen; sie ist
+keine Freigabe für unbegrenzten Dauerbetrieb. Nach dem Test bezahlten Modus
+wieder deaktivieren, sofern der Nutzer keine weitere Nutzung freigibt.
