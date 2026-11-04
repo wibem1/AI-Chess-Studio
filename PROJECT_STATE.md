@@ -4,24 +4,37 @@ Stand: 4. November 2026
 
 ## Ziel
 
-Dialogorientiertes strategisches Schachlabor mit Plandiskussion, gegnerischen Möglichkeiten, Variantenbaum, strategischem Gedächtnis und praktischer menschlicher Spielbarkeit. Stockfish ausschließlich als optionaler taktischer Faktencheck.
+Dialogorientiertes strategisches Schachlabor mit Plandiskussion, gegnerischen
+Möglichkeiten, Variantenbaum, strategischem Gedächtnis und menschlicher
+Spielbarkeit. Stockfish ausschließlich als optionaler taktischer Faktencheck.
 
 ## Belegter Bestand
 
-- Globale DEVELOPMENT_STANDARDS.md Version 1.0 und globale AGENTS.md vollständig gelesen.
-- Repository wibem1/AI-Chess-Studio über GitHub geprüft: privat, vor diesem Grundlagenschritt leer.
-- Phase 0: Projektanweisungen, geplanter Prototypumfang und Prüfkriterien dokumentiert.
-- Kein Anwendungscode, keine installierten Abhängigkeiten, keine implementierten Funktionen.
-- Keine Tests ausgeführt; keine Versions- oder Downloadfreigabe.
+- Globale DEVELOPMENT_STANDARDS.md Version 1.0 und globale AGENTS.md sowie
+  lokale Einstiegsdateien vollständig gelesen.
+- Phase 0 dokumentiert; Phase 1 implementiert und isoliert getestet.
+- TypeScript-Schachkern mit chess.js 1.4.0: legale Züge, Sonderzüge,
+  Partieende und Variantenhistorie einschließlich Stellungswiederholung.
+- Variantenbaum mit Stellungswechsel und getrennten Abzweigungen.
+- Serialisierbares Sitzungsmodell (Schema 1), rekonstruktiv validierter Import,
+  stellungsbezogene Dialog-/Gedächtnisdaten mit Herkunft und Hypothesen.
+- Strikte Typprüfung und Build bestanden. Zehn automatisierte Einzeltests
+  bestanden, keine fehlgeschlagen oder übersprungen; siehe docs/VALIDATION.md.
+- Keine Oberfläche, reale KI, Stockfish-Integration oder Nutzerabnahme.
+  Dialogdaten im Test sind Simulation und kein Integrationsnachweis.
 
-## Blocker
+## Blocker und Grenzen
 
-Das Terminal meldet „No usable execution environment is available“. Implementierung und lokale Unit-/Browserprüfungen sind in dieser Sitzung nicht ausführbar. GitHub-Lese- und Schreibzugriff stehen zur Verfügung. Der frühere Schachchat liegt lediglich als begrenzte Vorschau vor; seine vollständige Lektüre ist nicht belegt.
+Der frühere Terminalblocker ist behoben. Netzwerkoperationen und der vollständige
+Node-Testlauf benötigen in dieser Umgebung zusätzliche Ausführungsrechte.
+Realer Modellanbieter und Zugang sowie spätere Stockfish-Bereitstellung sind
+weiter offen, blockieren Phase 2 mit Testadapter aber nicht.
+Keine Veröffentlichung, kein Deployment, keine kostenpflichtigen API-Aufrufe.
 
 ## Nächster einzelner Schritt
 
-In einer verfügbaren Entwicklungsumgebung dieses Repository öffnen, Einstiegshinweise lesen und Phase 1 umsetzen: Schachkern mit etablierter Regelbibliothek, Variantenbaum und serialisierbarem Sitzungsmodell samt isolierten Tests. Erst nach bestandenen Prüfungen Code und Ergebnisse zusammen sichern.
-
-## Noch offen
-
-Realer Modellanbieter und Zugang, spätere Stockfish-Bereitstellung. Für Phase 1 ist noch keine kostenpflichtige Modellanfrage erforderlich.
+Phase 2: kleine lokale Weboberfläche mit legaler Zugeingabe, Variantenwechsel
+und stellungsbezogenem strategischem Dialog über einen klar gekennzeichneten
+deterministischen Testadapter integrieren; automatisierten Browserdurchlauf
+mit Sitzungswiederherstellung, ungültigen Ausgaben und Anfragefehlern prüfen.
+Code, Prüfergebnisse und Projektstand danach gemeinsam sichern.
