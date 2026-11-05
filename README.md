@@ -1,19 +1,20 @@
-# AI-Chess-Studio 0.1.0 – Windows-Startpaket
+# AI-Chess-Studio 0.1.1 – Windows-Startpaket
 
-Datei: AI-Chess-Studio-0.1.0-Windows.zip
-ZIP vollstaendig entpacken. Im Ordner AI-Chess-Studio-0.1.0 die Datei
-AI-Chess-Studio-starten.cmd starten. Alte App-Tabs und Serverfenster vorher
-schliessen; ungesicherte Sitzung zuerst exportieren. Vorhandene lokale
+Datei: AI-Chess-Studio-0.1.1-Windows.zip
+Neu: immer sichtbare Scrollhilfe unten rechts (Hoch / Runter) und
+Bedienung pruefen mit lokalem Textdateiexport. Keine Eingabewerte oder
+Schluessel in der Diagnose. Native Windows-Scrollursache bleibt offen.
+
+ZIP vollstaendig entpacken. Im Ordner AI-Chess-Studio-0.1.1
+AI-Chess-Studio-starten.cmd starten. Alte App-Tabs und Serverfenster zuvor
+schliessen; ungesicherte Sitzung vorher exportieren. Vorhandene lokale
 Schluessel im Benutzerprofil bleiben erhalten.
 
-Die Nummer 0.1.0 steht oben in der App, im Browser-Titel, Startfenster,
-Diagnose und Paketmanifest. Kuenftige Korrekturen erhalten eine neue Nummer.
-Aenderungen siehe CHANGELOG.md im Paket.
+Typpruefung, Build, 68 Einzeltests und 29 Chromium-Browsertests bestanden.
+Tests mit absichtlich blockierten nativen Scrollbefehlen pruefen die Hilfe;
+sie belegen nicht die Behebung der echten Windows-Ursache. Beim erneuten
+Stillstand die Hoch-/Runter-Tasten probieren und die Bedienungsdiagnose speichern.
+Keine Schluessel im Paket. Download-Branch, kein Release/Deployment.
 
-Typpruefung, Build, 68 Einzeltests und 27 Chromium-Browsertests bestanden.
-Native Windows-Touch-/DPAPI-Abnahme und der dort gemeldete Scrollstillstand
-bleiben offen. Keine Schluessel im Paket. Download-Branch, kein Release oder
-Deployment. Vorherige Downloads bleiben ueber ihre Git-Commits erhalten.
-
-Quellcommit: 9de529c236e538f1d575210dfe9e2781d1d627a3
-SHA-256: 558b5b854a7d1349812a82f5b8b09775cbcf01f2913bf6becfc0e5af8fd3d11f
+Quellcommit: f3e23124d61a032667dfed675551fd2460f34548
+SHA-256: 380c11579b141eff03c7b12e4c6cede8764cf8c6d6af7bf992a5c0b340c71340
