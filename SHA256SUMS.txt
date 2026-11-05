@@ -1,1 +1,1 @@
-3a63f6442736a461bcceaded974a806af3f1cc76ec809447cf3e08bfb18344d2  AI-Chess-Studio-Windows.zip
+a24c9d2712f14f932be6f845d2bea0056f41a900d95d1e695cd9f5edbc475d28  AI-Chess-Studio-Windows.zip
