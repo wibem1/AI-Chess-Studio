@@ -1,6 +1,6 @@
 # Projektstand
 
-Stand: 5. November 2026 · Entwicklungsversion 0.1.1
+Stand: 5. November 2026 · Entwicklungsversion 0.1.2
 
 ## Verbindliches Ziel
 
@@ -27,7 +27,7 @@ Analysebrett/Faktencheck war ein Missverständnis und ist korrigiert.
   unaufgefordert die Engine starten zu lassen.
 - KI-Kontext berücksichtigt Vorfahren der aktuellen Stellung, die Lernpartie
   und ausdrücklich gewählten Vergleich, bleibt auf sechs Einträge begrenzt.
-- Typprüfung, Build, 68 Einzeltests und 29 Chromium-Browsertests bestanden.
+- Typprüfung, Build, 68 Einzeltests und 31 Chromium-Browsertests bestanden.
   Echte lokale Engine auf allen fünf Stufen sowie Weiß-/Schwarz-Lernablauf im
   Browser geprüft; KI-Antworten weiterhin ausschließlich Testfixtures.
 - Vorheriger Stand 6da1a54 bleibt erhalten. Details: docs/VALIDATION.md.
@@ -175,6 +175,25 @@ nach Nutzerangabe; native Windows-Scrollursache weiterhin unbestimmt.
   Fälle blockieren native Gesten absichtlich und prüfen direkte Scrolltasten,
   Diagnoseexport, sichtbare Bedienelemente und Ausschluss eingegebener Testwerte.
   Keine Behauptung, damit sei die native Windows-Ursache nachgestellt/behoben.
+
+## 0.1.2: Ziehen wählte Text statt die Seite zu verschieben
+
+Neue Nutzerpräzisierung: Nach Speichern führt der Scrollversuch zu Textmarkierung.
+Das konkrete Symptom wird nun gezielt behandelt; nicht mehr nur ein abstrakter
+Scrollstillstand angenommen. Keine bestätigte Aussage zum Windows-Treiber.
+
+- Normale Seitentexte verhindern versehentliche native Auswahl. Eingabefelder
+  und editierbare Texte behalten Auswahl/Bearbeitung; native Touch-Panning und
+  Pinch-Zoom bleiben möglich.
+- Mausgemeldetes Ziehen auf Text/Hintergrund verschiebt die Seite direkt;
+  Formfelder, Buttons, Links, Zusammenfassungen und Brett bleiben ausgeschlossen.
+  Escape/Fokusverlust/Pointerabbruch beenden den Vorgang; keine versehentlichen
+  Folge-Klicks. Scrollhilfe und lokale Diagnose aus 0.1.1 bleiben erhalten.
+- Neuer Browserablauf speichert Testschlüssel, zieht die Rückmeldung und prüft
+  Scrollweg ohne Textauswahl sowie Gegenrichtung. Eingabeauswahl, Zugbutton und
+  Escape-Abbruch geprüft. Alle bestehenden Touch-/Bretttests weiter bestanden.
+- Typprüfung/Build, 68 Einzeltests und 31 Browsertests bestanden. Prüfung auf dem
+  echten Windows-Touchscreen durch den Nutzer bleibt erforderlich.
 
 ## Weiter vorhandene Funktionen
 

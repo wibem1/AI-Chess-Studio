@@ -558,3 +558,45 @@ test('scroll help remains touch accessible after key entry and diagnosis exclude
  expect(JSON.parse(report).appVersion).toBe(APP_VERSION);
  await context.close();
 });
+
+test('dragging ordinary text pans the page instead of selecting it after saving a key',async({page})=>{
+ await page.goto('/');
+ await page.getByText('Eigenen API-Schlüssel eingeben',{exact:true}).click();
+ await page.locator('#api-key').fill('page-pan-test-key-not-real');
+ await page.locator('#api-cost-consent').check();
+ await page.getByRole('button',{name:'Schlüssel lokal speichern und KI aktivieren',exact:true}).click();
+ await expect(page.locator('#api-feedback')).toContainText('nicht erneut eingeben');
+ await page.locator('#api-feedback').scrollIntoViewIfNeeded();
+ const box=await page.locator('#api-feedback').boundingBox();
+ const before=await page.evaluate(()=>scrollY);
+ const x=box!.x+30,y=box!.y+Math.min(20,box!.height/2);
+ await page.mouse.move(x,y);await page.mouse.down();
+ await page.mouse.move(x,y-120,{steps:10});await page.mouse.up();
+ await expect.poll(()=>page.evaluate(()=>scrollY)).toBeGreaterThan(before+80);
+ expect(await page.evaluate(()=>getSelection()?.toString())).toBe('');
+ await expect(page.locator('body')).not.toHaveClass(/page-panning/);
+ const middle=await page.evaluate(()=>scrollY);
+ // Drag blank page background down to move back up, without selecting text.
+ await page.mouse.move(5,200);await page.mouse.down();await page.mouse.move(5,320,{steps:10});await page.mouse.up();
+ await expect.poll(()=>page.evaluate(()=>scrollY)).toBeLessThan(middle-80);
+ await page.getByRole('button',{name:'Gespeicherten Schlüssel löschen'}).click();
+});
+
+test('page panning preserves editable selection, links, board gestures and Escape cancellation',async({page})=>{
+ await page.goto('/');
+ await page.getByLabel('Zug (SAN)',{exact:true}).fill('Nf3');
+ await page.getByLabel('Zug (SAN)',{exact:true}).selectText();
+ expect(await page.locator('#move').evaluate((element:HTMLInputElement)=>element.selectionEnd!-element.selectionStart!)).toBe(3);
+ await page.getByRole('button',{name:'Zug spielen',exact:true}).click();
+ await expect(page.locator('#position-status')).toContainText('n1');
+ await page.locator('#board').scrollIntoViewIfNeeded();
+ const before=await page.evaluate(()=>scrollY);
+ await page.mouse.move(5,300);await page.mouse.down();await page.mouse.move(5,200,{steps:5});
+ await expect(page.locator('body')).toHaveClass(/page-panning/);
+ await page.keyboard.press('Escape');
+ const stopped=await page.evaluate(()=>scrollY);
+ expect(stopped).toBeGreaterThan(before);
+ await page.mouse.move(5,100,{steps:5});await page.mouse.up();
+ expect(await page.evaluate(()=>scrollY)).toBe(stopped);
+ await expect(page.locator('body')).not.toHaveClass(/page-panning/);
+});

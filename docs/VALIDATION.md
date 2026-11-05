@@ -513,3 +513,30 @@ Endstand: Typprüfung/Build, 68 Einzeltests und 29 Chromium-Browsertests bestand
 Die künstliche Blockade ist ein Test des Fallbacks, kein Nachweis der Ursache
 auf dem Windows-Touchscreen. Nutzerabnahme und deren Diagnose stehen aus.
 Keine kostenpflichtigen Provideraufrufe oder automatische Diagnosesendung.
+
+
+## 0.1.2: Textmarkierung statt Seitenbewegung
+
+5. November 2026: Weitere Nutzerpräzisierung während Bereitstellung von 0.1.1:
+Scrollversuch nach Schlüsselspeicherung markiert Text. Das konkrete Symptom
+behandelt diese getrennte Korrektur; 0.1.1 bleibt unverändert reproduzierbar.
+
+Normale Seitentexte setzen user-select:none/-webkit-user-select:none; Formfelder
+und editierbare Inhalte erlauben weiter Auswahl. Body erlaubt natives pan-y und
+Pinch-Zoom. Zusätzlich beginnt vertikales Maus-Ziehen außerhalb von Controls/
+Brett nach 8 px eine direkte Seitenbewegung. Dadurch funktionieren auch als Maus
+gelieferte Gesten. Dies ist keine Feststellung, welcher Windows-Treiber oder
+Browserzustand beim Nutzer vorliegt. Pointer-Capture wird nur während des
+Ziehens gehalten und bei Ende, Escape, Fokusverlust oder Cancel freigegeben.
+Ein Drag löst keinen Folge-Klick aus. Keine Eingaben/Partiedaten werden verändert.
+
+Neuer End-to-End-Fall speichert einen bedeutungslosen Testschlüssel, zieht den
+Rückmeldungstext vertikal und prüft Scrollweg >80 px sowie leere Textauswahl.
+Ziehen im Hintergrund in Gegenrichtung bewegt zurück. Weiterer Fall bestätigt
+Textauswahl im SAN-Eingabefeld, funktionierenden Zugbutton und Escape-Abbruch.
+Bestehende echten Touchgesten, Brett-Taps, Maus-Sonderzüge, Enginepartien und
+Scrollhilfe/Diagnose bleiben erfolgreich.
+
+npm run test:all vollständig bestanden: Typprüfung/Build, 68 Einzeltests und
+31 Chromium-Browsertests. Keine kostenpflichtigen Provideranfragen. Das Symptom
+ist im Browserablauf geprüft; echte Windows-Geräteabnahme bleibt offen.

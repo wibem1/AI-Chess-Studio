@@ -1,5 +1,13 @@
 # Änderungen
 
+## 0.1.2 – 5. November 2026
+
+- Schutz gegen Textmarkierung beim Ziehen normaler Seitentexte.
+- Ziehen auf Text/Hintergrund verschiebt die Seite auch bei als Maus gelieferten
+  Bewegungen; Eingaben und Brett behalten ihre eigene Bedienung.
+- Gezielter Ablauf nach Schlüsselspeicherung geprüft; 68 Einzeltests und 31
+  Chromium-Browsertests bestanden. Echte Windows-Touchabnahme bleibt offen.
+
 ## 0.1.1 – 5. November 2026
 
 - Ständig sichtbare Scrollhilfe mit Hoch-/Runter-Tasten als Ausweichbedienung.

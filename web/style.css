@@ -15,3 +15,7 @@
 .scroll-report{position:fixed;right:12px;bottom:86px;z-index:1101;width:min(540px,calc(100vw - 24px));max-height:calc(100dvh - 110px);overflow-y:auto;touch-action:pan-y pinch-zoom;padding:16px;background:#fffef9;color:#20352f;border:2px solid #365b4d;border-radius:12px;box-shadow:0 4px 24px #0003}
 .scroll-report[hidden]{display:none}.scroll-report pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:.75rem}.scroll-report p{font-size:.8rem}.scroll-report button{margin:4px;font-size:.85rem}
 footer{padding-bottom:110px}
+
+body{touch-action:pan-y pinch-zoom;user-select:none;-webkit-user-select:none}
+input,textarea,[contenteditable=true]{user-select:text;-webkit-user-select:text}
+body.page-panning,body.page-panning *{cursor:grabbing}

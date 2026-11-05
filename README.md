@@ -1,6 +1,6 @@
 # AI-Chess-Studio
 
-Aktuelle Entwicklungsversion: **0.1.1**. Die Nummer steht oben in der App,
+Aktuelle Entwicklungsversion: **0.1.2**. Die Nummer steht oben in der App,
 im Browser-Titel, beim Serverstart und in der lokalen Diagnose.
 Änderungen: [CHANGELOG.md](CHANGELOG.md).
 
@@ -163,6 +163,11 @@ Nur eine App-Instanz mit demselben Benutzerprofil verwenden.
 
 ## Scrollhilfe und Bedienungsdiagnose
 
+Normale Seitentexte sind gegen versehentliches Markieren beim Wischen geschützt.
+Ziehen auf Text/leerem Hintergrund verschiebt die Seite auch dann, wenn eine
+Geste als Mausbewegung ankommt. Eingabefelder behalten Textauswahl und Bearbeitung;
+Brett, Schaltflächen und andere Bedienelemente behalten ihre eigenen Gesten.
+
 Unten rechts bleiben „↑ Hoch“, „↓ Runter“ und „Bedienung prüfen“ sichtbar.
 Die Tasten bewegen die Seite direkt, falls Wischen, Mausrad oder Bildtasten
 blockiert sind. „Bedienung prüfen“ zeigt Version, Browser, Seitenmaße,
@@ -225,7 +230,7 @@ des Updates keine zweite Installation starten und keinen Quellcode bearbeiten.
 
 ## Nachweise und Grenzen
 
-`npm run test:all`: Typprüfung, Build, **68 Einzeltests und 29 Chromium-
+`npm run test:all`: Typprüfung, Build, **68 Einzeltests und 31 Chromium-
 Browsertests**. Der gebaute Anwendungsserver wird getestet, einschließlich
 echtem lokalem Stockfish. Schlüsseltests verwenden ausschließlich bedeutungslose
 Testwerte, Provider-/Update-Tests lokale Fixtures. Es wurde kein echtes Update
