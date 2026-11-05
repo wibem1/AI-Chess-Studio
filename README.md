@@ -1,16 +1,17 @@
 # AI-Chess-Studio – Windows-Startpaket
 
-Figuren mit der Maus ziehen: legale Zielfelder, Sonderzuege und Engineantwort.
-ZIP vollstaendig in einen neuen Ordner entpacken, dann
-AI-Chess-Studio-starten.cmd starten. Portable Node.js-Laufzeit enthalten;
-Internet fuer die Erstinstallation erforderlich. Lokale Schluessel im
-Benutzerprofil bleiben erhalten. Vor dem Wechsel aktuelle Sitzung exportieren.
+Startkorrektur: Bei belegtem oder gesperrtem Standardport wird ein freier
+lokaler Port gewaehlt. Browser und Konsolenausgabe zeigen die passende Adresse.
+Figuren mit Maus ziehen oder Start-/Zielfeld antippen.
 
-Typpruefung, Build, 64 Einzeltests und 23 Chromium-Browsertests bestanden.
-Mausbedienung unter Linux/Chromium mit echtem Stockfish getestet; native
-Windows-Mausabnahme offen. Der Nutzer hat den vorherigen Windows-Start bestaetigt.
-Keine API-Schluessel im Paket. Dies ist ein Download-Branch, kein Release
-oder Deployment. Quellcode: work.
+Vor Wechsel aktuelle Sitzung exportieren und bisherige App schliessen.
+ZIP vollstaendig in neuen Ordner entpacken und AI-Chess-Studio-starten.cmd
+starten. Portable Node-Laufzeit enthalten. Erste Installation braucht Internet.
+Gespeicherte Schluessel im Benutzerprofil bleiben erhalten.
 
-Quellcommit: 3a84e3a3fec164d8dfc8ed8735c68927dba9be5e
-SHA-256: a24c9d2712f14f932be6f845d2bea0056f41a900d95d1e695cd9f5edbc475d28
+Build, 68 Einzeltests, 23 Chromium-Browsertests und realer CLI-Start mit
+belegtem Port bestanden. Native Windows-Abnahme dieser Korrektur offen.
+Keine Schluessel im Paket. Download-Branch, kein Release oder Deployment.
+
+Quellcommit: d2c273f57b81c688ffa1744bf7e5e98a75c1164b
+SHA-256: d0ee493d993e4a91d7c6fb9f79554095f27cda5de5b2d7cde9e7a4977e020104
