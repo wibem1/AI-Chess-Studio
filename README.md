@@ -23,6 +23,9 @@ npm start
 ```
 
 Die App läuft nur lokal, standardmäßig auf Port 5173 (`CHESS_PORT` ist optional).
+Ist der Standardport belegt oder vom Betriebssystem gesperrt, wählt die App
+automatisch einen freien lokalen Port und öffnet dessen Adresse. Ein ausdrücklich
+gesetzter CHESS_PORT bleibt verbindlich und meldet bei Problemen den Fehlercode.
 Der reine statische Web-Build hat keine Modell-/Engine-API; npm start stellt
 beides bereit. Quellcodeentwicklung ist mit npm run dev möglich.
 
@@ -202,7 +205,7 @@ des Updates keine zweite Installation starten und keinen Quellcode bearbeiten.
 
 ## Nachweise und Grenzen
 
-`npm run test:all`: Typprüfung, Build, **64 Einzeltests und 23 Chromium-
+`npm run test:all`: Typprüfung, Build, **68 Einzeltests und 23 Chromium-
 Browsertests**. Der gebaute Anwendungsserver wird getestet, einschließlich
 echtem lokalem Stockfish. Schlüsseltests verwenden ausschließlich bedeutungslose
 Testwerte, Provider-/Update-Tests lokale Fixtures. Es wurde kein echtes Update

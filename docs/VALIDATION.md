@@ -379,3 +379,27 @@ Maus-Testhelfer scrollen das Brett vor Mauskoordinaten in den sichtbaren Bereich
 Keine kostenpflichtigen API-Aufrufe. Chromium unter Linux ist kein nativer
 Windows-/Safari-/Mobilgerätetest; Ziehen per Touch/Pen ist über denselben
 Pointerweg implementiert, aber hier nicht separat als Gerätebedienung abgenommen.
+
+
+## Serverstart: belegter oder gesperrter Standardport
+
+5. November 2026: Nutzer meldet erfolgreichen Build und danach den generischen
+Startfehler. Dieser kam aus dem Listen-Fehlerhandler; ein konkreter OS-Code war
+in der Nutzerausgabe nicht enthalten. Keine bestätigte Ferndiagnose behauptet.
+
+Implementiert: Defaultport 5173 darf bei EADDRINUSE/EACCES einmal auf Port 0
+(OS vergibt einen freien Port atomar) ausweichen. Bind bleibt 127.0.0.1;
+keine fremden Prozesse beendet, keine Firewalländerungen. Explizites CHESS_PORT
+weicht nicht aus. Die echte gebundene Adresse wird ausgegeben und geöffnet.
+Fehler enthalten sichere OS-Codes und verständliche Hinweise ohne interne Inhalte.
+
+npm run test:all: Typprüfung, Build, **68 Einzeltests und 23 Browsertests**
+bestanden. Neue Tests: real belegter Socket, App erreichbar am Ausweichport,
+explizit belegter Port bleibt Fehler, EACCES-Ausweichpfad simuliert, andere Fehler
+lösen keinen Retry aus, Listenerbereinigung und verständliche Fehlermeldungen.
+Zusätzlich tatsächlichen dist/server/start.js-Prozess mit real belegtem 5173
+gestartet: Ausweichadresse liefert App-HTML und gesperrten Modell-API-Status;
+anschließend nur eigene Testprozesse sauber beendet. Kein kostenpflichtiger Aufruf.
+
+Dies prüft die Startlogik unter Linux; native Windows-Portreservierung und
+Browseröffnung durch rundll32 bleiben auf dem Nutzergerät zu bestätigen.

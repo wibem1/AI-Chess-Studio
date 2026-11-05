@@ -27,7 +27,7 @@ Analysebrett/Faktencheck war ein Missverständnis und ist korrigiert.
   unaufgefordert die Engine starten zu lassen.
 - KI-Kontext berücksichtigt Vorfahren der aktuellen Stellung, die Lernpartie
   und ausdrücklich gewählten Vergleich, bleibt auf sechs Einträge begrenzt.
-- Typprüfung, Build, 64 Einzeltests und 23 Chromium-Browsertests bestanden.
+- Typprüfung, Build, 68 Einzeltests und 23 Chromium-Browsertests bestanden.
   Echte lokale Engine auf allen fünf Stufen sowie Weiß-/Schwarz-Lernablauf im
   Browser geprüft; KI-Antworten weiterhin ausschließlich Testfixtures.
 - Vorheriger Stand 6da1a54 bleibt erhalten. Details: docs/VALIDATION.md.
@@ -92,6 +92,22 @@ Keine Änderung an lokalen Schlüsseln oder Benutzerdaten.
   Typprüfung/Build, 64 Einzeltests und alle 23 Browsertests bestanden.
 - Nutzer bestätigt inzwischen den erfolgreichen lokalen App-Start unter Windows.
   Mausbedienung ist unter Linux/Chromium geprüft; native Geräteabnahme bleibt offen.
+
+## Lokaler Serverstart bei belegtem Port
+
+Nutzermeldung: Installation und Build erfolgreich, danach generischer
+Serverstartfehler. Der bisherige Fehlerhandler unterdrückte den OS-Fehlercode;
+der genaue Fehler auf dem Nutzer-PC ist deshalb noch nicht belegt. Wahrscheinliche
+Ursachen sind eine laufende vorherige App oder ein unter Windows reservierter Port.
+
+- Default 5173 weicht bei EADDRINUSE/EACCES einmal auf einen vom Betriebssystem
+  zugewiesenen freien Loopback-Port aus. Keine fremden Prozesse werden beendet.
+- Browseröffnung und Konsolenausgabe verwenden die tatsächlich gebundene Adresse.
+  Explizites CHESS_PORT bleibt fest; Startfehler nennen Ursache/OS-Code.
+- Realer Sockettest und echter CLI-Start mit absichtlich belegtem 5173 erfolgreich;
+  Ausweichadresse liefert App und API-Status. EACCES separat simuliert geprüft.
+- Typprüfung/Build, 68 Einzeltests und 23 Browsertests bestanden. Nativer Test
+  dieser Startkorrektur unter Windows noch offen.
 
 ## Weiter vorhandene Funktionen
 
