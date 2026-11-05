@@ -5,8 +5,10 @@ Gedächtnis, Dialog und optionalem Stockfish-Faktencheck.
 
 ## Start auf deinem PC
 
-Voraussetzung: **Node.js 24**. Im Projektordner unter Windows
-**AI-Chess-Studio-starten.cmd** doppelklicken. Das Skript installiert bei Bedarf
+Im lokalen **Windows-Startpaket ist Node.js 24 bereits enthalten**.
+ZIP vollständig entpacken und im Projektordner unter Windows
+**AI-Chess-Studio-starten.cmd** doppelklicken. Ein reiner Git-Quellcheckout
+benötigt dagegen eine vorhandene Node.js-24-Installation. Das Skript installiert bei Bedarf
 Abhängigkeiten, baut die App und öffnet nach dem Start den Browser. Das
 Serverfenster während der Nutzung geöffnet lassen. Der Windows-Startweg und
 DPAPI sind implementiert, aber in dieser Linux-Umgebung nicht nativ geprüft.
@@ -22,6 +24,9 @@ npm start
 Die App läuft nur lokal, standardmäßig auf Port 5173 (`CHESS_PORT` ist optional).
 Der reine statische Web-Build hat keine Modell-/Engine-API; npm start stellt
 beides bereit. Quellcodeentwicklung ist mit npm run dev möglich.
+
+Eine kurze Schrittfolge liegt auch in **ERSTE_SCHRITTE.txt**. Das Windows-Paket
+ist kein veröffentlichtes Release; native Windows-Abnahme steht weiterhin aus.
 
 ## Eigenen API-Schlüssel direkt eingeben
 
@@ -120,3 +125,14 @@ Ein realer Modelltest und manuelle Nutzerabnahme stehen aus.
 
 [Projektstand](PROJECT_STATE.md) · [Prüfergebnisse](docs/VALIDATION.md) ·
 [Engine-Lizenz und Quellen](THIRD_PARTY_NOTICES.md)
+
+
+## Lokales Startpaket reproduzieren
+
+`tools/package_windows.py` erstellt aus einem sauberen, gesicherten Git-Stand
+ein privates ZIP mit frischen Git-Metadaten und offizieller portabler
+Windows-Node-Laufzeit. Das Tool verlangt Archiv und offizielle SHA-256-Liste,
+verifiziert vor dem Entpacken und kopiert keine Profile, Schlüssel oder
+installierten Abhängigkeiten. Erststart installiert per npm ci mit Lockfile.
+Beispielparameter: --node-archive, --node-checksums und --output.
+Node-Lizenztexte bleiben im unveränderten Laufzeitpaket enthalten.

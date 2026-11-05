@@ -209,3 +209,23 @@ Linux nicht nativ ausgeführt werden und gelten nicht als Windows-abgenommen.
 Preisannahmen sind nicht gegen eine aktuelle Anbieterrechnung verifiziert.
 Updateinstallation ist nicht atomar; bei Fehlern wird ein unvollständiger Stand
 angezeigt und kein angeblicher Rollback oder erfolgreicher Neustart behauptet.
+
+## Abschluss und lokales Windows-Startpaket
+
+5. November 2026: wiederhergestellter Git-Stand f361b1e sauber vorgefunden,
+globale/lokale Regeln erneut gelesen, vollständiger Anwendungslauf erneut:
+47 Einzeltests und 12 Chromium-Browsertests bestanden, Typprüfung/Build erfolgreich.
+Kein kostenpflichtiger Provideraufruf, keine Veröffentlichung/Deployment.
+
+Offizielle portable Windows-Laufzeit node-v24.22.2-win-x64.zip von nodejs.org
+abgerufen; SHA-256 gegen offizielle SHASUMS256.txt geprüft:
+ca1bff5d8ead13c9f2ea404a176db46bd430704d5b5113734049fa365e7799e2.
+Starter berücksichtigt die beiliegende Laufzeit vor einer globalen Installation.
+Packager prüft Prüfsumme und Archivpfade, verwendet nur einen sauberen Git-Commit
+und erzeugt frische Git-Metadaten mit der genehmigten Projektquelle. Keine
+Benutzerprofile/Schlüssel, keine node_modules aus der Cloud und keine
+Cloud-Konfiguration werden übernommen. Node-Lizenztexte bleiben enthalten.
+
+Das Paket ist ein privates lokales Startpaket, kein veröffentlichtes Release.
+Die Windows-Binärdatei/DPAPI werden hier nicht nativ ausgeführt; Windows-
+Nutzerabnahme und echte Modellvalidierung bleiben getrennte offene Nachweise.

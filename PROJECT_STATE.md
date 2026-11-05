@@ -1,6 +1,6 @@
 # Projektstand
 
-Stand: 4. November 2026
+Stand: 5. November 2026
 
 ## Ziel
 
@@ -9,7 +9,7 @@ menschliche Spielbarkeit. Stockfish ausschließlich als expliziter Faktencheck.
 
 ## Belegter Bestand
 
-- Globale und lokale Regeln gelesen; vorheriger Stand 3cf9ba1 bleibt erhalten.
+- Globale und lokale Regeln gelesen; vorheriger Stand f361b1e bleibt erhalten.
 - Phasen 1/2: deutsche lokale Oberfläche, legale Brett-/SAN-Züge, Variantenbaum,
   Planwerkstatt, Gedächtnis und validierter JSON-Datei-/Textimport.
 - Phase 3: serverseitiger OpenAI-Transport implementiert; kein echter Modelltest.
@@ -33,6 +33,12 @@ menschliche Spielbarkeit. Stockfish ausschließlich als expliziter Faktencheck.
   mit Browseröffnung implementiert (Linux-Ausführung geprüft, Windows ausstehend).
 - Typprüfung, Build, 47 Einzeltests und 12 echte Chromium-Browsertests bestanden;
   kein fehlgeschlagener/übersprungener Test. docs/VALIDATION.md.
+
+- Lokales Startpaket vorbereitet: portable offizielle Windows-x64-Node.js-24.22.2-
+  Laufzeit (SHA-256 gegen nodejs.org geprüft), kurze Anleitung, Starter und
+  reproduzierbarer Packager. Keine Schlüssel/Benutzerprofile im Paket.
+  Frische Git-Metadaten erhalten die spätere Updatefähigkeit; Git bleibt dafür
+  eine optionale zusätzliche Voraussetzung. Keine native Windows-Freigabe.
 
 ## Grenzen
 

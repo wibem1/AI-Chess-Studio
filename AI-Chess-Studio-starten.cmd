@@ -1,6 +1,7 @@
 @echo off
 setlocal
 cd /d "%~dp0"
+if exist "%~dp0runtime\node\node.exe" set "PATH=%~dp0runtime\node;%PATH%"
 where node >nul 2>nul
 if errorlevel 1 (
   echo Bitte zuerst Node.js 24 von https://nodejs.org installieren.

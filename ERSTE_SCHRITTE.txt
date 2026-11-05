@@ -1,0 +1,30 @@
+AI-CHESS-STUDIO – LOKAL STARTEN
+
+1. Das gesamte ZIP in einen eigenen Ordner auf deinem Windows-PC entpacken.
+   Nicht direkt aus dem geöffneten ZIP starten.
+2. Im entpackten Ordner AI-Chess-Studio-starten.cmd doppelklicken.
+   Das Windows-Startpaket enthält Node.js bereits. Beim allerersten Start
+   ist Internet nötig, um die App-Abhängigkeiten zu installieren.
+3. Der Browser öffnet sich automatisch. Das Serverfenster geöffnet lassen.
+4. In der App „Eigenen API-Schlüssel eingeben“ öffnen, deinen Schlüssel
+   eintragen und „Schlüssel lokal speichern und KI aktivieren“ wählen.
+   Vorher die Kosten-Zustimmung und das Budget prüfen.
+
+Der Schlüssel bleibt lokal auf diesem PC, unter Windows mit deinem
+Benutzerkonto verschlüsselt. Er gehört nicht in den Chat und nicht in den
+Sitzungsexport. Du kannst ihn in der App wieder löschen.
+
+Stockfish benötigt keinen API-Schlüssel. Die Simulation ist kostenlos.
+Reale KI-Anfragen können beim Anbieter Kosten auslösen. Die Kostenkontrolle
+in der App arbeitet mit Preisannahmen, nicht mit deiner Anbieterrechnung.
+
+Vor dem Schließen Sitzung als JSON exportieren. API-Schlüssel und
+Kostenkonto bleiben davon getrennt gespeichert.
+
+Updates über die App benötigen zusätzlich Git und Zugriff auf das private
+Projekt-Repository. Fehlendes Git blockiert den normalen App-Start nicht.
+
+Prüfstand: App mit echtem Stockfish unter Linux/Chromium getestet.
+Windows-Laufzeit aus offizieller Quelle mit SHA-256 geprüft. Native
+Windows-Ausführung und Windows-Verschlüsselung sind noch nicht abgenommen.
+Das ist ein lokales Startpaket, kein veröffentlichtes Release.

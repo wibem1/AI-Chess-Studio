@@ -5,3 +5,6 @@ test-results/
 web-dist/
 .env
 .env.*
+
+runtime/
+artifacts/
