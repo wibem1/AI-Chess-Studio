@@ -5,6 +5,7 @@ import { checkTactics, ServerTacticalAdapter } from '../src/tactics.js';
 import { LearningGame, ServerPlayingEngine, pathTo } from '../src/game.js';
 import type {HintMode} from '../src/learning.js';
 import './style.css';
+import { installScrollHelp } from './scroll-help.js';
 import { APP_VERSION } from '../src/version.js';
 import { installBoardDrag } from './board-drag.js';
 
@@ -57,6 +58,7 @@ const cancelBoardDrag = installBoardDrag($('board'), () => {
   const data = studio.session.snapshot();
   return data.nodes.find(node => node.id === data.activeNodeId)!.fen;
 }, (from, to) => move({ from, to, promotion: $<HTMLSelectElement>('promotion').value }));
+installScrollHelp(cancelBoardDrag);
 function render() {
   cancelBoardDrag();
   const data = studio.session.snapshot();

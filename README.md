@@ -1,6 +1,6 @@
 # AI-Chess-Studio
 
-Aktuelle Entwicklungsversion: **0.1.0**. Die Nummer steht oben in der App,
+Aktuelle Entwicklungsversion: **0.1.1**. Die Nummer steht oben in der App,
 im Browser-Titel, beim Serverstart und in der lokalen Diagnose.
 Änderungen: [CHANGELOG.md](CHANGELOG.md).
 
@@ -161,6 +161,17 @@ Keine automatischen Wiederholungen. Preise/Schätzungen sind **kein verbindliche
 Geldlimit der Anbieterrechnung**; ein separates Anbieterlimit ist weiterhin sinnvoll.
 Nur eine App-Instanz mit demselben Benutzerprofil verwenden.
 
+## Scrollhilfe und Bedienungsdiagnose
+
+Unten rechts bleiben „↑ Hoch“, „↓ Runter“ und „Bedienung prüfen“ sichtbar.
+Die Tasten bewegen die Seite direkt, falls Wischen, Mausrad oder Bildtasten
+blockiert sind. „Bedienung prüfen“ zeigt Version, Browser, Seitenmaße,
+Scrollposition, Fokusart und letzte Scroll-/Pointerereignisse; keine Werte von
+Eingabefeldern, Schlüssel oder Partiedaten. „Diagnose als Text speichern“ erstellt
+eine lokale Datei für die Fehlersuche. Die Diagnose wird nicht automatisch gesendet.
+Die native Windows-Scrollblockade ist weiterhin nicht reproduziert; diese Hilfe
+ist eine Ausweichbedienung, kein behaupteter Nachweis ihrer Ursachenbehebung.
+
 ## Diagnose
 
 „Lokale Diagnose anzeigen“ meldet Laufzeit, Modellkonfiguration, Restanfragen
@@ -214,7 +225,7 @@ des Updates keine zweite Installation starten und keinen Quellcode bearbeiten.
 
 ## Nachweise und Grenzen
 
-`npm run test:all`: Typprüfung, Build, **68 Einzeltests und 27 Chromium-
+`npm run test:all`: Typprüfung, Build, **68 Einzeltests und 29 Chromium-
 Browsertests**. Der gebaute Anwendungsserver wird getestet, einschließlich
 echtem lokalem Stockfish. Schlüsseltests verwenden ausschließlich bedeutungslose
 Testwerte, Provider-/Update-Tests lokale Fixtures. Es wurde kein echtes Update

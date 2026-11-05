@@ -1,6 +1,6 @@
 # Projektstand
 
-Stand: 5. November 2026 · Entwicklungsversion 0.1.0
+Stand: 5. November 2026 · Entwicklungsversion 0.1.1
 
 ## Verbindliches Ziel
 
@@ -27,7 +27,7 @@ Analysebrett/Faktencheck war ein Missverständnis und ist korrigiert.
   unaufgefordert die Engine starten zu lassen.
 - KI-Kontext berücksichtigt Vorfahren der aktuellen Stellung, die Lernpartie
   und ausdrücklich gewählten Vergleich, bleibt auf sechs Einträge begrenzt.
-- Typprüfung, Build, 68 Einzeltests und 27 Chromium-Browsertests bestanden.
+- Typprüfung, Build, 68 Einzeltests und 29 Chromium-Browsertests bestanden.
   Echte lokale Engine auf allen fünf Stufen sowie Weiß-/Schwarz-Lernablauf im
   Browser geprüft; KI-Antworten weiterhin ausschließlich Testfixtures.
 - Vorheriger Stand 6da1a54 bleibt erhalten. Details: docs/VALIDATION.md.
@@ -156,6 +156,25 @@ echter CLI-Prozess bestätigt Startausgabe und Diagnose mit 0.1.0. Paketmetadate
 werden vor Bereitstellung gegen dieselbe Nummer geprüft. Keine neue Behauptung
 zur offenen nativen Windows-Scroll-/Schlüsselspeicherabnahme; keine Veröffentlichung
 als Release und kein Deployment.
+
+## 0.1.1: Scrollhilfe und Bedienungsdiagnose
+
+Nutzer bestätigt: auch Mausrad und Bild ↓ bewegen die Seite im Fehlerzustand
+nicht. Reine Touch-Erklärung reicht damit nicht. Schlüsselspeicherung funktioniert
+nach Nutzerangabe; native Windows-Scrollursache weiterhin unbestimmt.
+
+- Ständig erreichbare Hoch-/Runter-Tasten bewegen das Scroll-Element direkt,
+  lösen Eingabefokus und brechen etwaiges Figurenziehen ab. Kein Neuladen oder
+  Löschen von Sitzung/Schlüssel. Das ist eine Ausweichbedienung.
+- Lokale Bedienungsdiagnose zeigt UI-/Serverversion, Browser, Viewport, Seitenmaße,
+  Scrollposition, Fokusart und letzte Pointer-/Scrollereignisse einschließlich
+  Verhinderung. Keine Feldwerte, gedrückten Texte oder Schach-/Schlüsseldaten.
+- Diagnoseexport und Schließen oben im festen Diagnosefenster erreichbar;
+  Textdatei wird nur auf Klick gespeichert, keine automatische Übertragung.
+- Typprüfung/Build, 68 Einzeltests und 29 Browsertests bestanden. Zusätzliche
+  Fälle blockieren native Gesten absichtlich und prüfen direkte Scrolltasten,
+  Diagnoseexport, sichtbare Bedienelemente und Ausschluss eingegebener Testwerte.
+  Keine Behauptung, damit sei die native Windows-Ursache nachgestellt/behoben.
 
 ## Weiter vorhandene Funktionen
 

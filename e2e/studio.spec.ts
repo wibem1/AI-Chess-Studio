@@ -511,3 +511,50 @@ test('visible UI version matches the running server and local diagnosis',async({
  await page.getByRole('button',{name:'Lokale Diagnose anzeigen'}).click();
  await expect(page.locator('#diagnostic-output')).toContainText(`App-Version: ${APP_VERSION} · Oberfläche: ${APP_VERSION}`);
 });
+
+test('fixed scroll help moves a page even when native scroll gestures are cancelled and exports text-free diagnosis',async({page})=>{
+ await page.goto('/');
+ // Simulate the reported failure; this is not proof of its cause on Windows.
+ await page.evaluate(()=>{
+  document.addEventListener('wheel',e=>e.preventDefault(),{passive:false});
+  document.addEventListener('touchmove',e=>e.preventDefault(),{passive:false});
+  document.addEventListener('keydown',e=>{if(e.key==='PageDown')e.preventDefault();});
+ });
+ const top=await page.evaluate(()=>scrollY);
+ await page.mouse.wheel(0,500);await page.keyboard.press('PageDown');
+ expect(await page.evaluate(()=>scrollY)).toBe(top);
+ await page.getByRole('button',{name:'↓ Runter',exact:true}).click();
+ await expect.poll(()=>page.evaluate(()=>scrollY)).toBeGreaterThan(top+100);
+ await page.getByRole('button',{name:'↑ Hoch',exact:true}).click();
+ await expect.poll(()=>page.evaluate(()=>scrollY)).toBe(top);
+ await page.getByRole('button',{name:'Bedienung prüfen',exact:true}).click();
+ const panel=page.getByRole('region',{name:'Bedienungsdiagnose'});
+ await expect(panel).toBeVisible();
+ await expect(panel.getByRole('button',{name:'Diagnose als Text speichern'})).toBeInViewport();
+ await expect(panel.getByRole('button',{name:'Schließen',exact:true})).toBeInViewport();
+ await expect.poll(async()=>JSON.parse(await panel.locator('pre').innerText()).serverVersion).toBe(APP_VERSION);
+ const observation=JSON.parse(await panel.locator('pre').innerText());
+ expect(observation.appVersion).toBe(APP_VERSION);
+ expect(observation.page.height).toBeGreaterThan(observation.page.visible);
+ expect(observation.recentEvents.some((e:{type:string;prevented:boolean})=>e.type==='wheel'&&e.prevented)).toBe(true);
+ const download=page.waitForEvent('download');
+ await panel.getByRole('button',{name:'Diagnose als Text speichern'}).click();
+ expect((await download).suggestedFilename()).toBe(`AI-Chess-Studio-${APP_VERSION}-Bedienungsdiagnose.txt`);
+ await panel.getByRole('button',{name:'Schließen',exact:true}).click();await expect(panel).toBeHidden();
+});
+
+test('scroll help remains touch accessible after key entry and diagnosis excludes all input values',async({browser})=>{
+ const context=await browser.newContext({viewport:{width:1280,height:720},hasTouch:true});
+ const page=await context.newPage();await page.goto('/');
+ await page.getByText('Eigenen API-Schlüssel eingeben',{exact:true}).tap();
+ await page.locator('#api-key').fill('private-input-sentinel-not-a-real-key');
+ await page.locator('#api-model').fill('private-model-sentinel');
+ await page.getByRole('button',{name:'↓ Runter',exact:true}).tap();
+ await expect.poll(()=>page.evaluate(()=>scrollY)).toBeGreaterThan(0);
+ await page.getByRole('button',{name:'Bedienung prüfen',exact:true}).tap();
+ const panel=page.getByRole('region',{name:'Bedienungsdiagnose'});
+ const report=await panel.locator('pre').innerText();
+ expect(report).not.toContain('private-input-sentinel');expect(report).not.toContain('private-model-sentinel');
+ expect(JSON.parse(report).appVersion).toBe(APP_VERSION);
+ await context.close();
+});

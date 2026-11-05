@@ -481,3 +481,35 @@ in Paket oder Version. Keine kostenpflichtigen API-Aufrufe und kein Release.
 
 Die Versionsnummer identifiziert den Stand; offene native Windows-Touch-/DPAPI-
 Befunde bleiben offen und werden dadurch nicht als behoben eingestuft.
+
+
+## 0.1.1: Direkte Scrollhilfe bei blockierten nativen Eingaben
+
+5. November 2026: Nutzer bestätigt Scrollstillstand für Finger, Mausrad und
+Bild ↓; Schlüsselspeicherung funktioniert. Im App-Code keine globale Scrollsperre
+gefunden. Native Windows-Ursache weiterhin nicht reproduziert. Statt einer
+weiteren unbelegten Ursachenbehauptung direkte Ausweichbedienung und Messung.
+
+Feste Hoch-/Runter-Tasten verwenden document.scrollingElement.scrollBy, lösen
+Fokus und beenden eigenes Figurenziehen. Keine fremden Prozesse/Browserzustände
+verändert, keine Sitzung neu geladen. Feste Diagnoseanzeige erfasst UI-/Server-
+Version, Browser, Seiten-/Viewportmaße, Scrollposition, CSS-Overflow/Touchaktion,
+Fokus-Tag sowie letzte Pointer-/Scrollereignisse mit defaultPrevented. Nur
+Scrollsteuerungstasten werden protokolliert, keine sonstigen Tastatureingaben;
+keine Werte/DOM-Texte/Schachpartien/Schlüssel im Bericht. Export ausschließlich
+lokal auf Klick. Speichern und Schließen stehen vor dem Bericht und bleiben
+auch ohne Scrollen innerhalb des Diagnosefensters erreichbar.
+
+Neue Browserfälle verhindern native wheel/touchmove/PageDown absichtlich:
+Scrollhilfe bewegt die Seite dennoch abwärts und aufwärts. Bericht zeigt den
+verhinderten Wheel-Event und passende Version/Seitenmaße; Exportdateiname enthält
+0.1.1. Desktop-Touchtest prüft Erreichbarkeit nach Schlüsseleingabe und dass zwei
+unterschiedliche Sentinel-Feldwerte im Bericht fehlen.
+Erster Gesamtlauf deckte fehlerhafte defaultPrevented-Messung auf: Microtasks
+liefen vor späteren Eventlistenern. Nach Wechsel auf nachgelagerten Timer zwei
+gezielte Fälle erfolgreich, anschließend kompletter Testlauf erfolgreich.
+
+Endstand: Typprüfung/Build, 68 Einzeltests und 29 Chromium-Browsertests bestanden.
+Die künstliche Blockade ist ein Test des Fallbacks, kein Nachweis der Ursache
+auf dem Windows-Touchscreen. Nutzerabnahme und deren Diagnose stehen aus.
+Keine kostenpflichtigen Provideraufrufe oder automatische Diagnosesendung.
