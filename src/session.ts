@@ -1,3 +1,4 @@
+import { pathTo, type GameState } from './game.js';
 import { Chess, DEFAULT_POSITION } from 'chess.js';
 import { validateTacticalReport, type TacticalReport } from './tactics.js';
 
@@ -17,6 +18,9 @@ export interface SessionData {
   activeNodeId: string;
   nodes: PositionNode[];
   annotations: Annotation[];
+  game?: GameState;
+  labels?: Record<string,string>;
+  comparison?: {a:string;b:string};
 }
 
 /** Branch identity is retained even when two nodes share the same FEN. */
@@ -44,8 +48,8 @@ export class Session {
     return board;
   }
   legalMoves(): string[] { return this.board().moves(); }
-  status(): { check: boolean; checkmate: boolean; draw: boolean; repetition: boolean; gameOver: boolean } {
-    const b = this.board();
+  status(id = this.data.activeNodeId): { check: boolean; checkmate: boolean; draw: boolean; repetition: boolean; gameOver: boolean } {
+    const b = this.board(id);
     return { check: b.isCheck(), checkmate: b.isCheckmate(), draw: b.isDraw(),
       repetition: b.isThreefoldRepetition(), gameOver: b.isGameOver() };
   }
@@ -68,7 +72,22 @@ export class Session {
     if (annotation.kind === 'factcheck') validateTacticalReport(annotation.engine, node.fen);
     this.data.annotations.push(structuredClone(annotation));
   }
-  export(): string { return JSON.stringify(this.data, null, 2); }
+  setGame(raw:GameState):void {
+    const g=raw;
+    if(!g || typeof g.id!=='string' || !g.id || g.id.length>100 || !['w','b'].includes(g.human) ||
+       !Number.isInteger(g.level) || g.level<1 || g.level>5 || typeof g.paused!=='boolean' || !Number.isSafeInteger(g.revision) || g.revision<0 ||
+       !pathTo(this.data,g.cursor).some(n=>n.id===g.start))throw new Error('Ungültiger Partiestand.');
+    this.data.game=structuredClone(g);
+  }
+  label(id:string,value:string):void {
+    this.node(id);if(typeof value!=='string' || value.trim().length>80)throw new Error('Variantenname: maximal 80 Zeichen.');
+    this.data.labels ??= {};if(value.trim())this.data.labels[id]=value.trim();else delete this.data.labels[id];
+  }
+  compare(a:string,b:string):void {this.node(a);this.node(b);if(a===b)throw new Error('Zwei unterschiedliche Stellungen wählen.');this.data.comparison={a,b};}
+  export(): string {
+    const {schemaVersion,activeNodeId,nodes,annotations,game,labels,comparison}=this.data;
+    return JSON.stringify({schemaVersion,activeNodeId,nodes,annotations,game,labels,comparison},null,2);
+  }
 
   static import(json: string): Session {
     const raw: unknown = JSON.parse(json);
@@ -90,6 +109,9 @@ export class Session {
       validateAnnotation(a);
       session.annotate(a);
     }
+    if(d.labels!==undefined){const labels=record(d.labels);session.data.labels={};for(const [id,label] of Object.entries(labels)){if(typeof label!=='string')throw new Error('Ungültiger Variantenname.');session.label(id,label);}}
+    if(d.comparison!==undefined){const c=record(d.comparison);if(typeof c.a!=='string' || typeof c.b!=='string')throw new Error('Ungültiger Vergleich.');session.compare(c.a,c.b);}
+    if(d.game!==undefined)session.setGame(d.game as GameState);
     session.select(d.activeNodeId);
     return session;
   }

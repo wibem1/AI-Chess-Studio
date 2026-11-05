@@ -2,9 +2,9 @@ import type { UpdateService } from './updates.js';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { ApiError, ModelService } from './model.js';
 
-export function modelMiddleware(service: ModelService, tactics?: (raw: unknown) => Promise<unknown>, updates?:UpdateService) {
+export function modelMiddleware(service: ModelService, tactics?: (raw: unknown) => Promise<unknown>, updates?:UpdateService, play?:(raw:unknown)=>Promise<unknown>) {
   return async (req: IncomingMessage, res: ServerResponse, next: () => void) => {
-    if (!['/api/status','/api/dialogue','/api/tactics','/api/model-config','/api/diagnostics','/api/costs','/api/update'].includes(req.url ?? '')) { next(); return; }
+    if (!['/api/status','/api/dialogue','/api/tactics','/api/model-config','/api/diagnostics','/api/costs','/api/update','/api/play'].includes(req.url ?? '')) { next(); return; }
     const send = (status: number, body: unknown) => {
       res.writeHead(status, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' });
       res.end(JSON.stringify(body));
@@ -28,7 +28,8 @@ export function modelMiddleware(service: ModelService, tactics?: (raw: unknown) 
       let raw: unknown;
       try { raw = JSON.parse(Buffer.concat(chunks).toString('utf8')); }
       catch { throw new ApiError(400, 'Ungültiges JSON.'); }
-      if(req.url==='/api/diagnostics'){send(200,await service.probeAccess());}
+      if(req.url==='/api/play'){if(!play)throw new ApiError(503,'Spielengine fehlt.');send(200,await play(raw));}
+      else if(req.url==='/api/diagnostics'){send(200,await service.probeAccess());}
       else if(req.url==='/api/costs'){send(200,service.configureCosts(raw));}
       else if(req.url==='/api/update'){
         const r=raw as {action?:unknown;target?:unknown};

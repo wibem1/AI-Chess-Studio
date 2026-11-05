@@ -2,9 +2,12 @@ import { Chess, type Square } from 'chess.js';
 import { Studio, SimulationAdapter, type SimulationMode } from '../src/dialogue.js';
 import { ServerModelAdapter } from '../src/model-client.js';
 import { checkTactics, ServerTacticalAdapter } from '../src/tactics.js';
+import { LearningGame, ServerPlayingEngine, pathTo } from '../src/game.js';
 import './style.css';
 
 const studio = new Studio();
+const game=new LearningGame(()=>studio.session);
+let enginePending=false;
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 const input = (id: string) => $<HTMLInputElement>(id);
 const text = (id: string) => $<HTMLTextAreaElement>(id);
@@ -40,23 +43,34 @@ function attempt(action: () => void, target: string, success: string) {
 function move(value: string | { from: string; to: string; promotion: string }) {
   attempt(() => {
     if (studio.session.status().gameOver) throw new Error('Partie beendet. Wähle eine frühere Stellung für eine neue Variante.');
-    try { studio.session.play(value); } catch { throw new Error('Dieser Zug ist hier nicht legal. Prüfe Eingabe und Stellung.'); }
+    try{game.play(value);}catch(error){if(error instanceof Error && error.message.startsWith('Stockfish'))throw error;throw new Error('Dieser Zug ist hier nicht legal. Prüfe Eingabe und Stellung.');}
     input('move').value = '';
   }, 'move-feedback', 'Zug gespielt.');
+  void engineTurn();
 }
 function render() {
   const data = studio.session.snapshot();
   const current = data.nodes.find(n => n.id === data.activeNodeId)!;
   const chess = new Chess(current.fen);
   const status = studio.session.status();
+  const live=data.game;
+  if(live){
+    const end=studio.session.status(live.cursor);
+    message('game-status',`Du spielst ${live.human==='w'?'Weiß':'Schwarz'} · Level ${live.level} · ${end.checkmate?'Partie beendet: Schachmatt':end.draw?'Partie beendet: Remis':live.paused?'Analysemodus · Partie pausiert':enginePending?'Stockfish denkt …':'Partie läuft'} · Partiestellung ${live.cursor}`);
+  }else message('game-status','Noch keine Enginepartie gestartet. Das Brett kann frei untersucht werden.');
+  $<HTMLButtonElement>('game-pause').disabled=!live || live.paused;
+  $<HTMLButtonElement>('game-resume').disabled=!live;
+  const mainIds=new Set(live?pathTo(data,live.cursor).slice(pathTo(data,live.cursor).findIndex(n=>n.id===live.start)).map(n=>n.id):[]);
   message('position-status', `${current.id} · ${chess.turn() === 'w' ? 'Weiß' : 'Schwarz'} am Zug${status.checkmate ? ' · Schachmatt' : status.draw ? ' · Remis' : status.check ? ' · Schach' : ''}`);
   const pieces: Record<string, string> = { wk:'♔',wq:'♕',wr:'♖',wb:'♗',wn:'♘',wp:'♙',bk:'♚',bq:'♛',br:'♜',bb:'♝',bn:'♞',bp:'♟' };
   const names: Record<string, string> = { k:'König',q:'Dame',r:'Turm',b:'Läufer',n:'Springer',p:'Bauer' };
   const targets = selected && !status.gameOver ? chess.moves({ square: selected, verbose: true }).map(m => m.to) : [];
   const board = $('board'); board.replaceChildren();
-  for (const [rankIndex, rank] of chess.board().entries()) {
+  const flipped=live?.human==='b';
+  const ranks=flipped?chess.board().slice().reverse().map(row=>row.slice().reverse()):chess.board();
+  for (const [rankIndex, rank] of ranks.entries()) {
     for (let file = 0; file < 8; file++) {
-      const square = `${'abcdefgh'[file]}${8-rankIndex}` as Square;
+      const square = `${'abcdefgh'[flipped?7-file:file]}${flipped?rankIndex+1:8-rankIndex}` as Square;
       const piece = rank[file];
       const button = document.createElement('button'); button.type = 'button';
       button.className = `${(rankIndex + file) % 2 ? 'dark' : ''} ${targets.includes(square) ? 'target' : ''}`;
@@ -93,12 +107,14 @@ function render() {
   const rootList = document.createElement('ul'); lists.set(null, rootList); variants.append(rootList);
   for (const node of data.nodes) {
     const li = document.createElement('li'); const button = document.createElement('button');
-    button.textContent = `${node.id} · ${node.san ?? 'Ausgangsstellung'}`;
+    button.textContent = `${node.id} · ${data.labels?.[node.id] ?? node.san ?? 'Ausgangsstellung'}${mainIds.has(node.id)?' · Partie':''}`;
     button.setAttribute('aria-current', String(node.id === current.id));
-    button.addEventListener('click', () => { studio.session.select(node.id); selected = null; render(); message('move-feedback', 'Stellung gewechselt.'); });
+    button.addEventListener('click', () => { game.analyse(node.id); selected = null; render(); message('move-feedback', 'Stellung gewechselt.'); });
     li.append(button); lists.get(node.parentId)!.append(li);
     const children = document.createElement('ul'); li.append(children); lists.set(node.id, children);
   }
+  input('variant-label').value=data.labels?.[current.id]??'';
+  renderComparison();
   for (const [kind, id] of [['dialogue', 'dialogue'], ['memory', 'memories']] as const) {
     const container = $(id); container.replaceChildren();
     for (const a of data.annotations.filter(a => a.nodeId === current.id && a.kind === kind)) {
@@ -146,7 +162,7 @@ $('export').addEventListener('click', () => {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
   message('storage-feedback', 'JSON bereitgestellt und als Datei exportiert.');
 });
-$('import').addEventListener('click', () => attempt(() => studio.restore(text('session-json').value), 'storage-feedback', 'Sitzung wiederhergestellt.'));
+$('import').addEventListener('click', () => attempt(() => restoreSession(text('session-json').value), 'storage-feedback', 'Sitzung wiederhergestellt.'));
 render();
 
 $('session-file').addEventListener('change', async () => {
@@ -154,7 +170,7 @@ $('session-file').addEventListener('change', async () => {
   if (!file) return;
   try {
     const json = await file.text();
-    attempt(() => { studio.restore(json); text('session-json').value = json; }, 'storage-feedback', 'Sitzung aus Datei wiederhergestellt.');
+    attempt(() => { restoreSession(json); text('session-json').value = json; }, 'storage-feedback', 'Sitzung aus Datei wiederhergestellt.');
   } catch { message('storage-feedback', 'Datei konnte nicht gelesen werden.'); }
   $<HTMLInputElement>('session-file').value = '';
 });
@@ -256,3 +272,41 @@ $('update-install').addEventListener('click',async()=>{
     message('update-feedback','Installation läuft länger. Diagnose erneut öffnen; nicht mehrfach installieren.');
   }catch{message('update-feedback','Update nicht abgeschlossen. Diagnose und lokalen Projektstand prüfen.');}
 });
+
+function restoreSession(json:string){studio.restore(json);game.pause();}
+async function engineTurn(){
+  if(enginePending || !game.needsEngine())return;
+  enginePending=true;render();
+  try{const result=await game.reply(new ServerPlayingEngine());if(result==='stored')message('game-feedback','Stockfish hat gezogen. Du bist am Zug.');}
+  catch(error){message('game-feedback',error instanceof Error?error.message:'Enginezug fehlgeschlagen. Partie pausiert.');}
+  finally{enginePending=false;render();if(game.needsEngine())void engineTurn();}
+}
+$('game-form').addEventListener('submit',event=>{
+ event.preventDefault();attempt(()=>game.start($<HTMLSelectElement>('game-color').value as 'w'|'b',Number($<HTMLSelectElement>('game-level').value)),'game-feedback','Lernpartie gestartet.');void engineTurn();
+});
+$('game-pause').addEventListener('click',()=>{game.pause();render();message('game-feedback','Partie pausiert. Probiere Varianten oder bespreche deine Ideen.');});
+$('game-resume').addEventListener('click',()=>{attempt(()=>game.resume(),'game-feedback','Zur tatsächlichen Partie zurückgekehrt.');void engineTurn();});
+text('question').addEventListener('focus',()=>{if(studio.session.snapshot().game){game.pause();render();}});
+$('label-form').addEventListener('submit',event=>{event.preventDefault();attempt(()=>studio.session.label(studio.session.snapshot().activeNodeId,input('variant-label').value),'compare-feedback','Variantenname gespeichert.');});
+$('compare-form').addEventListener('submit',event=>{event.preventDefault();attempt(()=>studio.session.compare($<HTMLSelectElement>('compare-a').value,$<HTMLSelectElement>('compare-b').value),'compare-feedback','Vergleich gespeichert und im Dialogkontext verfügbar.');});
+function renderComparison(){
+ const d=studio.session.snapshot();
+ for(const [id,saved] of [['compare-a',d.comparison?.a],['compare-b',d.comparison?.b]] as const){
+  const select=$<HTMLSelectElement>(id),previous=saved??select.value;select.replaceChildren();
+  for(const node of d.nodes){const option=document.createElement('option');option.value=node.id;option.textContent=`${node.id} · ${d.labels?.[node.id]??node.san??'Ausgangsstellung'}`;select.append(option);}
+  if(d.nodes.some(n=>n.id===previous))select.value=previous;
+ }
+ const container=$('comparison-view');container.replaceChildren();if(!d.comparison)return;
+ const a=pathTo(d,d.comparison.a),b=pathTo(d,d.comparison.b);
+ const common=a.filter((node,i)=>b[i]?.id===node.id).at(-1)!;
+ const heading=document.createElement('p');heading.textContent=`Gemeinsamer Ausgangspunkt: ${common.id} · ${d.labels?.[common.id]??common.san??'Ausgangsstellung'}`;container.append(heading);
+ for(const [name,id] of [['A',d.comparison.a],['B',d.comparison.b]]){
+  const path=pathTo(d,id!),node=path.at(-1)!;const card=document.createElement('article');card.className='comparison-card';
+  const title=document.createElement('h3');title.textContent=`${name}: ${d.labels?.[node.id]??node.san??node.id}`;card.append(title);
+  const mini=document.createElement('div');mini.className='mini-board';mini.setAttribute('role','img');mini.setAttribute('aria-label',`Stellung ${name}: ${node.fen}`);
+  const glyphs:Record<string,string>={wk:'♔',wq:'♕',wr:'♖',wb:'♗',wn:'♘',wp:'♙',bk:'♚',bq:'♛',br:'♜',bb:'♝',bn:'♞',bp:'♟'};
+  for(const [rank,row] of new Chess(node.fen).board().entries())for(let file=0;file<8;file++){const cell=document.createElement('span');cell.className=(rank+file)%2?'dark':'';const piece=row[file];cell.textContent=piece?glyphs[piece.color+piece.type]!+'\uFE0E':'';mini.append(cell);}
+  card.append(mini);const line=document.createElement('p');line.textContent=`Zugfolge: ${path.slice(1).map(n=>n.san).join(' ')||'Ausgangsstellung'}`;card.append(line);
+  const notes=document.createElement('p');notes.textContent=d.annotations.filter(n=>n.nodeId===node.id && n.kind!=='factcheck').map(n=>`${n.source}: ${n.text}`).join('\n')||'Noch keine Notiz oder Diskussion an dieser Stellung.';card.append(notes);container.append(card);
+ }
+}

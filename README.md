@@ -1,7 +1,8 @@
 # AI-Chess-Studio
 
-Lokales, deutschsprachiges Schachlabor mit Variantenbaum, strategischem
-Gedächtnis, Dialog und optionalem Stockfish-Faktencheck.
+Persönliches Schach-Lernprogramm: gegen Stockfish spielen und während oder
+nach der Partie mit einer getrennten KI über Stellungen, Strategien und
+Varianten sprechen. Varianten ausprobieren, benennen, speichern und vergleichen.
 
 ## Start auf deinem PC
 
@@ -27,6 +28,33 @@ beides bereit. Quellcodeentwicklung ist mit npm run dev möglich.
 
 Eine kurze Schrittfolge liegt auch in **ERSTE_SCHRITTE.txt**. Das Windows-Paket
 ist kein veröffentlichtes Release; native Windows-Abnahme steht weiterhin aus.
+
+## Spielen und dabei lernen
+
+1. Farbe und Engine-Spielstärke (Level 1 bis 5) wählen und „Partie ab dieser
+   Stellung starten“ drücken. Am Anfang ist dies die normale Anfangsstellung.
+   Als Schwarz führt Stockfish den ersten Zug aus. Sonst spielst du zuerst.
+2. Brettklicks oder SAN-Züge eingeben; Stockfish antwortet automatisch.
+3. „Pausieren und analysieren“ wählen, frühere Stellungen anklicken und andere
+   Züge ausprobieren. Die tatsächliche Partiestellung wird nicht verändert.
+   Auch der Einstieg in die Planfrage pausiert die Partie automatisch.
+4. Mit der KI über den ausgewählten Stand sprechen; Frage, Antwort und
+   Gedächtnis bleiben dieser Stellung zugeordnet. Der Simulationsmodus zeigt
+   nur Beispieldaten, keine echte Analyse.
+5. Varianten benennen, A/B auswählen und „Vergleich anzeigen“: zwei Bretter,
+   Zugfolgen, gemeinsamer Ausgangspunkt und jeweilige Notizen. Der ausgewählte
+   Vergleich geht als begrenzter Kontext in die nächste KI-Frage ein.
+6. „Zur Partie zurück und fortsetzen“ kehrt exakt zur tatsächlichen Partie
+   zurück. Bei Enginefehlern bleibt sie pausiert, ohne automatische Retry-Schleife.
+7. Die Sitzung als JSON speichern. Sie enthält Partie, Varianten, Namen,
+   Vergleich und Gespräche; Import startet keine Engine automatisch, sondern
+   pausiert die Partie zur sicheren Durchsicht.
+
+Die Stufen entsprechen Stockfish Skill Level 0/5/10/15/20 mit begrenzter
+Suchzeit (200 bis 1000 ms), Tiefe 12 und 20.000 Knoten. Es sind keine geeichten
+Elo-Stufen; auch Level 1 kann stark spielen. Spielzüge nutzen die Zughistorie
+für Wiederholungen, Rochade und en passant. Der zusätzliche taktische
+Faktencheck bleibt ein separater ausdrücklicher Aufruf.
 
 ## Eigenen API-Schlüssel direkt eingeben
 
@@ -104,7 +132,8 @@ des Updates keine zweite Installation starten und keinen Quellcode bearbeiten.
   Sie belegt keine strategische Analysequalität eines Modells.
 - Dialog, eigene Hypothesen und offene Fragen bleiben an ihrer Stellung;
   verspätete Antworten werden nach Sitzungsersatz verworfen.
-- Stockfish 19 Lite WASM startet ausschließlich nach Klick. Optional einen
+- Im Spielmodus ist Stockfish 19 Lite WASM der automatische Gegner.
+  Der getrennte Analyse-Faktencheck startet ausschließlich nach Klick. Optional einen
   eigenen SAN-Kandidaten prüfen: keine automatische Bewertungsleiste oder
   Zugvorgabe. Bedingungen: ein Thread, 16 MiB Hash, Tiefe 12 / 20.000 Knoten /
   1 s Suchzeit, 8 s Prozess-Timeout. Aktuelle FEN ohne Wiederholungshistorie
@@ -116,14 +145,14 @@ des Updates keine zweite Installation starten und keinen Quellcode bearbeiten.
 
 ## Nachweise und Grenzen
 
-`npm run test:all`: Typprüfung, Build, **47 Einzeltests und 12 Chromium-
+`npm run test:all`: Typprüfung, Build, **56 Einzeltests und 15 Chromium-
 Browsertests**. Der gebaute Anwendungsserver wird getestet, einschließlich
 echtem lokalem Stockfish. Schlüsseltests verwenden ausschließlich bedeutungslose
 Testwerte, Provider-/Update-Tests lokale Fixtures. Es wurde kein echtes Update
 auf diesen Arbeitsstand und keine kostenpflichtige Textgenerierung ausgeführt.
 Ein realer Modelltest und manuelle Nutzerabnahme stehen aus.
 
-[Projektstand](PROJECT_STATE.md) · [Prüfergebnisse](docs/VALIDATION.md) ·
+[Entwicklungsplan](DEVELOPMENT_PLAN.md) · [Projektstand](PROJECT_STATE.md) · [Prüfergebnisse](docs/VALIDATION.md) ·
 [Engine-Lizenz und Quellen](THIRD_PARTY_NOTICES.md)
 
 

@@ -242,3 +242,38 @@ test('update UI checks target and requires explicit install consent',async({page
  await page.locator('#update-consent').check();await page.getByRole('button',{name:'Update installieren'}).click();
  await expect(page.locator('#update-feedback')).toContainText('nicht abgeschlossen');expect(installs).toBe(1);
 });
+
+test('real engine learning game pauses for chat, keeps analysis branches and saves comparisons',async({page})=>{
+ let engineCalls=0;page.on('request',r=>{if(r.url().endsWith('/api/play'))engineCalls++;});
+ await page.goto('/');await page.getByLabel('Engine-Spielstärke',{exact:true}).selectOption('1');
+ await page.getByRole('button',{name:'Partie ab dieser Stellung starten'}).click();
+ await play(page,'e4');await expect(page.locator('#game-feedback')).toContainText('Stockfish hat gezogen');
+ expect(engineCalls).toBe(1);
+ const played=JSON.parse(await exportData(page)),cursor=played.game.cursor;
+ await page.getByRole('button',{name:'Pausieren und analysieren',exact:true}).click();
+ await page.getByRole('button',{name:'n0 · Ausgangsstellung · Partie',exact:true}).click();await play(page,'d4');
+ await page.getByLabel('Name der ausgewählten Variante').fill('Mein d4-Plan');await page.getByRole('button',{name:'Variante benennen'}).click();
+ await page.getByLabel('Variante A',{exact:true}).selectOption('n1');await page.getByLabel('Variante B',{exact:true}).selectOption('n3');
+ await page.getByRole('button',{name:'Vergleich anzeigen'}).click();await expect(page.locator('#comparison-view')).toContainText('Mein d4-Plan');
+ await expect(page.locator('.mini-board')).toHaveCount(2);
+ await page.getByLabel('Deine Planfrage').fill('Was unterscheidet meinen Plan von e4?');
+ await page.getByRole('button',{name:'Plan diskutieren (Simulation)'}).click();await expect(page.locator('#dialogue')).toContainText('Was unterscheidet');
+ const saved=await exportData(page);expect(JSON.parse(saved).game.cursor).toBe(cursor);expect(engineCalls).toBe(1);
+ await page.reload();await importData(page,saved);await expect(page.locator('#game-status')).toContainText('Analysemodus');
+ await expect(page.locator('#comparison-view')).toContainText('Mein d4-Plan');
+ await page.getByRole('button',{name:'Zur Partie zurück und fortsetzen'}).click();await expect(page.locator('#position-status')).toContainText(cursor);
+ expect(engineCalls).toBe(1);
+});
+test('black-side learning game receives the first real engine move automatically',async({page})=>{
+ await page.goto('/');await page.getByLabel('Meine Farbe',{exact:true}).selectOption('b');await page.getByLabel('Engine-Spielstärke',{exact:true}).selectOption('5');
+ await page.getByRole('button',{name:'Partie ab dieser Stellung starten'}).click();await expect(page.locator('#game-feedback')).toContainText('Stockfish hat gezogen');
+ await expect(page.locator('#game-status')).toContainText('Du spielst Schwarz');
+ await expect(page.locator('#board button').first()).toHaveAttribute('aria-label','h1: Weiß Turm');
+ await expect(page.locator('#position-status')).toContainText('n1 · Schwarz');
+});
+test('engine error pauses the learning game without an automatic retry loop',async({page})=>{
+ let calls=0;await page.route('**/api/play',route=>{calls++;return route.fulfill({status:503,json:{error:'test'}});});
+ await page.goto('/');await page.getByRole('button',{name:'Partie ab dieser Stellung starten'}).click();await play(page,'e4');
+ await expect(page.locator('#game-status')).toContainText('Analysemodus');await expect(page.locator('#game-feedback')).toContainText('fehlgeschlagen');
+ expect(calls).toBe(1);expect(JSON.parse(await exportData(page)).nodes).toHaveLength(2);
+});

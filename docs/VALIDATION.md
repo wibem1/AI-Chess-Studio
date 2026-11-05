@@ -240,3 +240,29 @@ Build, 47 Einzeltests und 12 Browsertests erneut bestanden. Dies ist ein echter
 Wiederherstellungs-/Anwendungstest unter Linux, kein nativer Windows-Test.
 Der finale Paketstand unterscheidet sich nur in dieser Dokumentation vom
 geprüften Kandidaten und wird erneut mit Integritätsmanifest erzeugt.
+
+## Zielkorrektur und erster vollständiger Engine-Lernablauf
+
+5. November 2026: Nutzer präzisiert das eigentliche Ziel: gegen Engine spielen,
+parallel/danach mit KI lernen, Varianten ausprobieren/speichern/vergleichen.
+AGENTS.md und DEVELOPMENT_PLAN.md entsprechend korrigiert.
+
+`npm run test:all`: Typprüfung und Build bestanden, **56 Einzeltests und
+15 Chromium-Browsertests bestanden**, keine fehlgeschlagen/übersprungenen Tests.
+
+Reale Stockfish-Spielengine auf fünf Skill-Stufen geprüft (0/5/10/15/20,
+200–1000 ms, Tiefe 12, 20.000 Knoten). Nur legale Spielzüge werden angewendet;
+keine Suchbewertung als vermeintlicher strategischer Dialog ausgegeben.
+Historie wird bis zur Engine transportiert; Wiederholungspartie und gefälschte
+Historie werden abgewiesen. Hauptpartie/Analyse, Weiß/Schwarz, falsche Zugseite,
+Pause/Resume-Rennen, Sitzungsersatz, illegale Antworten, Namen/Vergleich und
+JSON-Erhalt isoliert geprüft. Ein anfänglicher JSON-Rundlauf deckte abweichende
+Feldreihenfolge auf; Export wurde kanonisch geordnet, anschließend kompletter
+Lauf bestanden (keine Assertions abgeschwächt).
+
+Neue Browsernachweise: echte Partie als Weiß mit Engineantwort; pausieren,
+anderen Eröffnungszug als Variante spielen, benennen, A/B nebeneinander sehen,
+Simulationsdialog führen, speichern/wiederherstellen und zum unveränderten
+Partiekursor zurückkehren. Als Schwarz spielt die echte Engine zuerst und das
+Brett ist passend gedreht. Enginefehler pausieren ohne unkontrollierte Retries.
+Keine echte Sprachmodell-Anfrage; native Windows-Abnahme weiterhin offen.

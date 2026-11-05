@@ -1,3 +1,4 @@
+import { pathTo } from './game.js';
 import { Session } from './session.js';
 
 export interface DialogueRequest { nodeId: string; fen: string; question: string; legalMoves: string[]; context?: string[] }
@@ -37,8 +38,15 @@ export class Studio {
     const nodeId = snapshot.activeNodeId;
     const fen = snapshot.nodes.find(n => n.id === nodeId)!.fen;
     if (question.length > 1000) throw new Error('Die Planfrage darf höchstens 1000 Zeichen enthalten.');
-    const context = snapshot.annotations.filter(a => a.nodeId === nodeId).slice(-6)
-      .map(a => `${a.source}/${a.kind}/${a.hypothesis ? 'Hypothese' : 'Eingabe'}: ${a.text}\nOffen: ${a.openQuestions.join(' / ')}`.slice(0, 800));
+    const ancestors=new Set(pathTo(snapshot,nodeId).map(n=>n.id));
+    const context = snapshot.annotations.filter(a => ancestors.has(a.nodeId)).slice(-6)
+      .map(a => `${a.nodeId}/${a.source}/${a.kind}/${a.hypothesis ? 'Hypothese' : 'Eingabe'}: ${a.text}\nOffen: ${a.openQuestions.join(' / ')}`.slice(0, 800));
+    if(snapshot.comparison){
+      const describe=(id:string)=>{const p=pathTo(snapshot,id);const notes=snapshot.annotations.filter(a=>a.nodeId===id && a.kind==='memory').slice(-1).map(a=>`${a.source}/${a.hypothesis?'Hypothese':'Eingabe'}: ${a.text.slice(0,100)}`).join('');return `${(snapshot.labels?.[id]??id).slice(0,40)}: FEN ${p.at(-1)!.fen}; Notiz ${notes}; Züge ${p.slice(1).map(n=>n.san).join(' ').slice(-60)}`.slice(0,360);};
+      context.push(`Ausdrücklich ausgewählter Variantenvergleich: A ${describe(snapshot.comparison.a)} / B ${describe(snapshot.comparison.b)}`.slice(0,800));
+    }
+    if(snapshot.game)context.push(`Lernpartie: Mensch ${snapshot.game.human==='w'?'Weiß':'Schwarz'}, Engine-Level ${snapshot.game.level}; aktuelle Partie ${snapshot.game.cursor}; Analyse ${nodeId}; ${snapshot.game.paused?'pausiert':'laufend'}.`);
+    while(context.length>6)context.shift();
     const request = { nodeId, fen, question: question.trim(), legalMoves: session.legalMoves(), context };
     const raw = await adapter.respond(request);
     // Replacing a session invalidates outstanding answers, even if node IDs coincide.
