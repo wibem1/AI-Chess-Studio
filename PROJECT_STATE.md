@@ -34,11 +34,14 @@ menschliche Spielbarkeit. Stockfish ausschließlich als expliziter Faktencheck.
 - Typprüfung, Build, 47 Einzeltests und 12 echte Chromium-Browsertests bestanden;
   kein fehlgeschlagener/übersprungener Test. docs/VALIDATION.md.
 
-- Lokales Startpaket vorbereitet: portable offizielle Windows-x64-Node.js-24.22.2-
+- Lokales Startpaket erstellt und entpackt geprüft: portable offizielle Windows-x64-Node.js-24.22.2-
   Laufzeit (SHA-256 gegen nodejs.org geprüft), kurze Anleitung, Starter und
   reproduzierbarer Packager. Keine Schlüssel/Benutzerprofile im Paket.
   Frische Git-Metadaten erhalten die spätere Updatefähigkeit; Git bleibt dafür
-  eine optionale zusätzliche Voraussetzung. Keine native Windows-Freigabe.
+  eine optionale zusätzliche Voraussetzung. Entpackter Kandidat aus Commit
+  32a4000: npm ci, Typprüfung, Build, 47 Einzeltests und 12 Browsertests erneut
+  bestanden. Sauberer Git-Stand und Updatequelle im Paket geprüft.
+  Keine native Windows-Freigabe.
 
 ## Grenzen
 

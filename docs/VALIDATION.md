@@ -229,3 +229,14 @@ Cloud-Konfiguration werden übernommen. Node-Lizenztexte bleiben enthalten.
 Das Paket ist ein privates lokales Startpaket, kein veröffentlichtes Release.
 Die Windows-Binärdatei/DPAPI werden hier nicht nativ ausgeführt; Windows-
 Nutzerabnahme und echte Modellvalidierung bleiben getrennte offene Nachweise.
+
+Paketkandidat aus Commit 32a4000 tatsächlich erzeugt und entpackt:
+ZIP-CRC ohne Fehler; Quell-HEAD entspricht dem Paketmanifest; Git-Status sauber;
+Origin exakt https://github.com/wibem1/AI-Chess-Studio.git; Node.exe als
+Windows-PE-Datei erkannt und Laufzeit-Lizenztexte vorhanden. Kein Cloud-
+Benutzerprofil, keine installierten App-Abhängigkeiten und keine .env übernommen.
+Aus dem entpackten Paket npm ci sowie npm run test:all ausgeführt: Typprüfung,
+Build, 47 Einzeltests und 12 Browsertests erneut bestanden. Dies ist ein echter
+Wiederherstellungs-/Anwendungstest unter Linux, kein nativer Windows-Test.
+Der finale Paketstand unterscheidet sich nur in dieser Dokumentation vom
+geprüften Kandidaten und wird erneut mit Integritätsmanifest erzeugt.
