@@ -1,20 +1,19 @@
-# AI-Chess-Studio – Windows-Startpaket
+# AI-Chess-Studio 0.1.0 – Windows-Startpaket
 
-Speicherstatus: sofortige Fortschrittsmeldung und bleibende Bestaetigung nach
-lokaler Schluesselspeicherung. Leeres Eingabefeld ist vorgesehen. Langsamer
-lokaler Speicher hat mehr Zeit; Timeout und Fehler werden deutlich gemeldet.
+Datei: AI-Chess-Studio-0.1.0-Windows.zip
+ZIP vollstaendig entpacken. Im Ordner AI-Chess-Studio-0.1.0 die Datei
+AI-Chess-Studio-starten.cmd starten. Alte App-Tabs und Serverfenster vorher
+schliessen; ungesicherte Sitzung zuerst exportieren. Vorhandene lokale
+Schluessel im Benutzerprofil bleiben erhalten.
 
-Vor Wechsel Sitzung exportieren. Alte App-Serverfenster und App-Browsertabs
-schliessen. ZIP in neuen Ordner vollstaendig entpacken, starten mit
-AI-Chess-Studio-starten.cmd und den dadurch geoeffneten Browsertab verwenden.
-Gespeicherte Schluessel im Benutzerprofil bleiben erhalten.
+Die Nummer 0.1.0 steht oben in der App, im Browser-Titel, Startfenster,
+Diagnose und Paketmanifest. Kuenftige Korrekturen erhalten eine neue Nummer.
+Aenderungen siehe CHANGELOG.md im Paket.
 
-Build, 68 Einzeltests und 26 Chromium-Browsertests bestanden. Finger-Scrollen
-waehrend und nach Speichern sowie bei Speicherfehler in Android-, iPad- und
-Desktop-Touchemulation geprueft. Der vom Nutzer beobachtete Scrollstillstand
-auf Windows-Touchscreen mit Chrome/Edge ist hier NICHT reproduziert.
-Native Windows-Touch-/DPAPI-Abnahme bleibt offen. Kein Provideraufruf.
-Keine Schluessel im Paket. Download-Branch, kein Release oder Deployment.
+Typpruefung, Build, 68 Einzeltests und 27 Chromium-Browsertests bestanden.
+Native Windows-Touch-/DPAPI-Abnahme und der dort gemeldete Scrollstillstand
+bleiben offen. Keine Schluessel im Paket. Download-Branch, kein Release oder
+Deployment. Vorherige Downloads bleiben ueber ihre Git-Commits erhalten.
 
-Quellcommit: 0126fe0d49044ea973f85df466684cdc51bcca75
-SHA-256: 30f476aac46f0a526f0d15947d7bb5e9942bd1727c1076b3ce32aa15ccbd8090
+Quellcommit: 9de529c236e538f1d575210dfe9e2781d1d627a3
+SHA-256: 558b5b854a7d1349812a82f5b8b09775cbcf01f2913bf6becfc0e5af8fd3d11f
