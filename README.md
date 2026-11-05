@@ -1,18 +1,15 @@
-# AI-Chess-Studio – lokales Windows-Startpaket
+# AI-Chess-Studio – Windows-Startpaket
 
-Die ZIP-Datei auf diesem Branch herunterladen (Download raw file), vollstaendig
-entpacken und AI-Chess-Studio-starten.cmd doppelklicken. Portable Node.js-
-Laufzeit ist enthalten. Erststart braucht Internet fuer npm-Abhaengigkeiten.
-Den API-Schluessel erst in der lokal gestarteten App eingeben und speichern.
+Startfehler „tsc nicht gefunden“ repariert. ZIP erneut herunterladen und
+in einen NEUEN Ordner vollstaendig entpacken, dann
+AI-Chess-Studio-starten.cmd doppelklicken. Fehlende Build-Werkzeuge werden
+automatisch nachinstalliert. Portable Node.js-Laufzeit ist enthalten.
+Internet wird fuer die erste Installation benoetigt. Lokale Schluesseldateien
+im Benutzerprofil werden nicht geloescht.
 
-Enthalten: Engine-Lernpartie, Variantenvergleich, Lerndialog, lokale
-Schluesselablage, Diagnose, Kostenkontrolle und Updatefunktion.
+Quellcode: Branch work. Dies ist ein Download-Branch, kein Release/Deployment.
+Build, 64 Einzeltests und 19 Browsertests bestanden; echte KI und native
+Windows-Abnahme bleiben offen. Kein API-Schluessel im Paket.
 
-Dies ist ein separater Download-Branch, kein Release und kein Deployment.
-Der Quellcode liegt auf Branch work. Kein API-Schluessel ist im Paket.
-Linux/Chromium-Tests bestanden; native Windows-Abnahme und echte
-KI-Providerpruefung bleiben offen.
-
-Quellcommit: d2322ae6159ba7a64f6969a54b0ea5d3f63f8223
-
-SHA-256: 42b34b45214835dc0b3e7a83c1b633523eed2f006d58e656c0944a02c45bc54a
+Quellcommit: 9e973ecb0a3361d61fdd5013eacc3b72e73c5041
+SHA-256: 3a63f6442736a461bcceaded974a806af3f1cc76ec809447cf3e08bfb18344d2
