@@ -56,6 +56,18 @@ Elo-Stufen; auch Level 1 kann stark spielen. Spielzüge nutzen die Zughistorie
 für Wiederholungen, Rochade und en passant. Der zusätzliche taktische
 Faktencheck bleibt ein separater ausdrücklicher Aufruf.
 
+## Menschliche Denkweise statt bloßer Enginebewertung
+
+Der KI-Lernbegleiter soll deine eigenen Ideen und Begründungen aufgreifen und
+Pläne auch nach Verständlichkeit, Folgeschritten, Rechenaufwand, notwendiger
+Genauigkeit und leicht übersehbaren Antworten besprechen. Bei A/B-Vergleichen
+geht es ebenso um praktische Entscheidungen und Lernwert. Er soll nach deinen
+Gedanken fragen und dir keine Spielstärke oder Denkfehler unterstellen.
+Ein verständlicher Plan ist dadurch noch nicht taktisch bestätigt.
+
+Dieser Auftrag ist implementiert; ein realer Lerndialog muss die Qualität
+noch nachweisen. Siehe Humanfaktor-Kriterien in DEVELOPMENT_PLAN.md.
+
 ## Eigenen API-Schlüssel direkt eingeben
 
 1. In der App „Eigenen API-Schlüssel eingeben“ öffnen.

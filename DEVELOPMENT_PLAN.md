@@ -38,9 +38,40 @@ Nach Partieende stehen Dialog und Analysevarianten weiterhin zur Verfügung.
    ausgelöst und getrennt vom automatischen Spielgegner; kein ungefragter
    bester Zug und keine automatische Bewertungsleiste im Lernmodus.
 
+## Humanfaktor – verbindlicher Analysemaßstab
+
+Die menschliche Denkweise ist Kern der Lernanalyse, nicht eine zusätzliche
+Formulierung neben einer Enginebewertung. Ausgangspunkt sind die eigene Idee,
+Begründung und offene Frage des Lernenden. Fehlen diese, fragt die KI nach,
+statt ihm einen Gedankengang oder eine Spielstärke zuzuschreiben.
+
+Bei Plänen und A/B-Vergleichen betrachtet der Lernbegleiter:
+
+- Wie man auf die Idee kommen kann: Figurenaktivität, Bauernstruktur, Muster,
+  Schwächen und erkennbare Drohungen, soweit konkret begründbar.
+- Verständlichkeit des Plans und sinnvolle nächste Schritte.
+- Rechenaufwand und notwendige Genauigkeit; leicht übersehbare Antworten.
+- Wie sich der Plan nach einer gegnerischen Abweichung weiterführen lässt.
+- Praktische Entscheidungsprobleme und Lernwert für die geäußerten Lernziele.
+
+Taktische Haltbarkeit, strategische Idee und menschliche Umsetzbarkeit sind
+getrennte Fragen. Ein leichter verständlicher Plan wird nicht ohne Prüfung
+als taktisch korrekt bezeichnet. Es gibt keine erfundenen psychologischen
+Scores oder Enginewerte. Gegnerabsichten und mögliche Denkfehler sind
+Hypothesen. Die Engine-Stufe ist keine Einstufung des Menschen.
+
+Diese Anforderungen sind im Modellauftrag konkretisiert; ihre Erfüllung durch
+eine reale KI ist noch zu prüfen und wird nicht durch Prompttext bewiesen.
+
 ## Noch erforderliche Abnahme
 
 Ein realer, begrenzter KI-Dialog zum eigenen Plan und einem ausgewählten
 Variantenvergleich mit nutzerseitig lokal hinterlegtem Schlüssel. Anschließend
 gezielter manueller Windows-Lerndurchlauf. Simulationen und Linux-Tests ersetzen
 weder diese reale KI-Prüfung noch die native Windows-Abnahme.
+
+Der reale Lerndialog muss zusätzlich nachweisen: eigene Begründung aufgreifen,
+praktischen Unterschied zweier Pläne erklären, mindestens einen relevanten
+Aufmerksamkeits-/Rechenaspekt benennen und eine hilfreiche Lernfrage stellen,
+ohne Enginezahlen, persönliche Eigenschaften oder taktische Sicherheit zu
+erfinden. Nutzerfeedback zu Verständlichkeit und Lernwert gehört zur Abnahme.

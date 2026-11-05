@@ -32,6 +32,16 @@ Analysebrett/Faktencheck war ein Missverständnis und ist korrigiert.
   Browser geprüft; KI-Antworten weiterhin ausschließlich Testfixtures.
 - Vorheriger Stand 6da1a54 bleibt erhalten. Details: docs/VALIDATION.md.
 
+## Humanfaktor konkretisiert
+
+Nutzerklarstellung: Die Lernanalyse soll menschliche Denkweise berücksichtigen,
+nicht nur Enginewerte. DEVELOPMENT_PLAN.md und Modellauftrag ergänzt:
+eigene Begründungen, Planverständnis, Kandidatenfindung, Rechenaufwand,
+Genauigkeit, übersehbare Antworten, Weiterführung und persönlicher Lernwert.
+Keine Einstufung des Menschen aus dem Engine-Level, keine erfundenen
+Psychologie-/Enginewerte; praktische Umsetzbarkeit ist keine taktische Freigabe.
+Implementiert ist die Instruktion; reale pädagogische Qualität noch nicht belegt.
+
 ## Weiter vorhandene Funktionen
 
 Lokaler App-Server/Windows-Starter; private persistente Schlüsselablage

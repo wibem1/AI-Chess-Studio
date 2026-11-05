@@ -266,3 +266,18 @@ Simulationsdialog führen, speichern/wiederherstellen und zum unveränderten
 Partiekursor zurückkehren. Als Schwarz spielt die echte Engine zuerst und das
 Brett ist passend gedreht. Enginefehler pausieren ohne unkontrollierte Retries.
 Keine echte Sprachmodell-Anfrage; native Windows-Abnahme weiterhin offen.
+
+## Humanfaktor als verbindlicher Lernmaßstab
+
+5. November 2026: Nutzer betont menschliches Schachdenken als Grundlage der
+Lernanalyse. Modellauftrag und Entwicklungsplan konkretisiert: eigene Ideen
+und Begründungen, verständliche Kandidatenfindung, Planfolgeschritte, notwendige
+Rechenarbeit/Genauigkeit, leicht übersehbare Antworten, Reaktion auf Abweichungen
+und Lernwert. Keine Zuschreibung persönlicher Eigenschaften oder Spielstärke
+aus dem Engine-Level; keine ungeprüfte taktische Freigabe verständlicher Pläne.
+
+npm test und npm run check bestanden: Build, 56 Einzeltests, Typprüfung.
+Keine UI-/Schnittstellenänderung; der vorherige Browsernachweis bleibt bestehen.
+Dies ist ein Instruktions-/Regressionsnachweis, ausdrücklich kein Nachweis realer
+pädagogischer Antwortqualität. Reale Dialogabnahme und Nutzerfeedback zu
+Verständlichkeit/Lernwert stehen weiterhin aus. Keine bezahlte Anfrage ausgeführt.
