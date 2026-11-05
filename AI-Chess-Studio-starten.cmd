@@ -14,10 +14,18 @@ if errorlevel 1 (
   pause
   exit /b 1
 )
-if not exist node_modules\chess.js\package.json (
-  call npm ci --no-audit --no-fund
-  if errorlevel 1 goto failed
-)
+if not exist node_modules\chess.js\package.json goto install_dependencies
+if not exist node_modules\stockfish\package.json goto install_dependencies
+if not exist node_modules\typescript\bin\tsc goto install_dependencies
+if not exist node_modules\vite\bin\vite.js goto install_dependencies
+if not exist node_modules\.bin\tsc.cmd goto install_dependencies
+if not exist node_modules\.bin\vite.cmd goto install_dependencies
+goto build_app
+:install_dependencies
+echo Fehlende App- und Build-Werkzeuge werden installiert...
+call npm ci --include=dev --include=optional --bin-links=true --no-audit --no-fund
+if errorlevel 1 goto failed
+:build_app
 call npm run build
 if errorlevel 1 goto failed
 set CHESS_OPEN_BROWSER=1

@@ -69,6 +69,15 @@ Implementiert ist die Instruktion; reale pädagogische Qualität noch nicht bele
 - Laufende Konfiguration und lokaler Schlüsselspeicher geprüft: kein nutzbarer
   realer Modellzugang in dieser Umgebung. Keine bezahlte Anfrage ausgeführt.
 
+## Windows-Startfehler behoben
+
+Nutzermeldung: tsc fehlt beim Build. Starter prüfte nur chess.js und übersah
+fehlende Build-Werkzeuge. Windows-/Mac-Start und Selbstupdate installieren jetzt
+explizit Entwicklungs-/optionale Pakete und Binärverknüpfungen. Fehler mit
+npm ci --omit=dev nachgestellt; Reparatur selbst bei NODE_ENV=production
+nachgewiesen. Anschließend Build, 64 Einzeltests und 19 Browsertests bestanden.
+Keine Änderung an lokalen Schlüsseln oder Benutzerdaten.
+
 ## Weiter vorhandene Funktionen
 
 Lokaler App-Server/Windows-Starter; private persistente Schlüsselablage

@@ -41,7 +41,7 @@ export class UpdateService {
    await this.run('git',['merge','--ff-only',target],this.root);
    const npmCli=process.env.npm_execpath;
    if(!npmCli)throw new Error('App mit npm start starten.');
-   await this.run(process.execPath,[npmCli,'ci','--no-audit','--no-fund'],this.root);
+   await this.run(process.execPath,[npmCli,'ci','--include=dev','--include=optional','--bin-links=true','--no-audit','--no-fund'],this.root);
    await this.run(process.execPath,[npmCli,'test'],this.root);
    this.state={stage:'complete',message:'Update installiert. App beenden und neu starten, damit der neue Servercode läuft.',restartRequired:true};
   }catch{this.state={stage:'failed',message:'Update nicht abgeschlossen. Keine Änderungen wurden erzwungen. Quellstand und Installation prüfen; die bisherigen Commits bleiben in Git erhalten.',restartRequired:false};}

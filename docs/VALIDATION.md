@@ -341,3 +341,19 @@ keinen nutzbaren echten Schlüsselzugang. Keine Werte ausgegeben, keine neue
 Schlüsseleingabe im Chat verlangt. Keine echte Provider-/kostenpflichtige
 Textgenerierung, keine Aussage über reale pädagogische Qualität. Nativer
 Plattformtest weiterhin separat erforderlich.
+
+## Startreparatur: tsc fehlt unter Windows
+
+5. November 2026: Nutzer meldet beim Start „tsc konnte nicht gefunden werden“.
+Der bisherige Starter prüfte nur chess.js und konnte daher eine unvollständige
+oder auf Produktionspakete beschränkte Installation fälschlich überspringen.
+Windows-/Mac-Starter prüfen nun auch Stockfish, TypeScript, Vite und die
+zugehörigen Startverknüpfungen. Reparatur und Selbstupdate installieren mit
+--include=dev --include=optional --bin-links=true trotz abweichender npm-Vorgaben.
+
+Den Zustand real nachgestellt: npm ci --omit=dev installiert chess.js, aber
+kein tsc. Anschließend NODE_ENV=production npm ci mit den neuen Flags:
+TypeScript 7.0.2 und Vite 8.3.5 verfügbar. Mac-Starter mit bash -n geprüft.
+Vollständiger Lauf danach: Typprüfung, Build, 64 Einzeltests und 19 Browsertests
+bestanden, keine fehlgeschlagen/übersprungen. Keine native Windows-Ausführung
+behauptet. Kein API-Schlüssel oder Benutzerprofil durch die Reparatur verändert.
