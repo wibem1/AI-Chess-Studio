@@ -185,7 +185,9 @@ des Updates keine zweite Installation starten und keinen Quellcode bearbeiten.
 
 - Figuren ziehen, Start-/Zielklicks oder SAN-Züge (e4, Nf3, O-O). Beim Ziehen
   legale Zielfelder sehen; außerhalb des Bretts loslassen oder Escape bricht ab.
-  Für Bauernumwandlung die gewünschte Figur vor dem Zug auswählen. Sonderzüge
+  Auf Touchscreens Figur und dann Zielfeld antippen; Wischen scrollt auch über
+  dem Brett und löst keinen Zug aus. Für Bauernumwandlung die gewünschte Figur
+  vor dem Zug auswählen. Sonderzüge
   und legale Züge werden mit chess.js geprüft.
 - Frühere Variantenknoten wählen und andere Züge spielen, um abzuzweigen.
 - Simulation ist klar markiert und nutzt deterministische Beispieldaten.
@@ -205,7 +207,7 @@ des Updates keine zweite Installation starten und keinen Quellcode bearbeiten.
 
 ## Nachweise und Grenzen
 
-`npm run test:all`: Typprüfung, Build, **68 Einzeltests und 23 Chromium-
+`npm run test:all`: Typprüfung, Build, **68 Einzeltests und 24 Chromium-
 Browsertests**. Der gebaute Anwendungsserver wird getestet, einschließlich
 echtem lokalem Stockfish. Schlüsseltests verwenden ausschließlich bedeutungslose
 Testwerte, Provider-/Update-Tests lokale Fixtures. Es wurde kein echtes Update

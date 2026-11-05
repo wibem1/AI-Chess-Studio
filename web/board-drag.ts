@@ -1,6 +1,6 @@
 import { Chess, type Square } from 'chess.js';
 
-/** Pointer events support mouse, pen and touch without native HTML drag images. */
+/** Mouse/pen drag; touch uses native scrolling and the existing two-tap input. */
 export function installBoardDrag(board: HTMLElement, fen: () => string,
   play: (from: Square, to: Square) => void) {
   let drag: { id: number; from: Square; x: number; y: number; source: HTMLElement;
@@ -19,7 +19,7 @@ export function installBoardDrag(board: HTMLElement, fen: () => string,
     if (current.source.hasPointerCapture(current.id)) current.source.releasePointerCapture(current.id);
   };
   board.addEventListener('pointerdown', event => {
-    if (!event.isPrimary || event.button !== 0 || drag) return;
+    if (event.pointerType === 'touch' || !event.isPrimary || event.button !== 0 || drag) return;
     const source = (event.target as Element).closest<HTMLElement>('[data-square]');
     if (!source || !board.contains(source)) return;
     const from = source.dataset.square as Square;

@@ -27,7 +27,7 @@ Analysebrett/Faktencheck war ein Missverständnis und ist korrigiert.
   unaufgefordert die Engine starten zu lassen.
 - KI-Kontext berücksichtigt Vorfahren der aktuellen Stellung, die Lernpartie
   und ausdrücklich gewählten Vergleich, bleibt auf sechs Einträge begrenzt.
-- Typprüfung, Build, 68 Einzeltests und 23 Chromium-Browsertests bestanden.
+- Typprüfung, Build, 68 Einzeltests und 24 Chromium-Browsertests bestanden.
   Echte lokale Engine auf allen fünf Stufen sowie Weiß-/Schwarz-Lernablauf im
   Browser geprüft; KI-Antworten weiterhin ausschließlich Testfixtures.
 - Vorheriger Stand 6da1a54 bleibt erhalten. Details: docs/VALIDATION.md.
@@ -108,6 +108,20 @@ Ursachen sind eine laufende vorherige App oder ein unter Windows reservierter Po
   Ausweichadresse liefert App und API-Status. EACCES separat simuliert geprüft.
 - Typprüfung/Build, 68 Einzeltests und 23 Browsertests bestanden. Nativer Test
   dieser Startkorrektur unter Windows noch offen.
+
+## Touch-Scrollen repariert
+
+Nutzer meldet blockiertes Scrollen mit dem Finger. Ursache: touch-action:none
+auf dem Brett und Ziehgesten auch für Touch-Ereignisse. Touch nutzt jetzt
+bewusst Start-/Zielfeld-Taps; Wischen und Pinch-Zoom bleiben Browsergesten.
+Maus-/Stiftziehen bleibt über den bestehenden Regelpfad erhalten.
+
+Neuer Chromium-Test sendet native Touchgesten über einem besetzten Bauernfeld
+bei 412x915 und 820x1180: Seite scrollt, keine Figur folgt, kein Zug entsteht;
+anschließend markieren und spielen zwei Taps genau einen legalen Zug.
+Typprüfung/Build, 68 Einzeltests und 24 Browsertests bestanden. Native Tablet-
+Abnahme weiterhin offen. Dieser Stand ersetzt die frühere ungetestete Annahme,
+Touchziehen sei gleichermaßen sinnvoll wie Mausziehen.
 
 ## Weiter vorhandene Funktionen
 

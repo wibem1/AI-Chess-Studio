@@ -404,3 +404,34 @@ test('Escape and pointer cancellation abort dragging without a move',async({page
   await expect(page.locator('#position-status')).toContainText('n0');
  }
 });
+
+
+test('finger swipes over pieces scroll the page while two taps still play a move',async({browser})=>{
+ for(const viewport of [{width:412,height:915},{width:820,height:1180}]){
+  const context=await browser.newContext({viewport,isMobile:true,hasTouch:true});
+  const page=await context.newPage();await page.goto('/');
+  await page.locator('#board').scrollIntoViewIfNeeded();
+  const box=await page.locator('#board').boundingBox();
+  const before=await page.evaluate(()=>scrollY);
+  const cdp=await context.newCDPSession(page);
+  // Start over a white pawn, not just a blank margin: this used to start dragging.
+  const pawn=await page.locator('#board [data-square="e2"]').boundingBox();
+  const x=pawn!.x+pawn!.width/2,y=pawn!.y+pawn!.height/2;
+  await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y}]});
+  for(let step=1;step<=10;step++)await cdp.send('Input.dispatchTouchEvent',{
+   type:'touchMove',touchPoints:[{x,y:y-step*box!.height*0.06}]
+  });
+  await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+  await expect.poll(()=>page.evaluate(()=>scrollY)).toBeGreaterThan(before+30);
+  await expect(page.locator('.drag-piece')).toHaveCount(0);
+  await expect(page.locator('#position-status')).toContainText('n0');
+  // Wait for native momentum to settle before precise taps.
+  await page.locator('#board').scrollIntoViewIfNeeded();
+  await page.getByRole('button',{name:'e2: Weiß Bauer',exact:true}).tap();
+  await expect(page.locator('#board [data-square="e4"]')).toHaveClass(/target/);
+  await page.getByRole('button',{name:'e4: leer',exact:true}).tap();
+  await expect(page.locator('#position-status')).toContainText('n1 · Schwarz');
+  expect(JSON.parse(await exportData(page)).nodes).toHaveLength(2);
+  await context.close();
+ }
+});

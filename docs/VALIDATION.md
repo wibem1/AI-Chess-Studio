@@ -403,3 +403,24 @@ anschließend nur eigene Testprozesse sauber beendet. Kein kostenpflichtiger Auf
 
 Dies prüft die Startlogik unter Linux; native Windows-Portreservierung und
 Browseröffnung durch rundll32 bleiben auf dem Nutzergerät zu bestätigen.
+
+
+## Scrollen mit dem Finger über dem Brett
+
+5. November 2026: Nutzer präzisiert Scrollfehler als Fingerbedienung in der App.
+Ursache im Code: touch-action:none blockierte Browser-Panning und der gemeinsame
+Pointerhandler interpretierte Fingerbewegungen als Figurenziehen. Korrektur:
+touch-action:pan-y pinch-zoom, kein Touch-Pointerstart im Draghandler; Klick-
+Ereignisse von Taps bleiben unverändert für die Start-/Zielauswahl.
+
+Gezielter Lauf mit sechs Touch-/Maus-Browserfällen bestanden. Neuer Test sendet
+über CDP tatsächliche TouchStart/Move/End-Gesten in Chromium, beginnend auf e2
+mit weißem Bauern, bei Android- und iPad-Viewportgrößen. Scrollposition nimmt
+zu, keine Dragfigur/kein Zug entsteht; danach funktionieren zwei Taps mit
+legaler Zielmarkierung und genau einem Zug im Export. Mausziehen/Sonderzüge,
+Abbruch und echter Stockfish auf gedrehtem Brett bleiben erfolgreich.
+
+Abschließend npm run test:all: Typprüfung, Build, 68 Einzeltests und 24
+Chromium-Browsertests bestanden. Keine kostenpflichtigen Provideraufrufe.
+Dies sind echte Browsergesten in Geräteemulation unter Linux; native Windows-
+Touchscreens, Android und iPadOS/Safari bleiben separat zu bestätigen.
