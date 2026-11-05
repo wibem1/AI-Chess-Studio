@@ -424,3 +424,40 @@ Abschließend npm run test:all: Typprüfung, Build, 68 Einzeltests und 24
 Chromium-Browsertests bestanden. Keine kostenpflichtigen Provideraufrufe.
 Dies sind echte Browsergesten in Geräteemulation unter Linux; native Windows-
 Touchscreens, Android und iPadOS/Safari bleiben separat zu bestätigen.
+
+
+## Speicherung und Touch-Scrollen im selben Ablauf
+
+5. November 2026: Nutzer berichtet leeres Schlüsselfeld, keinerlei Rückmeldung
+und erneuten Scrollstillstand. Bisheriges Feldleeren war absichtlich, die Meldung
+kam erst nach mehreren Serverantworten. Ein weiterer Statusabruf konnte unbegrenzt
+warten; die Speicherfrist war ebenso kurz wie der interne DPAPI-Aufruf (5 s).
+
+Korrektur der Rückmeldung: sofortiger sichtbarer Status und Fokus auf die Meldung
+zum Schließen der Touchtastatur, 15-s-Frist für lokale Speicherung, Auswertung der
+Speicherbestätigung direkt aus deren Antwort. Folge-Status ist zeitbegrenzt und
+blockiert keine Bestätigung. Timeout bedeutet unbestätigt, nicht sicher gescheitert.
+Serverdiagnose enthält localKeySaved als Boolean aus erfolgreichem lokalem Laden/
+Speichern; dauerhaft sichtbare Anzeige nach Reload/Neustart. Keine Schlüsselwerte.
+
+Gezielter kombinierter Lauf: Android 412x915, iPad 820x1180 und Desktop-Touch
+1280x720 mit bedeutungslosen Testschlüsseln. Echten Speicherrequest vorübergehend
+angehalten, native TouchStart/Move/End-Wischgesten währenddessen: Scrollposition
+ändert sich, Feld leer, Fortschritt im sichtbaren Bereich und kein Eingabefokus.
+Danach echten lokalen POSIX-Speicherrequest freigegeben: Bestätigung, erneutes
+Wischen, Reload mit gespeicherter Statusanzeige, Löschen erfolgreich. Separater
+HTTP-500-Fixturefall: klare Fehlermeldung, kein Erfolgshinweis, Scrollen weiter
+möglich. Bestehender Test prüft weiterhin fehlende Browser-/Exportpersistenz.
+Einzeltest erstellt einen neuen Service aus der Datei und prüft Status nach
+Wiederladen und nach Löschen.
+
+Abschließend npm run test:all: Typprüfung/Build, 68 Einzeltests und 26
+Chromium-Browsertests bestanden. Kein kostenpflichtiger Provideraufruf.
+Der vollständige vom Nutzer beobachtete Scrollstillstand ist hier nicht
+reproduziert; native Windows-Touch-/DPAPI- und Safari-Abnahme bleibt offen.
+Diese Statusverbesserung ist kein Nachweis der Behebung eines nativen Freeze.
+
+Nutzer bestätigt Gerät/Browser als Windows-Touchscreen mit Chrome oder Edge.
+Die Desktop-Touchemulation prüft Eingabeverhalten, aber weder echte Windows-
+Bildschirmtastatur noch den nativen Schlüsselspeicher. Kein weiterer Gerätewechsel
+als Erklärung angenommen.

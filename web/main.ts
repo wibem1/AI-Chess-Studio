@@ -27,7 +27,7 @@ function updateMode() {
 }
 async function refreshModelStatus() {
   try {
-    const response = await fetch('/api/status');
+    const response = await fetch('/api/status',{signal:AbortSignal.timeout(10000)});
     if (!response.ok) throw new Error();
     const status = await response.json();
     modelAvailable = status.available === true && status.remaining > 0;
@@ -208,20 +208,39 @@ $('tactical-form').addEventListener('submit', async event => {
 $('api-form').addEventListener('submit', async event => {
   event.preventDefault();
   if (!input('api-cost-consent').checked) return;
-  const button = $<HTMLButtonElement>('api-connect'); button.disabled = true;
+  const button = $<HTMLButtonElement>('api-connect');
+  if (button.disabled) return;
+  button.disabled = true;
+  $('api-form').setAttribute('aria-busy', 'true');
+  const payload = {action:'connect',apiKey:input('api-key').value,model:input('api-model').value.trim(),allowPaid:true};
+  input('api-key').value = ''; input('api-cost-consent').checked = false;
+  input('api-key').blur(); // Dismiss the touch keyboard before waiting for the local store.
+  message('api-feedback','Schlüssel wird lokal gespeichert … Das Eingabefeld wurde geleert. Du kannst die Seite weiterhin scrollen.');
+  $('api-feedback').focus();
   try {
-    // The field is cleared immediately after transmission; no browser storage or session annotation.
-    const responsePromise = fetch('/api/model-config', { method:'POST', headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({action:'connect',apiKey:input('api-key').value,model:input('api-model').value.trim(),allowPaid:true}),
-      signal:AbortSignal.timeout(5000) });
-    input('api-key').value = ''; input('api-cost-consent').checked = false;
-    const response = await responsePromise;
-    if (!response.ok) throw new Error('KI-Zugang konnte nicht eingerichtet werden. Schlüssel, Modell und laufende Anfragen prüfen.');
-    await refreshModelStatus();
+    const response = await fetch('/api/model-config', { method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload), signal:AbortSignal.timeout(15000) });
+    if (!response.ok) throw new Error(response.status === 429
+      ? 'Eine Modellanfrage läuft. Bitte nach deren Ende erneut speichern.'
+      : response.status === 500
+        ? 'Der lokale Schlüsselspeicher konnte nicht schreiben. Die Speicherung ist nicht bestätigt.'
+        : 'Schlüssel oder Modell ungültig; die Speicherung ist nicht bestätigt.');
+    const status = await response.json();
+    if (status.available !== true) throw new Error('Die Speicherung ist nicht bestätigt. Bitte die lokale Diagnose öffnen.');
+    modelAvailable = status.remaining > 0;
     $<HTMLSelectElement>('dialogue-mode').value = 'model'; updateMode();
-    message('api-feedback','Schlüssel lokal gespeichert und für den nächsten Start hinterlegt. Noch keine Modellanfrage ausgeführt. Stelle jetzt eine Planfrage.');
-  } catch (error) { message('api-feedback', error instanceof Error ? error.message : 'Lokaler Server nicht erreichbar.'); }
-  finally { input('api-key').value = ''; button.disabled = false; }
+    message('credential-status','✓ API-Schlüssel lokal gespeichert. Er wird beim nächsten App-Start wieder geladen.');
+    message('api-feedback','Schlüssel lokal gespeichert und für den nächsten Start hinterlegt. Das leere Feld ist beabsichtigt; du musst den Schlüssel nicht erneut eingeben. Noch keine Modellanfrage ausgeführt.');
+    void refreshModelStatus();
+  } catch (error) {
+    message('api-feedback',error instanceof DOMException && (error.name === 'TimeoutError' || error.name === 'AbortError')
+      ? 'Keine rechtzeitige Speicherbestätigung. Der Schlüssel könnte gespeichert sein. Prüfe „Lokale Diagnose anzeigen“, bevor du ihn erneut eingibst.'
+      : error instanceof TypeError ? 'Lokaler App-Server nicht erreichbar. Die Speicherung ist nicht bestätigt.'
+      : error instanceof Error ? error.message : 'Die Speicherung ist nicht bestätigt.');
+  } finally {
+    payload.apiKey = ''; button.disabled = false; $('api-form').removeAttribute('aria-busy');
+    $('api-feedback').focus({preventScroll:true});
+  }
 });
 $('api-disconnect').addEventListener('click', async () => {
   try {
@@ -231,6 +250,7 @@ $('api-disconnect').addEventListener('click', async () => {
     $<HTMLSelectElement>('dialogue-mode').value = 'simulation';
     await refreshModelStatus();
     message('api-feedback','Gespeicherter Schlüssel gelöscht. Reale KI ist gesperrt.');
+    message('credential-status','Kein API-Schlüssel lokal gespeichert.');
   } catch { message('api-feedback','Schlüssel konnte nicht entfernt werden. Eine laufende Anfrage abwarten und das Löschen erneut versuchen.'); }
 });
 
@@ -240,7 +260,13 @@ async function localPost(path:string,body:unknown):Promise<any> {
   return response.json();
 }
 async function diagnosticData() {
-  const response=await fetch('/api/diagnostics');if(!response.ok)throw new Error('Diagnose nicht verfügbar.');return response.json();
+  const response=await fetch('/api/diagnostics',{signal:AbortSignal.timeout(10000)});
+  if(!response.ok)throw new Error('Diagnose nicht verfügbar.');
+  const data=await response.json();
+  message('credential-status',data.model.localKeySaved === true
+    ? '✓ API-Schlüssel lokal gespeichert. Du musst ihn nicht erneut eingeben.'
+    : 'Kein API-Schlüssel lokal gespeichert.');
+  return data;
 }
 async function refreshCosts(fill=false) {
   try{

@@ -27,7 +27,7 @@ Analysebrett/Faktencheck war ein Missverständnis und ist korrigiert.
   unaufgefordert die Engine starten zu lassen.
 - KI-Kontext berücksichtigt Vorfahren der aktuellen Stellung, die Lernpartie
   und ausdrücklich gewählten Vergleich, bleibt auf sechs Einträge begrenzt.
-- Typprüfung, Build, 68 Einzeltests und 24 Chromium-Browsertests bestanden.
+- Typprüfung, Build, 68 Einzeltests und 26 Chromium-Browsertests bestanden.
   Echte lokale Engine auf allen fünf Stufen sowie Weiß-/Schwarz-Lernablauf im
   Browser geprüft; KI-Antworten weiterhin ausschließlich Testfixtures.
 - Vorheriger Stand 6da1a54 bleibt erhalten. Details: docs/VALIDATION.md.
@@ -122,6 +122,26 @@ anschließend markieren und spielen zwei Taps genau einen legalen Zug.
 Typprüfung/Build, 68 Einzeltests und 24 Browsertests bestanden. Native Tablet-
 Abnahme weiterhin offen. Dieser Stand ersetzt die frühere ungetestete Annahme,
 Touchziehen sei gleichermaßen sinnvoll wie Mausziehen.
+
+## Schlüsselspeicherung: sichtbarer Status und kombinierter Touchtest
+
+Nutzer meldet leeres Schlüsselfeld ohne Rückmeldung und erneuten Scrollstillstand
+nach dem Speichern. Das Leeren war vorgesehen; bisher erschien jedoch erst nach
+Speichern plus Statusabruf eine Rückmeldung. Die 5-s-Clientfrist war zudem so
+kurz wie der Windows-DPAPI-Timeout. Der Scrollstillstand wurde in diesem Ablauf
+noch nicht reproduziert; keine vollständige Behebung auf dem Nutzergerät behauptet.
+
+- Sofort sichtbare Fortschrittsmeldung, Touchtastatur durch Fokuswechsel schließen;
+  Speicherung hat 15 s Frist, Bestätigung hängt nicht mehr vom Folgeabruf ab.
+- Dauerhafter Hinweis anhand serverseitig bestätigter lokaler Speicherung, auch
+  nach Neustart. Fehler und unbestätigter Timeout werden deutlich unterschieden.
+  Weder Status noch Export enthalten den Schlüssel; Feld bleibt bewusst leer.
+- Kombinierte Chromium-Touchtests bei Android-/iPad-/Desktopgrößen: native
+  Wischgesten während absichtlich wartendem Speichern, nach Erfolg sowie Fehler;
+  Tastaturfokus, Persistenzanzeige nach Reload, Löschen und keine Browserfehler.
+- Typprüfung/Build, 68 Einzeltests und 26 Browsertests bestanden. Native
+  Windows-DPAPI-/Touchprüfung weiterhin offen. Nutzer bestätigt Windows-Touchscreen
+  mit Chrome oder Edge; kombinierter Desktop-Touchtest läuft hier unter Linux.
 
 ## Weiter vorhandene Funktionen
 

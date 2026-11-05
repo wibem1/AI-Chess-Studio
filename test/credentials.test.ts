@@ -11,12 +11,13 @@ test('local key persists across service restart, has private permissions and is 
  try {
   const first=new ModelService(readConfig({}),fetch,new FileCredentialsStore(path));
   first.configure({action:'connect',apiKey:'test-local-key-not-real',model:'gpt-4.1-mini',allowPaid:true});
-  assert.equal(first.status().available,true);
+  assert.equal(first.status().available,true);assert.equal(first.diagnostics().localKeySaved,true);
   if(process.platform!=='win32'){assert.equal(statSync(path).mode&0o777,0o600);assert.equal(statSync(join(folder,'private')).mode&0o777,0o700);}
-  const second=new ModelService(readConfig({}),fetch,new FileCredentialsStore(path));assert.equal(second.status().available,true);
+  const second=new ModelService(readConfig({}),fetch,new FileCredentialsStore(path));assert.equal(second.status().available,true);assert.equal(second.diagnostics().localKeySaved,true);
   assert.ok(!JSON.stringify(second.status()).includes('test-local-key-not-real'));
   second.configure({action:'disconnect'});
-  assert.equal(new ModelService(readConfig({}),fetch,new FileCredentialsStore(path)).status().available,false);
+  const empty=new ModelService(readConfig({}),fetch,new FileCredentialsStore(path));
+  assert.equal(empty.status().available,false);assert.equal(empty.diagnostics().localKeySaved,false);
  } finally{rmSync(folder,{recursive:true,force:true});}
 });
 test('malformed local credential files fail closed without returning their contents', () => {

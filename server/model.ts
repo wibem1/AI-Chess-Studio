@@ -67,13 +67,14 @@ async function readLimited(response: Response): Promise<string> {
 export class ModelService {
   private attempts = 0;
   private busy = false;
+  private localKeySaved = false;
   constructor(private config: ModelConfig, private transport: typeof fetch = fetch, private store?: CredentialsStore, private costs = new CostControl()) {
-    const saved = store?.load(); if (saved) this.config = saved;
+    const saved = store?.load(); if (saved) { this.config = saved; this.localKeySaved = true; }
   }
   status(): { available: boolean; remaining: number } {
     return { available: this.config.enabled && !!this.config.apiKey && !!this.config.model, remaining: Math.max(0, Math.min(3 - this.attempts, 3 - this.costs.snapshot().requests)) };
   }
-  diagnostics() { return {configured:this.status().available,model:this.config.model || null,remaining:this.status().remaining,costs:this.costs.snapshot(),pricingIsEstimate:true}; }
+  diagnostics() { return {localKeySaved:this.localKeySaved,configured:this.status().available,model:this.config.model || null,remaining:this.status().remaining,costs:this.costs.snapshot(),pricingIsEstimate:true}; }
   async probeAccess() {
     if(!this.config.apiKey || !this.config.model)return {ok:false,httpStatus:null,message:'Kein API-Schlüssel und Modell konfiguriert.'};
     try{
@@ -91,6 +92,7 @@ export class ModelService {
     if (!r || typeof r !== 'object') throw new ApiError(400, 'Ungültige Konfiguration.');
     if (r.action === 'disconnect') {
       this.store?.clear();
+      this.localKeySaved = false;
       this.config = { enabled: false, apiKey: '', model: '' };
       return this.status();
     }
@@ -101,6 +103,7 @@ export class ModelService {
     }
     const next = { enabled: true, apiKey: r.apiKey.trim(), model: r.model };
     this.store?.save(next);
+    this.localKeySaved = this.store !== undefined;
     this.config = next;
     // Reconfiguring never resets the process-wide request budget.
     return this.status();

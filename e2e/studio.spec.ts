@@ -435,3 +435,67 @@ test('finger swipes over pieces scroll the page while two taps still play a move
   await context.close();
  }
 });
+
+
+async function fingerScroll(page: Page, direction: 'down' | 'up') {
+ const cdp=await page.context().newCDPSession(page);
+ const viewport=page.viewportSize()!;
+ const before=await page.evaluate(()=>scrollY);
+ const x=viewport.width/2;
+ const start=direction==='down'?viewport.height*0.8:viewport.height*0.25;
+ const distance=viewport.height*0.45*(direction==='down'?-1:1);
+ await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y:start}]});
+ for(let step=1;step<=10;step++)await cdp.send('Input.dispatchTouchEvent',{
+  type:'touchMove',touchPoints:[{x,y:start+distance*step/10}]
+ });
+ await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+ if(direction==='down')await expect.poll(()=>page.evaluate(()=>scrollY)).toBeGreaterThan(before+20);
+ else await expect.poll(()=>page.evaluate(()=>scrollY)).toBeLessThan(before-20);
+ await cdp.detach();
+}
+
+test('touch key save reports progress and persistence while scrolling stays usable before and after save',async({browser})=>{
+ for(const viewport of [{width:412,height:915},{width:820,height:1180},{width:1280,height:720}]){
+  const context=await browser.newContext({viewport,hasTouch:true,isMobile:viewport.width<1000});
+  const page=await context.newPage();const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
+  let release!:()=>void;const ready=new Promise<void>(resolve=>{release=resolve;});
+  await page.route('**/api/model-config',async route=>{
+   if(route.request().postDataJSON().action==='connect')await ready;
+   await route.continue();
+  });
+  await page.goto('/');await page.getByText('Eigenen API-Schlüssel eingeben',{exact:true}).tap();
+  await page.getByLabel('OpenAI-API-Schlüssel',{exact:true}).fill('touch-save-test-key-not-real');
+  await page.locator('#api-cost-consent').check();
+  await page.getByRole('button',{name:'Schlüssel lokal speichern und KI aktivieren',exact:true}).tap();
+  await expect(page.locator('#api-feedback')).toContainText('wird lokal gespeichert');
+  await expect(page.locator('#api-feedback')).toBeInViewport();
+  await expect(page.locator('#api-key')).toHaveValue('');
+  expect(await page.evaluate(()=>document.activeElement?.id)).toBe('api-feedback');
+  await fingerScroll(page,'down');
+  release();await expect(page.locator('#api-feedback')).toContainText('nicht erneut eingeben');
+  await expect(page.locator('#credential-status')).toContainText('lokal gespeichert');
+  await expect(page.locator('#api-connect')).toBeEnabled();
+  await fingerScroll(page,'up');
+  await page.reload();await expect(page.locator('#credential-status')).toContainText('lokal gespeichert');
+  await page.getByText('Eigenen API-Schlüssel eingeben',{exact:true}).tap();
+  await expect(page.locator('#api-key')).toHaveValue('');
+  await page.getByRole('button',{name:'Gespeicherten Schlüssel löschen'}).tap();
+  await expect(page.locator('#credential-status')).toContainText('Kein API-Schlüssel');
+  expect(errors).toEqual([]);await context.close();
+ }
+});
+
+test('failed key save stays scrollable and never claims success',async({browser})=>{
+ const context=await browser.newContext({viewport:{width:412,height:915},isMobile:true,hasTouch:true});
+ const page=await context.newPage();
+ await page.route('**/api/model-config',route=>route.fulfill({status:500,json:{error:'Interner Fehler.'}}));
+ await page.goto('/');await page.getByText('Eigenen API-Schlüssel eingeben',{exact:true}).tap();
+ await page.getByLabel('OpenAI-API-Schlüssel',{exact:true}).fill('failed-save-test-key-not-real');
+ await page.locator('#api-cost-consent').check();
+ await page.getByRole('button',{name:'Schlüssel lokal speichern und KI aktivieren',exact:true}).tap();
+ await expect(page.locator('#api-feedback')).toContainText('Speicherung ist nicht bestätigt');
+ await expect(page.locator('#credential-status')).toContainText('Kein API-Schlüssel');
+ await expect(page.locator('#api-connect')).toBeEnabled();
+ await fingerScroll(page,'down');await fingerScroll(page,'up');
+ await context.close();
+});

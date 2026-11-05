@@ -120,6 +120,9 @@ noch nachweisen. Siehe Humanfaktor-Kriterien in DEVELOPMENT_PLAN.md.
 3. Preisannahmen/Budget in „Kostenkontrolle“ prüfen.
 4. Kostenpflichtige Anfragen bewusst erlauben und „Schlüssel lokal speichern
    und KI aktivieren“ anklicken. Dies erzeugt noch keine Modellantwort.
+   Beim Speichern erscheint sofort ein Status. Das Eingabefeld wird bewusst
+   geleert; „API-Schlüssel lokal gespeichert“ bleibt als Bestätigung sichtbar,
+   auch nach dem Neustart. Ein leeres Feld erfordert keine erneute Eingabe.
 5. Unter „Diagnose und Updates“ kann der Zugang ohne Textgenerierung geprüft
    werden. Anschließend eine Planfrage im realen Modus stellen.
 
@@ -207,7 +210,7 @@ des Updates keine zweite Installation starten und keinen Quellcode bearbeiten.
 
 ## Nachweise und Grenzen
 
-`npm run test:all`: Typprüfung, Build, **68 Einzeltests und 24 Chromium-
+`npm run test:all`: Typprüfung, Build, **68 Einzeltests und 26 Chromium-
 Browsertests**. Der gebaute Anwendungsserver wird getestet, einschließlich
 echtem lokalem Stockfish. Schlüsseltests verwenden ausschließlich bedeutungslose
 Testwerte, Provider-/Update-Tests lokale Fixtures. Es wurde kein echtes Update
