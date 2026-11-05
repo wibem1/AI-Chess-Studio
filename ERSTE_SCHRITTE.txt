@@ -31,3 +31,8 @@ Prüfstand: App mit echtem Stockfish unter Linux/Chromium getestet.
 Windows-Laufzeit aus offizieller Quelle mit SHA-256 geprüft. Native
 Windows-Ausführung und Windows-Verschlüsselung sind noch nicht abgenommen.
 Das ist ein lokales Startpaket, kein veröffentlichtes Release.
+
+VERSION ERKENNEN
+Oben in der App steht die Versionsnummer. Dieselbe Nummer erscheint im
+Startfenster und unter Lokale Diagnose anzeigen. Bei Fehlern bitte diese
+Nummer nennen. Neue Windows-Pakete und ihr entpackter Ordner tragen die Version.

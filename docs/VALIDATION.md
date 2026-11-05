@@ -461,3 +461,23 @@ Nutzer bestätigt Gerät/Browser als Windows-Touchscreen mit Chrome oder Edge.
 Die Desktop-Touchemulation prüft Eingabeverhalten, aber weder echte Windows-
 Bildschirmtastatur noch den nativen Schlüsselspeicher. Kein weiterer Gerätewechsel
 als Erklärung angenommen.
+
+
+## Versionierung 0.1.0
+
+5. November 2026: erste explizit nummerierte Entwicklungsversion. package.json
+und Lockfile tragen 0.1.0. Gemeinsames browser-/serverfähiges Versionsmodul liest
+package.json; TypeScript übernimmt das JSON in den kompilierten Serverbuild.
+UI-Kopf, Browser-Titel, Startkonsole, Diagnose, Paketmanifest, ZIP-Name und
+entpackter Paketordner zeigen dieselbe Nummer. CHANGELOG und Projektanweisungen
+legen Patch-/Minor-Erhöhungen für künftige ausgelieferte Änderungen fest.
+
+npm run test:all bestanden: Typprüfung/Build, 68 Einzeltests und 27 Chromium-
+Browsertests. Bestehender HTTP-Test prüft Versionsmetadaten; neuer Browsertest
+prüft sichtbare Nummer, Dokumenttitel, tatsächliche Serverdiagnose und deren UI.
+Separater echter CLI-Start meldet 0.1.0 und liefert dieselbe Diagnoseversion.
+Packager vergleicht Version/Quellcommit vor Bereitstellung; keine Geheimnisse
+in Paket oder Version. Keine kostenpflichtigen API-Aufrufe und kein Release.
+
+Die Versionsnummer identifiziert den Stand; offene native Windows-Touch-/DPAPI-
+Befunde bleiben offen und werden dadurch nicht als behoben eingestuft.

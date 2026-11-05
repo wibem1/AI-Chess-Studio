@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { APP_VERSION } from '../src/version.js';
 import { Session } from '../src/session.js';
 
 async function play(page: Page, move: string) {
@@ -498,4 +499,15 @@ test('failed key save stays scrollable and never claims success',async({browser}
  await expect(page.locator('#api-connect')).toBeEnabled();
  await fingerScroll(page,'down');await fingerScroll(page,'up');
  await context.close();
+});
+
+
+test('visible UI version matches the running server and local diagnosis',async({page})=>{
+ await page.goto('/');
+ await expect(page.locator('#app-version')).toHaveText(`Version ${APP_VERSION}`);
+ await expect(page).toHaveTitle(`AI-Chess-Studio ${APP_VERSION}`);
+ const diagnostic=await (await page.request.get('/api/diagnostics')).json();
+ expect(diagnostic.version).toBe(APP_VERSION);
+ await page.getByRole('button',{name:'Lokale Diagnose anzeigen'}).click();
+ await expect(page.locator('#diagnostic-output')).toContainText(`App-Version: ${APP_VERSION} · Oberfläche: ${APP_VERSION}`);
 });

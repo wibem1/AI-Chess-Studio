@@ -3,6 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { APP_VERSION } from '../src/version.js';
 import { createStudioServer } from '../server/app.js';
 
 test('built application server serves browser assets and rejects checkout paths and foreign origins', async () => {
@@ -12,6 +13,8 @@ test('built application server serves browser assets and rejects checkout paths 
   const addr=server.address(); assert.ok(addr && typeof addr !== 'string');
   const base=`http://127.0.0.1:${addr.port}`;
   try {
+    const diagnostic=await (await fetch(base+'/api/diagnostics')).json();
+    assert.equal(diagnostic.version,APP_VERSION);
     const index=await fetch(base);assert.equal(index.status,200);
     assert.match(index.headers.get('content-security-policy')!,/frame-ancestors 'none'/);
     const html=await index.text();assert.match(html,/AI-Chess-Studio/);

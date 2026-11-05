@@ -6,6 +6,7 @@ The fresh Git metadata allows the app's updater to recognize the source.
 import argparse
 import hashlib
 import json
+import re
 from pathlib import Path, PurePosixPath
 import shutil
 import subprocess
@@ -33,6 +34,10 @@ def package(root, node_archive, checksums, output):
     if not node_archive.name.startswith('node-v24.') or not node_archive.name.endswith('-win-x64.zip'):
         raise SystemExit('Expected Windows x64 Node 24 archive.')
     commit=git('rev-parse','HEAD',cwd=root)
+    version=json.loads((root/'package.json').read_text())['version']
+    if not re.fullmatch(r'\d+\.\d+\.\d+',version):
+        raise SystemExit('Expected numeric application version in package.json.')
+    delivery_folder=f'AI-Chess-Studio-{version}'
     with tempfile.TemporaryDirectory(prefix='chess-package-') as temporary:
         stage=Path(temporary)/'AI-Chess-Studio'
         subprocess.run(['git','clone','--no-local','--quiet',str(root),str(stage)],check=True)
@@ -61,7 +66,7 @@ def package(root, node_archive, checksums, output):
         if (runtime/'node.exe').read_bytes()[:2]!=b'MZ' or not (runtime/'node_modules/npm/bin/npm-cli.js').is_file():
             raise SystemExit('Expected Windows Node/npm runtime files absent.')
         (stage/'PAKET-INFORMATION.json').write_text(json.dumps({
-            'source_commit':commit,'node_archive':node_archive.name,'node_sha256':digest,
+            'version':version,'source_commit':commit,'node_archive':node_archive.name,'node_sha256':digest,
             'windows_native_tested':False,'includes_api_key':False,
             'first_start_needs_internet_for_dependencies':True,
         },indent=2)+'\n',encoding='utf-8')
@@ -72,8 +77,8 @@ def package(root, node_archive, checksums, output):
         with zipfile.ZipFile(output,'w',zipfile.ZIP_DEFLATED,compresslevel=6) as archive:
             for path in sorted(stage.rglob('*')):
                 if path.is_file():
-                    archive.write(path,Path('AI-Chess-Studio')/path.relative_to(stage))
-    result={'source_commit':commit,'archive':output.name,'bytes':output.stat().st_size,
+                    archive.write(path,Path(delivery_folder)/path.relative_to(stage))
+    result={'version':version,'source_commit':commit,'archive':output.name,'bytes':output.stat().st_size,
             'sha256':hashlib.sha256(output.read_bytes()).hexdigest()}
     output.with_suffix(output.suffix+'.sha256').write_text(result['sha256']+'  '+output.name+'\n')
     print(json.dumps(result))

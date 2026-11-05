@@ -1,6 +1,8 @@
+import { APP_VERSION } from '../src/version.js';
 import { spawn } from 'node:child_process';
 import { createStudioServer } from './app.js';
 import { listenLocally, startupError } from './listen.js';
+console.log(`AI-Chess-Studio ${APP_VERSION}`);
 const port = Number(process.env.CHESS_PORT ?? '5173');
 if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('CHESS_PORT muss zwischen 1 und 65535 liegen.');
 const server = createStudioServer();

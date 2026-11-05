@@ -1,6 +1,6 @@
 # Projektstand
 
-Stand: 5. November 2026
+Stand: 5. November 2026 · Entwicklungsversion 0.1.0
 
 ## Verbindliches Ziel
 
@@ -27,7 +27,7 @@ Analysebrett/Faktencheck war ein Missverständnis und ist korrigiert.
   unaufgefordert die Engine starten zu lassen.
 - KI-Kontext berücksichtigt Vorfahren der aktuellen Stellung, die Lernpartie
   und ausdrücklich gewählten Vergleich, bleibt auf sechs Einträge begrenzt.
-- Typprüfung, Build, 68 Einzeltests und 26 Chromium-Browsertests bestanden.
+- Typprüfung, Build, 68 Einzeltests und 27 Chromium-Browsertests bestanden.
   Echte lokale Engine auf allen fünf Stufen sowie Weiß-/Schwarz-Lernablauf im
   Browser geprüft; KI-Antworten weiterhin ausschließlich Testfixtures.
 - Vorheriger Stand 6da1a54 bleibt erhalten. Details: docs/VALIDATION.md.
@@ -142,6 +142,20 @@ noch nicht reproduziert; keine vollständige Behebung auf dem Nutzergerät behau
 - Typprüfung/Build, 68 Einzeltests und 26 Browsertests bestanden. Native
   Windows-DPAPI-/Touchprüfung weiterhin offen. Nutzer bestätigt Windows-Touchscreen
   mit Chrome oder Edge; kombinierter Desktop-Touchtest läuft hier unter Linux.
+
+## Einheitliche Versionsnummern eingeführt
+
+Erste nummerierte Entwicklungsversion: 0.1.0. Zentrale Quelle package.json;
+Frontend und Server lesen dieselbe Nummer. Sichtbar oben in der App, Browser-
+Titel, Startkonsole und lokaler Diagnose (Server und Oberfläche getrennt genannt).
+Windows-ZIP und oberster entpackter Ordner tragen 0.1.0; Paketmanifest enthält
+zusätzlich den Quellcommit. CHANGELOG.md und AGENTS.md regeln künftige Erhöhungen.
+
+Typprüfung/Build, 68 Einzeltests und 27 Browsertests bestanden. Zusätzlicher
+echter CLI-Prozess bestätigt Startausgabe und Diagnose mit 0.1.0. Paketmetadaten
+werden vor Bereitstellung gegen dieselbe Nummer geprüft. Keine neue Behauptung
+zur offenen nativen Windows-Scroll-/Schlüsselspeicherabnahme; keine Veröffentlichung
+als Release und kein Deployment.
 
 ## Weiter vorhandene Funktionen
 

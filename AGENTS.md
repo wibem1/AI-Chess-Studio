@@ -11,3 +11,11 @@
 9. Status präzise benennen: geplant, implementiert, statisch geprüft, simuliert getestet, mit realen Komponenten getestet, vom Nutzer bestätigt.
 
 10. Langfristige Zielplattformen: Windows, macOS, Android, iPadOS. Gemeinsamer browserfähiger Lernkern und UI; Plattformfunktionen über Adapter. Node-/DPAPI-Abhängigkeiten bleiben außerhalb des Frontends. PLATFORM_ARCHITECTURE.md beachten. Touch-Viewport-Tests sind keine native Geräteabnahme.
+
+11. Versionierung: package.json ist die zentrale Quelle der App-Version; package-lock.json
+    synchron halten. Jede neu ausgelieferte Codekorrektur erhöht die Patchnummer
+    (0.1.0 → 0.1.1), neue Funktionen die Minor-Nummer (0.2.0). Vor Bereitstellung
+    Tests bestehen lassen und CHANGELOG.md aktualisieren. UI, Start, Diagnose,
+    ZIP-Dateiname und Paketmanifest müssen zur selben Version gehören. Alte
+    nummerierte Downloads bleiben über ihre Git-Commits erhalten. Versionsnummern
+    sind keine Zusage nativer Abnahme oder Erlaubnis für Releases/Deployments.

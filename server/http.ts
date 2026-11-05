@@ -1,3 +1,4 @@
+import { APP_VERSION } from '../src/version.js';
 import type { UpdateService } from './updates.js';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { ApiError, ModelService } from './model.js';
@@ -12,7 +13,7 @@ export function modelMiddleware(service: ModelService, tactics?: (raw: unknown) 
     const host = req.headers.host ?? '';
     if (!/^(127\.0\.0\.1|localhost|\[::1\]):\d+$/.test(host)) { send(403, { error: 'Nur lokal verfügbar.' }); return; }
     if (req.url === '/api/status' && req.method === 'GET') { send(200, service.status()); return; }
-    if(req.url==='/api/diagnostics' && req.method==='GET'){send(200,{node:process.versions.node,platform:process.platform,model:service.diagnostics(),update:updates?.status()??null});return;}
+    if(req.url==='/api/diagnostics' && req.method==='GET'){send(200,{version:APP_VERSION,node:process.versions.node,platform:process.platform,model:service.diagnostics(),update:updates?.status()??null});return;}
     // Require an exact same-origin browser request, including the port. No CORS grants.
     if (req.method !== 'POST' || req.headers.origin !== `http://${host}` ||
         req.headers['content-type']?.split(';')[0] !== 'application/json') {

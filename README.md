@@ -1,5 +1,9 @@
 # AI-Chess-Studio
 
+Aktuelle Entwicklungsversion: **0.1.0**. Die Nummer steht oben in der App,
+im Browser-Titel, beim Serverstart und in der lokalen Diagnose.
+Änderungen: [CHANGELOG.md](CHANGELOG.md).
+
 Persönliches Schach-Lernprogramm: gegen Stockfish spielen und während oder
 nach der Partie mit einer getrennten KI über Stellungen, Strategien und
 Varianten sprechen. Varianten ausprobieren, benennen, speichern und vergleichen.
@@ -210,7 +214,7 @@ des Updates keine zweite Installation starten und keinen Quellcode bearbeiten.
 
 ## Nachweise und Grenzen
 
-`npm run test:all`: Typprüfung, Build, **68 Einzeltests und 26 Chromium-
+`npm run test:all`: Typprüfung, Build, **68 Einzeltests und 27 Chromium-
 Browsertests**. Der gebaute Anwendungsserver wird getestet, einschließlich
 echtem lokalem Stockfish. Schlüsseltests verwenden ausschließlich bedeutungslose
 Testwerte, Provider-/Update-Tests lokale Fixtures. Es wurde kein echtes Update
@@ -225,7 +229,8 @@ Ein realer Modelltest und manuelle Nutzerabnahme stehen aus.
 
 `tools/package_windows.py` erstellt aus einem sauberen, gesicherten Git-Stand
 ein privates ZIP mit frischen Git-Metadaten und offizieller portabler
-Windows-Node-Laufzeit. Das Tool verlangt Archiv und offizielle SHA-256-Liste,
+Windows-Node-Laufzeit. ZIP und entpackter Ordner tragen die App-Version;
+PAKET-INFORMATION.json enthält Version und Quellcommit. Das Tool verlangt Archiv und offizielle SHA-256-Liste,
 verifiziert vor dem Entpacken und kopiert keine Profile, Schlüssel oder
 installierten Abhängigkeiten. Erststart installiert per npm ci mit Lockfile.
 Beispielparameter: --node-archive, --node-checksums und --output.

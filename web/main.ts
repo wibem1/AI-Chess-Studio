@@ -5,8 +5,11 @@ import { checkTactics, ServerTacticalAdapter } from '../src/tactics.js';
 import { LearningGame, ServerPlayingEngine, pathTo } from '../src/game.js';
 import type {HintMode} from '../src/learning.js';
 import './style.css';
+import { APP_VERSION } from '../src/version.js';
 import { installBoardDrag } from './board-drag.js';
 
+document.getElementById('app-version')!.textContent = `Version ${APP_VERSION}`;
+document.title = `AI-Chess-Studio ${APP_VERSION}`;
 const studio = new Studio();
 const game=new LearningGame(()=>studio.session);
 let enginePending=false;
@@ -288,7 +291,7 @@ $('cost-reset').addEventListener('click',async()=>{
   catch{message('cost-feedback','Budgetperiode konnte nicht neu gestartet werden.');}
 });
 $('diagnose').addEventListener('click',async()=>{
-  try{const d=await diagnosticData();message('diagnostic-output',`Node.js: ${d.node} · System: ${d.platform}\nKI-Zugang: ${d.model.configured?'konfiguriert (noch kein Verbindungsnachweis)':'nicht konfiguriert'}\nModell: ${d.model.model??'keines'}\nVerbleibende Anfragen: ${d.model.remaining}\nUpdate: ${d.update?.message??'nicht verfügbar'}\nKeine Schlüsselwerte oder Sitzungstexte in dieser Diagnose.`);await refreshCosts();}
+  try{const d=await diagnosticData();message('diagnostic-output',`App-Version: ${d.version ?? 'unbekannt'} · Oberfläche: ${APP_VERSION}\nNode.js: ${d.node} · System: ${d.platform}\nKI-Zugang: ${d.model.configured?'konfiguriert (noch kein Verbindungsnachweis)':'nicht konfiguriert'}\nModell: ${d.model.model??'keines'}\nVerbleibende Anfragen: ${d.model.remaining}\nUpdate: ${d.update?.message??'nicht verfügbar'}\nKeine Schlüsselwerte oder Sitzungstexte in dieser Diagnose.`);await refreshCosts();}
   catch{message('diagnostic-output','Lokaler Server nicht erreichbar.');}
 });
 $('diagnose-access').addEventListener('click',async()=>{
