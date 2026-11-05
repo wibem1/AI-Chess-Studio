@@ -27,7 +27,7 @@ Analysebrett/Faktencheck war ein Missverständnis und ist korrigiert.
   unaufgefordert die Engine starten zu lassen.
 - KI-Kontext berücksichtigt Vorfahren der aktuellen Stellung, die Lernpartie
   und ausdrücklich gewählten Vergleich, bleibt auf sechs Einträge begrenzt.
-- Typprüfung, Build, 56 Einzeltests und 15 Chromium-Browsertests bestanden.
+- Typprüfung, Build, 60 Einzeltests und 18 Chromium-Browsertests bestanden.
   Echte lokale Engine auf allen fünf Stufen sowie Weiß-/Schwarz-Lernablauf im
   Browser geprüft; KI-Antworten weiterhin ausschließlich Testfixtures.
 - Vorheriger Stand 6da1a54 bleibt erhalten. Details: docs/VALIDATION.md.
@@ -41,6 +41,18 @@ Genauigkeit, übersehbare Antworten, Weiterführung und persönlicher Lernwert.
 Keine Einstufung des Menschen aus dem Engine-Level, keine erfundenen
 Psychologie-/Enginewerte; praktische Umsetzbarkeit ist keine taktische Freigabe.
 Implementiert ist die Instruktion; reale pädagogische Qualität noch nicht belegt.
+
+## Neue Humanfaktor-Bedienung und Plattformbasis
+
+- Stellungsbezogene Selbstangaben: Planidee, Begründung, Unsicherheit, Lernziel.
+  Persistenz im Sitzungsformat und Übergabe als begrenzter Dialogkontext.
+- Wahl zwischen Leitfrage, kleinem Hinweis und ausführlicher Erklärung. Leitfrage
+  zeigt keine fertige Lösung; unerwünschte Zugkandidaten werden abgewiesen.
+- Strukturierte menschliche Lernaspekte für moderne reale Antworten; fehlende/
+  fehlerhafte Daten werden nicht still als vollständige Lernanalyse behandelt.
+- Gemeinsame Web-/Touch-Basis, Manifest und Icons; Mac-.command-Starter.
+  PLATFORM_ARCHITECTURE.md trennt Desktop-Backend von den noch erforderlichen
+  mobilen Engine-/Transport-/Keystore-Adaptern. Keine mobile Standalone-Freigabe.
 
 ## Weiter vorhandene Funktionen
 

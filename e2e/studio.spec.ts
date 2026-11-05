@@ -140,7 +140,7 @@ test('local model API fixture exercises UI transport and provenance without any 
   await page.route('**/api/dialogue', route => {
     received = route.request().postDataJSON();
     return route.fulfill({ json:{ plan:'Lokale Modell-Testantwort', opponent:'Hypothese: Zentrum angreifen', candidates:['e4'],
-      risks:'Test-Risiko', playability:'Test-Spielbarkeit', openQuestions:['Testfrage?'] } });
+      risks:'Test-Risiko', playability:'Test-Spielbarkeit', humanFactors:{idea:'Testidee',calculation:'Testrechnung',pitfalls:'Testgefahr',continuation:'Testfortsetzung'}, openQuestions:['Testfrage?'] } });
   });
   await page.goto('/');
   await expect(page.locator('#model-status')).toContainText('KI-Zugang konfiguriert');
@@ -276,4 +276,32 @@ test('engine error pauses the learning game without an automatic retry loop',asy
  await page.goto('/');await page.getByRole('button',{name:'Partie ab dieser Stellung starten'}).click();await play(page,'e4');
  await expect(page.locator('#game-status')).toContainText('Analysemodus');await expect(page.locator('#game-feedback')).toContainText('fehlgeschlagen');
  expect(calls).toBe(1);expect(JSON.parse(await exportData(page)).nodes).toHaveLength(2);
+});
+
+test('learner can save their thoughts and choose guiding questions without spoilers',async({page})=>{
+ await page.goto('/');await page.getByText('Meine Gedanken und Lernwünsche (optional)',{exact:true}).click();
+ await page.getByLabel('Meine eigene Planidee',{exact:true}).fill('Zentrum kontrollieren');
+ await page.getByLabel('Warum halte ich das für sinnvoll?',{exact:true}).fill('Aktivere Figuren');
+ await page.getByLabel('Was möchte ich verstehen oder üben?',{exact:true}).fill('Gegenpläne erkennen');
+ await page.getByLabel('Wie viel Hilfe möchte ich?',{exact:true}).selectOption('question');
+ await page.getByRole('button',{name:'Gedankengang an dieser Stellung speichern'}).click();
+ await page.getByLabel('Deine Planfrage').fill('Wo soll ich anfangen?');await page.getByRole('button',{name:'Plan diskutieren (Simulation)'}).click();
+ await expect(page.locator('#dialogue')).toContainText('Leitfrage:');await expect(page.locator('#dialogue')).not.toContainText('Kandidaten (ungeordnet)');
+ const data=await exportData(page);expect(JSON.parse(data).reflections.n0.idea).toBe('Zentrum kontrollieren');
+ await page.reload();await importData(page,data);await page.getByText('Meine Gedanken und Lernwünsche (optional)',{exact:true}).click();
+ await expect(page.getByLabel('Meine eigene Planidee',{exact:true})).toHaveValue('Zentrum kontrollieren');await expect(page.getByLabel('Wie viel Hilfe möchte ich?',{exact:true})).toHaveValue('question');
+});
+test('manifest and icons are served without exposing server files',async({request})=>{
+ const manifest=await request.get('/manifest.webmanifest');expect(manifest.ok()).toBe(true);expect(manifest.headers()['content-type']).toContain('manifest');
+ const value=await manifest.json();expect(value.display).toBe('standalone');for(const icon of value.icons){const r=await request.get(icon.src);expect(r.ok()).toBe(true);expect(r.headers()['content-type']).toBe('image/png');}
+ expect((await request.get('/icons/../../server/credentials.ts')).status()).toBe(404);
+});
+test('learning controls and board remain usable at Android and iPad-sized touch viewports',async({browser})=>{
+ for(const size of [{width:412,height:915},{width:820,height:1180}]){
+  const context=await browser.newContext({viewport:size,isMobile:true,hasTouch:true});const page=await context.newPage();await page.goto('/');
+  await page.getByRole('button',{name:'e2: Weiß Bauer',exact:true}).tap();await page.getByRole('button',{name:'e4: leer',exact:true}).tap();await expect(page.locator('#position-status')).toContainText('n1');
+  await page.getByText('Meine Gedanken und Lernwünsche (optional)',{exact:true}).tap();await page.getByLabel('Meine eigene Planidee',{exact:true}).fill('Mein Plan');
+  await page.getByRole('button',{name:'Gedankengang an dieser Stellung speichern'}).tap();
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await context.close();
+ }
 });

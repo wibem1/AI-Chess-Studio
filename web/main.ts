@@ -3,6 +3,7 @@ import { Studio, SimulationAdapter, type SimulationMode } from '../src/dialogue.
 import { ServerModelAdapter } from '../src/model-client.js';
 import { checkTactics, ServerTacticalAdapter } from '../src/tactics.js';
 import { LearningGame, ServerPlayingEngine, pathTo } from '../src/game.js';
+import type {HintMode} from '../src/learning.js';
 import './style.css';
 
 const studio = new Studio();
@@ -113,6 +114,9 @@ function render() {
     li.append(button); lists.get(node.parentId)!.append(li);
     const children = document.createElement('ul'); li.append(children); lists.set(node.id, children);
   }
+  const reflection=data.reflections?.[current.id];
+  text('learning-idea').value=reflection?.idea??'';text('learning-reasoning').value=reflection?.reasoning??'';
+  input('learning-uncertainty').value=reflection?.uncertainty??'';input('learning-goal').value=reflection?.goal??'';$<HTMLSelectElement>('learning-hint').value=reflection?.hintMode??'explain';
   input('variant-label').value=data.labels?.[current.id]??'';
   renderComparison();
   for (const [kind, id] of [['dialogue', 'dialogue'], ['memory', 'memories']] as const) {
@@ -310,3 +314,10 @@ function renderComparison(){
   const notes=document.createElement('p');notes.textContent=d.annotations.filter(n=>n.nodeId===node.id && n.kind!=='factcheck').map(n=>`${n.source}: ${n.text}`).join('\n')||'Noch keine Notiz oder Diskussion an dieser Stellung.';card.append(notes);container.append(card);
  }
 }
+
+$('reflection-form').addEventListener('submit',event=>{
+ event.preventDefault();
+ const value={idea:text('learning-idea').value,reasoning:text('learning-reasoning').value,uncertainty:input('learning-uncertainty').value,goal:input('learning-goal').value,hintMode:$<HTMLSelectElement>('learning-hint').value as HintMode};
+ attempt(()=>studio.session.reflect(studio.session.snapshot().activeNodeId,value),'reflection-feedback','Dein Gedankengang und gewünschter Hinweisumfang sind an dieser Stellung gespeichert.');
+});
+for(const id of ['learning-idea','learning-reasoning','learning-uncertainty','learning-goal'])$(id).addEventListener('focus',()=>{const g=studio.session.snapshot().game;if(g && !g.paused){game.pause();render();}});

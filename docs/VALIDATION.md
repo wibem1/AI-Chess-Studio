@@ -281,3 +281,33 @@ Keine UI-/Schnittstellenänderung; der vorherige Browsernachweis bleibt bestehen
 Dies ist ein Instruktions-/Regressionsnachweis, ausdrücklich kein Nachweis realer
 pädagogischer Antwortqualität. Reale Dialogabnahme und Nutzerfeedback zu
 Verständlichkeit/Lernwert stehen weiterhin aus. Keine bezahlte Anfrage ausgeführt.
+
+## Bedienbarer Humanfaktor und gemeinsame Plattformbasis
+
+5. November 2026: Humanfaktor von reiner Instruktion zur Bedienfunktion erweitert.
+Eigene Idee, Begründung, Unsicherheit und Lernziel sind stellungsgebunden im
+JSON erhalten. Leitfrage, kleiner Hinweis und Erklärung liefern unterschiedliche
+Anzeigetiefen; direkte Zugkandidaten im Leitfragenmodus und fehlerhafte/fehlende
+menschliche Analysefelder moderner realer Antworten werden verworfen.
+
+`npm run test:all`: Typprüfung/Build, **60 Einzeltests und 18 Chromium-
+Browsertests bestanden**, keine fehlgeschlagenen/übersprungenen Tests. Ein
+vorheriger Browserlauf war durch den eigenen Vorschauprozess auf Port 5173
+blockiert; nach Beenden dieses Prozesses vollständiger Lauf erfolgreich.
+
+Neue Nachweise: Reflexion bleibt an ihrer Stellung und überlebt Export/Import;
+Gedankengang und gewünschter Hinweisumfang kommen beim Adapter an; Leitfragen
+zeigen keine fertige Lösung, Hinweise und Erklärungen sind getrennt; fehlerhafte
+Analyse wird nicht gespeichert. Browser prüft Eingabe, Leitfrage ohne Kandidaten,
+Wiederherstellung und Touch-Brettbedienung bei 412x915 und 820x1180.
+
+Manifest und drei PNG-Icons werden mit passenden Content-Types bereitgestellt;
+Pfadtraversal auf Serverquellen bleibt gesperrt. Keine Service-Worker-/API-Caches,
+keine Offlinebehauptung. Mac-Starter mit bash -n syntaktisch geprüft.
+
+Dies sind Chromium-Viewport-/Touch-Simulationen unter Linux, keine Tests auf
+Android, iPadOS/Safari, macOS oder Windows. Mac-Starter und native Schlüssel-
+Adapter sind nicht nativ abgenommen. Der aktuelle Backendweg benötigt Node;
+eigenständige mobile Apps sind noch nicht implementiert. Architektur und
+Plattformmatrix stehen in PLATFORM_ARCHITECTURE.md. Reale pädagogische
+Modellqualität bleibt offen; keine kostenpflichtige Anfrage ausgeführt.

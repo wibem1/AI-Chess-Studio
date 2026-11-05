@@ -1,10 +1,11 @@
+import {validateHumanFactors,type HumanFactors,type HintMode} from './learning.js';
 import { pathTo } from './game.js';
 import { Session } from './session.js';
 
-export interface DialogueRequest { nodeId: string; fen: string; question: string; legalMoves: string[]; context?: string[] }
+export interface DialogueRequest { nodeId: string; fen: string; question: string; legalMoves: string[]; context?: string[];hintMode?:HintMode }
 export interface StrategicReply {
   plan: string; opponent: string; candidates: string[]; risks: string;
-  playability: string; openQuestions: string[];
+  playability: string; openQuestions: string[];humanFactors?:HumanFactors;
 }
 export interface DialogueAdapter { readonly source?: 'simulation' | 'model'; respond(request: DialogueRequest): Promise<unknown> }
 export type SimulationMode = 'normal' | 'invalid' | 'failure' | 'slow';
@@ -19,9 +20,10 @@ export class SimulationAdapter implements DialogueAdapter {
     return {
       plan: 'Simulation: Prüfe Entwicklung und Zentrumskontrolle als möglichen Plan.',
       opponent: 'Hypothese: Die Gegenseite könnte das Zentrum angreifen; ihre Absicht ist unbekannt.',
-      candidates: request.legalMoves.slice(0, 2),
+      candidates: request.hintMode==='question'?[]:request.legalMoves.slice(0, 2),
       risks: 'Simulation: Vor jedem Zug auf ungedeckte Figuren und gegnerische Drohungen achten.',
       playability: 'Simulation: Bevorzuge einen Plan, dessen nächste Schritte du erklären kannst. Keine Rangfolge der Züge.',
+      humanFactors:{idea:'Simulation: Welche Figuren und Felder sind für deine Idee wichtig?',calculation:'Simulation: Welche zwingenden Antworten würdest du zuerst prüfen?',pitfalls:'Simulation: Welche gegnerische Drohung könnte leicht übersehen werden?',continuation:'Simulation: Wie möchtest du nach einer Abweichung weiterspielen?'},
       openQuestions: ['Welche gegnerische Antwort würde deinen Plan verändern?']
     } satisfies StrategicReply;
   }
@@ -46,15 +48,21 @@ export class Studio {
       context.push(`Ausdrücklich ausgewählter Variantenvergleich: A ${describe(snapshot.comparison.a)} / B ${describe(snapshot.comparison.b)}`.slice(0,800));
     }
     if(snapshot.game)context.push(`Lernpartie: Mensch ${snapshot.game.human==='w'?'Weiß':'Schwarz'}, Engine-Level ${snapshot.game.level}; aktuelle Partie ${snapshot.game.cursor}; Analyse ${nodeId}; ${snapshot.game.paused?'pausiert':'laufend'}.`);
+    const reflection=snapshot.reflections?.[nodeId];
+    if(reflection)context.push(`Eigene Angaben des Lernenden (keine Bewertung): ${JSON.stringify(reflection)}`.slice(0,800));
+    const hintMode=reflection?.hintMode??'explain';
     while(context.length>6)context.shift();
-    const request = { nodeId, fen, question: question.trim(), legalMoves: session.legalMoves(), context };
+    const request = { nodeId, fen, question: question.trim(), legalMoves: session.legalMoves(), context,hintMode };
     const raw = await adapter.respond(request);
     // Replacing a session invalidates outstanding answers, even if node IDs coincide.
     if (this.session !== session) return 'discarded';
     const reply = validateReply(raw, request.legalMoves);
+    if(adapter.source==='model' && !reply.humanFactors)throw new Error('Menschliche Lernanalyse fehlt in der Modellantwort.');
+    if(hintMode==='question' && !reply.openQuestions.length)throw new Error('Leitfrage fehlt.');
+    if(hintMode==='question' && reply.candidates.length)throw new Error('Leitfragenmodus: direkte Zugvorschläge verworfen.');
     session.annotate({ nodeId, kind: 'dialogue', source: 'human', text: request.question,
       hypothesis: false, openQuestions: [] });
-    session.annotate({ nodeId, kind: 'dialogue', source: adapter.source ?? 'simulation', text: formatReply(reply),
+    session.annotate({ nodeId, kind: 'dialogue', source: adapter.source ?? 'simulation', text: hintMode==='question'?`Leitfrage: ${reply.openQuestions[0]}`:hintMode==='hint'?`Denkhinweis: ${reply.humanFactors?.idea??reply.playability}`:formatReply(reply),
       hypothesis: true, openQuestions: reply.openQuestions });
     return 'stored';
   }
@@ -69,8 +77,9 @@ export function validateReply(raw: unknown, legalMoves: string[]): StrategicRepl
       !Array.isArray(r.openQuestions) || r.openQuestions.length > 8 || !r.openQuestions.every(q => typeof q === 'string' && q.length <= 2000)) {
     throw new Error('Ungültige Simulationsantwort: Format oder Zugvorschläge verworfen.');
   }
+  if(r.humanFactors!==undefined)validateHumanFactors(r.humanFactors);
   return r as unknown as StrategicReply;
 }
 function formatReply(r: StrategicReply): string {
-  return `Plan: ${r.plan}\nGegenplan: ${r.opponent}\nKandidaten (ungeordnet): ${r.candidates.join(', ') || 'Keine legalen Züge'}\nRisiken: ${r.risks}\nSpielbarkeit: ${r.playability}`;
+  return `Plan: ${r.plan}\nGegenplan: ${r.opponent}\nKandidaten (ungeordnet): ${r.candidates.join(', ') || 'Keine legalen Züge'}\nRisiken: ${r.risks}\nSpielbarkeit: ${r.playability}${r.humanFactors?`\nEigene Idee verstehen: ${r.humanFactors.idea}\nRechenarbeit und Genauigkeit: ${r.humanFactors.calculation}\nLeicht übersehbar: ${r.humanFactors.pitfalls}\nPlan weiterführen: ${r.humanFactors.continuation}`:''}`;
 }

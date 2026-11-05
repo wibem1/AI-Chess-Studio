@@ -56,6 +56,25 @@ Elo-Stufen; auch Level 1 kann stark spielen. Spielzüge nutzen die Zughistorie
 für Wiederholungen, Rochade und en passant. Der zusätzliche taktische
 Faktencheck bleibt ein separater ausdrücklicher Aufruf.
 
+## Eigene Gedanken und gestufte Hilfe
+
+Unter „Meine Gedanken und Lernwünsche“ kannst du an der aktuellen Stellung
+freiwillig eigene Planidee, Begründung, Unsicherheit und Lernziel speichern.
+Wähle außerdem Leitfrage, kleinen Denkhinweis oder ausführliche Erklärung.
+Im Leitfragenmodus zeigt die App keine fertige Analyse oder Kandidatenliste.
+Gedankengänge und Hilfeumfang bleiben beim Export/Import stellungsbezogen
+ erhalten. Dies ist keine automatische Einstufung deiner Spielstärke.
+
+## Plattformen
+
+Ziel: Windows, Mac, Android und iPad. Die Weboberfläche und der Lernkern sind
+gemeinsam angelegt; Touch-Bedienung wird auch bei Android-/iPad-Größen geprüft.
+Für Mac gibt es `AI-Chess-Studio-starten.command` (Node.js 24 erforderlich).
+Native Windows-/Mac-Tests und Tests auf Android/iPad sind noch offen.
+Manifest und Icons bereiten Startbildschirmdarstellung vor; eine eigenständige
+mobile oder offlinefähige App ist damit noch nicht umgesetzt. Der aktuelle
+Node-Server ist ein Desktop-Backend. Details: PLATFORM_ARCHITECTURE.md.
+
 ## Menschliche Denkweise statt bloßer Enginebewertung
 
 Der KI-Lernbegleiter soll deine eigenen Ideen und Begründungen aufgreifen und
@@ -157,7 +176,7 @@ des Updates keine zweite Installation starten und keinen Quellcode bearbeiten.
 
 ## Nachweise und Grenzen
 
-`npm run test:all`: Typprüfung, Build, **56 Einzeltests und 15 Chromium-
+`npm run test:all`: Typprüfung, Build, **60 Einzeltests und 18 Chromium-
 Browsertests**. Der gebaute Anwendungsserver wird getestet, einschließlich
 echtem lokalem Stockfish. Schlüsseltests verwenden ausschließlich bedeutungslose
 Testwerte, Provider-/Update-Tests lokale Fixtures. Es wurde kein echtes Update

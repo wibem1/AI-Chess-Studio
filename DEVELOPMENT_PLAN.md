@@ -63,6 +63,27 @@ Hypothesen. Die Engine-Stufe ist keine Einstufung des Menschen.
 Diese Anforderungen sind im Modellauftrag konkretisiert; ihre Erfüllung durch
 eine reale KI ist noch zu prüfen und wird nicht durch Prompttext bewiesen.
 
+## Bedienbarer Humanfaktor
+
+An jeder Stellung können freiwillig eigene Idee, Begründung, Unsicherheit und
+Lernziel festgehalten werden. Diese Angaben sind Selbstangaben, keine Diagnose
+oder Bewertung des Menschen. Sie werden mit der Sitzung gespeichert und als
+begrenzter Kontext in den Dialog gegeben.
+
+Gewünschter Hilfeumfang: Leitfrage (keine Zugvorschläge oder fertige Lösung in
+der Anzeige), kleiner Denkhinweis oder ausführliche Erklärung. Moderne reale
+Modellantworten müssen strukturierte Lernaspekte zu Idee, Rechenarbeit,
+übersehbaren Antworten und Weiterführung enthalten; fehlerhafte Antworten
+werden nicht als Lernergebnis gespeichert. Das beweist noch keine pädagogische
+Qualität; Simulationen bleiben sichtbar als Simulation gekennzeichnet.
+
+## Plattformziel
+
+Windows, macOS, Android und iPadOS sind langfristige Zielplattformen.
+Gemeinsamer Lernkern, responsives Frontend und getrennte Engine-/Modell-/
+Speicheradapter sind verbindlich. Aktuell gibt es einen Desktop-Node-Backendweg;
+eine mobile Standalone-App ist noch nicht fertig. Siehe PLATFORM_ARCHITECTURE.md.
+
 ## Noch erforderliche Abnahme
 
 Ein realer, begrenzter KI-Dialog zum eigenen Plan und einem ausgewählten

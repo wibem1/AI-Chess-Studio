@@ -1,3 +1,4 @@
+import {validateReflection,type Reflection} from './learning.js';
 import { pathTo, type GameState } from './game.js';
 import { Chess, DEFAULT_POSITION } from 'chess.js';
 import { validateTacticalReport, type TacticalReport } from './tactics.js';
@@ -18,6 +19,7 @@ export interface SessionData {
   activeNodeId: string;
   nodes: PositionNode[];
   annotations: Annotation[];
+  reflections?:Record<string,Reflection>;
   game?: GameState;
   labels?: Record<string,string>;
   comparison?: {a:string;b:string};
@@ -79,14 +81,15 @@ export class Session {
        !pathTo(this.data,g.cursor).some(n=>n.id===g.start))throw new Error('Ungültiger Partiestand.');
     this.data.game=structuredClone(g);
   }
+  reflect(id:string,raw:Reflection):void {this.node(id);const value=validateReflection(raw);this.data.reflections??={};this.data.reflections[id]=value;}
   label(id:string,value:string):void {
     this.node(id);if(typeof value!=='string' || value.trim().length>80)throw new Error('Variantenname: maximal 80 Zeichen.');
     this.data.labels ??= {};if(value.trim())this.data.labels[id]=value.trim();else delete this.data.labels[id];
   }
   compare(a:string,b:string):void {this.node(a);this.node(b);if(a===b)throw new Error('Zwei unterschiedliche Stellungen wählen.');this.data.comparison={a,b};}
   export(): string {
-    const {schemaVersion,activeNodeId,nodes,annotations,game,labels,comparison}=this.data;
-    return JSON.stringify({schemaVersion,activeNodeId,nodes,annotations,game,labels,comparison},null,2);
+    const {schemaVersion,activeNodeId,nodes,annotations,game,labels,comparison,reflections}=this.data;
+    return JSON.stringify({schemaVersion,activeNodeId,nodes,annotations,game,labels,comparison,reflections},null,2);
   }
 
   static import(json: string): Session {
@@ -111,6 +114,7 @@ export class Session {
     }
     if(d.labels!==undefined){const labels=record(d.labels);session.data.labels={};for(const [id,label] of Object.entries(labels)){if(typeof label!=='string')throw new Error('Ungültiger Variantenname.');session.label(id,label);}}
     if(d.comparison!==undefined){const c=record(d.comparison);if(typeof c.a!=='string' || typeof c.b!=='string')throw new Error('Ungültiger Vergleich.');session.compare(c.a,c.b);}
+    if(d.reflections!==undefined){const values=record(d.reflections);session.data.reflections={};for(const [id,value] of Object.entries(values))session.reflect(id,validateReflection(value));}
     if(d.game!==undefined)session.setGame(d.game as GameState);
     session.select(d.activeNodeId);
     return session;
