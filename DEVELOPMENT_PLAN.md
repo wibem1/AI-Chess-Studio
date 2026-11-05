@@ -84,6 +84,19 @@ Gemeinsamer Lernkern, responsives Frontend und getrennte Engine-/Modell-/
 Speicheradapter sind verbindlich. Aktuell gibt es einen Desktop-Node-Backendweg;
 eine mobile Standalone-App ist noch nicht fertig. Siehe PLATFORM_ARCHITECTURE.md.
 
+## Technisch integrierter Lerndialog
+
+Der Lernablauf enthält Gesprächseinstieg, natürliche Antwort, gezielte
+Rückfrage, Kontextfortführung und Partierückblick. Die Modellanbindung nutzt
+geprüfte Zugfolgen und echte vorherige Gesprächsrunden als separate Rollen.
+Simulationsantworten sind keine Modellvorgeschichte. Ältere fachliche Details
+bleiben abrufbar, ohne den natürlichen Gesprächsfluss zu überladen.
+
+Der Browser-Integrationslauf verbindet eine echte Stockfish-Partie mit dem
+tatsächlichen Modell-Service und einem ersetzten Provider für drei
+Gesprächsrunden einschließlich Rückblick aus einer Analysevariante. Das
+belegt Datenfluss und Bedienung, nicht reale Modellqualität.
+
 ## Noch erforderliche Abnahme
 
 Ein realer, begrenzter KI-Dialog zum eigenen Plan und einem ausgewählten

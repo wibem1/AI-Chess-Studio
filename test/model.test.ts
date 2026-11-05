@@ -8,7 +8,7 @@ import { modelMiddleware } from '../server/http.js';
 
 const request = (): DialogueRequest => ({ nodeId: 'n0', fen: new Session().snapshot().nodes[0]!.fen,
   question: 'Plan?', legalMoves: new Session().legalMoves(), context: [] });
-const reply = { plan: 'Zentrum prüfen', opponent: 'Möglicher Gegenplan', risks: 'Drohungen prüfen',
+const reply = { message:'Prüfen wir deinen Plan gemeinsam.',plan: 'Zentrum prüfen', opponent: 'Möglicher Gegenplan', risks: 'Drohungen prüfen',
   playability: 'Plan erklären', humanFactors:{idea:'Idee',calculation:'Rechenaufwand',pitfalls:'Übersehbare Antwort',continuation:'Fortsetzung'}, candidates: ['e4'], openQuestions: ['Welche Antwort?'] };
 const config = { enabled: true, apiKey: 'local-test-sentinel', model: 'explicit-test-model' };
 const response = (content: unknown = reply, finish = 'stop') => new Response(JSON.stringify({ choices: [{ finish_reason: finish, message: { content: JSON.stringify(content) } }] }));

@@ -1,5 +1,5 @@
 import { Chess, type Square } from 'chess.js';
-import { Studio, SimulationAdapter, type SimulationMode } from '../src/dialogue.js';
+import { Studio, SimulationAdapter, type SimulationMode,type DialogueTopic } from '../src/dialogue.js';
 import { ServerModelAdapter } from '../src/model-client.js';
 import { checkTactics, ServerTacticalAdapter } from '../src/tactics.js';
 import { LearningGame, ServerPlayingEngine, pathTo } from '../src/game.js';
@@ -19,7 +19,7 @@ let modelAvailable = false;
 const modelMode = () => $<HTMLSelectElement>('dialogue-mode').value === 'model';
 function updateMode() {
   const real = modelMode();
-  $<HTMLButtonElement>('ask').textContent = real ? 'Plan diskutieren (reale KI)' : 'Plan diskutieren (Simulation)';
+  $<HTMLButtonElement>('ask').textContent = real ? 'Nachricht senden (reale KI)' : 'Nachricht senden (Simulation)';
   $<HTMLButtonElement>('ask').disabled = pending || (real && !modelAvailable);
   $('simulation-hint').hidden = real;
   message('mode-badge', real ? 'Reale KI · Hypothesen · Kann API-Kosten verursachen' : 'Simulation · Keine reale KI · Keine Modellanfragen');
@@ -119,15 +119,20 @@ function render() {
   input('learning-uncertainty').value=reflection?.uncertainty??'';input('learning-goal').value=reflection?.goal??'';$<HTMLSelectElement>('learning-hint').value=reflection?.hintMode??'explain';
   input('variant-label').value=data.labels?.[current.id]??'';
   renderComparison();
+  const dialoguePath=new Set(pathTo(data,current.id).map(n=>n.id));
+  message('dialogue-anchor',`Gespräch zur Stellung ${current.id}${data.labels?.[current.id]?' · '+data.labels[current.id]:''}. Beiträge früherer Stellungen dieses Zweigs bleiben sichtbar.`);
   for (const [kind, id] of [['dialogue', 'dialogue'], ['memory', 'memories']] as const) {
     const container = $(id); container.replaceChildren();
-    for (const a of data.annotations.filter(a => a.nodeId === current.id && a.kind === kind)) {
+    for (const a of data.annotations.filter(a => a.kind===kind && (kind==='dialogue'?dialoguePath.has(a.nodeId):a.nodeId===current.id))) {
       const entry = document.createElement('article'); entry.className = 'entry';
       const meta = document.createElement('small');
       meta.textContent = `${a.nodeId} · ${a.source === 'human' ? 'Mensch' : a.source === 'simulation' ? 'Simulation · Keine reale KI' : 'Modell'} · ${a.hypothesis ? 'Hypothese' : 'Eigene Eingabe'}`;
-      const body = document.createElement('div'); body.textContent = a.text;
-      entry.append(meta, body);
-      if (a.openQuestions.length) { const questions = document.createElement('p'); questions.textContent = `Offen: ${a.openQuestions.join(' / ')}`; entry.append(questions); }
+      const body = document.createElement('div');
+      const [answer,details]=a.text.split('\n\nAnalyse-Details:');body.textContent=answer!;
+      entry.append(meta,body);
+      if(details){const disclosure=document.createElement('details'),summary=document.createElement('summary'),detail=document.createElement('div');summary.textContent='Denkwege und fachliche Einordnung';detail.textContent=details;disclosure.append(summary,detail);entry.append(disclosure);}
+      if(kind==='dialogue' && a.nodeId!==current.id){const jump=document.createElement('button');jump.textContent=`Stellung ${a.nodeId} ansehen`;jump.addEventListener('click',()=>{game.analyse(a.nodeId);render();});entry.append(jump);}
+      if (a.openQuestions.length) { const questions = document.createElement('p'); questions.textContent = `Offen: ${a.openQuestions.join(' / ')}`; entry.append(questions);if(kind==='dialogue' && a.source!=='human')for(const q of a.openQuestions.slice(0,2)){const follow=document.createElement('button');follow.textContent=`Rückfrage aufgreifen: ${q}`;follow.addEventListener('click',()=>{text('question').value=q;text('question').focus();});entry.append(follow);} }
       container.append(entry);
     }
   }
@@ -146,12 +151,13 @@ $('memory-form').addEventListener('submit', event => {
 $('dialogue-form').addEventListener('submit', async event => {
   event.preventDefault(); if (pending || (modelMode() && !modelAvailable)) return;
   const real = modelMode();
+  if($<HTMLSelectElement>('dialogue-topic').value==='review'){game.pause();const g=studio.session.snapshot().game;if(g)studio.session.select(g.cursor);render();}
   const question = text('question').value;
   const session = studio.session;
   pending = true; $<HTMLButtonElement>('ask').disabled = true;
   message('dialogue-feedback', `${real ? 'Modellanfrage' : 'Simulation'} läuft … Stellungswechsel ist weiterhin möglich.`);
   try {
-    const result = await studio.ask(question, real ? new ServerModelAdapter() : new SimulationAdapter($<HTMLSelectElement>('simulation-mode').value as SimulationMode));
+    const result = await studio.ask(question, real ? new ServerModelAdapter() : new SimulationAdapter($<HTMLSelectElement>('simulation-mode').value as SimulationMode),$<HTMLSelectElement>('dialogue-topic').value as DialogueTopic);
     message('dialogue-feedback', result === 'stored' ? `${real ? 'Modellantwort' : 'Beispielantwort'} an der angefragten Stellung gespeichert.` : 'Veraltete Antwort nach Sitzungswechsel verworfen.');
     render();
   } catch (error) {
@@ -321,3 +327,12 @@ $('reflection-form').addEventListener('submit',event=>{
  attempt(()=>studio.session.reflect(studio.session.snapshot().activeNodeId,value),'reflection-feedback','Dein Gedankengang und gewünschter Hinweisumfang sind an dieser Stellung gespeichert.');
 });
 for(const id of ['learning-idea','learning-reasoning','learning-uncertainty','learning-goal'])$(id).addEventListener('focus',()=>{const g=studio.session.snapshot().game;if(g && !g.paused){game.pause();render();}});
+
+$('dialogue-begin').addEventListener('click',()=>{
+ game.pause();const topic=$<HTMLSelectElement>('dialogue-topic').value;
+ if(topic==='review'){const g=studio.session.snapshot().game;if(g)studio.session.select(g.cursor);}
+ render();
+ const d=studio.session.snapshot(),r=d.reflections?.[d.activeNodeId];
+ text('question').value=topic==='comparison'?'Hilf mir, meine Varianten A und B nach Plan, Risiken und menschlicher Spielbarkeit zu vergleichen.':topic==='review'?'Lass uns die Partie durchgehen: Welche Entscheidungen sollte ich zum Lernen genauer betrachten?':r?.idea?`Meine Idee ist: ${r.idea}. ${r.reasoning?'Meine Begründung: '+r.reasoning+'. ':''}Hilf mir, diesen Plan zu prüfen und weiterzudenken.`:'Hilf mir, aus dieser Stellung einen verständlichen Plan zu entwickeln. Frag mich zuerst nach meinen Gedanken.';
+ text('question').focus();message('dialogue-feedback','Gespräch vorbereitet. Erst „Nachricht senden“ startet eine Anfrage.');
+});

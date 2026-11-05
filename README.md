@@ -56,6 +56,28 @@ Elo-Stufen; auch Level 1 kann stark spielen. Spielzüge nutzen die Zughistorie
 für Wiederholungen, Rochade und en passant. Der zusätzliche taktische
 Faktencheck bleibt ein separater ausdrücklicher Aufruf.
 
+## Fortlaufender Lerndialog während und nach der Partie
+
+Im Bereich „Lerndialog“ wählst du aktuelle Stellung, Varianten A/B oder
+Partierückblick. „Lerngespräch vorbereiten“ pausiert die Partie und formuliert
+einen Einstieg aus deinen Angaben, startet aber noch keine Anfrage. Erst
+„Nachricht senden“ sendet sie im ausgewählten echten oder simulierten Modus.
+
+Antworten erscheinen als Gespräch; fachliche Details kannst du aufklappen.
+Rückfrage-Schaltflächen übernehmen einen Gesprächsimpuls in die Eingabe,
+senden ihn aber nicht automatisch. Beiträge früherer Stellungen desselben
+Zweigs bleiben mit ihrer Stellung sichtbar. Eine andere Variante übernimmt
+nicht still deren fremden Gesprächsverlauf. Beim Partierückblick kehrt die
+App zur tatsächlichen Partiestellung zurück, auch aus einer Analysevariante.
+
+Der Modell-Service bekommt die aktuelle Frage, geprüfte tatsächliche Zugfolge,
+eigene Gedanken und bis zu zwei letzte passende echte Gesprächsrunden.
+Simulationsantworten werden nicht als echte KI-Vorgeschichte weitergegeben.
+Kontext, Gesprächsbeiträge und Requestgröße bleiben begrenzt; bei langen
+Verläufen werden ältere Beiträge gekürzt/entfernt. Die vollständige Sitzung
+bleibt im Export erhalten. Mehr Gesprächsanfragen bleiben den bestehenden
+Kosten-/Anfragelimits unterworfen, ohne automatische Wiederholungen.
+
 ## Eigene Gedanken und gestufte Hilfe
 
 Unter „Meine Gedanken und Lernwünsche“ kannst du an der aktuellen Stellung
@@ -176,7 +198,7 @@ des Updates keine zweite Installation starten und keinen Quellcode bearbeiten.
 
 ## Nachweise und Grenzen
 
-`npm run test:all`: Typprüfung, Build, **60 Einzeltests und 18 Chromium-
+`npm run test:all`: Typprüfung, Build, **64 Einzeltests und 19 Chromium-
 Browsertests**. Der gebaute Anwendungsserver wird getestet, einschließlich
 echtem lokalem Stockfish. Schlüsseltests verwenden ausschließlich bedeutungslose
 Testwerte, Provider-/Update-Tests lokale Fixtures. Es wurde kein echtes Update

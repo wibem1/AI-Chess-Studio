@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {Session} from '../src/session.js';
 import {Studio,SimulationAdapter} from '../src/dialogue.js';
 const reflection={idea:'Zentrum kontrollieren',reasoning:'Meine Figuren brauchen aktive Felder',uncertainty:'Gegnerischer Gegenstoß',goal:'Pläne statt Züge lernen',hintMode:'question' as const};
-const reply={plan:'LÖSUNG NICHT ANZEIGEN',opponent:'Hypothese',candidates:[],risks:'Risiko',playability:'Praxis',humanFactors:{idea:'Ein kleiner Hinweis',calculation:'Genau rechnen',pitfalls:'Gegenstoß',continuation:'Plan weiterführen'},openQuestions:['Welche Figur steht noch ungünstig?']};
+const reply={message:'Wir greifen deine Idee auf.',plan:'LÖSUNG NICHT ANZEIGEN',opponent:'Hypothese',candidates:[],risks:'Risiko',playability:'Praxis',humanFactors:{idea:'Ein kleiner Hinweis',calculation:'Genau rechnen',pitfalls:'Gegenstoß',continuation:'Plan weiterführen'},openQuestions:['Welche Figur steht noch ungünstig?']};
 test('own thoughts remain position-bound and survive session export',()=>{
  const s=new Session();s.play('e4');s.reflect('n1',reflection);s.select('n0');s.play('d4');
  const restored=Session.import(s.export());assert.deepEqual(restored.snapshot().reflections?.n1,reflection);assert.equal(restored.snapshot().reflections?.n2,undefined);

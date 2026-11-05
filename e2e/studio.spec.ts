@@ -35,8 +35,8 @@ test('board input, illegal moves, branches, memory and JSON restoration', async 
   await play(page, 'e4');
   await expect(page.locator('#move-feedback')).toContainText('nicht legal');
   await expect(page.locator('#position-status')).toContainText('n1 · Schwarz');
-  await page.getByLabel('Deine Planfrage').fill('Wie kontrolliere ich das Zentrum?');
-  await page.getByRole('button', { name: 'Plan diskutieren (Simulation)' }).click();
+  await page.getByLabel('Deine Nachricht').fill('Wie kontrolliere ich das Zentrum?');
+  await page.getByRole('button', { name: 'Nachricht senden (Simulation)' }).click();
   await expect(page.locator('#dialogue')).toContainText('Kandidaten (ungeordnet)');
   await expect(page.locator('#dialogue')).toContainText('Simulation · Keine reale KI');
   await page.getByLabel('Eigene Notiz zur Stellung').fill('Zentrum beobachten');
@@ -65,15 +65,16 @@ test('board input, illegal moves, branches, memory and JSON restoration', async 
 
 test('delayed answer follows request position and is discarded after session import', async ({ page }) => {
   await page.goto('/'); await simulation(page, 'slow');
-  await page.getByLabel('Deine Planfrage').fill('Plan der Ausgangsstellung?');
-  await page.getByRole('button', { name: 'Plan diskutieren (Simulation)' }).click();
+  await page.getByLabel('Deine Nachricht').fill('Plan der Ausgangsstellung?');
+  await page.getByRole('button', { name: 'Nachricht senden (Simulation)' }).click();
   await play(page, 'e4');
   await expect(page.locator('#dialogue-feedback')).toContainText('angefragten Stellung gespeichert');
-  await expect(page.locator('#dialogue')).toBeEmpty();
+  await expect(page.locator('#dialogue')).toContainText('n0 ·');
+  await expect(page.getByRole('button',{name:'Stellung n0 ansehen'}).first()).toBeVisible();
   await page.getByRole('button', { name: 'n0 · Ausgangsstellung', exact: true }).click();
   await expect(page.locator('#dialogue')).toContainText('Plan der Ausgangsstellung?');
   const data = await exportData(page);
-  await page.getByRole('button', { name: 'Plan diskutieren (Simulation)' }).click();
+  await page.getByRole('button', { name: 'Nachricht senden (Simulation)' }).click();
   await importData(page, data);
   await expect(page.locator('#dialogue-feedback')).toContainText('Veraltete Antwort');
   expect(await exportData(page)).toBe(data);
@@ -81,16 +82,16 @@ test('delayed answer follows request position and is discarded after session imp
 
 test('invalid replies and failures show errors, permit retry and never mutate dialogue', async ({ page }) => {
   await page.goto('/'); await simulation(page, 'invalid');
-  await page.getByLabel('Deine Planfrage').fill('Plan?');
-  await page.getByRole('button', { name: 'Plan diskutieren (Simulation)' }).click();
+  await page.getByLabel('Deine Nachricht').fill('Plan?');
+  await page.getByRole('button', { name: 'Nachricht senden (Simulation)' }).click();
   await expect(page.locator('#dialogue-feedback')).toContainText('Ungültige Simulationsantwort');
   await expect(page.locator('#dialogue')).toBeEmpty();
   await page.getByLabel('Testverhalten').selectOption('failure');
-  await page.getByRole('button', { name: 'Plan diskutieren (Simulation)' }).click();
+  await page.getByRole('button', { name: 'Nachricht senden (Simulation)' }).click();
   await expect(page.locator('#dialogue-feedback')).toContainText('Simulierter Anfragefehler');
   await expect(page.locator('#dialogue')).toBeEmpty();
   await page.getByLabel('Testverhalten').selectOption('normal');
-  await page.getByRole('button', { name: 'Plan diskutieren (Simulation)' }).click();
+  await page.getByRole('button', { name: 'Nachricht senden (Simulation)' }).click();
   await expect(page.locator('#dialogue')).toContainText('Gegenplan:');
 });
 
@@ -127,10 +128,10 @@ test('real model is locked by default while simulation remains usable', async ({
   await page.goto('/');
   await expect(page.locator('#model-status')).toContainText('Reale KI gesperrt');
   await page.getByLabel('Dialogmodus').selectOption('model');
-  await expect(page.getByRole('button', { name:'Plan diskutieren (reale KI)' })).toBeDisabled();
+  await expect(page.getByRole('button', { name:'Nachricht senden (reale KI)' })).toBeDisabled();
   await page.getByLabel('Dialogmodus').selectOption('simulation');
-  await page.getByLabel('Deine Planfrage').fill('Plan?');
-  await page.getByRole('button', { name:'Plan diskutieren (Simulation)' }).click();
+  await page.getByLabel('Deine Nachricht').fill('Plan?');
+  await page.getByRole('button', { name:'Nachricht senden (Simulation)' }).click();
   await expect(page.locator('#dialogue')).toContainText('Simulation · Keine reale KI');
 });
 
@@ -139,14 +140,14 @@ test('local model API fixture exercises UI transport and provenance without any 
   let received: Record<string, unknown> | undefined;
   await page.route('**/api/dialogue', route => {
     received = route.request().postDataJSON();
-    return route.fulfill({ json:{ plan:'Lokale Modell-Testantwort', opponent:'Hypothese: Zentrum angreifen', candidates:['e4'],
+    return route.fulfill({ json:{ message:'Lokale Dialog-Testantwort',plan:'Lokale Modell-Testantwort', opponent:'Hypothese: Zentrum angreifen', candidates:['e4'],
       risks:'Test-Risiko', playability:'Test-Spielbarkeit', humanFactors:{idea:'Testidee',calculation:'Testrechnung',pitfalls:'Testgefahr',continuation:'Testfortsetzung'}, openQuestions:['Testfrage?'] } });
   });
   await page.goto('/');
   await expect(page.locator('#model-status')).toContainText('KI-Zugang konfiguriert');
   await page.getByLabel('Dialogmodus').selectOption('model');
-  await page.getByLabel('Deine Planfrage').fill('Was könnte Schwarz planen?');
-  await page.getByRole('button', { name:'Plan diskutieren (reale KI)' }).click();
+  await page.getByLabel('Deine Nachricht').fill('Was könnte Schwarz planen?');
+  await page.getByRole('button', { name:'Nachricht senden (reale KI)' }).click();
   await expect(page.locator('#dialogue')).toContainText('Modell · Hypothese');
   expect(received?.nodeId).toBe('n0');
   expect(received).not.toHaveProperty('apiKey');
@@ -256,8 +257,8 @@ test('real engine learning game pauses for chat, keeps analysis branches and sav
  await page.getByLabel('Variante A',{exact:true}).selectOption('n1');await page.getByLabel('Variante B',{exact:true}).selectOption('n3');
  await page.getByRole('button',{name:'Vergleich anzeigen'}).click();await expect(page.locator('#comparison-view')).toContainText('Mein d4-Plan');
  await expect(page.locator('.mini-board')).toHaveCount(2);
- await page.getByLabel('Deine Planfrage').fill('Was unterscheidet meinen Plan von e4?');
- await page.getByRole('button',{name:'Plan diskutieren (Simulation)'}).click();await expect(page.locator('#dialogue')).toContainText('Was unterscheidet');
+ await page.getByLabel('Deine Nachricht').fill('Was unterscheidet meinen Plan von e4?');
+ await page.getByRole('button',{name:'Nachricht senden (Simulation)'}).click();await expect(page.locator('#dialogue')).toContainText('Was unterscheidet');
  const saved=await exportData(page);expect(JSON.parse(saved).game.cursor).toBe(cursor);expect(engineCalls).toBe(1);
  await page.reload();await importData(page,saved);await expect(page.locator('#game-status')).toContainText('Analysemodus');
  await expect(page.locator('#comparison-view')).toContainText('Mein d4-Plan');
@@ -285,7 +286,7 @@ test('learner can save their thoughts and choose guiding questions without spoil
  await page.getByLabel('Was möchte ich verstehen oder üben?',{exact:true}).fill('Gegenpläne erkennen');
  await page.getByLabel('Wie viel Hilfe möchte ich?',{exact:true}).selectOption('question');
  await page.getByRole('button',{name:'Gedankengang an dieser Stellung speichern'}).click();
- await page.getByLabel('Deine Planfrage').fill('Wo soll ich anfangen?');await page.getByRole('button',{name:'Plan diskutieren (Simulation)'}).click();
+ await page.getByLabel('Deine Nachricht').fill('Wo soll ich anfangen?');await page.getByRole('button',{name:'Nachricht senden (Simulation)'}).click();
  await expect(page.locator('#dialogue')).toContainText('Leitfrage:');await expect(page.locator('#dialogue')).not.toContainText('Kandidaten (ungeordnet)');
  const data=await exportData(page);expect(JSON.parse(data).reflections.n0.idea).toBe('Zentrum kontrollieren');
  await page.reload();await importData(page,data);await page.getByText('Meine Gedanken und Lernwünsche (optional)',{exact:true}).click();
@@ -304,4 +305,27 @@ test('learning controls and board remain usable at Android and iPad-sized touch 
   await page.getByRole('button',{name:'Gedankengang an dieser Stellung speichern'}).tap();
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await context.close();
  }
+});
+
+test('learning dialogue integrates engine game, actual model-service transport and follow-up conversation',async({page})=>{
+ const {ModelService}=await import('../server/model.js');let calls=0;
+ const fixture={message:'Als Lernbeispiel greifen wir deine Zentrumsidee auf.',plan:'Zentrum',opponent:'Möglicher Gegenstoß',candidates:[],risks:'Ungedeckte Figuren',playability:'Klare nächste Schritte',humanFactors:{idea:'Deine Begründung prüfen',calculation:'Zwingende Antworten',pitfalls:'Gegenstoß',continuation:'Figuren verbessern'},openQuestions:['Was möchtest du mit deinem Plan verhindern?']};
+ const service=new ModelService({enabled:true,apiKey:'local-integration-test-key',model:'fixture'},(async(_url,init)=>{
+  calls++;const body=JSON.parse(init!.body as string);if(calls===2){expect(body.messages.map((m:{role:string})=>m.role)).toEqual(['system','user','assistant','user']);expect(body.messages[2].content).toContain('Zentrumsidee');}
+  if(calls===3){const current=JSON.parse(body.messages.at(-1).content);expect(current.topic).toBe('review');expect(current.history.moves).toHaveLength(2);}
+  return new Response(JSON.stringify({usage:{prompt_tokens:200,completion_tokens:100},choices:[{finish_reason:'stop',message:{content:JSON.stringify({...fixture,message:calls===1?fixture.message:'Als zweite Testantwort betrachten wir deinen Gegenplan.'})}}]}));
+ }) as typeof fetch);
+ await page.route('**/api/status',route=>route.fulfill({json:service.status()}));
+ await page.route('**/api/dialogue',async route=>{const result=await service.reply(route.request().postDataJSON());await route.fulfill({json:result});});
+ await page.goto('/');await page.getByLabel('Engine-Spielstärke',{exact:true}).selectOption('1');await page.getByRole('button',{name:'Partie ab dieser Stellung starten'}).click();await play(page,'e4');await expect(page.locator('#game-feedback')).toContainText('Stockfish hat gezogen');
+ const cursor=JSON.parse(await exportData(page)).game.cursor;
+ await page.getByLabel('Dialogmodus').selectOption('model');await page.getByRole('button',{name:'Lerngespräch vorbereiten'}).click();expect(calls).toBe(0);
+ await page.getByLabel('Deine Nachricht').fill('Meine Idee ist Zentrumskontrolle. Warum ist das sinnvoll?');await page.getByRole('button',{name:'Nachricht senden (reale KI)'}).click();
+ await expect(page.locator('#dialogue')).toContainText('Zentrumsidee');await expect(page.locator('#game-status')).toContainText('Analysemodus');
+ await page.getByRole('button',{name:'Rückfrage aufgreifen: Was möchtest du mit deinem Plan verhindern?'}).click();expect(calls).toBe(1);
+ await page.getByRole('button',{name:'Nachricht senden (reale KI)'}).click();await expect(page.locator('#dialogue')).toContainText('zweite Testantwort');expect(calls).toBe(2);
+ await page.getByRole('button',{name:'n0 · Ausgangsstellung · Partie',exact:true}).click();await play(page,'d4');
+ await page.getByLabel('Worüber sprechen wir?').selectOption('review');await page.getByLabel('Deine Nachricht').fill('Besprechen wir die wirkliche Partie.');await page.getByRole('button',{name:'Nachricht senden (reale KI)'}).click();
+ await expect(page.locator('#position-status')).toContainText(cursor);await expect(page.locator('#dialogue-feedback')).toContainText('Modellantwort');expect(calls).toBe(3);
+ const saved=JSON.parse(await exportData(page));expect(saved.game.cursor).toBe(cursor);expect(saved.annotations.filter((a:{source:string})=>a.source==='model')).toHaveLength(3);
 });

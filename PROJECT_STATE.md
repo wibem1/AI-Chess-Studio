@@ -27,7 +27,7 @@ Analysebrett/Faktencheck war ein Missverständnis und ist korrigiert.
   unaufgefordert die Engine starten zu lassen.
 - KI-Kontext berücksichtigt Vorfahren der aktuellen Stellung, die Lernpartie
   und ausdrücklich gewählten Vergleich, bleibt auf sechs Einträge begrenzt.
-- Typprüfung, Build, 60 Einzeltests und 18 Chromium-Browsertests bestanden.
+- Typprüfung, Build, 64 Einzeltests und 19 Chromium-Browsertests bestanden.
   Echte lokale Engine auf allen fünf Stufen sowie Weiß-/Schwarz-Lernablauf im
   Browser geprüft; KI-Antworten weiterhin ausschließlich Testfixtures.
 - Vorheriger Stand 6da1a54 bleibt erhalten. Details: docs/VALIDATION.md.
@@ -53,6 +53,21 @@ Implementiert ist die Instruktion; reale pädagogische Qualität noch nicht bele
 - Gemeinsame Web-/Touch-Basis, Manifest und Icons; Mac-.command-Starter.
   PLATFORM_ARCHITECTURE.md trennt Desktop-Backend von den noch erforderlichen
   mobilen Engine-/Transport-/Keystore-Adaptern. Keine mobile Standalone-Freigabe.
+
+## Fortlaufender Lerndialog integriert
+
+- Natürliche Dialogantwort vor aufklappbaren fachlichen Details; Gesprächsziele
+  Stellung, Variantenvergleich und Partierückblick, vorbereiteter Einstieg.
+- Rückfragen werden auf Klick in den Entwurf übernommen, nicht automatisch
+  gesendet. Passende Beiträge früherer Stellungen bleiben sichtbar/verlinkt.
+- Bis zu zwei echte frühere Gesprächsrunden mit separaten user/assistant-Rollen;
+  keine simulierten Antworten als vermeintlich echte Modellvorgeschichte.
+- Server validiert die tatsächliche Zugfolge gegen die angefragte FEN.
+  Gekürzte Historie ist markiert; Unicode-Requestbudget unter 16 KiB geprüft.
+- Voller Browserablauf mit echter Engine und tatsächlichem Modell-Service,
+  Provider lokal ersetzt, drei Gesprächsrunden einschließlich Rückblick geprüft.
+- Laufende Konfiguration und lokaler Schlüsselspeicher geprüft: kein nutzbarer
+  realer Modellzugang in dieser Umgebung. Keine bezahlte Anfrage ausgeführt.
 
 ## Weiter vorhandene Funktionen
 

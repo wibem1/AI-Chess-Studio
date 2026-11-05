@@ -311,3 +311,33 @@ Adapter sind nicht nativ abgenommen. Der aktuelle Backendweg benötigt Node;
 eigenständige mobile Apps sind noch nicht implementiert. Architektur und
 Plattformmatrix stehen in PLATFORM_ARCHITECTURE.md. Reale pädagogische
 Modellqualität bleibt offen; keine kostenpflichtige Anfrage ausgeführt.
+
+## Fortlaufender Lerndialog integriert
+
+5. November 2026: npm run test:all vollständig erfolgreich: Typprüfung/Build,
+**64 Einzeltests und 19 Browsertests**, keine Fehler/übersprungenen Tests.
+
+Neue Nachweise: echte vorherige Dialogpaare aus demselben Zweig werden als
+getrennte user/assistant-Rollen an den Modell-Service weitergegeben; Simulation
+und fremde Geschwistervarianten ausgeschlossen. Tatsächliche SAN-Historie wird
+rekonstruiert und gegen FEN geprüft. Gefälschte Historie, system-Rollen im
+Verlauf und Vergleich ohne gewählte Varianten werden abgewiesen. Lange Unicode-
+Anfragen bleiben unter dem HTTP-Bytebudget; Export enthält den vollen Dialog.
+
+Der neue Browser-Integrationslauf spielt zuerst gegen echten lokalen Stockfish,
+pausiert zum Gespräch, bereitet einen Einstieg ohne API-Aufruf vor, sendet eine
+Frage über den realen Modell-Service mit injiziertem lokalem Providertransport,
+greift eine Rückfrage ohne automatisches Senden auf und führt eine zweite Runde
+mit geprüftem Rollenverlauf. Eine dritte Runde prüft den Partierückblick nach
+einem Abstecher in eine Analysevariante: echte Partie/FEN/Verlauf bleiben korrekt.
+Sitzung enthält die drei Modell-Fixture-Antworten und unveränderten Partiekursor.
+
+Frühere Beiträge im aktuellen Zweig bleiben nun bewusst sichtbar; der bestehende
+Verspätungs-Test wurde auf die neue Sichtbarkeit und den Herkunftslink angepasst.
+Die Datenzuordnung bleibt am ursprünglichen Knoten, nicht an der neuen Stellung.
+
+Laufzeitstatus, Variablennamen und normaler lokaler Konfigurationsladeweg zeigen
+keinen nutzbaren echten Schlüsselzugang. Keine Werte ausgegeben, keine neue
+Schlüsseleingabe im Chat verlangt. Keine echte Provider-/kostenpflichtige
+Textgenerierung, keine Aussage über reale pädagogische Qualität. Nativer
+Plattformtest weiterhin separat erforderlich.
