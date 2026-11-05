@@ -1,15 +1,20 @@
 # AI-Chess-Studio – Windows-Startpaket
 
-Touchkorrektur: Wischen scrollt auch auf dem Brett. Figur und Zielfeld antippen
-spielt einen Zug. Mit der Maus weiterhin Figuren ziehen. Portkorrektur enthalten.
-Vor Wechsel aktuelle Sitzung exportieren und bisherige App schliessen.
-ZIP vollstaendig in neuen Ordner entpacken und AI-Chess-Studio-starten.cmd
-starten. Portable Node-Laufzeit enthalten. Erste Installation braucht Internet.
+Speicherstatus: sofortige Fortschrittsmeldung und bleibende Bestaetigung nach
+lokaler Schluesselspeicherung. Leeres Eingabefeld ist vorgesehen. Langsamer
+lokaler Speicher hat mehr Zeit; Timeout und Fehler werden deutlich gemeldet.
+
+Vor Wechsel Sitzung exportieren. Alte App-Serverfenster und App-Browsertabs
+schliessen. ZIP in neuen Ordner vollstaendig entpacken, starten mit
+AI-Chess-Studio-starten.cmd und den dadurch geoeffneten Browsertab verwenden.
 Gespeicherte Schluessel im Benutzerprofil bleiben erhalten.
 
-Build, 68 Einzeltests und 24 Chromium-Browsertests bestanden. Touch-Wischgesten
-und zwei Taps bei Android-/iPad-Groessen browserseitig geprueft; native Abnahme
-offen. Keine Schluessel im Paket. Download-Branch, kein Release oder Deployment.
+Build, 68 Einzeltests und 26 Chromium-Browsertests bestanden. Finger-Scrollen
+waehrend und nach Speichern sowie bei Speicherfehler in Android-, iPad- und
+Desktop-Touchemulation geprueft. Der vom Nutzer beobachtete Scrollstillstand
+auf Windows-Touchscreen mit Chrome/Edge ist hier NICHT reproduziert.
+Native Windows-Touch-/DPAPI-Abnahme bleibt offen. Kein Provideraufruf.
+Keine Schluessel im Paket. Download-Branch, kein Release oder Deployment.
 
-Quellcommit: 8483284cb664348a4e0ef4766a14655f96714e2d
-SHA-256: bad68a1a1ea8ef2c48237a259ed4e470913d493d6853510175a6da41988c3f77
+Quellcommit: 0126fe0d49044ea973f85df466684cdc51bcca75
+SHA-256: 30f476aac46f0a526f0d15947d7bb5e9942bd1727c1076b3ce32aa15ccbd8090
