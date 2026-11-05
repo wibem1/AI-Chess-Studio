@@ -329,3 +329,78 @@ test('learning dialogue integrates engine game, actual model-service transport a
  await expect(page.locator('#position-status')).toContainText(cursor);await expect(page.locator('#dialogue-feedback')).toContainText('Modellantwort');expect(calls).toBe(3);
  const saved=JSON.parse(await exportData(page));expect(saved.game.cursor).toBe(cursor);expect(saved.annotations.filter((a:{source:string})=>a.source==='model')).toHaveLength(3);
 });
+
+
+async function dragPiece(page: Page, from: string, to: string) {
+  await page.locator('#board').scrollIntoViewIfNeeded();
+  const source = await page.locator(`#board [data-square="${from}"]`).boundingBox();
+  const target = await page.locator(`#board [data-square="${to}"]`).boundingBox();
+  await page.mouse.move(source!.x + source!.width / 2, source!.y + source!.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(target!.x + target!.width / 2, target!.y + target!.height / 2, { steps: 10 });
+  await expect(page.locator('.drag-piece')).toHaveCount(1);
+  await page.mouse.up();
+  await expect(page.locator('.drag-piece')).toHaveCount(0);
+}
+
+test('mouse dragging validates moves, cancels outside the board and preserves analysis branches', async ({page}) => {
+  await page.goto('/');
+  await dragPiece(page, 'e2', 'e5');
+  await expect(page.locator('#move-feedback')).toContainText('nicht legal');
+  await expect(page.locator('#position-status')).toContainText('n0');
+  await dragPiece(page, 'e2', 'e4');
+  await expect(page.locator('#position-status')).toContainText('n1 · Schwarz');
+  await dragPiece(page, 'd7', 'e4'); // Illegal capture leaves both pieces in place.
+  await expect(page.locator('#board [data-square="d7"]')).toHaveAttribute('aria-label', 'd7: Schwarz Bauer');
+  const source = await page.locator('#board [data-square="e7"]').boundingBox();
+  await page.mouse.move(source!.x + source!.width/2, source!.y + source!.height/2);
+  await page.mouse.down(); await page.mouse.move(5,5,{steps:10}); await page.mouse.up();
+  await expect(page.locator('.drag-piece')).toHaveCount(0);
+  await expect(page.locator('#position-status')).toContainText('n1');
+  await dragPiece(page, 'e7', 'e5');
+  await page.getByRole('button',{name:'n0 · Ausgangsstellung',exact:true}).click();
+  await dragPiece(page, 'd2', 'd4');
+  const data=JSON.parse(await exportData(page));
+  expect(data.nodes.map((n:{san:string|null})=>n.san)).toEqual([null,'e4','e5','d4']);
+});
+
+test('mouse dragging supports castling, en passant, capture and underpromotion',async({page})=>{
+ await page.goto('/');
+ await importData(page,new Session('r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1').export());
+ await dragPiece(page,'e1','g1');
+ await expect(page.locator('#board [data-square="f1"]')).toHaveAttribute('aria-label','f1: Weiß Turm');
+ const s=new Session();for(const m of ['e4','a6','e5','d5'])s.play(m);
+ await importData(page,s.export());await dragPiece(page,'e5','d6');
+ await expect(page.locator('#board [data-square="d5"]')).toHaveAttribute('aria-label','d5: leer');
+ await importData(page,new Session('7k/P7/8/8/8/8/8/7K w - - 0 1').export());
+ await page.getByLabel('Umwandlung beim Brettzug').selectOption('n');await dragPiece(page,'a7','a8');
+ await expect(page.locator('#board [data-square="a8"]')).toHaveAttribute('aria-label','a8: Weiß Springer');
+ const capture=new Session();for(const m of ['e4','d5'])capture.play(m);
+ await importData(page,capture.export());await dragPiece(page,'e4','d5');
+ await expect(page.locator('#board [data-square="d5"]')).toHaveAttribute('aria-label','d5: Weiß Bauer');
+});
+
+test('dragging plays against real Stockfish and works on the flipped black board',async({page})=>{
+ await page.goto('/');await page.getByLabel('Engine-Spielstärke',{exact:true}).selectOption('1');
+ await page.getByRole('button',{name:'Partie ab dieser Stellung starten'}).click();
+ await dragPiece(page,'e2','e4');await expect(page.locator('#game-feedback')).toContainText('Stockfish hat gezogen');
+ const first=JSON.parse(await exportData(page));expect(first.game.cursor).toBe('n2');expect(first.nodes).toHaveLength(3);
+ await page.reload();await page.getByLabel('Meine Farbe',{exact:true}).selectOption('b');
+ await page.getByRole('button',{name:'Partie ab dieser Stellung starten'}).click();
+ await expect(page.locator('#game-feedback')).toContainText('Stockfish hat gezogen');
+ await dragPiece(page,'e7','e5');await expect(page.locator('#position-status')).toContainText('n3 · Schwarz');
+ expect(JSON.parse(await exportData(page)).nodes).toHaveLength(4);
+});
+
+test('Escape and pointer cancellation abort dragging without a move',async({page})=>{
+ await page.goto('/');
+ const cell=page.locator('#board [data-square="e2"]');await page.locator('#board').scrollIntoViewIfNeeded();const box=await cell.boundingBox();
+ for(const cancel of ['escape','pointercancel']){
+  await page.mouse.move(box!.x+box!.width/2,box!.y+box!.height/2);await page.mouse.down();
+  await page.mouse.move(box!.x+box!.width/2,box!.y-box!.height,{steps:5});
+  await expect(page.locator('.drag-piece')).toHaveCount(1);
+  if(cancel==='escape')await page.keyboard.press('Escape');else await cell.dispatchEvent('pointercancel');
+  await page.mouse.up();await expect(page.locator('.drag-piece')).toHaveCount(0);
+  await expect(page.locator('#position-status')).toContainText('n0');
+ }
+});

@@ -357,3 +357,25 @@ TypeScript 7.0.2 und Vite 8.3.5 verfügbar. Mac-Starter mit bash -n geprüft.
 Vollständiger Lauf danach: Typprüfung, Build, 64 Einzeltests und 19 Browsertests
 bestanden, keine fehlgeschlagen/übersprungen. Keine native Windows-Ausführung
 behauptet. Kein API-Schlüssel oder Benutzerprofil durch die Reparatur verändert.
+
+
+## Direkte Figurenbedienung mit der Maus
+
+5. November 2026: Nutzer bestätigt den lokalen Start nach der tsc-Reparatur und
+fordert Figuren ziehen statt Texteingabe. Pointer-Ereignisse spielen über den
+bestehenden LearningGame-/chess.js-Weg; kein eigener Regelpfad. Der Zeiger zeigt
+die Figur, legale Zielfelder und das Feld darunter. Klick/Tastatur/SAN bleiben
+bedienbar. Rendern/Abbruch/Fokusverlust entfernen Ghost und Pointer-Capture.
+
+Typprüfung und Build erfolgreich; 64 Einzeltests und abschließend 23 Chromium-
+Browsertests bestanden. Die vier neuen Browserfälle prüfen echte Mausbewegungen
+mit gedrückter Taste, legale/illegale Züge, Loslassen außerhalb, Escape und
+Pointerabbruch, Variantenbildung, Schlagen, Rochade, en passant und Unterumwandlung.
+Ziehen als Weiß und auf dem gedrehten Schwarzbrett löst den echten lokalen
+Stockfish-Gegner aus; jeweils genau ein menschlicher Zug und eine Engineantwort.
+Die bisherigen Klick- und Touch-Tap-Tests bleiben erfolgreich. Die neuen
+Maus-Testhelfer scrollen das Brett vor Mauskoordinaten in den sichtbaren Bereich.
+
+Keine kostenpflichtigen API-Aufrufe. Chromium unter Linux ist kein nativer
+Windows-/Safari-/Mobilgerätetest; Ziehen per Touch/Pen ist über denselben
+Pointerweg implementiert, aber hier nicht separat als Gerätebedienung abgenommen.

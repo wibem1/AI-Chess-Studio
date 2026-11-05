@@ -34,7 +34,8 @@ ist kein veröffentlichtes Release; native Windows-Abnahme steht weiterhin aus.
 1. Farbe und Engine-Spielstärke (Level 1 bis 5) wählen und „Partie ab dieser
    Stellung starten“ drücken. Am Anfang ist dies die normale Anfangsstellung.
    Als Schwarz führt Stockfish den ersten Zug aus. Sonst spielst du zuerst.
-2. Brettklicks oder SAN-Züge eingeben; Stockfish antwortet automatisch.
+2. Figuren mit der Maus auf das Zielfeld ziehen; legale Ziele werden markiert.
+   Stockfish antwortet automatisch. Start-/Zielklicks und SAN-Eingabe bleiben möglich.
 3. „Pausieren und analysieren“ wählen, frühere Stellungen anklicken und andere
    Züge ausprobieren. Die tatsächliche Partiestellung wird nicht verändert.
    Auch der Einstieg in die Planfrage pausiert die Partie automatisch.
@@ -179,7 +180,10 @@ des Updates keine zweite Installation starten und keinen Quellcode bearbeiten.
 
 ## Schach, Dialog und Sitzungen
 
-- Brettklicks oder SAN-Züge (e4, Nf3, O-O); Sonderzüge und legale Züge mit chess.js.
+- Figuren ziehen, Start-/Zielklicks oder SAN-Züge (e4, Nf3, O-O). Beim Ziehen
+  legale Zielfelder sehen; außerhalb des Bretts loslassen oder Escape bricht ab.
+  Für Bauernumwandlung die gewünschte Figur vor dem Zug auswählen. Sonderzüge
+  und legale Züge werden mit chess.js geprüft.
 - Frühere Variantenknoten wählen und andere Züge spielen, um abzuzweigen.
 - Simulation ist klar markiert und nutzt deterministische Beispieldaten.
   Sie belegt keine strategische Analysequalität eines Modells.
@@ -198,7 +202,7 @@ des Updates keine zweite Installation starten und keinen Quellcode bearbeiten.
 
 ## Nachweise und Grenzen
 
-`npm run test:all`: Typprüfung, Build, **64 Einzeltests und 19 Chromium-
+`npm run test:all`: Typprüfung, Build, **64 Einzeltests und 23 Chromium-
 Browsertests**. Der gebaute Anwendungsserver wird getestet, einschließlich
 echtem lokalem Stockfish. Schlüsseltests verwenden ausschließlich bedeutungslose
 Testwerte, Provider-/Update-Tests lokale Fixtures. Es wurde kein echtes Update

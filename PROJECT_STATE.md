@@ -27,7 +27,7 @@ Analysebrett/Faktencheck war ein Missverständnis und ist korrigiert.
   unaufgefordert die Engine starten zu lassen.
 - KI-Kontext berücksichtigt Vorfahren der aktuellen Stellung, die Lernpartie
   und ausdrücklich gewählten Vergleich, bleibt auf sechs Einträge begrenzt.
-- Typprüfung, Build, 64 Einzeltests und 19 Chromium-Browsertests bestanden.
+- Typprüfung, Build, 64 Einzeltests und 23 Chromium-Browsertests bestanden.
   Echte lokale Engine auf allen fünf Stufen sowie Weiß-/Schwarz-Lernablauf im
   Browser geprüft; KI-Antworten weiterhin ausschließlich Testfixtures.
 - Vorheriger Stand 6da1a54 bleibt erhalten. Details: docs/VALIDATION.md.
@@ -77,6 +77,21 @@ explizit Entwicklungs-/optionale Pakete und Binärverknüpfungen. Fehler mit
 npm ci --omit=dev nachgestellt; Reparatur selbst bei NODE_ENV=production
 nachgewiesen. Anschließend Build, 64 Einzeltests und 19 Browsertests bestanden.
 Keine Änderung an lokalen Schlüsseln oder Benutzerdaten.
+
+## Figuren mit der Maus ziehen
+
+- Direkte Brettbedienung mit Pointer Events: Figur folgt dem Zeiger, legale
+  Zielfelder werden markiert. Loslassen spielt über dieselbe Regelprüfung wie
+  Klick-/SAN-Eingabe; Stockfish antwortet im Spielmodus automatisch.
+- Rochade, en passant, Schlagen und gewählte Unterumwandlung geprüft. Illegale
+  Züge verändern die Stellung nicht; außerhalb loslassen, Escape, Fokusverlust
+  und Pointerabbruch räumen die Ziehanzeige auf. Rendern bei Stellungswechsel
+  verwirft einen noch laufenden Ziehvorgang.
+- Vier neue Chromium-Maustests: legale/illegale Züge, Abbruch, Analysevarianten,
+  Sonderzüge, echter Stockfish-Gegner sowie gedrehtes Brett als Schwarz.
+  Typprüfung/Build, 64 Einzeltests und alle 23 Browsertests bestanden.
+- Nutzer bestätigt inzwischen den erfolgreichen lokalen App-Start unter Windows.
+  Mausbedienung ist unter Linux/Chromium geprüft; native Geräteabnahme bleibt offen.
 
 ## Weiter vorhandene Funktionen
 

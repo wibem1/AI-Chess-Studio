@@ -5,6 +5,7 @@ import { checkTactics, ServerTacticalAdapter } from '../src/tactics.js';
 import { LearningGame, ServerPlayingEngine, pathTo } from '../src/game.js';
 import type {HintMode} from '../src/learning.js';
 import './style.css';
+import { installBoardDrag } from './board-drag.js';
 
 const studio = new Studio();
 const game=new LearningGame(()=>studio.session);
@@ -49,7 +50,12 @@ function move(value: string | { from: string; to: string; promotion: string }) {
   }, 'move-feedback', 'Zug gespielt.');
   void engineTurn();
 }
+const cancelBoardDrag = installBoardDrag($('board'), () => {
+  const data = studio.session.snapshot();
+  return data.nodes.find(node => node.id === data.activeNodeId)!.fen;
+}, (from, to) => move({ from, to, promotion: $<HTMLSelectElement>('promotion').value }));
 function render() {
+  cancelBoardDrag();
   const data = studio.session.snapshot();
   const current = data.nodes.find(n => n.id === data.activeNodeId)!;
   const chess = new Chess(current.fen);
@@ -77,6 +83,7 @@ function render() {
       button.className = `${(rankIndex + file) % 2 ? 'dark' : ''} ${targets.includes(square) ? 'target' : ''}`;
       button.setAttribute('aria-label', `${square}: ${piece ? `${piece.color === 'w' ? 'Weiß' : 'Schwarz'} ${names[piece.type]}` : 'leer'}`);
       button.setAttribute('aria-pressed', String(selected === square));
+      button.dataset.square = square;
       button.textContent = piece ? pieces[piece.color + piece.type]! + '\uFE0E' : '';
       const coordinate = document.createElement('small'); coordinate.textContent = square; button.append(coordinate);
       button.addEventListener('click', () => {
