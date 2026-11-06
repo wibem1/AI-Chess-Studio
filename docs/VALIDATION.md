@@ -580,3 +580,70 @@ kein Deployment oder Release. Responsive Oberfläche und bestehendes Manifest
 sind noch keine eigenständige mobile/offlinefähige PWA: Engine-Worker,
 Modelltransport und Browser-/Geräte-Schlüsseladapter bleiben erforderlich.
 Echte Windows-/Mac-/Android-/iPad-/Safari-Abnahme bleibt gesondert offen.
+
+
+## Partie verstehen – Integration nach Plancommit 2744e63e
+
+6. November 2026: zentralen Standards-main neu gelesen, aktuellen Projektstand
+geprüft und 2744e63e4c44a023742691319765f42e1fdbb6da per Fast-forward auf dem
+abgeschlossenen 0.2.0-UI-Stand übernommen. Als abgegrenzten Folgeschritt den
+menschlichen PGN-Rückblick im vorhandenen Lern-Tab integriert. Keine neue
+App-Versionsnummer, kein Paket, Release oder Deployment; package.json unverändert.
+
+Implementiert: PGN-Datei/Text, strikte Regelprüfung, Original-PGN/Kommentare/
+Headers, Spielerfarbe aus Namen oder Wahl, Schwarz unten/freie Orientierung in
+Brett und Vergleich. Geführte Vorzugpositionen ohne kommende tatsächliche Züge;
+eine Reflexionsfrage je Schritt, unbekannte Erinnerung zulässig. Antwort oder
+bewusstes Aufdecken gibt aktuellen eigenen Zug frei, Originalkommentar nur
+aufklappbar. Ausdrückliche vollständige Ansicht und Rückkehr zum Leitmodus.
+Varianten/Notizen und eigene Angaben bleiben unabhängig von der Originalfolge;
+das Nachspielen eines noch verborgenen SANs erzeugt einen eigenständigen Zweig.
+
+Uhren je Spielerseite aus unmittelbar benachbarten Clock-Kommentaren inklusive
+Basis und einfachem Inkrement; fehlende, negative/korrigierte oder komplexe
+Zeiten bleiben unbekannt. Wiederholungsidentität nutzt Brett, Zugrecht, Rochade
+und en-passant-Rechte entlang der tatsächlichen Variante. Dreifach/50 Züge sind
+bei Aufzeichnungen beanspruchbar, fünffach/75 Züge automatisch; Matt hat Vorrang.
+
+Faktencheck optional nach Freigabe mit verifizierter vollständiger Geschichte
+bis zum Knoten. Stockfish bekommt rootFen plus UCI-Zugfolge; Report bestätigt
+dieselbe Geschichte und bleibt exportierbar. Bei Wiederholungsanspruch keine
+isolierte FEN-Analyse. Falsche Historie/Reportpfade werden abgewiesen. Das Modell
+bekommt nur bekannte Geschichte und explizite eigene Angaben/aufgedeckten Zug,
+keine ganze PGN/Kommentare oder kommende Originalfolge. Keine psychologischen
+Motive aus Uhrzeiten/Schlagzügen hergeleitet.
+
+Sitzungsformat 2 verhindert, dass ältere Apps Review-Metadaten ignorieren und
+künftige Originalzüge still zeigen. Normale Schema-1-Sitzungen bleiben unverändert
+importierbar. Prüfung der gesamten Originalkette gegen PGN, Perspektive,
+Entscheidungsindizes, Antworten, aktiven zulässigen Knoten, History-Reports,
+JSON-Größe und Stellungslimit. Manipulierte Daten führen zu Fehler statt Teilimport.
+
+Neue 12 Einzeltests: Metadaten/Schwarz/keine automatische Engine, Uhrzuordnung,
+fehlende Zeiten/Inkremente, PGN-/Perspektivfehler, Zweige/Originalerhalt/Notizen,
+Serialisierungsangriffe, drei/fünf Wiederholungen, Rochaderecht und Variante,
+Spoilerschutz/Adaptergates und tatsächlicher Requestkontext, echter optionaler
+Stockfish mit Historie, 50-/75-Zug-Regel, verspätete Engine bei Rückkehr sowie
+alte/neue Sitzungsformate. Erster gezielter Lauf hatte eine zu breite Testannahme:
+Ein künftiger SAN kann gleichzeitig ein unbekanntes legales Kandidatenwort sein;
+der Spoiler-Test prüft Originalkontext/-historie statt die komplette Legalzugliste.
+Nach präziser Prüfung gezielter Lauf erfolgreich.
+
+Vier neue Browserfälle: vollständiger Import/Reflexion/Variante/Vergleich/JSON-
+Ablauf, Dateiimport und Zurückweisen ohne Verlust vorhandener Sitzung, sichtbare
+historische Wiederholung ohne ungefragten Engineaufruf, Schwarzperspektive und
+Drehen über alle Tabs bei Telefon-/iPad-Größen. Netzwerkzähler belegen keine
+ungefragten /api/play-, /api/tactics- oder /api/dialogue-Aufrufe. Eingefügte
+PGN-Kommentare werden wörtlich angezeigt; kein HTML/Script ausgeführt.
+
+Endgültig npm run test:all: Typprüfung/Build, **80 Einzeltests und 38 Chromium-
+Browsertests** bestanden, keine übersprungen. Echte lokale Stockfish-Prüfungen,
+Modell-/Updateanbieter nur Fixtures. Entwicklungsansicht mit synthetischer PGN
+visuell geprüft. Keine bezahlte Provideranfrage und keine Versions-/Downloadfreigabe.
+
+Wichtig: Der verpflichtende reale Lichess-Test 1Vh80QL2 (06.11.2026, wibem
+Schwarz, 69 Züge, 10+0, remis) bleibt offen. Vollständige PGN nicht vorhanden;
+Nutzer um PGN-Text gebeten. Weder aus genannten Zügen rekonstruiert noch die
+synthetische Testpartie als Ersatz ausgegeben. Auch reale pädagogische Qualität,
+endgültige individuelle Übungsempfehlungen durch echte KI und native Geräte-
+Abnahme sind durch diese Tests nicht belegt.

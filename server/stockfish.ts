@@ -1,3 +1,4 @@
+import {replayHistory,type PositionHistory} from '../src/history.js';
 import { spawn } from 'node:child_process';
 import { createRequire } from 'node:module';
 import { createInterface } from 'node:readline';
@@ -12,10 +13,15 @@ export class StockfishService {
   constructor(private timeoutMs = 8000, private enginePath?: string) {}
   async check(raw: unknown): Promise<TacticalReport> {
     if (this.busy) throw new ApiError(429, 'Stockfish prüft bereits.');
-    const r = raw as { fen?: unknown; candidate?: unknown } | null;
+    const r = raw as { fen?: unknown; candidate?: unknown;history?:unknown } | null;
     if (!r || typeof r.fen !== 'string' || r.fen.length > 150 || (r.candidate !== null && typeof r.candidate !== 'string')) throw new ApiError(400, 'Ungültige Stellung oder Kandidat.');
     let board: Chess;
     try { board = new Chess(r.fen); } catch { throw new ApiError(400, 'Ungültige Stellung.'); }
+    let history:PositionHistory|undefined,position=`position fen ${board.fen()}`;
+    if(r.history!==undefined){
+      try{const replay=replayHistory(r.history,board.fen());history=replay.history;board=replay.board;position=`position fen ${history.rootFen}${replay.uci.length?' moves '+replay.uci.join(' '):''}`;}
+      catch{throw new ApiError(400,'Zuggeschichte passt nicht zur Stellung.');}
+    }
     if (board.isGameOver()) throw new ApiError(400, 'Stellung bereits beendet.');
     let searchMove = '';
     if (r.candidate !== null) {
@@ -53,7 +59,7 @@ export class StockfishService {
             send('setoption name Hash value 16'); send('setoption name MultiPV value 1'); send('ucinewgame'); send('isready');
           }
           if (line === 'readyok') {
-            send(`position fen ${fen}`);
+            send(position);
             send(`go depth 12 nodes 20000 movetime 1000${searchMove}`);
           }
           if (line.startsWith('info ') && !/lowerbound|upperbound/.test(line)) {
@@ -69,7 +75,7 @@ export class StockfishService {
                 if (!/^[a-h][1-8][a-h][1-8][qrbn]?$/.test(uci)) throw new Error('Invalid UCI move');
                 const move = replay.move({from:uci.slice(0,2),to:uci.slice(2,4),...(uci[4] ? {promotion:uci[4]} : {})}); san.push(move.san);
               }
-              const result = validateTacticalReport({fen,engine,depth:info.depth,nodes:info.nodes,
+              const result = validateTacticalReport({fen,...(history?{history}:{}),engine,depth:info.depth,nodes:info.nodes,
                 elapsedMs:Math.round(performance.now()-start),score:{unit:info.unit,value:info.value*(board.turn()==='w'?1:-1),perspective:'white'},
                 line:san,candidate,limits:TACTICAL_LIMITS},fen);
               finish(undefined,result);

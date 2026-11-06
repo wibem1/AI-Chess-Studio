@@ -1,3 +1,4 @@
+import {reviewLocked,visibleReviewNodes,REVIEW_QUESTIONS} from './review.js';
 import {validateHumanFactors,type HumanFactors,type HintMode} from './learning.js';
 import { pathTo } from './game.js';
 import { Session } from './session.js';
@@ -42,6 +43,9 @@ export class Studio {
     const session = this.session;
     const snapshot = session.snapshot();
     const nodeId = snapshot.activeNodeId;
+    if(reviewLocked(snapshot))throw new Error('Zuerst eigene Gedanken festhalten oder den Originalzug ausdrücklich aufdecken.');
+    const allowed=visibleReviewNodes(snapshot);
+    if(snapshot.comparison && (!allowed.has(snapshot.comparison.a)||!allowed.has(snapshot.comparison.b)))throw new Error('Künftige Originalstellungen sind im geführten Vergleich verborgen.');
     if(!['position','comparison','review'].includes(topic))throw new Error('Ungültiges Gesprächsziel.');
     if(topic==='comparison' && !snapshot.comparison)throw new Error('Bitte zunächst zwei Varianten für den Vergleich wählen.');
     const fen = snapshot.nodes.find(n => n.id === nodeId)!.fen;
@@ -53,9 +57,18 @@ export class Studio {
       const describe=(id:string)=>{const p=pathTo(snapshot,id);const notes=snapshot.annotations.filter(a=>a.nodeId===id && a.kind==='memory').slice(-1).map(a=>`${a.source}/${a.hypothesis?'Hypothese':'Eingabe'}: ${a.text.slice(0,100)}`).join('');return `${(snapshot.labels?.[id]??id).slice(0,40)}: FEN ${p.at(-1)!.fen}; Notiz ${notes}; Züge ${p.slice(1).map(n=>n.san).join(' ').slice(-60)}`.slice(0,360);};
       context.push(`Ausdrücklich ausgewählter Variantenvergleich: A ${describe(snapshot.comparison.a)} / B ${describe(snapshot.comparison.b)}`.slice(0,800));
     }
-    if(snapshot.game)context.push(`Lernpartie: Mensch ${snapshot.game.human==='w'?'Weiß':'Schwarz'}, Engine-Level ${snapshot.game.level}; aktuelle Partie ${snapshot.game.cursor}; Analyse ${nodeId}; ${snapshot.game.paused?'pausiert':'laufend'}.`);
+    if(snapshot.game&&!snapshot.review?.guiding)context.push(`Lernpartie: Mensch ${snapshot.game.human==='w'?'Weiß':'Schwarz'}, Engine-Level ${snapshot.game.level}; aktuelle Partie ${snapshot.game.cursor}; Analyse ${nodeId}; ${snapshot.game.paused?'pausiert':'laufend'}.`);
     const reflection=snapshot.reflections?.[nodeId];
     if(reflection)context.push(`Eigene Angaben des Lernenden (keine Bewertung): ${JSON.stringify(reflection)}`.slice(0,800));
+    if(snapshot.review){
+      const r=snapshot.review,id=r.original[r.decision]!,answers=r.responses[id]??{};
+      context.push(`Geführter Rückblick auf eine menschliche Partie, eigene Seite ${r.human==='b'?'Schwarz':'Weiß'}. Eigene Angaben, keine gesicherten Motive: ${JSON.stringify(answers)}. Nur die vorliegende Stellung und Geschichte besprechen; keine künftigen tatsächlichen Züge behaupten.`.slice(0,800));
+      if(r.revealed.includes(r.decision))context.push(`Ausdrücklich aufgedeckter damaliger Zug: ${snapshot.nodes.find(n=>n.id===r.original[r.decision+1])!.san}. Dies ist ein historischer Zug, keine Empfehlung oder Enginewertung.`);
+      if(topic==='review')for(const [node,values] of Object.entries(r.responses)){
+        const index=r.original.indexOf(node);if(index<0||index>r.decision||!r.revealed.includes(index))continue;
+        context.push(`Belegte Selbstangaben zur Entscheidung ${node}: ${REVIEW_QUESTIONS.filter(q=>values[q.key]).map(q=>q.text+' '+values[q.key]).join(' / ')}`.slice(0,800));
+      }
+    }
     const hintMode=reflection?.hintMode??'explain';
     while(context.length>6)context.shift();
     const dialogue=snapshot.annotations.filter(a=>ancestors.has(a.nodeId) && a.kind==='dialogue');

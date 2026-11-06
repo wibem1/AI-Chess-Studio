@@ -1,5 +1,20 @@
 # Änderungen
 
+## Noch nicht freigegeben – Partie verstehen (6. November 2026)
+
+Anforderung aus Commit 2744e63e im bestehenden Lern-Tab umgesetzt. Keine neue
+App-Versionsnummer oder Downloadfreigabe für diesen Entwicklungsstand.
+
+- PGN aus Text/Datei, Farberkennung, drehbares Brett und konsistente Perspektive.
+- Eigene Entscheidung vor Originalzug, dosierte Reflexionsfragen, gestufte
+  Freigabe und unveränderte Originalpartie mit unabhängigen Analysezweigen.
+- Uhren korrekt je Spielerseite; fehlende Zeiten bleiben unbekannt.
+- Drei-/fünffache Wiederholung historisch geprüft, Faktencheck mit Zuggeschichte.
+- Eigene Zusammenfassung und Sitzungsformat 2 mit Antworten, Notizen und Varianten;
+  normale Format-1-Sitzungen bleiben importierbar.
+- 80 Einzeltests und 38 Browsertests bestanden; reale Lichess-PGN und echte
+  pädagogische KI-/Geräteabnahme noch offen. Keine kostenpflichtigen Anfragen.
+
 ## 0.2.0 – 6. November 2026
 
 - Neue responsive Oberfläche mit Partie, Lernen, Varianten und Einstellungen.

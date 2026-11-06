@@ -13,6 +13,8 @@ export class LearningGame {
  constructor(private current:()=>Session){}
  start(human:'w'|'b',level:number):void {
   const s=this.current(),d=s.snapshot();
+  if(d.review?.guiding)throw new Error('Der geführte Rückblick startet keinen Enginegegner. Zum freien Spiel den Rückblick ausdrücklich verlassen.');
+  s.orient(human);
   s.setGame({id:crypto.randomUUID(),start:d.activeNodeId,cursor:d.activeNodeId,human,level,paused:false,revision:0});
  }
  pause():void{const s=this.current(),g=s.snapshot().game;if(g && !g.paused)s.setGame({...g,paused:true,revision:g.revision+1});}

@@ -1,4 +1,5 @@
 import { test, expect, type Page, type Locator } from '@playwright/test';
+import { REVIEW_PGN, REPETITION_PGN } from '../test/fixtures/review-game.js';
 import { APP_VERSION } from '../src/version.js';
 import { Session } from '../src/session.js';
 
@@ -676,5 +677,110 @@ test('all four workspaces fit phone, iPad and desktop and touch navigation stays
   await expect(page.locator('#position-status')).toContainText('n1');
   if(viewport.width<1000){await page.getByRole('button',{name:'↓ Runter',exact:true}).tap();await expect(page.getByRole('tab',{name:'Lernen',exact:true})).toBeInViewport();}
   await context.close();
+ }
+});
+
+async function openReviewImport(page:Page,pgn=REVIEW_PGN,color='auto'){
+ await page.getByRole('tab',{name:'Lernen',exact:true}).click();
+ const details=page.locator('#review-import');
+ if(await details.getAttribute('open')===null)await details.locator(':scope > summary').click();
+ await page.getByLabel('PGN der gespielten Partie',{exact:true}).fill(pgn);
+ await page.getByLabel('Meine Farbe in der importierten Partie',{exact:true}).selectOption(color);
+}
+
+test('guided PGN review starts black below, conceals future moves, saves own evidence and branches without mutating the original',async({page})=>{
+ let calls=0;page.on('request',r=>{if(/\/api\/(play|tactics|dialogue)$/.test(r.url()))calls++;});
+ await page.goto('/');await openReviewImport(page);
+ await page.getByRole('button',{name:'Partie zum Verstehen öffnen',exact:true}).click();
+ await expect(page.getByRole('region',{name:'Partie verstehen',exact:true})).toBeVisible();
+ await expect(page.locator('#board button').first()).toHaveAttribute('aria-label','h1: Weiß Turm');
+ await expect(page.locator('#position-status')).toContainText('n1 · Schwarz');
+ await expect(page.locator('#review-time')).toContainText('20 Sekunden');
+ await expect(page.locator('#review-played')).toBeHidden();
+ await expect(page.locator('#pgn-input')).toHaveValue('');
+ await expect(page.locator('#variations')).not.toContainText('Nc6');
+ expect(await page.locator('#compare-a option').allTextContents()).not.toContain('n4 · Nc6');
+ await expect(page.locator('#ask')).toBeDisabled();expect(calls).toBe(0);
+ await page.locator('#review-answer').fill('Ich wollte das Zentrum kontrollieren.');
+ await page.getByRole('button',{name:'Gedanken festhalten',exact:true}).click();
+ await expect(page.locator('#review-played')).toContainText('1... e5');
+ await expect(page.locator('#review-question')).toContainText('Welche Antwort');
+ await expect(page.locator('#review-comment-output img')).toHaveCount(0);
+ await page.getByRole('button',{name:'Weiß ich nicht mehr',exact:true}).click();
+ await expect(page.locator('#review-answers')).toContainText('Weiß ich nicht mehr');
+ await expect(page.locator('#ask')).toBeEnabled();expect(calls).toBe(0);
+ await play(page,'c5'); // Independent alternative at the pre-move position.
+ const data=JSON.parse(await exportData(page));
+ const branch=data.activeNodeId;expect(data.review.original).toHaveLength(9);expect(data.game).toBeUndefined();
+ expect(data.nodes[2].san).toBe('e5');expect(data.nodes.find((n:{id:string})=>n.id===branch).san).toBe('c5');
+ await (await reveal(page,page.getByLabel('Variante A',{exact:true}))).selectOption('n2');
+ await (await reveal(page,page.getByLabel('Variante B',{exact:true}))).selectOption(branch);
+ await page.getByRole('button',{name:'Vergleich anzeigen',exact:true}).click();
+ await expect(page.locator('.mini-board').first().locator('span').first()).toHaveAttribute('data-square','h1');
+ await page.getByRole('button',{name:'Brett drehen',exact:true}).click();
+ await expect(page.locator('.mini-board').first().locator('span').first()).toHaveAttribute('data-square','a8');
+ const saved=await exportData(page);await page.reload();await importData(page,saved);
+ await page.getByRole('tab',{name:'Lernen',exact:true}).click();
+ await expect(page.locator('#review-answers')).toContainText('Zentrum kontrollieren');
+ await expect(page.locator('#board button').first()).toHaveAttribute('aria-label','a8: Schwarz Turm');
+ await page.getByLabel('Eigene Entscheidung auswählen',{exact:true}).selectOption('3');
+ await expect(page.locator('#review-played')).toBeHidden();
+ await expect(page.locator('#review-comment-output')).toHaveText('');
+ await expect(page.locator('#variations')).not.toContainText('Nc6');
+ await expect(page.locator('#ask')).toBeDisabled();expect(calls).toBe(0);
+ await page.locator('#review-answer').fill('Entwicklung ermöglichen');
+ await page.getByRole('button',{name:'Gedanken festhalten',exact:true}).click();
+ await page.getByRole('button',{name:'Eigene Lernzusammenfassung',exact:true}).click();
+ await expect(page.locator('#review-summary')).toContainText('Entwicklung ermöglichen');
+ await expect(page.locator('#review-summary')).toContainText('keine Bewertung deiner Persönlichkeit');
+});
+
+test('PGN file import and failed/replacement imports preserve the existing session until explicit valid import',async({page})=>{
+ let calls=0;page.on('request',r=>{if(/\/api\/(play|tactics|dialogue)$/.test(r.url()))calls++;});
+ await page.goto('/');await play(page,'d4');await openReviewImport(page,'1. e5 *','b');
+ await page.locator('#review-replace').check();
+ await page.getByRole('button',{name:'Partie zum Verstehen öffnen',exact:true}).click();
+ await expect(page.locator('#review-feedback')).toContainText('PGN konnte nicht gelesen');
+ await expect(page.locator('#position-status')).toContainText('n1 · Schwarz');
+ await page.locator('#review-replace').uncheck();
+ await page.getByLabel('PGN-Datei einlesen',{exact:true}).setInputFiles({name:'menschliche-partie.pgn',mimeType:'application/x-chess-pgn',buffer:Buffer.from(REVIEW_PGN)});
+ await expect(page.locator('#pgn-input')).toHaveValue(REVIEW_PGN);
+ await page.getByLabel('Meine Farbe in der importierten Partie',{exact:true}).selectOption('auto');
+ await page.getByRole('button',{name:'Partie zum Verstehen öffnen',exact:true}).click();
+ await expect(page.locator('#review-feedback')).toContainText('Sitzungswechsel bestätigen');
+ await expect(page.locator('#review-panel')).toBeHidden();
+ await page.locator('#review-replace').check();await page.getByRole('button',{name:'Partie zum Verstehen öffnen',exact:true}).click();
+ await expect(page.locator('#review-panel')).toBeVisible();expect(calls).toBe(0);
+});
+
+test('historical repetition stays visible and prevents isolated automatic engine interpretation',async({page})=>{
+ let calls=0;page.on('request',r=>{if(/\/api\/(play|tactics|dialogue)$/.test(r.url()))calls++;});
+ await page.goto('/');await openReviewImport(page,REPETITION_PGN,'w');
+ await page.getByRole('button',{name:'Partie zum Verstehen öffnen',exact:true}).click();
+ await page.getByLabel('Eigene Entscheidung auswählen',{exact:true}).selectOption('8');
+ await expect(page.locator('#position-status')).toContainText('3-fache Wiederholung');
+ await expect(page.locator('#position-status')).toContainText('Remisanspruch möglich');
+ await page.getByRole('button',{name:'Gespielten Zug ausdrücklich aufdecken',exact:true}).click();
+ await expect(page.locator('#tactical-check')).toBeDisabled();
+ await page.getByRole('button',{name:'Originalpartie vollständig ansehen',exact:true}).click();
+ await (await reveal(page,page.getByRole('button',{name:'n16 · Ng8 · Original',exact:true,includeHidden:true}))).click();
+ await expect(page.locator('#position-status')).toContainText('5-fache Wiederholung');
+ await expect(page.locator('#position-status')).toContainText('automatisches Remis');expect(calls).toBe(0);
+});
+
+test('imported black perspective and turn controls work on phone and iPad without hidden spoilers',async({browser})=>{
+ for(const viewport of [{width:390,height:844},{width:820,height:1180}]){
+  const context=await browser.newContext({viewport,isMobile:true,hasTouch:true});const page=await context.newPage();
+  await page.goto('/');await openReviewImport(page);
+  await page.getByRole('button',{name:'Partie zum Verstehen öffnen',exact:true}).tap();
+  for(const name of ['Partie','Lernen','Varianten']){
+   await page.getByRole('tab',{name,exact:true}).tap();
+   await expect(page.locator('#board button').first()).toHaveAttribute('aria-label','h1: Weiß Turm');
+   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+  }
+  await page.getByRole('button',{name:'Brett drehen',exact:true}).tap();
+  await expect(page.locator('#board button').first()).toHaveAttribute('aria-label','a8: Schwarz Turm');
+  await page.getByRole('tab',{name:'Lernen',exact:true}).tap();
+  await expect(page.locator('#review-played')).toBeHidden();await context.close();
  }
 });

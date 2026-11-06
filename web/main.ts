@@ -5,6 +5,8 @@ import { checkTactics, ServerTacticalAdapter } from '../src/tactics.js';
 import { LearningGame, ServerPlayingEngine, pathTo } from '../src/game.js';
 import type {HintMode} from '../src/learning.js';
 import './style.css';
+import { installReviewUI } from './review-ui.js';
+import { reviewLocked,visibleReviewNodes } from '../src/review.js';
 import { installNavigation } from './navigation.js';
 import { installPagePan } from './page-pan.js';
 import { installScrollHelp } from './scroll-help.js';
@@ -27,7 +29,7 @@ const modelMode = () => $<HTMLSelectElement>('dialogue-mode').value === 'model';
 function updateMode() {
   const real = modelMode();
   $<HTMLButtonElement>('ask').textContent = real ? 'Nachricht senden (reale KI)' : 'Nachricht senden (Simulation)';
-  $<HTMLButtonElement>('ask').disabled = pending || (real && !modelAvailable);
+  $<HTMLButtonElement>('ask').disabled = pending || reviewLocked(studio.session.snapshot()) || (real && !modelAvailable);
   $('simulation-hint').hidden = real;
   message('mode-badge', real ? 'Eigener KI-Zugang' : 'Simulation aktiv');
 }
@@ -50,6 +52,7 @@ function attempt(action: () => void, target: string, success: string) {
 }
 function move(value: string | { from: string; to: string; promotion: string }) {
   attempt(() => {
+    if(reviewLocked(studio.session.snapshot()))throw new Error('Zuerst deine Gedanken festhalten oder den Originalzug ausdrücklich aufdecken.');
     if (studio.session.status().gameOver) throw new Error('Partie beendet. Wähle eine frühere Stellung für eine neue Variante.');
     try{game.play(value);}catch(error){if(error instanceof Error && error.message.startsWith('Stockfish'))throw error;throw new Error('Dieser Zug ist hier nicht legal. Prüfe Eingabe und Stellung.');}
     input('move').value = '';
@@ -63,27 +66,31 @@ const cancelBoardDrag = installBoardDrag($('board'), () => {
 installScrollHelp(cancelBoardDrag);
 installPagePan();
 installNavigation(cancelBoardDrag);
+const reviewUI=installReviewUI(()=>studio.session,next=>{game.pause();studio.session=next;selected=null;},render);
+$('board-flip').addEventListener('click',()=>{const data=studio.session.snapshot();studio.session.orient((data.orientation??data.game?.human??'w')==='w'?'b':'w');render();});
 function render() {
   cancelBoardDrag();
   const data = studio.session.snapshot();
   const current = data.nodes.find(n => n.id === data.activeNodeId)!;
   const chess = new Chess(current.fen);
   const status = studio.session.status();
-  const live=data.game;
+  const live=data.review?.guiding?undefined:data.game;
+  const allowed=visibleReviewNodes(data),locked=reviewLocked(data);
   if(live){
     const end=studio.session.status(live.cursor);
     message('game-status',`Du spielst ${live.human==='w'?'Weiß':'Schwarz'} · Level ${live.level} · ${end.checkmate?'Partie beendet: Schachmatt':end.draw?'Partie beendet: Remis':live.paused?'Analysemodus · Partie pausiert':enginePending?'Stockfish denkt …':'Partie läuft'} · Partiestellung ${live.cursor}`);
-  }else message('game-status','Noch keine Enginepartie gestartet. Das Brett kann frei untersucht werden.');
+  }else message('game-status',data.review?'Importierte menschliche Partie. Kein Enginegegner gestartet.':'Noch keine Enginepartie gestartet. Das Brett kann frei untersucht werden.');
   $<HTMLButtonElement>('game-pause').disabled=!live || live.paused;
   $<HTMLButtonElement>('game-resume').disabled=!live;
-  message('game-line',live ? pathTo(data,live.cursor).filter(n=>n.san).map(n=>n.san).join(' · ') || 'Die Anfangsstellung ist bereit.' : 'Deine Partie beginnt hier.');
+  message('game-line',live ? pathTo(data,live.cursor).filter(n=>n.san).map(n=>n.san).join(' · ') || 'Die Anfangsstellung ist bereit.' : data.review?'Importierte Originalpartie · geführter Rückblick im Tab Lernen.':'Deine Partie beginnt hier.');
   const mainIds=new Set(live?pathTo(data,live.cursor).slice(pathTo(data,live.cursor).findIndex(n=>n.id===live.start)).map(n=>n.id):[]);
   message('position-status', `${current.id} · ${chess.turn() === 'w' ? 'Weiß' : 'Schwarz'} am Zug${status.checkmate ? ' · Schachmatt' : status.draw ? ' · Remis' : status.check ? ' · Schach' : ''}`);
   const pieces: Record<string, string> = { wk:'♔',wq:'♕',wr:'♖',wb:'♗',wn:'♘',wp:'♙',bk:'♚',bq:'♛',br:'♜',bb:'♝',bn:'♞',bp:'♟' };
   const names: Record<string, string> = { k:'König',q:'Dame',r:'Turm',b:'Läufer',n:'Springer',p:'Bauer' };
   const targets = selected && !status.gameOver ? chess.moves({ square: selected, verbose: true }).map(m => m.to) : [];
   const board = $('board'); board.replaceChildren();
-  const flipped=live?.human==='b';
+  const flipped=(data.orientation??live?.human)==='b';
+  message('position-status',$('position-status').textContent+` · ${flipped?'Schwarz':'Weiß'} unten${data.review&&status.repetition?' · '+status.repetitionCount+'-fache Wiederholung'+(status.fivefold?' · automatisches Remis':' · Remisanspruch möglich'):''}`);
   const ranks=flipped?chess.board().slice().reverse().map(row=>row.slice().reverse()):chess.board();
   for (const [rankIndex, rank] of ranks.entries()) {
     for (let file = 0; file < 8; file++) {
@@ -106,16 +113,17 @@ function render() {
     }
   }
   message('legal-moves', status.gameOver ? 'Partie beendet.' : studio.session.legalMoves().join(', '));
-  $<HTMLButtonElement>('tactical-check').disabled = tacticalPending || status.gameOver;
+  $<HTMLButtonElement>('tactical-check').disabled = tacticalPending || status.gameOver || locked || !!data.review&&status.repetition;
+  message('tactical-limits-hint',data.review?'Stockfish 19 Lite · begrenzter Faktencheck auf Aufruf mit vollständiger Zuggeschichte. Wiederholungen werden historisch geprüft; bei Remisanspruch keine isolierte Endspielbewertung.':'Stockfish 19 Lite · 1 Thread · 16 MiB Hash · höchstens Tiefe 12, 20.000 Knoten oder 1 Sekunde Suchzeit. Aktuelle FEN, ohne Wiederholungshistorie.');
   const reports = $('tactical-results'); reports.replaceChildren();
-  for (const a of data.annotations.filter(a => a.nodeId === current.id && a.kind === 'factcheck')) {
+  for (const a of data.annotations.filter(a => !locked && a.nodeId === current.id && a.kind === 'factcheck')) {
     const r = a.engine!;
     const article = document.createElement('article'); article.className = 'entry';
     const meta = document.createElement('small'); meta.textContent = `${a.nodeId} · ${r.engine} · Lokaler Suchbefund`;
     const result = document.createElement('div');
     const score = r.score.unit === 'cp' ? `${r.score.value} Centipawns (positive Werte für Weiß)`
       : `Mattdistanz ${Math.abs(r.score.value)} für ${r.score.value > 0 ? 'Weiß' : 'Schwarz'}`;
-    result.textContent = `Suchwert: ${score}\nUntersuchte Variante: ${r.line.join(' ')}\n${r.candidate ? `Geprüfter eigener Kandidat: ${r.candidate}` : 'Stellung untersucht, keine Zugvorgabe.'}\nErreicht: Tiefe ${r.depth}, ${r.nodes} Knoten, ${r.elapsedMs} ms einschließlich Engine-Start.\nGrenzen: Tiefe 12 / 20.000 Knoten / 1 Sekunde Suchzeit, 1 Thread, 16 MiB Hash.\nFEN ohne Wiederholungshistorie. Keine strategische Freigabe.`;
+    result.textContent = `Suchwert: ${score}\nUntersuchte Variante: ${r.line.join(' ')}\n${r.candidate ? `Geprüfter eigener Kandidat: ${r.candidate}` : 'Stellung untersucht, keine Zugvorgabe.'}\nErreicht: Tiefe ${r.depth}, ${r.nodes} Knoten, ${r.elapsedMs} ms einschließlich Engine-Start.\nGrenzen: Tiefe 12 / 20.000 Knoten / 1 Sekunde Suchzeit, 1 Thread, 16 MiB Hash.\n${r.history?'Vollständige Zuggeschichte berücksichtigt ('+r.history.moves.length+' Halbzüge).':'FEN ohne Wiederholungshistorie.'} Keine strategische Freigabe.`;
     article.append(meta,result); reports.append(article);
   }
 
@@ -123,9 +131,9 @@ function render() {
   // Build iteratively so deeply imported lines do not overflow the render stack.
   const lists = new Map<string | null, HTMLUListElement>();
   const rootList = document.createElement('ul'); lists.set(null, rootList); variants.append(rootList);
-  for (const node of data.nodes) {
+  for (const node of data.nodes.filter(n=>allowed.has(n.id))) {
     const li = document.createElement('li'); const button = document.createElement('button');
-    button.textContent = `${node.id} · ${data.labels?.[node.id] ?? node.san ?? 'Ausgangsstellung'}${mainIds.has(node.id)?' · Partie':''}`;
+    button.textContent = `${node.id} · ${data.labels?.[node.id] ?? node.san ?? 'Ausgangsstellung'}${mainIds.has(node.id)?' · Partie':data.review?.original.includes(node.id)?' · Original':''}`;
     button.setAttribute('aria-current', String(node.id === current.id));
     button.addEventListener('click', () => { game.analyse(node.id); selected = null; render(); message('move-feedback', 'Stellung gewechselt.'); });
     li.append(button); lists.get(node.parentId)!.append(li);
@@ -153,6 +161,8 @@ function render() {
       container.append(entry);
     }
   }
+  reviewUI.render(data);
+  updateMode();
 }
 $('move-form').addEventListener('submit', event => { event.preventDefault(); move(input('move').value.trim()); });
 $('memory-form').addEventListener('submit', event => {
@@ -343,13 +353,14 @@ text('question').addEventListener('focus',()=>{if(studio.session.snapshot().game
 $('label-form').addEventListener('submit',event=>{event.preventDefault();attempt(()=>studio.session.label(studio.session.snapshot().activeNodeId,input('variant-label').value),'compare-feedback','Variantenname gespeichert.');});
 $('compare-form').addEventListener('submit',event=>{event.preventDefault();attempt(()=>studio.session.compare($<HTMLSelectElement>('compare-a').value,$<HTMLSelectElement>('compare-b').value),'compare-feedback','Vergleich gespeichert und im Dialogkontext verfügbar.');});
 function renderComparison(){
- const d=studio.session.snapshot();
+ const d=studio.session.snapshot(),allowed=visibleReviewNodes(d);
+ const visible=d.nodes.filter(n=>allowed.has(n.id));
  for(const [id,saved] of [['compare-a',d.comparison?.a],['compare-b',d.comparison?.b]] as const){
   const select=$<HTMLSelectElement>(id),previous=saved??select.value;select.replaceChildren();
-  for(const node of d.nodes){const option=document.createElement('option');option.value=node.id;option.textContent=`${node.id} · ${d.labels?.[node.id]??node.san??'Ausgangsstellung'}`;select.append(option);}
-  if(d.nodes.some(n=>n.id===previous))select.value=previous;
+  for(const node of visible){const option=document.createElement('option');option.value=node.id;option.textContent=`${node.id} · ${d.labels?.[node.id]??node.san??'Ausgangsstellung'}`;select.append(option);}
+  if(visible.some(n=>n.id===previous))select.value=previous;
  }
- const container=$('comparison-view');container.replaceChildren();if(!d.comparison)return;
+ const container=$('comparison-view');container.replaceChildren();if(!d.comparison||!allowed.has(d.comparison.a)||!allowed.has(d.comparison.b))return;
  const a=pathTo(d,d.comparison.a),b=pathTo(d,d.comparison.b);
  const common=a.filter((node,i)=>b[i]?.id===node.id).at(-1)!;
  const heading=document.createElement('p');heading.textContent=`Gemeinsamer Ausgangspunkt: ${common.id} · ${d.labels?.[common.id]??common.san??'Ausgangsstellung'}`;container.append(heading);
@@ -358,7 +369,9 @@ function renderComparison(){
   const title=document.createElement('h3');title.textContent=`${name}: ${d.labels?.[node.id]??node.san??node.id}`;card.append(title);
   const mini=document.createElement('div');mini.className='mini-board';mini.setAttribute('role','img');mini.setAttribute('aria-label',`Stellung ${name}: ${node.fen}`);
   const glyphs:Record<string,string>={wk:'♔',wq:'♕',wr:'♖',wb:'♗',wn:'♘',wp:'♙',bk:'♚',bq:'♛',br:'♜',bb:'♝',bn:'♞',bp:'♟'};
-  for(const [rank,row] of new Chess(node.fen).board().entries())for(let file=0;file<8;file++){const cell=document.createElement('span');cell.className=(rank+file)%2?'dark':'';const piece=row[file];cell.textContent=piece?glyphs[piece.color+piece.type]!+'\uFE0E':'';mini.append(cell);}
+  const flipped=(d.orientation??d.game?.human)==='b',rows=new Chess(node.fen).board();
+  const ranks=flipped?rows.slice().reverse().map(row=>row.slice().reverse()):rows;
+  for(const [rank,row] of ranks.entries())for(let file=0;file<8;file++){const cell=document.createElement('span');cell.dataset.square=`${'abcdefgh'[flipped?7-file:file]}${flipped?rank+1:8-rank}`;cell.className=(rank+file)%2?'dark':'';const piece=row[file];cell.textContent=piece?glyphs[piece.color+piece.type]!+'\uFE0E':'';mini.append(cell);}
   card.append(mini);const line=document.createElement('p');line.textContent=`Zugfolge: ${path.slice(1).map(n=>n.san).join(' ')||'Ausgangsstellung'}`;card.append(line);
   const notes=document.createElement('p');notes.textContent=d.annotations.filter(n=>n.nodeId===node.id && n.kind!=='factcheck').map(n=>`${n.source}: ${n.text}`).join('\n')||'Noch keine Notiz oder Diskussion an dieser Stellung.';card.append(notes);container.append(card);
  }

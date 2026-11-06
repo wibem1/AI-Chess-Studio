@@ -4,6 +4,11 @@ Aktuelle Entwicklungsversion: **0.2.0**. Die Nummer steht oben in der App,
 im Browser-Titel, beim Serverstart und in der lokalen Diagnose.
 Änderungen: [CHANGELOG.md](CHANGELOG.md).
 
+Auf Branch `work` zusätzlich integriert: **„Partie verstehen“ als noch nicht
+freigegebener Entwicklungsstand** gemäß Plancommit 2744e63e. Keine neue App-Version
+oder neues Downloadpaket für diesen Schritt. Code und Prüfergebnisse sind im
+Projektstand dokumentiert.
+
 Persönliches Schach-Lernprogramm: gegen Stockfish spielen und während oder
 nach der Partie mit einer getrennten KI über Stellungen, Strategien und
 Varianten sprechen. Varianten ausprobieren, benennen, speichern und vergleichen.
@@ -85,6 +90,52 @@ Suchzeit (200 bis 1000 ms), Tiefe 12 und 20.000 Knoten. Es sind keine geeichten
 Elo-Stufen; auch Level 1 kann stark spielen. Spielzüge nutzen die Zughistorie
 für Wiederholungen, Rochade und en passant. Der zusätzliche taktische
 Faktencheck bleibt ein separater ausdrücklicher Aufruf.
+
+## Partie verstehen – integrierter Entwicklungsstand
+
+Unter „Lernen → Partie verstehen · PGN importieren“ eine bereits gespielte
+menschliche Partie einfügen oder aus Datei einlesen. Spielernamen für die
+Farberkennung angeben oder Weiß/Schwarz ausdrücklich wählen. Vor dem Wechsel
+eine vorhandene Sitzung sichern und das Ersetzen bestätigen. Fehlerhafte PGNs
+ersetzen nichts. Der Import startet weder Enginegegner noch KI.
+
+Der Rückblick hält vor einer eigenen Entscheidung an. Schwarz steht für den
+schwarzen Spieler unten; „Brett drehen“ ändert die Ansicht in allen Bereichen
+und in beiden Vergleichsbrettern. Die Auswahl enthält Zugnummern ohne die
+kommenden Originalzüge. Zunächst erscheint eine Frage nach der eigenen Idee;
+„Weiß ich nicht mehr“ ist eine gültige eigene Angabe. Nach einer Antwort oder
+bewusstem Aufdecken erscheint der damalige eigene Zug. Die weiteren Fragen
+nach erwarteter Antwort, Alternativen und Planwechsel werden einzeln gestellt.
+
+PGN-Kommentare werden erhalten und nur nach Freigabe aufklappbar gezeigt; darin
+vorhandene Analyse ist keine neu bestätigte Engineanalyse. Bedenkzeit stammt
+nur aus benachbarten Uhrenständen derselben Seite unter Berücksichtigung einer
+unterstützten einfachen Zeitkontrolle/Inkrement. Fehlende/unklare Zeiten bleiben
+unbekannt. Die Eingabe akzeptiert eine Hauptvariante mit bis zu 1000 Halbzügen
+und maximal 256 KiB; rohe PGN einschließlich Kommentare bleibt erhalten.
+
+Varianten laufen im bestehenden Baum, die Originalpartie bleibt unverändert.
+Künftige Originalzüge und ihre Stellungen bleiben im geführten Modus verborgen.
+„Originalpartie vollständig ansehen“ gibt sie ausdrücklich frei; „Geführten
+Rückblick fortsetzen“ kehrt zur gewählten Entscheidung zurück. Die lokale
+Lernzusammenfassung sammelt die eigenen Aussagen, keine vermeintlichen Motive
+oder Persönlichkeits-/Elo-Diagnosen. Eine daraus vorbereitete KI-Frage wird erst
+nach Klick gesendet; reale pädagogische Qualität bleibt gesondert zu prüfen.
+
+Für den optionalen Faktencheck einer importierten Partie wird die vollständige
+Zuggeschichte übergeben. Dreifache Wiederholung ist hier ein beanspruchbares,
+fünffache ein automatisches Remis; bei Wiederholungsanspruch erfolgt keine
+isolierte FEN-Endspielbewertung. Kein Faktencheck vor Freigabe oder ohne Klick.
+
+Rückblicke werden als **Sitzungsformat 2** mit Original-PGN, Perspektive, eigenen
+Antworten, Auflösungsstand, Varianten und Notizen exportiert. Alte normale
+Sitzungen (Format 1) bleiben importierbar. Alte App-Fassungen lehnen Format 2
+ab, statt den geführten Modus still zu verlieren. JSON-Import ist auf 8 MiB und
+5000 Stellungen begrenzt. Kein Schlüssel gehört in diese Datei.
+
+Der verbindliche reale Test 1Vh80QL2 (wibem/Schwarz, 69 Züge) ist noch offen:
+Die vollständige Nutzer-PGN liegt diesem Entwicklungsstand nicht vor. Automatische
+Prüfungen verwenden ausdrücklich synthetische Partien, keinen rekonstruierten Ersatz.
 
 ## Fortlaufender Lerndialog während und nach der Partie
 
@@ -252,7 +303,7 @@ des Updates keine zweite Installation starten und keinen Quellcode bearbeiten.
 
 ## Nachweise und Grenzen
 
-`npm run test:all`: Typprüfung, Build, **68 Einzeltests und 34 Chromium-
+`npm run test:all`: Typprüfung, Build, **80 Einzeltests und 38 Chromium-
 Browsertests**. Der gebaute Anwendungsserver wird getestet, einschließlich
 echtem lokalem Stockfish. Schlüsseltests verwenden ausschließlich bedeutungslose
 Testwerte, Provider-/Update-Tests lokale Fixtures. Es wurde kein echtes Update

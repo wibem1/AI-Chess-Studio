@@ -1,6 +1,10 @@
 # Projektstand
 
-Stand: 6. November 2026 · Entwicklungsversion **0.2.0**
+Stand: 6. November 2026 · ausgelieferte Basis **0.2.0**
+
+Branch work: zusätzlich integrierter, noch nicht freigegebener Entwicklungsstand
+„Partie verstehen“. Gemäß neuer Anforderung keine neue App-Versionsnummer und
+kein Downloadpaket für diesen Schritt.
 
 ## Verbindliches Ziel
 
@@ -15,7 +19,7 @@ Nutzerentscheidung vom 6. November: eine gemeinsame responsive Web-App für
 Windows, macOS, Android und iPadOS, langfristig installierbare PWA. Vier Tabs und
 aufklappbare Werkzeuge lösen die sperrige Gesamtseite ab. Native Hüllen optional.
 
-## Aktueller Schritt: Tab-Oberfläche 0.2.0
+## Abgeschlossener voriger Schritt: Tab-Oberfläche 0.2.0
 
 - Partie: gemeinsames Brett, Farbe/Level, Einrichtung, Start/Pause/Fortsetzen,
   Partieverlauf. „Neue Partie“ am Brett öffnet/fokussiert die Einrichtung.
@@ -31,6 +35,39 @@ aufklappbare Werkzeuge lösen die sperrige Gesamtseite ab. Native Hüllen option
   Pfeiltasten/Home/End, Direktlinks und Browser-Zurück geprüft.
 - Browser-/Node-Version aus package.json; ZIP/Ordner/Manifest gleich nummeriert.
   CHANGELOG.md dokumentiert Änderungen. Frühere Commits/Pakete bleiben erhalten.
+
+## Integriert: Partie verstehen gemäß Commit 2744e63e
+
+Plancommit nach dem abgeschlossenen Oberflächenumbau per Fast-forward übernommen.
+Zentrale Regeln erneut vom aktuellen main gelesen. Kein paralleler Agent.
+
+- PGN-Hauptvariante aus Text/Datei mit Spielernamen/Farbe, Resultat, Zeitkontrolle
+  und Originalkommentaren; Validierung mit chess.js, atomarer Wechsel mit
+  Zustimmung zum Ersetzen vorhandener Sitzung, keine automatische Enginepartie.
+- Eigene Perspektive, Schwarz unten, frei drehbar in allen drei Brettbereichen
+  einschließlich A/B-Brettern und JSON-Wiederherstellung.
+- Geführte eigene Entscheidungen: Originalzug zunächst verborgen, eine Frage
+  nach der anderen, „Weiß ich nicht mehr“ zulässig. Eigene Antwort oder explizites
+  Aufdecken öffnet den aktuellen Zug; keine kommenden Originalzüge im UI-/KI-
+  Kontext. Kommentare nur nach Freigabe aufklappbar. KI/Faktencheck vorher gesperrt.
+- Eigene Varianten im bestehenden Baum, Original unverändert; auch nachgespielte
+  künftige SANs werden als unabhängige Analysezweige behandelt. Antworten,
+  Notizen, Auflösungsstand, Orientierung und Varianten im Sitzungsformat 2.
+  Normale alte Sitzungen bleiben Format 1; alte Apps lehnen Format 2 klar ab.
+- Zugzeit aus benachbarten eigenen Uhrständen mit Basis/Inkrement, keine erfundene
+  Dauer bei Lücken oder komplexer Zeitkontrolle. Ganze PGN bleibt erhalten.
+- Historische drei-/fünffache Wiederholung sowie 50-/75-Zug-Regel unterschieden.
+  Importierte Aufzeichnung darf nach einem bloßen Remisanspruch weitergehen.
+  Bei Wiederholung kein isolierter FEN-Faktencheck; sonst volle verifizierte
+  Geschichte bis zum angefragten Knoten auch an Stockfish übergeben.
+- Lokale Zusammenfassung eigener Angaben und vorbereitete KI-Lernfrage; keine
+  erfundenen Motive, persönlichen Muster oder Elo-/Persönlichkeitsdiagnosen.
+  Rückkehr zum geführten Modus invalidiert ausstehende freie Engineantworten.
+
+Verbindlicher realer Test 1Vh80QL2, wibem/Schwarz, 69 Züge: vollständige PGN
+fehlt bisher im Repository/Chat und wurde beim Nutzer angefragt. Nicht aus den
+aufgezählten Reflexionszügen rekonstruiert. Tests verwenden klar benannte
+synthetische PGNs; die reale Partie ist damit nicht abgenommen.
 
 ## Weiterhin nachgewiesene Funktionen
 
@@ -52,7 +89,7 @@ aufklappbare Werkzeuge lösen die sperrige Gesamtseite ab. Native Hüllen option
 
 ## Prüfstand
 
-Typprüfung/Build, **68 Einzeltests und 34 Chromium-Browsertests** bestanden.
+Typprüfung/Build, **80 Einzeltests und 38 Chromium-Browsertests** bestanden.
 Tests nutzen die tatsächliche gebaute App und echte lokale Stockfish-Prozesse;
 Provider-/Updatezugriffe sind Fixtures, keine bezahlte Anfrage.
 
@@ -83,7 +120,14 @@ Textgenerierung ausgeführt. Bestehende Freigabe für bis zu drei begrenzte real
 KI-Tests gilt weiter; nicht erneut nach Cloud-Secrets fragen und niemals einen
 Schlüssel im Chat anfordern.
 
-## Nächster einzelner Plattformschritt
+## Nächste Abnahme
+
+Vollständige Nutzer-PGN 1Vh80QL2 importieren und Perspektive, alle relevanten
+Entscheidungsnummern, zugeordnete Uhrzeiten und Wiederholungen am realen Verlauf
+prüfen. Reale pädagogische KI-Qualität und native Geräteabnahme bleiben offen.
+Keine neue Version/Downloadfreigabe ohne den vereinbarten nächsten Auftrag.
+
+## Weiter vorgesehener Plattformschritt
 
 PlayingEngine um einen begrenzten Stockfish-WASM-Worker im Browser ergänzen und
 mit denselben Spiel-/Regeltests prüfen. Danach mobilen Modelltransport und lokale
