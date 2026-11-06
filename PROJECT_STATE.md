@@ -27,6 +27,26 @@ Updatefunktion auf dem Gerät, erklärt aber das fehlende Versionsangebot.
 Download; bestehende Appkennung und Nutzerspeicher bleiben erhalten.
 Konkrete Schritte und Updatebefehl: docs/WEB_PUBLISHING.md.
 
+
+## Aktueller Auftrag: Bedienkonzept grundlegend vereinfachen
+
+Nutzer bestätigt das Update auf 0.3.3, lehnt die bisherige komplizierte
+Bedienkonzeption aber ab. Verbindliches Ziel: **ein großes Brett, Spielmodus
+und Lernmodus**, Schachengine als Gegner und Lernengine als Gesprächspartner.
+Im Lernmodus Züge beider Seiten ausprobieren, Varianten speichern/vergleichen
+und direkt im Chat besprechen. Lernengine soll regelgeprüfte Züge auf demselben
+Brett zeigen und erklären können; eigene Züge sollen kommentierbar sein.
+Moduswechsel während der Partie, pausierter Gegner und unveränderte echte
+Partie; Analysearbeit beim Hin-/Herschalten erhalten. Humanfaktor bleibt zentral.
+Einstellungen und bisherige Spezialwerkzeuge werden Nebenfunktionen.
+
+Die bisherige Vier-Tab-Oberfläche erfüllt dieses Ziel nicht. Neue Anforderungen
+und konkreter nächster Umsetzungsschritt stehen am Anfang von DEVELOPMENT_PLAN.md.
+Status: Konzeption verbindlich dokumentiert; Umbau noch nicht implementiert.
+0.3.3 bleibt der veröffentlichte, getestete Appstand. Kein erneutes Deployment
+oder neue Versionsnummer für diese Dokumentationsänderung. Android-Installation
+weiterhin separat offen; bestätigtes Web-Update nicht erneut als offen führen.
+
 ## Verbindliches Ziel
 
 Persönliches deutschsprachiges Schach-Lernprogramm: gegen Stockfish oder später
@@ -303,5 +323,5 @@ Aktuell-Meldung bestanden. Native Android-Abnahme weiterhin offen.
 0.3.3 tatsächlich bereitgestellt: Quellcommit 63ef08f, gh-pages
 69149dcee15182f8199f15ee20b11405a895d5ee; Run 42273159023 SUCCESS. Öffentliches
 BUILD.json bestätigt Version, Basis und Quellcommit. Nächster einzelner Schritt:
-Nutzer übernimmt 0.3.3 über die bestehende Web-Updatefunktion und bestätigt die
-Version am Androidgerät. Keine erneute Chrome-/Pages-Einrichtung anfordern.
+Nutzer bestätigt: Update auf 0.3.3 hat funktioniert. Native Android-Installation
+weiterhin nicht möglich. Keine erneute Chrome-/Pages-Einrichtung anfordern.

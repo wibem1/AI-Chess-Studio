@@ -1,6 +1,8 @@
 # Entwicklungsplan – persönliches Schach-Lernprogramm
 
-Verbindliche Zielkorrektur aus der Nutzerklarstellung vom 5. November 2026.
+Verbindliche Zielkorrektur aus den Nutzerklarstellungen vom 5. und 6. November 2026.
+Die folgende Zwei-Modi-Konzeption ersetzt die bisherige Aufteilung in vier
+gleichrangige Arbeitsbereiche.
 
 ## Kernziel
 
@@ -9,6 +11,69 @@ unterschiedlichen Stufen. Während und nach der Partie kann er mit einer
 getrennten KI über Stellung, mögliche Varianten und Strategien sprechen.
 Er probiert Varianten aus, speichert, benennt und vergleicht sie. Es geht
 um sein Lernen und Verstehen, nicht um eine Engine-Analyseoberfläche.
+
+## Verbindliche Bedienkonzeption: ein Brett, zwei Modi
+
+Nutzerentscheidung vom 6. November nach Verwendung von 0.3.3: Die aktuelle
+Oberfläche ist zu umständlich und unverständlich. Das ist eine grundlegende
+Korrektur des Bedienablaufs, keine weitere Sammlung zusätzlicher Menüs.
+Die bestehende Vier-Tab-Oberfläche ist damit nicht die gewünschte Zieloberfläche.
+
+- **Ein großes gemeinsames Schachbrett** steht im Mittelpunkt, per Maus und
+  Antippen bedienbar. Zwei klar benannte Rollen: Schachengine als Gegner,
+  Lernengine als dialogfähiger Lernbegleiter. Keine dritte zentrale Engine-
+  Bedienung; ein zusätzlicher taktischer Faktencheck bleibt ein Nebenwerkzeug.
+- **Spielmodus:** Farbe/Spielstärke wählen und gegen die Schachengine spielen.
+  Der Normalablauf braucht weder Texteingabe für Züge noch Variantenverwaltung,
+  Gesprächsvorbereitung oder mehrere Dialogauswahlen.
+- **Lernmodus:** direkt aus der laufenden oder beendeten Partie umschalten.
+  Die Schachengine pausiert; Züge für beide Seiten ausprobieren, zurücknehmen,
+  alternative Folgen aufbauen, speichern, benennen und vergleichen. Das
+  eigentliche Partieprotokoll bleibt unverändert. Variantenarbeit und Chat
+  befinden sich gemeinsam in diesem Modus, nicht in getrennten Hauptansichten.
+- **Hin und zurück:** Beim Wechsel ins Lernen mit der aktuellen Stellung beginnen;
+  eine begonnene Lernvariante beim Hin- und Herschalten erhalten. Zurück zum
+  Spielmodus an die tatsächliche Partiestellung zurückkehren. Bereits laufende
+  Engineantworten dürfen nach Pause keine Variante oder Partie verändern.
+- **Chat unmittelbar am Brett:** Stellung, Zugrecht und tatsächliche Zugfolge
+  stammen automatisch aus dem Brett. Der Nutzer muss FEN, Züge und Varianten
+  nicht erneut in den Chat übertragen oder ein Gespräch vorbereiten.
+- **Lernengine zeigt Züge:** Ihre regelgeprüften Vorschläge direkt auf dem
+  gemeinsamen Brett nachvollziehen und erklären lassen. Eine Vorführung läuft
+  im Lernzweig, verändert keine echte Partiefolge und startet keinen Gegenzug.
+  Aussage, Vorschlag und zugehörige Ausgangsstellung bleiben verbunden; weder
+  veraltete noch illegale Modellzüge unkontrolliert anwenden.
+- **Nutzer zeigt Züge:** Eigene Brettzüge und ausprobierte Folgen mit der
+  Lernengine besprechen und kommentieren lassen. Fragen, Erklärungen und
+  Varianten beziehen sich auf dieselbe Stellung. Keine zusätzliche manuelle
+  Synchronisierung zwischen Chat und Brett.
+- **Humanfaktor unverändert zentral:** eigene Idee, Begründung, verständlicher
+  Plan, praktische Schwierigkeiten, gegnerische Möglichkeiten und gestufte
+  Hilfen. Kein bloßer Enginezahlen- oder Bestzugdialog.
+- **Nebenfunktionen zurücknehmen:** Einstellungen, Schlüssel, Kostenkontrolle,
+  Diagnose, Updates und Dateiübertragung bleiben vorhanden, dominieren aber
+  den normalen Spiel-/Lernablauf nicht. PGN-Rückblick „Partie verstehen“ bleibt
+  innerhalb des Lernmodus erreichbar. Keine bestehenden Sitzungen löschen.
+
+### Nächster Umsetzungsschritt und Abnahme
+
+Zuerst den zusammenhängenden Kernablauf umsetzen: großes Brett und zwei Modi,
+sicherer Wechsel zwischen echter Partie und Lernzweig, unmittelbar sichtbarer
+Lernchat mit Brettkontext und nutzbare Zugvorführung. Bestehende Engine-,
+Regel-, Speicher- und Kostenadapter soweit sinnvoll weiterverwenden. Nicht
+lediglich die vier bisherigen Tabs umbenennen oder zusätzliche Formulare anbauen.
+
+Automatisiert prüfen: echte Enginepartie, Wechsel während einer laufenden
+Engineanfrage, Lernzüge beider Seiten ohne Gegenzug, Rückkehr zur unveränderten
+Partie, erneutes Öffnen der Lernvariante, regelgeprüfte Chat-Vorschläge,
+Stellungsbindung verspäteter Antworten und gespeicherte Varianten/Notizen.
+Desktop-, Handy- und Tablet-Brett vollständig sichtbar und bedienbar prüfen.
+Kein bezahlter Provideraufruf für die Entwicklungsprüfung. Reale Qualität und
+Verständlichkeit des Lerndialogs anschließend gesondert belegen.
+
+Diese neue Oberfläche ist **beauftragt/geplant, noch nicht implementiert**.
+Die Veröffentlichung 0.3.3 enthält sie nicht. Der bestehende verifizierte Stand
+bleibt bis zur Umsetzung erhalten; Android-Installation ist ein separater Fehler.
 
 ## Zentraler Lernablauf
 
