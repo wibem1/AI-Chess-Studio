@@ -237,3 +237,10 @@ bei 1280x600 zusätzlich visuell geprüft. npm run test:all: 94/52 bestanden.
 Bestehende Partie, Varianten, Dialog, Schlüsselfach und Speicherkennungen werden
 nicht geändert. Veröffentlichung über denselben bestehenden gh-pages-Branch;
 keine neue Ablage oder erneute Public-/Pages-Einrichtung erforderlich.
+
+Korrektur tatsächlich übertragen: work 97cb9ec, gh-pages
+73dfea1fccfe557bd4bb42a207c71f66d3b6e59d. Öffentliches commitgebundenes
+BUILD.json mit 0.3.2, /AI-Chess-Studio/ und Quellcommit 97cb9ec abgerufen.
+GitHub-Pages-Bereitstellung kann nachlaufen; eigener Live-Host weiterhin
+netzwerkbedingt nicht prüfbar. Aktualisierung über die bestehende Web-App-
+Updatefunktion, keine erneute Einrichtung oder Datenlöschung.

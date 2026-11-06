@@ -941,3 +941,9 @@ Versionsquelle und Lockfile synchron auf 0.3.2, bestehende Import-/Engine-/Dialo
 Touch-/Offline-/Updateabläufe grün. Keine kostenpflichtige Provideranfrage.
 Code, Regressionen und Projektstand gemeinsam sichern und als 0.3.2 auf dem
 vorhandenen gh-pages-Branch bereitstellen. Keine neue Pages-Einrichtung nötig.
+
+Auslieferungsnachweis 0.3.2: work 97cb9ec und gh-pages
+73dfea1fccfe557bd4bb42a207c71f66d3b6e59d erfolgreich gepusht. Öffentliches
+commitgebundenes BUILD.json abgerufen, Version 0.3.2 und sourceCommit
+97cb9ec verifiziert. Das bestätigt den hochgeladenen Stand, keinen eigenen
+Live-Browsertest am durch den Netzwerkproxy gesperrten github.io-Host.
