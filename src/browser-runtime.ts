@@ -46,7 +46,13 @@ export class BrowserRuntime {
     if(raw?.action!=='connect'||raw.allowPaid!==true)throw new ApiError(400,'Kostenfreigabe und Schlüssel prüfen.');
     const config={enabled:true,apiKey:raw.apiKey,model:raw.model};
     const sealed=typeof raw.password==='string'&&raw.password.length?await sealConfig(config,raw.password):await sealDeviceConfig(config);await this.store.put('vault',sealed);this.channel?.postMessage('changed');
-    const unlocked=sealed.version===2?await openDeviceConfig(sealed):await openConfig(sealed,raw.password);if(epoch!==this.vaultEpoch)throw new ApiError(409,'Schlüsselfach wurde in einem anderen Fenster geändert.');this.config=unlocked;return await this.status();
+    const stored=await this.store.get<StoredVault>('vault');
+    if(!stored||stored.version!==sealed.version)throw new ApiError(500,'Die Speicherung konnte nicht bestätigt werden. Bitte erneut speichern.');
+    let unlocked:LocalModelConfig;
+    try{unlocked=stored.version===2?await openDeviceConfig(stored):await openConfig(stored,raw.password);}
+    catch{throw new ApiError(500,'Die Speicherung konnte nicht bestätigt werden: Der gespeicherte Schlüssel konnte nicht gelesen werden.');}
+    if(unlocked.apiKey!==config.apiKey.trim()||unlocked.model!==config.model)throw new ApiError(409,'Gespeicherter Zugang wurde zwischenzeitlich geändert. Bitte erneut prüfen.');
+    if(epoch!==this.vaultEpoch)throw new ApiError(409,'Schlüsselfach wurde in einem anderen Fenster geändert.');this.config=unlocked;return await this.status();
    }finally{this.busy=false;}
   }
   if(path==='/api/costs'){

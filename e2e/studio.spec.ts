@@ -220,7 +220,7 @@ test('API key can be saved locally, stays out of browser storage/export and is r
   await expect(page.getByLabel('OpenAI-API-Schlüssel',{exact:true})).toHaveAttribute('type','password');
   await (await reveal(page, page.getByLabel('OpenAI-API-Schlüssel',{exact:true}))).fill(sentinel);
   await (await reveal(page, page.getByRole('button',{name:'Schlüssel lokal speichern und KI aktivieren',exact:true, includeHidden:true}))).click();
-  await expect(page.locator('#api-feedback')).toBeEmpty(); // unchecked consent prevents submission
+  await expect(page.locator('#api-feedback')).toContainText('Freigabe für Modellanfragen'); // explicit feedback instead of a silent native form rejection
   await (await reveal(page, page.locator('#api-cost-consent'))).check();
   await (await reveal(page, page.getByRole('button',{name:'Schlüssel lokal speichern und KI aktivieren',exact:true, includeHidden:true}))).click();
   await expect(page.locator('#api-feedback')).toContainText('Noch keine Modellanfrage');
@@ -492,7 +492,7 @@ test('touch key save reports progress and persistence while scrolling stays usab
   await (await reveal(page, page.getByRole('button',{name:'Schlüssel lokal speichern und KI aktivieren',exact:true, includeHidden:true}))).tap();
   await expect(page.locator('#api-feedback')).toContainText('wird lokal gespeichert');
   await expect(page.locator('#api-feedback')).toBeInViewport();
-  await expect(page.locator('#api-key')).toHaveValue('');
+  await expect(page.locator('#api-key')).toHaveValue('touch-save-test-key-not-real');
   expect(await page.evaluate(()=>document.activeElement?.id)).toBe('api-feedback');
   await fingerScroll(page,'down');
   release();await expect(page.locator('#api-feedback')).toContainText('nicht erneut eingeben');
@@ -518,6 +518,7 @@ test('failed key save stays scrollable and never claims success',async({browser}
  await (await reveal(page, page.getByRole('button',{name:'Schlüssel lokal speichern und KI aktivieren',exact:true, includeHidden:true}))).tap();
  await expect(page.locator('#api-feedback')).toContainText('Speicherung ist nicht bestätigt');
  await expect(page.locator('#credential-status')).toContainText('Kein API-Schlüssel');
+ await expect(page.locator('#api-key')).toHaveValue('failed-save-test-key-not-real');
  await expect(page.locator('#api-connect')).toBeEnabled();
  await fingerScroll(page,'down');await fingerScroll(page,'up');
  await context.close();

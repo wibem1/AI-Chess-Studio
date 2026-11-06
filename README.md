@@ -1,7 +1,6 @@
 # AI-Chess-Studio
 
-Aktueller veröffentlichter Funktionsstand: **0.5.0**. GitHub-Bereitstellung
-bestätigt; native Nutzerabnahme steht noch aus. Änderungen: [CHANGELOG.md](CHANGELOG.md).
+Aktueller Funktionsstand: **0.5.1**, Bereitstellungsstatus in PROJECT_STATE.md; native Nutzerabnahme steht noch aus. Änderungen: [CHANGELOG.md](CHANGELOG.md).
 Ein großes gemeinsames Schachbrett und zwei Modi für dein persönliches Lernen.
 Auf dem Desktop steht das vollständige, vergrößerte Brett oben; Status und
 Werkzeuge darunter. Kleine Touchansichten behalten ihre bisherige Anordnung.
@@ -58,12 +57,15 @@ Browsermenü installierte App startet ebenfalls so. Das Brett und die beiden Mod
 
 - Unter „Eigenen API-Schlüssel eingeben“ Schlüssel und Modell eingeben, Kosten
   freigeben und speichern. **Kein zusätzliches App-Passwort erforderlich.** Die
-  Speicherung wird bestätigt; das Eingabefeld wird bewusst geleert. Beim nächsten
+  Die Speicherung wird durch Zurücklesen bestätigt; erst danach wird das Feld
+  geleert. Bei Fehlern bleibt die Eingabe für einen erneuten Versuch erhalten. Beim nächsten
   Start lädt die App den lokalen Schlüssel selbst, ohne Modellanfrage.
 - Vorhandener Passwortschutz bleibt erhalten. Einmal mit dem bisherigen Passwort
   entsperren und „Ohne zusätzliches Passwort auf diesem Gerät merken“ wählen,
   falls du umstellen möchtest. Der API-Key muss dafür nicht neu eingegeben werden.
-  Ein zusätzliches Passwort ist künftig nur eine ausdrücklich gewählte Option.
+  Ein zusätzliches Passwort ist nur eine freiwillige Option ohne Mindestlänge.
+  Einen neuen Key im oberen Formular speichern; dafür ist das alte Passwort
+  nicht nötig. Den alten Zugang separat im zugeklappten Bereich darunter öffnen.
 - Unter „Kostenkontrolle“ Preisannahmen und USD-Budget prüfen. Höchstens drei
   Generierungsversuche pro Fenster und gespeicherter Budgetperiode; die Periode
   gilt für alle Fenster derselben Browseradresse. Neuladen, Schlüsselwechsel und
@@ -387,7 +389,7 @@ des Updates keine zweite Installation starten und keinen Quellcode bearbeiten.
 
 ## Nachweise und Grenzen
 
-`npm run test:all`: Typprüfung, Build, **103 Einzeltests und 60 Chromium-
+`npm run test:all`: Typprüfung, Build, **104 Einzeltests und 62 Chromium-
 Browsertests**. Der gebaute Anwendungsserver wird getestet, einschließlich
 echtem lokalem Stockfish. Schlüsseltests verwenden ausschließlich bedeutungslose
 Testwerte, Provider-/Update-Tests lokale Fixtures. Die bestätigte Web-Updateübernahme wurde mit einem echten Service Worker auf

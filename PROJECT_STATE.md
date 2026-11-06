@@ -1,6 +1,20 @@
 # Projektstand
 
-Stand: 6. November 2026 · **0.5.0 veröffentlicht, GitHub-Erfolg bestätigt**.
+Stand: 6. November 2026 · **0.5.1 geprüft; Bereitstellung folgt**.
+Aktueller Auftrag: Nutzer meldet auf 0.5.0 „Passwort eingeben“ beim Speichern
+und lehnt die Zehn-Zeichen-Vorgabe nochmals ausdrücklich ab. Exakte Quelle
+des nativen Dialogs auf seinem Gerät nicht beobachtet; kein endgültiger
+Ursachennachweis behauptet. Code/Bedienung verbessert: alter Passwortzugang
+getrennt und zugeklappt unterhalb des Neu-Speicherformulars, kein altes
+Passwort zum Ersetzen durch neuen Key nötig. Ausgeblendetes Zusatzpasswort
+deaktiviert/ignoriert, keine Mindestlänge für freiwilligen Schutz.
+Eigene klare Formularvalidierung; Eingabe bleibt bei fehlender Freigabe oder
+Speicherfehler bestehen. Erfolg erst nach Lesen/Entschlüsseln der persistierten
+Kopie; danach Eingabe leeren. Partien/Budgets/DB-Version unverändert.
+104/104 Einzeltests, 62/62 Browserfälle bestanden. Reale Geräteabnahme offen.
+Nächster Schritt: 0.5.1 bereitstellen und exakten GitHub-Lauf bestätigen.
+
+Vorige Bereitstellung 0.5.0:
 Aktueller Quellcommit cb25948, gh-pages b05543e4ea5d8eef0177e953562eef021b7d9bf8,
 Run 42294382384 SUCCESS. Öffentliches commitgebundenes BUILD.json bestätigt
 Version/Basis/Quellcommit. Nächster Schritt: Nutzer übernimmt 0.5.0; neue Keys

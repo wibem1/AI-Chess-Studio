@@ -1204,3 +1204,35 @@ https://github.com/wibem1/AI-Chess-Studio/actions/runs/42294382384
 Öffentliches commitgebundenes BUILD.json mit Version/Basis/Quelle verifiziert.
 Direkter Live-Host weiterhin netzwerkbedingt nicht erreichbar; kein behaupteter
 nativer Windows-/Android-Test. Keine kostenpflichtige Anfrage, keine neue Ablage.
+
+
+## 0.5.1 – erneuter Bericht „Passwort eingeben“, Key nicht gespeichert
+
+Nutzer bestätigt 0.5.0 und lehnt Zehn-Zeichen-Mindestlänge auch nach der
+vorigen Korrektur ab. Originaler Dialog auf nativem Gerät nicht sichtbar;
+UI-Verwechslung mit vorangestellter alter Passwortwiederherstellung plausibel,
+kein endgültiger Ursachennachweis. Neu-Speichern jetzt vor diesem separaten,
+zugeklappten alten Zugang. Neues Formular ohne native allgemeine Passwort-
+Validierung; eindeutige API-Key-/Modell-/Freigabemeldung. Geschlossenes
+Zusatzpasswortfeld deaktiviert und bei der Anfrage ignoriert. Mindestlänge
+zehn vollständig entfernt, einschließlich Krypto-Erzeugung/HTML/Text.
+
+Speichererfolg wird über Lesen des Vault-Datensatzes und Entschlüsseln der
+persistierten Kopie bestätigt, nicht über Öffnen des gerade erzeugten RAM-
+Objekts. Fehlende, beschädigte oder unerwartete Kopie meldet keinen Erfolg
+und keine irreführende Aufforderung zum alten Passwort. Bei Fehlern bleiben
+API-Key und freiwilliges Passwort im maskierten Eingabefeld (nur DOM/RAM).
+Erst Erfolg leert Felder. Keine Werte in Diagnose/Dateien oder Klartextpersistenz.
+
+Neuer Einzeltest simuliert quittierte, aber verworfene und beschädigte
+Schreibvorgänge: beide abgelehnt. Vorhandener Kryptotest öffnet jetzt auch
+frei gewähltes kurzes Passwort. Zwei neue Browserfälle: gesperrter Altzugang
+hindert Neu-Speichern nicht; ein verdeckter alter Passwortwert wird ignoriert;
+fehlende Kostenfreigabe zeigt klare Meldung und erhält Eingabe. Zweites Szenario
+speichert freiwilliges Zwei-Zeichen-Passwort und öffnet es nach Neustart.
+Altzugang in vorhandenen Tests ausdrücklich über die eigene Gruppe geöffnet.
+Touchfortschritt und fehlgeschlagene Speicherung auf erhaltene Eingabe geprüft.
+
+Endgültig npm run test:all mit Typprüfung, Root-/Pages-Builds, 104/104 Einzeltests
+und 62/62 Chromiumfällen grün (2,6 Minuten). Keine kostenpflichtige Modellanfrage.
+Kein behaupteter nativer Windows-/Android-Nachweis.

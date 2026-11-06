@@ -1,5 +1,15 @@
 # Änderungen
 
+## 0.5.1 – eindeutiges Speichern, keine Passwort-Mindestlänge
+
+- Alte Passwortwiederherstellung separat unter dem Formular zugeklappt; neues
+  Key-Speichern braucht kein früheres Passwort. Versteckte Zusatzfelder werden
+  nicht automatisch als Passwort verwendet.
+- Zehn-Zeichen-Vorgabe vollständig entfernt, auch für freiwilligen Zusatzschutz.
+- Eindeutige Feld-/Freigabemeldungen statt nativer allgemeiner Passwortaufforderung.
+- Speicherung erst nach Entschlüsseln der tatsächlich gespeicherten Kopie bestätigt;
+  Eingabe erst bei Erfolg geleert, bei Fehlern für erneuten Versuch erhalten.
+
 ## 0.5.0 – Schlüssel ohne zusätzliches Passwort, Windows-Formulare
 
 - API-Key standardmäßig im Browserprofil merken, ohne zusätzliches App-Passwort;

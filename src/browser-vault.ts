@@ -12,7 +12,7 @@ async function derive(password:string,salt:Uint8Array<ArrayBuffer>,iterations:nu
  return crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations,hash:'SHA-256'},material,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);
 }
 export async function sealConfig(raw:unknown,password:string):Promise<SealedVault>{
- if(typeof password!=='string'||password.length<10||password.length>1024)throw new Error('Gerätepasswort: mindestens 10, höchstens 1024 Zeichen.');
+ if(typeof password!=='string'||password.length<1||password.length>1024)throw new Error('Optionales Passwort darf nicht leer sein und höchstens 1024 Zeichen enthalten.');
  const config=validateLocalConfig(raw),salt=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12));
  const key=await derive(password,salt,ITERATIONS);
  const ciphertext=await crypto.subtle.encrypt({name:'AES-GCM',iv,additionalData:encoder.encode('AI-Chess-Studio/vault/1')},key,encoder.encode(JSON.stringify(config)));

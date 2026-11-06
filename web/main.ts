@@ -251,18 +251,25 @@ $('tactical-form').addEventListener('submit', async event => {
   } finally { tacticalPending = false; render(); }
 });
 
+$<HTMLDetailsElement>('vault-setup').addEventListener('toggle',()=>{
+ const active=$<HTMLDetailsElement>('vault-setup').open;input('vault-password').disabled=!active;if(!active)input('vault-password').value='';
+});
 $('api-form').addEventListener('submit', async event => {
   event.preventDefault();
-  if (!input('api-cost-consent').checked) return;
+  const fail=(value:string)=>{message('api-feedback',value);$('api-feedback').focus({preventScroll:false});};
+  const apiKey=input('api-key').value.trim(),model=input('api-model').value.trim();
+  if(apiKey.length<8||apiKey.length>1024||/\s/.test(apiKey)){fail('Bitte den API-Schlüssel im Feld „OpenAI-API-Schlüssel“ eingeben. Ein Gerätepasswort ist dafür nicht nötig.');return;}
+  if(!/^[a-zA-Z0-9._:-]{1,100}$/.test(model)){fail('Bitte ein gültiges Modell angeben, zum Beispiel gpt-4.1-mini.');return;}
+  if (!input('api-cost-consent').checked){fail('Zum Speichern und Aktivieren bitte die Freigabe für Modellanfragen bestätigen. Das Speichern selbst startet keine KI-Anfrage.');return;}
+  const password=$<HTMLDetailsElement>('vault-setup').open?input('vault-password').value:'';
+
   const button = $<HTMLButtonElement>('api-connect');
   if (button.disabled) return;
   button.disabled = true;
   $('api-form').setAttribute('aria-busy', 'true');
-  const payload = {action:'connect',apiKey:input('api-key').value,model:input('api-model').value.trim(),allowPaid:true,...(isWebPlatform()?{password:input('vault-password').value}:{})};
-  input('vault-password').value='';
-  input('api-key').value = ''; input('api-cost-consent').checked = false;
+  const payload = {action:'connect',apiKey,model,allowPaid:true,...(isWebPlatform()?{password}:{})};
   input('api-key').blur(); // Dismiss the touch keyboard before waiting for the local store.
-  message('api-feedback','Schlüssel wird lokal gespeichert … Das Eingabefeld wurde geleert. Du kannst die Seite weiterhin scrollen.');
+  message('api-feedback','Schlüssel wird lokal gespeichert und die Speicherung geprüft … Du kannst die Seite weiterhin scrollen.');
   $('api-feedback').focus();
   try {
     const response = await platformFetch('/api/model-config', { method:'POST', headers:{'Content-Type':'application/json'},
@@ -275,6 +282,7 @@ $('api-form').addEventListener('submit', async event => {
         : 'Schlüssel oder Modell ungültig; die Speicherung ist nicht bestätigt.');
     const status = await response.json();
     if (status.available !== true) throw new Error('Die Speicherung ist nicht bestätigt. Bitte die lokale Diagnose öffnen.');
+    input('api-key').value='';input('vault-password').value='';input('api-cost-consent').checked=false;
     modelAvailable = status.remaining > 0;
     $<HTMLSelectElement>('dialogue-mode').value = 'model'; updateMode();
     message('credential-status',isWebPlatform()?'✓ Schlüsselfach verschlüsselt auf diesem Gerät gespeichert und entsperrt.':'✓ API-Schlüssel lokal gespeichert. Er wird beim nächsten App-Start wieder geladen.');

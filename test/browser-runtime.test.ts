@@ -25,7 +25,8 @@ test('local AES-GCM vault uses fresh salt/IV, rejects wrong passwords/tampering 
  assert.ok(!Buffer.from(first.ciphertext).includes(Buffer.from(config.apiKey)));
  await assert.rejects(openConfig(first,'incorrect-password'),/nicht entsperrt/);
  new Uint8Array(first.ciphertext)[0]!^=1;await assert.rejects(openConfig(first,password),/nicht entsperrt/);
- await assert.rejects(sealConfig(config,'short'),/Gerätepasswort/);
+ assert.deepEqual(await openConfig(await sealConfig(config,'kurz'),'kurz'),config);
+ await assert.rejects(sealConfig(config,''),/Passwort/);
  await assert.rejects(sealConfig({...config,apiKey:'x\nsecret-value'},password));
 });
 test('browser vault save, restart, unlock, lock and delete make no provider calls and preserve costs',async()=>{
@@ -108,4 +109,12 @@ test('password vault stays readable and can switch to profile storage only after
  assert.equal((await store.get<{version:number}>('vault'))!.version,2);
  assert.equal((await new BrowserRuntime(store).status()).available,true);
  assert.deepEqual((await store.budget(l=>l.snapshot())).state,before);
+});
+
+test('storage success requires decrypting the persisted copy, not only the in-memory object',async()=>{
+ class DiscardingStore extends MemoryStore {override async put(_store:'vault'|'session',_value:unknown){}}
+ const missing=new BrowserRuntime(new DiscardingStore());await assert.rejects(missing.handle('/api/model-config','POST',{action:'connect',...config,allowPaid:true}),/nicht bestätigt/);
+ class CorruptingStore extends MemoryStore {override async put(store:'vault'|'session',value:unknown){const copied=structuredClone(value) as {ciphertext:ArrayBuffer};new Uint8Array(copied.ciphertext)[0]!^=1;await super.put(store,copied);}}
+ const corrupt=new BrowserRuntime(new CorruptingStore());await assert.rejects(corrupt.handle('/api/model-config','POST',{action:'connect',...config,allowPaid:true}),/nicht gelesen/);
+ assert.equal((await corrupt.status()).available,false);
 });
