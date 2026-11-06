@@ -204,3 +204,14 @@ Verwaltungs-API über die GitHub-Einstellungen vorzunehmen. Kein neues Repositor
   selbst und keine erfolgreiche Live-Abnahme behauptet.
 - Nächster Schritt: Nutzer speichert die Pages-Quelle; angezeigte GitHub-Adresse
   und tatsächlichen Onlinegang bestätigen. Nicht erneut Public anfordern.
+
+## Pages-Einstellung durch Nutzer gespeichert
+
+Nutzer bestätigt die Auswahl gh-pages / (root) und Save. BUILD.json auf dem
+öffentlichen gh-pages-Branch ist abrufbar (HTTP 200), Version 0.3.1, Basis
+/AI-Chess-Studio/, Quellcommit 6f747c2. Erwartete App-Adresse:
+https://wibem1.github.io/AI-Chess-Studio/ . Erneute Live-/Buildstatusprüfung
+nach Nutzeraktion weiterhin durch Netzwerkproxy blockiert (CONNECT 403,
+HTTP 000); kein Fehlernachweis der Website selbst. Nutzer kann die Adresse
+jetzt öffnen; erfolgreiche Live-Nutzung bleibt bis zur Bestätigung offen.
+Nicht erneut dieselbe Pages-Einstellung anfordern.

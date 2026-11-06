@@ -898,3 +898,10 @@ Netzwerkproxy: CONNECT 403, HTTP 000. Deshalb weder erfolgreiche Live-Abnahme
 noch einen Website-404 behaupten. Erforderliche einmalige GitHub-Einstellung:
 Settings → Pages → Deploy from a branch → gh-pages → / (root) → Save.
 Danach tatsächliche Pages-Aktivierung und angezeigte Adresse bestätigen.
+
+Nachtrag: Nutzer hat gh-pages / (root) ausgewählt und Save bestätigt. Öffentliches
+BUILD.json wurde separat mit HTTP 200 und 0.3.1 / Basis /AI-Chess-Studio/
+verifiziert. Nach dem Speichern erneuter Abruf der App-Adresse und des neuesten
+Pages-Buildstatus versucht: beide am CONNECT-Proxy mit 403/HTTP 000 blockiert.
+Keine Aussage über einen HTTP-Fehler der Website und kein erfolgreicher Live-
+Smoke-Test daraus abgeleitet. Zieladresse zum Öffnen durch den Nutzer bereit.
