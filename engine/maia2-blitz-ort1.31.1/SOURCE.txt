@@ -1,0 +1,16 @@
+Maia-2 Blitz, CSSLab (MIT), 18x8x8 board planes, 1880 move logits.
+Official model/code: https://github.com/CSSLab/maia2
+Model ONNX conversion downloaded unchanged from:
+https://github.com/dxg7/maia-chess-models/blob/93316189bb5cfd9fd49bc0eada3e9ba23b820050/maia2_blitz.fp16.onnx
+SHA256 fdfa2a8d52d88b73373074cd9124f1c1e244e6d8ff4175f2400ca532ecca9e13
+42532592 bytes. Conversion README describes CC BY 4.0; attribution retained here:
+https://creativecommons.org/licenses/by/4.0/
+Original CSSLab project distributes Maia-2 under MIT; see LICENSES.txt.
+No architecture or weight changes made. Half-precision model; CPU WASM inference.
+Encoding/decoding: @indiefoundry/maia2-onnx 0.1.0 (MIT),
+https://github.com/IndieFoundry/maia2-onnx/tree/abe12b13a546d5cdad2ace53343adcf721537b08
+Independent reference fixtures from that same revision.
+Runtime: onnxruntime-web 1.31.1 (MIT), https://github.com/microsoft/onnxruntime
+Paper: Tang et al., Maia-2: A Unified Model for Human-AI Alignment in Chess,
+NeurIPS 2024, https://arxiv.org/abs/2409.20553
+Human move prediction, not Stockfish search or guaranteed playing Elo.
