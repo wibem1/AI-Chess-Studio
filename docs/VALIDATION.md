@@ -1244,3 +1244,38 @@ https://github.com/wibem1/AI-Chess-Studio/actions/runs/42303046331
 Öffentliches commitgebundenes BUILD.json mit Version/Basis/Quelle verifiziert.
 Direkter Live-Host-/nativer Gerätetest weiterhin offen. Keine neue Ablage,
 kein neuer Workflow und keine kostenpflichtige Modellanfrage.
+
+
+## 0.6.0 – Schriftzoom, Rücknahme, begründete Stellungsbeurteilung
+
+6. November 2026. `npm run test:all` am endgültigen Code erfolgreich:
+strikte Typprüfung, Web- und Pages-Build, **110/110 Einzeltests, 65/65
+Chromium-Browserfälle**, keine Fehler oder übersprungenen Tests.
+
+Neue/erweiterte Nachweise:
+
+- Eigener Zug samt Engineantwort zurück; alter Zweig mit Kommentar und Export
+  erhalten, anderer Zug spielbar. Laufende Engineantwort abgebrochen/bei später
+  eintreffendem Ergebnis verworfen. Schwarz und Partiestart aus Analyseposition
+  beachten die Rücknahmegrenze.
+- Schrift 80/150/200 % in 1440/1066/390 px Breite; nach Neuladen erhalten, keine
+  horizontalen Überläufe, acht Reihen und acht Spalten. Desktop-Rücknahme ohne
+  Scrollen erreichbar; bestehende Brettgrößen-/Touch-/Zoomregressionen bestanden.
+- Matt-in-einem, Mattstatus, Material und en-passant-Fakten mit echter chess.js.
+  Gefälschte Clientfakten server-/browserseitig aus FEN neu berechnet. Fehlende
+  oder ungültige KI-Beurteilung verworfen. Stellungsgrund und konkrete Gefahr
+  im sichtbaren Chat statt ausschließlich in aufgeklappten Analysedetails.
+- Fools-Mate-Stellung über reales Frontend/Browserruntime und abgefangenen
+  Providertransport: Qh4# im geprüften Anfragekontext sowie sichtbar als Gefahr,
+  erklärter Vorteil Schwarz. Das ist ein Vertragstest mit Antwortfixture,
+  kein Nachweis realer Modellqualität.
+- Bestehende Tests mit echter lokaler Stockfish- und Browser-WASM-Laufzeit,
+  Moduswechseln, lokalen Partien, Key-Speichern, Kosten, Offline und Updates grün.
+  Keine kostenpflichtigen API-Aufrufe. Schlüssel-/Partieformate nicht migriert.
+
+Tatsächliche Chromium-Screenshots visuell angesehen: 1440×900 normal und
+1066×600 mit 200-%-Schrift (vollständiges Desktopbrett, sichtbare Rücknahme und
+lesbare Auswahl), außerdem 390×844 mobil. Viewports unter Linux sind keine
+native Windows-/Android-/iPad-Abnahme. Maia nur anhand offizieller Quellen
+untersucht, keine Gewichte geladen und keine Maia-Züge ausgeführt; Quellen,
+Lizenz-/Laufzeitgrenzen und nächster Browser-Prototyp in MAIA.md.

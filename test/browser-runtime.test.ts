@@ -9,7 +9,7 @@ import {BrowserTacticalAdapter} from '../src/browser-tactics.js';
 import type {EngineWorker} from '../src/browser-uci.js';
 const config={enabled:true,apiKey:'fixture-browser-secret',model:'gpt-4.1-mini'},password='fixture-device-password';
 const request=()=>({nodeId:'n0',fen:new Session().snapshot().nodes[0]!.fen,legalMoves:new Session().legalMoves(),question:'Plan?',context:[]});
-const reply={message:'Was möchtest du erreichen?',plan:'Idee prüfen',opponent:'Möglicher Gegenplan',risks:'Antwort prüfen',playability:'Verständlich spielen',humanFactors:{idea:'Idee',calculation:'Rechnen',pitfalls:'Übersehbare Antwort',continuation:'Plan'},candidates:[],openQuestions:['Was möchtest du erreichen?']};
+const reply={message:'Was möchtest du erreichen?',plan:'Idee prüfen',opponent:'Möglicher Gegenplan',risks:'Antwort prüfen',playability:'Verständlich spielen',assessment:{verdict:'unclear' as const,reason:'Testeinschätzung: keine geprüfte Gesamtbewertung.',dangers:[]},humanFactors:{idea:'Idee',calculation:'Rechnen',pitfalls:'Übersehbare Antwort',continuation:'Plan'},candidates:[],openQuestions:['Was möchtest du erreichen?']};
 class MemoryStore extends BrowserStore {
  data=new Map<string,unknown>();
  override async get<T>(store:'vault'|'budget'|'session'):Promise<T|null>{return this.data.get(store) as T??null;}

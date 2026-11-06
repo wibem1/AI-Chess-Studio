@@ -7,7 +7,7 @@ import {test,expect,type Page} from '@playwright/test';
 import {REVIEW_PGN} from '../test/fixtures/review-game.js';
 import {APP_VERSION} from '../src/version.js';
 const secret='fixture-web-local-api-secret',password='fixture-device-password';
-const reply={message:'Lass uns zuerst deinen Plan verstehen.',plan:'Zentrum prüfen',opponent:'Möglicher Gegenplan',risks:'Antwort beachten',playability:'Verständlich spielen',humanFactors:{idea:'Idee prüfen',calculation:'Rechnen',pitfalls:'Antwort beachten',continuation:'Plan fortsetzen'},candidates:[],openQuestions:['Was möchtest du erreichen?']};
+const reply={message:'Lass uns zuerst deinen Plan verstehen.',plan:'Zentrum prüfen',opponent:'Möglicher Gegenplan',risks:'Antwort beachten',playability:'Verständlich spielen',assessment:{verdict:'unclear' as const,reason:'Testeinschätzung: keine geprüfte Gesamtbewertung.',dangers:[]},humanFactors:{idea:'Idee prüfen',calculation:'Rechnen',pitfalls:'Antwort beachten',continuation:'Plan fortsetzen'},candidates:[],openQuestions:['Was möchtest du erreichen?']};
 async function start(page:Page){await page.goto('/?platform=web');await expect(page.locator('#workspace')).not.toHaveAttribute('inert','');await expect(page.locator('#platform-status')).toContainText('Eigenständige Web-App');}
 async function settings(page:Page){await openView(page,'settings');}
 async function saveKey(page:Page){await settings(page);await page.locator('#api-settings > summary').click();await page.locator('#api-key').fill(secret);if(await page.locator('#vault-setup').getAttribute('open')===null)await page.locator('#vault-setup > summary').click();await page.locator('#vault-password').fill(password);await page.locator('#api-cost-consent').check();await page.locator('#api-connect').click();await expect(page.locator('#api-feedback')).toContainText('verschlüsselt auf diesem Gerät gespeichert');}
@@ -128,4 +128,18 @@ test('new key save bypasses old password storage and ignores a closed optional p
 test('optional password has no ten-character minimum',async({page})=>{
  await start(page);await settings(page);await page.locator('#api-settings > summary').click();await page.locator('#api-key').fill(secret);await page.locator('#vault-setup > summary').click();await page.locator('#vault-password').fill('ab');await page.locator('#api-cost-consent').check();await page.locator('#api-connect').click();await expect(page.locator('#api-feedback')).toContainText('verschlüsselt auf diesem Gerät gespeichert');
  await page.reload();await settings(page);await page.locator('#api-settings > summary').click();await page.locator('#vault-controls > summary').click();await page.locator('#vault-unlock-password').fill('ab');await page.locator('#vault-unlock').click();await expect(page.locator('#api-feedback')).toContainText('Schlüsselfach entsperrt');
+});
+
+test('coach receives verified mating threat and shows assessment and danger without opening analysis details',async({page})=>{
+ let calls=0;
+ await page.route('https://api.openai.com/**',async route=>{
+  calls++;const data=route.request().postDataJSON(),current=JSON.parse(data.messages.at(-1).content);
+  expect(current.positionFacts.sideToMove).toBe('b');expect(current.positionFacts.mateInOne).toEqual(['Qh4#']);expect(current.positionFacts.material.whiteMinusBlack).toBe(0);
+  await route.fulfill({json:{choices:[{finish_reason:'stop',message:{content:JSON.stringify({...reply,message:'Der weiße König ist akut gefährdet.',assessment:{verdict:'black_advantage',reason:'Die offene Diagonale h4–e1 ermöglicht Matt.',dangers:['Qh4# setzt Weiß unmittelbar matt.']}})}}],usage:{prompt_tokens:80,completion_tokens:90}}});
+ });
+ await start(page);await saveKey(page);await page.getByRole('tab',{name:'Lernmodus',exact:true}).click();
+ for(const [from,to] of [['f2','f3'],['e7','e5'],['g2','g4']]){await page.locator(`#board [data-square=${from}]`).click();await page.locator(`#board [data-square=${to}]`).click();}
+ await ask(page,'Was droht hier?');await expect(page.locator('#dialogue')).toContainText('Vorteil Schwarz');
+ await expect(page.getByText('Konkrete Gefahren: Qh4# setzt Weiß unmittelbar matt.',{exact:false})).toBeVisible();
+ await expect(page.locator('#dialogue')).toContainText('Matt in einem für Schwarz: Qh4#');expect(calls).toBe(1);
 });

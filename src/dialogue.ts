@@ -1,3 +1,4 @@
+import {positionFacts,describeFacts,type PositionFacts} from './position-facts.js';
 import {reviewLocked,visibleReviewNodes,REVIEW_QUESTIONS} from './review.js';
 import {validateHumanFactors,type HumanFactors,type HintMode} from './learning.js';
 import { pathTo } from './game.js';
@@ -5,9 +6,10 @@ import { Session } from './session.js';
 
 export type DialogueTopic='position'|'comparison'|'review';
 export interface DialogueTurn {role:'user'|'assistant';nodeId:string;text:string}
-export interface DialogueRequest { nodeId: string; fen: string; question: string; legalMoves: string[]; context?: string[];hintMode?:HintMode;topic?:DialogueTopic;turns?:DialogueTurn[];history?:{rootFen:string;moves:string[];truncated:boolean} }
+export interface DialogueRequest { nodeId: string; fen: string; question: string; legalMoves: string[]; positionFacts?:PositionFacts;context?: string[];hintMode?:HintMode;topic?:DialogueTopic;turns?:DialogueTurn[];history?:{rootFen:string;moves:string[];truncated:boolean} }
 export interface StrategicReply {
   message?:string;
+  assessment?:{verdict:'white_advantage'|'black_advantage'|'balanced'|'unclear';reason:string;dangers:string[]};
   plan: string; opponent: string; candidates: string[]; risks: string;
   playability: string; openQuestions: string[];humanFactors?:HumanFactors;
 }
@@ -23,6 +25,7 @@ export class SimulationAdapter implements DialogueAdapter {
     if (this.mode === 'invalid') return { plan: 'Ungültige Testantwort', candidates: ['illegal'] };
     return {
       message:`Simulation: Wir können deine Frage „${request.question.slice(0,200)}“ gemeinsam als Lernbeispiel betrachten. Das ist eine Testantwort, keine echte Stellungsanalyse.`,
+      assessment:{verdict:'unclear',reason:'Demo-Modus: keine echte Stellungsbeurteilung.',dangers:[]},
       plan: 'Simulation: Prüfe Entwicklung und Zentrumskontrolle als möglichen Plan.',
       opponent: 'Hypothese: Die Gegenseite könnte das Zentrum angreifen; ihre Absicht ist unbekannt.',
       candidates: request.hintMode==='question'?[]:request.legalMoves.slice(0, 2),
@@ -83,7 +86,7 @@ export class Studio {
     while(turns.length>4)turns.splice(0,2);
     const path=pathTo(snapshot,nodeId),start=Math.max(0,path.length-501);
     const history={rootFen:path[start]!.fen,moves:path.slice(start+1).map(n=>n.san!),truncated:start>0};
-    const request = { nodeId, fen, question: question.trim(), legalMoves: session.legalMoves(), context,hintMode,topic,turns,history };
+    const request = { nodeId, fen, question: question.trim(), legalMoves: session.legalMoves(), positionFacts:positionFacts(fen), context,hintMode,topic,turns,history };
     while(new TextEncoder().encode(JSON.stringify(request)).byteLength>16000 && (turns.length || context.length)){
       if(turns.length)turns.splice(0,2);else context.shift();
     }
@@ -93,11 +96,12 @@ export class Studio {
     const reply = validateReply(raw, request.legalMoves);
     if(adapter.source==='model' && !reply.message?.trim())throw new Error('Dialogantwort fehlt.');
     if(adapter.source==='model' && !reply.humanFactors)throw new Error('Menschliche Lernanalyse fehlt in der Modellantwort.');
+    if(adapter.source==='model' && hintMode==='explain' && !reply.assessment)throw new Error('Begründete Stellungsbeurteilung fehlt.');
     if(hintMode==='question' && !reply.openQuestions.length)throw new Error('Leitfrage fehlt.');
     if(hintMode==='question' && reply.candidates.length)throw new Error('Leitfragenmodus: direkte Zugvorschläge verworfen.');
     session.annotate({ nodeId, kind: 'dialogue', source: 'human', text: request.question,
       hypothesis: false, openQuestions: [] });
-    session.annotate({ nodeId, kind: 'dialogue', source: adapter.source ?? 'simulation', text: hintMode==='question'?`Leitfrage: ${reply.openQuestions[0]}`:hintMode==='hint'?`Denkhinweis: ${reply.humanFactors?.idea??reply.playability}`:formatReply(reply),
+    session.annotate({ nodeId, kind: 'dialogue', source: adapter.source ?? 'simulation', text: hintMode==='question'?`Leitfrage: ${reply.openQuestions[0]}`:hintMode==='hint'?`Denkhinweis: ${reply.humanFactors?.idea??reply.playability}`:`${describeFacts(request.positionFacts)}\n\n${formatReply(reply)}`,
       hypothesis: true, openQuestions: reply.openQuestions,...(hintMode==='explain'?{suggestions:reply.candidates}:{}) });
     return 'stored';
   }
@@ -113,9 +117,15 @@ export function validateReply(raw: unknown, legalMoves: string[]): StrategicRepl
     throw new Error('Ungültige Simulationsantwort: Format oder Zugvorschläge verworfen.');
   }
   if(r.message!==undefined && (typeof r.message!=='string' || !r.message.trim() || r.message.length>3000))throw new Error('Ungültige Dialogantwort.');
+  if(r.assessment!==undefined){
+    const a=r.assessment as StrategicReply['assessment'];
+    if(!a || !['white_advantage','black_advantage','balanced','unclear'].includes(a.verdict) || typeof a.reason!=='string' || !a.reason.trim() || a.reason.length>2000 || !Array.isArray(a.dangers) || a.dangers.length>8 || !a.dangers.every(d=>typeof d==='string' && d.trim().length>0 && d.length<=1000))throw new Error('Ungültige Stellungsbeurteilung.');
+  }
   if(r.humanFactors!==undefined)validateHumanFactors(r.humanFactors);
   return r as unknown as StrategicReply;
 }
 function formatReply(r: StrategicReply): string {
-  return `${r.message?`${r.message}\n\nAnalyse-Details:\n`:''}Plan: ${r.plan}\nGegenplan: ${r.opponent}\nKandidaten (ungeordnet): ${r.candidates.join(', ') || 'Keine legalen Züge'}\nRisiken: ${r.risks}\nSpielbarkeit: ${r.playability}${r.humanFactors?`\nEigene Idee verstehen: ${r.humanFactors.idea}\nRechenarbeit und Genauigkeit: ${r.humanFactors.calculation}\nLeicht übersehbar: ${r.humanFactors.pitfalls}\nPlan weiterführen: ${r.humanFactors.continuation}`:''}`;
+  const labels={white_advantage:'Vorteil Weiß',black_advantage:'Vorteil Schwarz',balanced:'Ausgeglichen',unclear:'Unklar'};
+  const assessment=r.assessment?`\n\nStellungsbeurteilung (KI-Einschätzung): ${labels[r.assessment.verdict]}. ${r.assessment.reason}\nKonkrete Gefahren: ${r.assessment.dangers.join(' / ') || 'Keine benannt; keine Sicherheitsgarantie.'}`:'';
+  return `${r.message?`${r.message}${assessment}\n\nAnalyse-Details:\n`:''}Plan: ${r.plan}\nGegenplan: ${r.opponent}\nKandidaten (ungeordnet): ${r.candidates.join(', ') || 'Keine legalen Züge'}\nRisiken: ${r.risks}\nSpielbarkeit: ${r.playability}${r.humanFactors?`\nEigene Idee verstehen: ${r.humanFactors.idea}\nRechenarbeit und Genauigkeit: ${r.humanFactors.calculation}\nLeicht übersehbar: ${r.humanFactors.pitfalls}\nPlan weiterführen: ${r.humanFactors.continuation}`:''}`;
 }

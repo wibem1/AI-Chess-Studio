@@ -83,3 +83,23 @@ test('stored coach suggestions must be legal at their own position and survive e
  assert.throws(()=>s.annotate({...valid,source:'human'}),/Ungültige/);
  const raw=JSON.parse(s.export());raw.annotations[0].suggestions=['e5'];assert.throws(()=>Session.import(JSON.stringify(raw)),/Illegale/);
 });
+
+test('take back own move and engine reply, keeping the annotated branch, then play another move',async()=>{
+ const s=new Session(),g=new LearningGame(()=>s);g.start('w',1);assert.equal(g.canTakeBack(),false);
+ g.play('e4');await g.reply(fake('e5'));s.annotate({nodeId:s.snapshot().activeNodeId,kind:'memory',source:'human',text:'Alte Idee',hypothesis:false,openQuestions:[]});
+ g.takeBack();assert.equal(s.snapshot().activeNodeId,'n0');assert.equal(s.snapshot().game!.cursor,'n0');assert.equal(g.needsEngine(),false);assert.equal(g.canTakeBack(),false);
+ g.play('d4');await g.reply(fake('d5'));assert.equal(s.snapshot().nodes.length,5);assert.equal(s.snapshot().annotations[0]!.text,'Alte Idee');
+ assert.equal(Session.import(s.export()).snapshot().nodes.length,5);
+});
+test('take back cancels a pending engine move and discards its late answer',async()=>{
+ const s=new Session(),g=new LearningGame(()=>s);g.start('w',1);g.play('e4');let resolve!:(v:unknown)=>void,canceled=0;
+ const pending=g.reply({move:()=>new Promise(r=>{resolve=r;}),cancel:()=>{canceled++;}});g.takeBack();assert.equal(canceled,1);g.play('d4');
+ resolve({san:'e5',level:1,engine:'Stockfish fixture'});assert.equal(await pending,'discarded');assert.equal(s.snapshot().nodes.length,3);
+ await g.reply(fake('d5'));assert.equal(s.snapshot().nodes.at(-1)!.san,'d5');
+});
+test('black take back stops after engine opening; game starting from a study position stays within that game',async()=>{
+ const s=new Session(),g=new LearningGame(()=>s);s.play('d4');g.start('b',1);assert.equal(g.canTakeBack(),false);
+ g.play('d5');await g.reply(fake('c4'));g.takeBack();assert.equal(s.snapshot().activeNodeId,'n1');assert.equal(g.canTakeBack(),false);assert.throws(()=>g.takeBack(),/Noch kein eigener/);
+ const s2=new Session(),g2=new LearningGame(()=>s2);g2.start('b',1);await g2.reply(fake('e4'));assert.equal(g2.canTakeBack(),false);
+ g2.play('e5');await g2.reply(fake('Nf3'));g2.takeBack();assert.equal(s2.snapshot().activeNodeId,'n1');assert.equal(new Chess(s2.snapshot().nodes.find(n=>n.id===s2.snapshot().activeNodeId)!.fen).turn(),'b');
+});

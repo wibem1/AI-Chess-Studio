@@ -164,7 +164,7 @@ test('local model API fixture exercises UI transport and provenance without any 
   await page.route('**/api/dialogue', route => {
     received = route.request().postDataJSON();
     return route.fulfill({ json:{ message:'Lokale Dialog-Testantwort',plan:'Lokale Modell-Testantwort', opponent:'Hypothese: Zentrum angreifen', candidates:['e4'],
-      risks:'Test-Risiko', playability:'Test-Spielbarkeit', humanFactors:{idea:'Testidee',calculation:'Testrechnung',pitfalls:'Testgefahr',continuation:'Testfortsetzung'}, openQuestions:['Testfrage?'] } });
+      risks:'Test-Risiko', playability:'Test-Spielbarkeit', assessment:{verdict:'unclear' as const,reason:'Testeinschätzung: keine geprüfte Gesamtbewertung.',dangers:[]},humanFactors:{idea:'Testidee',calculation:'Testrechnung',pitfalls:'Testgefahr',continuation:'Testfortsetzung'}, openQuestions:['Testfrage?'] } });
   });
   await page.goto('/');
   await expect(page.locator('#model-status')).toContainText('KI-Zugang konfiguriert');
@@ -332,7 +332,7 @@ test('learning controls and board remain usable at Android and iPad-sized touch 
 
 test('learning dialogue integrates engine game, actual model-service transport and follow-up conversation',async({page})=>{
  const {ModelService}=await import('../server/model.js');let calls=0;
- const fixture={message:'Als Lernbeispiel greifen wir deine Zentrumsidee auf.',plan:'Zentrum',opponent:'Möglicher Gegenstoß',candidates:[],risks:'Ungedeckte Figuren',playability:'Klare nächste Schritte',humanFactors:{idea:'Deine Begründung prüfen',calculation:'Zwingende Antworten',pitfalls:'Gegenstoß',continuation:'Figuren verbessern'},openQuestions:['Was möchtest du mit deinem Plan verhindern?']};
+ const fixture={message:'Als Lernbeispiel greifen wir deine Zentrumsidee auf.',plan:'Zentrum',opponent:'Möglicher Gegenstoß',candidates:[],risks:'Ungedeckte Figuren',playability:'Klare nächste Schritte',assessment:{verdict:'unclear' as const,reason:'Testeinschätzung: keine geprüfte Gesamtbewertung.',dangers:[]},humanFactors:{idea:'Deine Begründung prüfen',calculation:'Zwingende Antworten',pitfalls:'Gegenstoß',continuation:'Figuren verbessern'},openQuestions:['Was möchtest du mit deinem Plan verhindern?']};
  const service=new ModelService({enabled:true,apiKey:'local-integration-test-key',model:'fixture'},(async(_url,init)=>{
   calls++;const body=JSON.parse(init!.body as string);if(calls===2){expect(body.messages.map((m:{role:string})=>m.role)).toEqual(['system','user','assistant','user']);expect(body.messages[2].content).toContain('Zentrumsidee');}
   if(calls===3){const current=JSON.parse(body.messages.at(-1).content);expect(current.topic).toBe('review');expect(current.history.moves).toHaveLength(2);}

@@ -90,6 +90,7 @@ export class ModelService {
       this.costs.settle(reservation,envelope.usage);
       if (envelope.choices?.[0]?.finish_reason !== 'stop') throw new Error('Incomplete response');
       const reply=validateReply(JSON.parse(envelope.choices[0].message.content), request.legalMoves);
+      if((request.hintMode??'explain')==='explain' && !reply.assessment)throw new Error('Missing assessment');
       if(request.topic && !reply.message?.trim())throw new Error('Missing dialogue');
       if(request.hintMode && !reply.humanFactors)throw new Error('Missing human analysis');
       if(request.hintMode==='question' && (!reply.openQuestions.length || reply.candidates.length))throw new Error('Unwanted solution');

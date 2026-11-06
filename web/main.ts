@@ -17,9 +17,11 @@ import { installScrollHelp } from './scroll-help.js';
 import { APP_VERSION } from '../src/version.js';
 import { installBoardDrag } from './board-drag.js';
 import {installGameLibrary} from './game-library.js';
+import {installFontScale} from './font-scale.js';
 
 document.getElementById('app-version')!.textContent = `Version ${APP_VERSION}`;
 document.title = `AI-Chess-Studio ${APP_VERSION}`;
+installFontScale();
 const studio = new Studio();
 let initialized=false;
 const autosave=new AutoSave(browserRuntime.store,()=>({json:studio.session.export(),question:text('question').value}),value=>message('autosave-status',value));
@@ -89,6 +91,8 @@ function render() {
   const status = studio.session.status();
   const live=data.review?.guiding?undefined:data.game;
   const allowed=visibleReviewNodes(data),locked=reviewLocked(data);
+  $('game-undo').hidden=$('workspace').dataset.activeView!=='play';
+  $<HTMLButtonElement>('game-undo').disabled=!game.canTakeBack();
   const learning=$('workspace').dataset.activeView==='learn';
   $('learning-controls').hidden=!learning;
   message('workbench-status',learning?'Lernmodus · Züge ausprobieren und mit der Lernengine besprechen. Die Partie bleibt unverändert.':live?(live.paused?'Partie pausiert · Zum Fortsetzen Spielmodus wählen.':'Spielmodus · Schachengine ist dein Gegner.'):'Spielmodus · Starte rechts eine Partie gegen die Schachengine.');
@@ -401,6 +405,11 @@ async function startNewGame(){
 }
 $('game-form').addEventListener('submit',event=>{event.preventDefault();void startNewGame();});
 $('open-game-setup').addEventListener('click',()=>{void startNewGame();});
+$('game-undo').addEventListener('click',()=>attempt(()=>game.takeBack(),'move-feedback','Dein letzter Zug wurde samt möglicher Engineantwort zurückgenommen. Der bisherige Verlauf bleibt als Variante erhalten.'));
+// Keep the desktop action visible above the full-height board; on touch, beside board controls.
+const desktopControls=matchMedia('(min-width:901px)');
+const dockUndo=()=>{const button=$('game-undo');if(desktopControls.matches)document.querySelector('.app-navigation')!.append(button);else document.querySelector('.board-actions')!.insertBefore(button,$('open-game-setup'));};
+desktopControls.addEventListener('change',dockUndo);dockUndo();
 $('engine-location').addEventListener('change',()=>{
  const selectedEngine=$<HTMLSelectElement>('engine-location').value as 'server'|'browser';
  game.pause();const saved=studio.session.snapshot().game;if(saved)studio.session.setGame({...saved,engine:selectedEngine,revision:saved.revision+1});render();

@@ -4,6 +4,19 @@ Verbindliche Zielkorrektur aus den Nutzerklarstellungen vom 5. und 6. November 2
 Die folgende Zwei-Modi-Konzeption ersetzt die bisherige Aufteilung in vier
 gleichrangige Arbeitsbereiche.
 
+## Ergänzung vom 6. November: Schrift, Rücknahme, klare Beurteilung, Maia
+
+- Schriftgröße im Kopfbereich dauerhaft lokal einstellbar (80–200 %).
+- Spielmodus: eigenen letzten Zug samt möglicher Engineantwort zurücknehmen;
+  alte Folge mit Notizen als Variante erhalten, laufende Berechnung abbrechen.
+- Lernengine: qualitativen Stellungsvorteil begründen und konkrete Gefahren
+  benennen. Regelgeprüfte Brettfakten sichtbar von KI-Hypothesen trennen;
+  Unsicherheit ausdrücklich nennen. Demo ist keine echte Stellungsanalyse.
+- Menschlicher Spielgegner zusätzlich zu Stockfish gewünscht. Maia technisch
+  untersucht; nicht als verfügbar ausgeben. Nächster einzelner Technikschritt:
+  isolierter Maia-Browser-Prototyp gemäß [docs/MAIA.md](docs/MAIA.md), zuerst
+  Gewichtsbedingungen/Exportfähigkeit und Laufzeit auf Mobilgeräten prüfen.
+
 ## Kernziel
 
 Der Nutzer spielt gegen Stockfish (oder später eine andere Engine) auf

@@ -89,7 +89,7 @@ export class BrowserRuntime {
    const envelope=await readProvider(response);await this.store.budget(l=>l.settle(reserved,envelope.usage));
    if(envelope.choices?.[0]?.finish_reason!=='stop')throw new Error();
    const reply=validateReply(JSON.parse(envelope.choices[0].message.content),request.legalMoves);
-   if(!reply.message?.trim()||!reply.humanFactors||request.hintMode==='question'&&(!reply.openQuestions.length||reply.candidates.length))throw new Error();
+   if(!reply.message?.trim()||!reply.humanFactors||((request.hintMode??'explain')==='explain'&&!reply.assessment)||request.hintMode==='question'&&(!reply.openQuestions.length||reply.candidates.length))throw new Error();
    return reply;
   }catch(error){
    if(!started)throw new ApiError(402,'Lokales Kosten- oder Anfragebudget erreicht.');

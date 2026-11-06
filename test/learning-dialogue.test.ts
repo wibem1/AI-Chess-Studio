@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {Studio,SimulationAdapter} from '../src/dialogue.js';
 import {Session} from '../src/session.js';
 import {ModelService,parseRequest} from '../server/model.js';
-const response={message:'Wir prüfen deine Idee gemeinsam.',plan:'Plan',opponent:'Hypothese',candidates:[],risks:'Risiko',playability:'Verständliche Schritte',humanFactors:{idea:'Eigene Idee',calculation:'Genauigkeit',pitfalls:'Antwort',continuation:'Fortsetzen'},openQuestions:['Was möchtest du verhindern?']};
+const response={message:'Wir prüfen deine Idee gemeinsam.',plan:'Plan',opponent:'Hypothese',candidates:[],risks:'Risiko',playability:'Verständliche Schritte',assessment:{verdict:'unclear' as const,reason:'Testeinschätzung: keine geprüfte Gesamtbewertung.',dangers:[]},humanFactors:{idea:'Eigene Idee',calculation:'Genauigkeit',pitfalls:'Antwort',continuation:'Fortsetzen'},openQuestions:['Was möchtest du verhindern?']};
 
 test('real-model conversation carries paired prior turns from current branch, not simulations or siblings',async()=>{
  const studio=new Studio();await studio.ask('Nur Simulation',new SimulationAdapter());await studio.ask('Erste Frage',{source:'model',respond:async r=>{assert.equal(r.turns!.length,0);return response;}});

@@ -1,5 +1,17 @@
 # Änderungen
 
+## 0.6.0 – Schriftgröße, Partierücknahme, klarere Lernbeurteilung
+
+- Schriftgröße 80–200 %, im Browser gespeichert; Desktopbrett berücksichtigt
+  die tatsächliche Höhe des vergrößerten Kopfbereichs.
+- „Schritt zurück“ im Spielmodus: letzten eigenen Zug samt möglicher Antwort
+  zurücknehmen, laufende Engineberechnung verwerfen, alte Variante erhalten.
+- Echte KI-Erklärung verlangt begründeten Stellungsvorteil und konkrete Gefahren.
+  Material, Schach/Matt und Matt in einem separat regelgeprüft; kein automatischer
+  Enginebewertungsbalken. Demo-Beispielantworten deutlich gekennzeichnet.
+- Maia-Machbarkeit und offizielle Quellen dokumentiert; keine Maia-Integration
+  behauptet. Stockfish und vorhandene Schlüssel-/Partienspeicher unverändert.
+
 ## 0.5.1 – eindeutiges Speichern, keine Passwort-Mindestlänge
 
 - Alte Passwortwiederherstellung separat unter dem Formular zugeklappt; neues

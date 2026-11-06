@@ -1,6 +1,6 @@
 # AI-Chess-Studio
 
-Aktueller veröffentlichter Funktionsstand: **0.5.1**, GitHub-Bereitstellung bestätigt; native Nutzerabnahme steht noch aus. Änderungen: [CHANGELOG.md](CHANGELOG.md).
+Aktueller veröffentlichter Funktionsstand: **0.6.0 vollständig automatisiert geprüft**, Bereitstellung ausstehend; letzter bestätigter Online-Stand 0.5.1. Änderungen: [CHANGELOG.md](CHANGELOG.md).
 Ein großes gemeinsames Schachbrett und zwei Modi für dein persönliches Lernen.
 Auf dem Desktop steht das vollständige, vergrößerte Brett oben; Status und
 Werkzeuge darunter. Kleine Touchansichten behalten ihre bisherige Anordnung.
@@ -11,6 +11,9 @@ Werkzeuge darunter. Kleine Touchansichten behalten ihre bisherige Anordnung.
    Figuren ziehen oder Start- und Zielfeld antippen; Stockfish antwortet.
    „Neue Partie“ startet direkt wieder in der Grundstellung mit der gewählten
    Farbe/Stärke. Der vorherige Stand bleibt als gespeicherte Sicherung erhalten.
+   **„Schritt zurück“** nimmt den letzten eigenen Zug und eine bereits erfolgte
+   Engineantwort zurück. Die alte Folge mit Kommentaren bleibt als Variante.
+   Das funktioniert auch, während der Gegner noch rechnet.
 2. Bei einer Frage auf **Lernmodus** umschalten. Der Gegner pausiert. Auf demselben
    Brett Züge für beide Seiten ausprobieren, mit „Zug zurück“ zurückgehen oder
    mit „Zur Partiestellung“ neu ansetzen.
@@ -26,6 +29,19 @@ Werkzeuge darunter. Kleine Touchansichten behalten ihre bisherige Anordnung.
 Der Lernmodus enthält auch „Kommentar zu dieser Stellung“, „Varianten speichern
 und vergleichen“ und weitere Lernwerkzeuge einschließlich PGN-Rückblick
 „Partie verstehen“. Einstellungen sind über die Schaltfläche oben erreichbar.
+**Schriftgröße:** Oben bei „Schrift“ 80–200 % wählen. Die Einstellung bleibt in
+diesem Browser gespeichert; sie ändert keine Partie und startet keine Anfrage.
+
+Der Erklärmodus des echten Lerndialogs verlangt eine begründete qualitative
+Stellungsbeurteilung (Vorteil Weiß/Schwarz, ausgeglichen oder unklar) und
+konkrete Gefahren. Material, Zugrecht, Schach/Matt und Mattzüge in einem werden
+separat aus dem Brett regelgeprüft. KI-Einschätzungen bleiben fehlbar; sie sind
+keine nachgewiesene Engineanalyse. Leitfragen und kleine Hinweise bleiben
+bewusst zurückhaltend. Im Demo-Modus antwortet keine echte Lernengine.
+
+Maia als menschlicherer Gegner: [Machbarkeit und nächster Schritt](docs/MAIA.md).
+Noch nicht integriert; Stockfish bleibt der vorhandene Spielgegner.
+
 Der Humanfaktor bleibt verbindlich: eigene Gedanken, verständliche Pläne und
 praktische Schwierigkeiten besprechen, keine bloße Enginezahlenanalyse.
 

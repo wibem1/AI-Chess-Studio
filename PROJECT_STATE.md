@@ -1,12 +1,47 @@
 # Projektstand
 
+Stand: 6. November 2026 · **0.6.0 vollständig automatisiert geprüft, Bereitstellung ausstehend**.
+Letzter bestätigter Online-Stand: 0.5.1; Nachweise unten.
+
+Aktueller Nutzerauftrag: Schriftzoom, Rücknahme während der Partie, klare
+Gefahren und begründete Stellungsvor-/nachteile im Lerndialog; Maia als
+menschlicheren alternativen Gegner untersuchen.
+
+- Schrift 80–200 %, lokal im Browser gespeichert, ohne Anfrage oder Änderung
+  an Partie/Key. Kopfbereich und Desktopbrett passen sich an Schriftgrößen an.
+- „Schritt zurück“ auf Desktop neben den Modusschaltern, mobil am Brett:
+  letzter eigener Zug samt möglicher Antwort zurück; eigene Seite wieder am
+  Zug. Laufende Antwort abbrechen/verspätete verwerfen, keine Rücknahme vor
+  Partiestart oder des ersten weißen Enginezugs bei eigener schwarzer Seite.
+  Alte Varianten mit Notizen/Kommentaren bleiben gespeichert.
+- Echte KI-Erklärung verlangt qualitative Beurteilung mit Begründung und
+  konkreten Gefahren. Regelgeprüfte Fakten aus FEN zu Material, Zugrecht,
+  Schach/Matt/Patt, Matt in einem und legalen Schlagzügen werden mitgegeben;
+  Schach/Matt und Material separat sichtbar. Kein automatischer Enginebalken.
+  Leitfragen/kleine Hinweise bleiben gestuft, Demo klar als Beispiel bezeichnet.
+- Maia-Machbarkeit samt offiziellen Quellen in docs/MAIA.md. Maia ist **nicht
+  integriert/getestet**; offizielle Python-/UCI-Laufzeit ist nicht direkt auf
+  GitHub Pages nutzbar. Gewichtsbedingungen/Browserexport offen, keine Gewichte
+  geladen. Stockfish bleibt vorhandener Gegner.
+
+Prüfung am endgültigen Stand: `npm run test:all` erfolgreich, Typprüfung,
+Web-/Pages-Build, **110/110 Einzeltests und 65/65 Chromiumfälle**. Drei echte
+Browseransichten visuell kontrolliert (Desktop, 200-%-Schrift, Mobilansicht). Keine kostenpflichtigen Modellaufrufe;
+Lerndialog mit abgefangenem Providertransport, nicht als echte Modellqualität
+bewertet. Native Windows/Android/iPad-Abnahme bleibt getrennt offen.
+Nächster einzelner Schritt: autorisiertes Update im vorhandenen Repository
+bereitstellen und Erfolg für genau den ausgelieferten Commit bestätigen.
+Danach isolierter Maia-Browser-Prototyp, zuerst Modellrecht/Exportfähigkeit.
+
+## Voriger bestätigter Stand 0.5.1
+
 Stand: 6. November 2026 · **0.5.1 veröffentlicht, GitHub-Erfolg bestätigt**.
 Aktuelle Quelle 5cd6b45; gh-pages 3eb4c61bc7ce5b442d28c23211e050243be890a7;
 Run 42303046331 SUCCESS. Öffentliches commitgebundenes BUILD.json bestätigt
 Version, Basis und Quellcommit. Nächster Schritt: Nutzer übernimmt 0.5.1 und
 prüft Neu-Speichern im oberen API-Key-Formular ohne altes Passwort.
 
-Aktueller Auftrag: Nutzer meldet auf 0.5.0 „Passwort eingeben“ beim Speichern
+Voriger Auftrag: Nutzer meldet auf 0.5.0 „Passwort eingeben“ beim Speichern
 und lehnt die Zehn-Zeichen-Vorgabe nochmals ausdrücklich ab. Exakte Quelle
 des nativen Dialogs auf seinem Gerät nicht beobachtet; kein endgültiger
 Ursachennachweis behauptet. Code/Bedienung verbessert: alter Passwortzugang

@@ -25,6 +25,17 @@ export class LearningGame {
  resume():void{this.inFlight?.cancel?.();const s=this.current(),d=s.snapshot(),g=d.game;if(!g)throw new Error('Keine Lernpartie gestartet.');if(g.paused)this.study={session:s,gameId:g.id,cursor:g.cursor,node:d.activeNodeId};s.select(g.cursor);s.setGame({...g,paused:false,revision:g.revision+1});}
  learn():void{const s=this.current(),g=s.snapshot().game;if(!g)return;const running=!g.paused;this.pause();if(running&&this.study?.session===s&&this.study.gameId===g.id&&this.study.cursor===g.cursor)s.select(this.study.node);}
  analyse(id:string):void{this.pause();this.current().select(id);}
+ private takeBackTarget():string|undefined{
+  const d=this.current().snapshot(),g=d.game;if(!g || d.review?.guiding)return;
+  const path=pathTo(d,g.cursor),start=path.findIndex(n=>n.id===g.start);
+  for(let i=path.length-1;i>start;i--)if(new Chess(path[i-1]!.fen).turn()===g.human)return path[i-1]!.id;
+ }
+ canTakeBack():boolean{return this.takeBackTarget()!==undefined;}
+ takeBack():void{
+  const target=this.takeBackTarget();if(!target)throw new Error('Noch kein eigener Zug zum Zurücknehmen.');
+  this.pause();this.study=undefined;const s=this.current(),g=s.snapshot().game!;
+  s.select(target);s.setGame({...g,cursor:target,paused:false,revision:g.revision+1});
+ }
  play(input:MoveInput):string {
   const s=this.current(),d=s.snapshot(),g=d.game;
   if(g && !g.paused && (d.activeNodeId!==g.cursor || new Chess(d.nodes.find(n=>n.id===g.cursor)!.fen).turn()!==g.human))throw new Error('Stockfish ist am Zug. Zum Ausprobieren die Partie pausieren.');
