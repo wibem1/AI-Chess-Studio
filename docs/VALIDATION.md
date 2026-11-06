@@ -1144,3 +1144,11 @@ CSS-Anordnung Root-/Pages-Builds erneut bestanden und npx playwright test mit
 57/57 bestanden (2,7 Minuten), einschließlich Drag/Sonderzüge, vollständigem
 Brett bei Zoom, Touchgrößen, Speicher-/Neustartablauf und echten Enginezügen.
 Keine kostenpflichtige Modellanfrage. Native Windows-/Android-Abnahme bleibt offen.
+
+
+0.4.1 tatsächlich bereitgestellt: Quellcommit 9626a023c6158db36060c584eec50c245b30ddba,
+gh-pages 9a8785e55c760e077338b68c9a98e579a74dabfe, Run 42290733124 SUCCESS:
+https://github.com/wibem1/AI-Chess-Studio/actions/runs/42290733124
+Commitgebundenes öffentliches BUILD.json mit Version/Basis/Quelle überprüft.
+Keine direkte Live-Host-/native Windows-Abnahme im netzwerkbeschränkten Runner.
+Code und Prüf-/Projektstand gemeinsam auf work; kein neuer Workflow oder API-Test.

@@ -1,6 +1,12 @@
 # Projektstand
 
-Stand: 6. November 2026 · **0.4.1 geprüft, Bereitstellung wird kontrolliert**.
+Stand: 6. November 2026 · **0.4.1 veröffentlicht, GitHub-Erfolg bestätigt**.
+Aktueller Quellcommit 9626a023c6158db36060c584eec50c245b30ddba, gh-pages
+9a8785e55c760e077338b68c9a98e579a74dabfe, Run 42290733124 SUCCESS.
+Commitgebundenes öffentliches BUILD.json bestätigt 0.4.1 und Quellcommit.
+Nächster Schritt: Update auf 0.4.1 und native Windows-Bedienungsabnahme durch
+Nutzer; kein erneutes Einrichten oder Löschen von Daten erforderlich.
+
 Vorige Bereitstellung 0.4.0 erfolgreich bestätigt.
 Quellcommit 76de2fc, gh-pages 441b36dc64d92c8fad11b3675a52539336974ae6,
 Run 42285782065 SUCCESS. Commitgebundenes öffentliches BUILD.json bestätigt

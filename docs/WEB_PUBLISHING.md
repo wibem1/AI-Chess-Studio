@@ -20,7 +20,7 @@ keine Treffer für verbreitete API-Key-/GitHub-Token-/Private-Key-Muster; keine
 Werte ausgegeben. Das ist kein allgemeiner Nachweis über sämtliche privaten
 Inhalte in einer Historie.
 
-## Aktueller Stand 0.4.0
+## Aktueller Stand 0.4.1
 
 `npm run build:pages` erzeugt `pages-dist` für **/AI-Chess-Studio/**.
 Worker, Links, Manifest, Startadresse, Icons, Lizenzen und Offline-Cache sind auf
@@ -36,7 +36,7 @@ node scripts/publish-pages.mjs --prepare-only
 ```
 
 `--prepare-only` erzeugt ausschließlich lokal einen neuen Ordner unter
-artifacts/Pages-0.4.0-… mit exakter öffentlicher Dateiliste und BUILD.json
+artifacts/Pages-0.4.1-… mit exakter öffentlicher Dateiliste und BUILD.json
 (Version, Quellcommit, SHA-256 je Datei). Keine Schlüssel, Sitzungen, Profile,
 Node-Server oder Entwicklungsdateien. Das frühere Root-ZIP 0.3.0 bleibt erhalten
 und ist nicht das neue Unterordner-Paket.
@@ -74,7 +74,7 @@ Tarif, keine neue Domain oder andere Anbieterleistung beauftragt.
 
 ## Prüfung
 
-100 Einzeltests und 55 Chromium-Browserfälle; darunter echter Stockfish,
+100 Einzeltests und 57 Chromium-Browserfälle; darunter echter Stockfish,
 Unterordner-Manifest/Scope, Offline-Reload mit pausierter Partie/Entwurf und
 Lizenznavigation ohne Root-Requests. Der Publisher ist mit echten lokalen Git-
 Repositories auf Erstveröffentlichung, fortlaufende gh-pages-Historie,
@@ -152,3 +152,11 @@ zunächst gecachte 0.3.3-Metadaten; keinen Fehler des Live-Hosts daraus behaupte
 Live-Adresse weiterhin vom Netzwerkproxy gesperrt; Nutzer-/native Abnahme offen.
 Keine neue Ablage, kein Workflow, keine weitere Sichtbarkeitsänderung oder
 kostenpflichtige Modellanfrage. Projekt-/Prüfstand mit Code auf work gesichert.
+
+
+0.4.1 tatsächlich bereitgestellt: Quellcommit 9626a023c6158db36060c584eec50c245b30ddba,
+gh-pages 9a8785e55c760e077338b68c9a98e579a74dabfe, Run 42290733124 SUCCESS:
+https://github.com/wibem1/AI-Chess-Studio/actions/runs/42290733124
+Commitgebundenes öffentliches BUILD.json mit Version/Basis/Quelle überprüft.
+Keine direkte Live-Host-/native Windows-Abnahme im netzwerkbeschränkten Runner.
+Code und Prüf-/Projektstand gemeinsam auf work; kein neuer Workflow oder API-Test.
