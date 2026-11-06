@@ -1,7 +1,7 @@
 # AI-Chess-Studio
 
-Aktueller veröffentlichter Funktionsstand: **0.4.1**. GitHub bestätigt die
-erfolgreiche Pages-Bereitstellung; native Nutzerabnahme steht noch aus. Änderungen: [CHANGELOG.md](CHANGELOG.md).
+Aktueller Funktionsstand: **0.5.0**. Auslieferungsstatus im PROJECT_STATE.md;
+native Nutzerabnahme steht noch aus. Änderungen: [CHANGELOG.md](CHANGELOG.md).
 Ein großes gemeinsames Schachbrett und zwei Modi für dein persönliches Lernen.
 Auf dem Desktop steht das vollständige, vergrößerte Brett oben; Status und
 Werkzeuge darunter. Kleine Touchansichten behalten ihre bisherige Anordnung.
@@ -56,11 +56,14 @@ In den Einstellungen „Eigenständige Web-App auf diesem Gerät verwenden“ ö
 Ohne Desktop-Backend wird dieser Betriebsweg automatisch gewählt; eine über das
 Browsermenü installierte App startet ebenfalls so. Das Brett und die beiden Modi bleiben gleich.
 
-- Unter „Eigenen API-Schlüssel eingeben“ Schlüssel, Modell und ein eigenes
-  Gerätepasswort mit mindestens zehn Zeichen eingeben. Nach Kostenfreigabe
-  speichern: Das Feld wird geleert, die Speicherung sichtbar bestätigt. Nach
-  einem Neustart nur das Gerätepasswort unter „Schlüsselfach entsperren“ eingeben.
-  Speichern und Entsperren erzeugen keine KI-Antwort und keine Generierungskosten.
+- Unter „Eigenen API-Schlüssel eingeben“ Schlüssel und Modell eingeben, Kosten
+  freigeben und speichern. **Kein zusätzliches App-Passwort erforderlich.** Die
+  Speicherung wird bestätigt; das Eingabefeld wird bewusst geleert. Beim nächsten
+  Start lädt die App den lokalen Schlüssel selbst, ohne Modellanfrage.
+- Vorhandener Passwortschutz bleibt erhalten. Einmal mit dem bisherigen Passwort
+  entsperren und „Ohne zusätzliches Passwort auf diesem Gerät merken“ wählen,
+  falls du umstellen möchtest. Der API-Key muss dafür nicht neu eingegeben werden.
+  Ein zusätzliches Passwort ist künftig nur eine ausdrücklich gewählte Option.
 - Unter „Kostenkontrolle“ Preisannahmen und USD-Budget prüfen. Höchstens drei
   Generierungsversuche pro Fenster und gespeicherter Budgetperiode; die Periode
   gilt für alle Fenster derselben Browseradresse. Neuladen, Schlüsselwechsel und
@@ -76,27 +79,22 @@ Browsermenü installierte App startet ebenfalls so. Das Brett und die beiden Mod
   Verbindung. Aktualisierungen werden heruntergeladen, aber erst nach deiner
   Bestätigung und erfolgreicher Sitzungssicherung mit Neuladen übernommen.
 
-**Lokaler Schlüsselspeicher:** AES-GCM-256 mit zufälligem Salt/IV und PBKDF2-
-SHA256 (250.000 Iterationen) verschlüsselt die Zugangsdaten in IndexedDB.
-Das Gerätepasswort wird nicht gespeichert. Der Klartextschlüssel bleibt nur im
-Arbeitsspeicher des entsperrten Fensters. Keine Schlüssel in localStorage,
-sessionStorage, JSON-Export, Diagnose oder Service-Worker-Cache. Sperren,
-Schlüsselwechsel und Löschen sperren über BroadcastChannel auch andere offene
-Fenster derselben Adresse, soweit der Browser diese Schnittstelle unterstützt.
-Bereits gesendete Anfragen lassen sich dadurch nicht zurückrufen.
+**Lokaler Schlüsselspeicher:** Standardmäßig AES-GCM-256 mit zufälligem IV und
+nicht exportierbarem CryptoKey in IndexedDB. Der Browser kann ihn beim nächsten
+Start wieder verwenden. Das ist keine zusätzliche Zugangssperre: Wer Zugriff auf
+dieses Browserprofil oder den Code derselben Webadresse hat, kann den Schlüssel
+in der App benutzen. Kein nativer OS-/Hardware-Schlüsseltresor.
 
-Das ist ein verschlüsselter lokaler Web-Speicher entsprechend deinem Wunsch,
-kein nativer System-Schlüsselbund. Browserdaten löschen oder eine andere
-Adresse/einen anderen Port verwenden ergibt einen anderen/leeren Speicher.
-Ohne Gerätepasswort kann das Schlüsselfach nicht wiederhergestellt werden;
-den API-Schlüssel dann erneut hinterlegen. Sitzungen bleiben unabhängig als
-JSON übertragbar. App-Code und Browserprofil müssen vertrauenswürdig bleiben.
-Desktop-Dateiprofile werden nicht automatisch in den Browser übertragen.
+Vorhandener und optionaler Passwortschutz verwendet weiterhin PBKDF2-SHA256 mit
+250.000 Iterationen, Salt und AES-GCM. Das zusätzliche Passwort wird nicht
+persistiert; dieser Modus muss nach dem Neustart entsperrt werden. Eine Umstellung
+ist erst nach erfolgreichem Entsperren möglich. Alte Daten werden nicht gelöscht.
 
-Zum Prüfen ohne Veröffentlichung reicht `npm run build` und ein statischer
-HTTP-Host für den Inhalt von `web-dist` (am Domain-Stamm, nicht über file://).
-Der Web-Stand benötigt im Betrieb weder Node noch npm oder ein Cloud-Secret.
-Öffentliches Hosting ist ein separater Auftrag und wurde nicht eingerichtet.
+Kein Klartext-API-Key in Browser-Storage, Partiedatei, Diagnose oder Offline-Cache.
+Speichern, Wiederladen und Umstellen starten keine Provideranfrage und setzen
+keinen Verbrauch zurück. Schlüsseländerungen und Löschen werden an andere offene
+Fenster derselben Adresse gemeldet; eine explizite Fenstersperre bleibt bis zum
+Neustart oder bewussten Entsperren erhalten. Keine automatische Textgenerierung.
 
 ## Start auf deinem PC
 
@@ -389,7 +387,7 @@ des Updates keine zweite Installation starten und keinen Quellcode bearbeiten.
 
 ## Nachweise und Grenzen
 
-`npm run test:all`: Typprüfung, Build, **100 Einzeltests und 57 Chromium-
+`npm run test:all`: Typprüfung, Build, **103 Einzeltests und 60 Chromium-
 Browsertests**. Der gebaute Anwendungsserver wird getestet, einschließlich
 echtem lokalem Stockfish. Schlüsseltests verwenden ausschließlich bedeutungslose
 Testwerte, Provider-/Update-Tests lokale Fixtures. Die bestätigte Web-Updateübernahme wurde mit einem echten Service Worker auf

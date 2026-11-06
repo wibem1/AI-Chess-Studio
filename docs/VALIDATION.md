@@ -1152,3 +1152,47 @@ https://github.com/wibem1/AI-Chess-Studio/actions/runs/42290733124
 Commitgebundenes öffentliches BUILD.json mit Version/Basis/Quelle überprüft.
 Keine direkte Live-Host-/native Windows-Abnahme im netzwerkbeschränkten Runner.
 Code und Prüf-/Projektstand gemeinsam auf work; kein neuer Workflow oder API-Test.
+
+
+## 0.5.0 – einfacher lokaler Schlüssel und Windows-Formulare
+
+Vorheriger Stand 0.4.1 reproduziert: bei 1066 px überragen Level-Select, Label und
+Startknopf den Formularrahmen. minmax(0,1fr), min-width:0/width:100% und Umbruch
+der Labels korrigieren den intrinsischen Mindestbreitenfehler. Schmale Formulare
+stehen untereinander. Bedienungshilfe ein-/ausklappbar, Diagnose über den
+Plattformadapter. Windows-Schrift 16/24 px und drei Desktopbreiten geprüft.
+
+Lokale Speicherung jetzt standardmäßig Format 2: AES-GCM-256, zufälliger IV,
+AAD, nicht exportierbarer CryptoKey im gleichen atomaren IndexedDB-Vaultrecord.
+Automatisches Öffnen bei Start; kein Passwort/Provideraufruf dafür. Schutzgrenze:
+Same-Origin-Code und Nutzer dieses Browserprofils können den Schlüssel benutzen;
+kein nativer Schlüsselbund. Optionaler Passwortschutz/Altbestand Format 1 bleibt
+mit PBKDF2 lesbar. Umstellung erst nach Entsperren, kein Überschreiben bei falschem
+Passwort. Andere Fenster über BroadcastChannel invalidiert/neu geladen;
+explizite Sperre im Fenster bleibt bis Entsperren/Neustart bestehen.
+Budget und Partien nicht migriert oder zurückgesetzt. Manifest/DB-Version gleich.
+Ältere App-Versionen vor 0.5.0 können Format 2 nicht öffnen; nicht automatisch
+zurückmigrieren, alte Fenster auf den neuen Stand bringen.
+
+Drei zusätzliche Einzeltests: Profile-Crypto/non-extractability/tampering,
+Speichern/Neustart/Sperren/Löschen ohne Zusatzpasswort mit unverändertem Budget
+und null Providercalls; Altpasswortfach nach Entsperren umstellen. Echter
+Browsernachweis ergänzt: CryptoKey strukturiert in IndexedDB gespeichert und
+nach Reload verwendbar, keine Pflichtpassworteingabe, Löschen über zweites
+Fenster synchronisiert; alte Passwortspeicherung ohne neue API-Key-Eingabe
+umgestellt. Neuer Layoutfall schlug vorher fehl und besteht nachher.
+Bestehende Passwort-/Budget-/Offlinefälle beibehalten, zusätzliche Passwortwahl
+in Legacy-Testabläufen ausdrücklich über optionale UI geöffnet.
+
+Gezielt 103/103 Einzeltests und zehn relevante Browserfälle grün.
+Gesamtsuite zunächst 103/103 und 60/60 grün; nach Feinschliff schmaler Formulare
+beide Builds und neun relevante Fälle erneut grün. Abschließende Gesamtsuite
+mit kompakter Bedienungshilfe separat unten. Keine kostenpflichtige Anfrage.
+
+
+Endgültiger Quellstand: npm run test:all mit Typprüfung, beiden Builds,
+103/103 Einzeltests und 60/60 Chromiumfällen bestanden (2,6 Minuten).
+Kompakte Hilfe über echte Klicks geöffnet, Scroll-/Diagnosefälle weiter bestanden.
+Profil-Speicherung, alte Passwortfächer, Umstellung, Löschung über zweites Fenster,
+unveränderte Budgets und Layout bei großer Schrift enthalten. Keine tatsächliche
+Provider-/kostenpflichtige Generierung. Native Geräteprüfung durch Nutzer offen.

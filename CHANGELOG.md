@@ -1,5 +1,18 @@
 # Änderungen
 
+## 0.5.0 – Schlüssel ohne zusätzliches Passwort, Windows-Formulare
+
+- API-Key standardmäßig im Browserprofil merken, ohne zusätzliches App-Passwort;
+  verschlüsselt mit nicht exportierbarem CryptoKey in IndexedDB. Keine
+  Provideranfrage durch Speichern oder Starten.
+- Bestehende Passwortfächer bleiben lesbar; nach Entsperren ausdrücklich auf
+  Speicherung ohne Zusatzpasswort umstellen. Optionaler Passwortschutz bleibt.
+- Bedienungshilfe zusammenklappbar, damit Hilfstasten keine Formulare verdecken.
+- Windows-Formulare bei vergrößerter Schrift ohne horizontalen Überlauf; schmale
+  Einrichtungsbereiche ordnen Farbe und Spielstärke untereinander an.
+- Profilmodus ist keine zusätzliche Zugangssperre und kein OS-Schlüsseltresor.
+  Partien, Kosten und bisherige Schlüssel werden nicht gelöscht.
+
 ## 0.4.1 – Desktopbrett und neue Partie, 6. November 2026
 
 - Desktopbrett größer und vollständig im Fenster: z. B. 450 statt 300 CSS-Pixel

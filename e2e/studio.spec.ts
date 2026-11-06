@@ -7,6 +7,7 @@ import { Session } from '../src/session.js';
 
 // Follow the new user navigation with real clicks; never force hidden controls open.
 async function reveal(page: Page, target: Locator): Promise<Locator> {
+ if(await target.evaluate(e=>!!e.closest('#scroll-help-actions'))&&!(await page.locator('#scroll-help-actions').isVisible()))await page.locator('#scroll-help-toggle').click();
  const location=await target.evaluate(element=>({panel:element.closest('#panel-settings,#panel-variants,[role=tabpanel]')?.id,board:!!element.closest('#board-area')}));
  if(location.panel){
   await openView(page,location.panel.replace('panel-',''));
@@ -674,7 +675,7 @@ test('two modes and their tools fit phone, iPad and desktop and touch navigation
   await page.getByRole('button',{name:'e2: Weiß Bauer',exact:true}).tap();
   await page.getByRole('button',{name:'e4: leer',exact:true}).tap();
   await expect(page.locator('#position-status')).toContainText('n1');
-  if(viewport.width<1000){await page.getByRole('button',{name:'↓ Runter',exact:true}).tap();await expect(page.getByRole('tab',{name:'Lernmodus',exact:true})).toBeInViewport();}
+  if(viewport.width<1000){await (await reveal(page,page.getByRole('button',{name:'↓ Runter',exact:true,includeHidden:true}))).tap();await expect(page.getByRole('tab',{name:'Lernmodus',exact:true})).toBeInViewport();}
   await context.close();
  }
 });

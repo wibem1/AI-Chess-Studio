@@ -10,7 +10,7 @@ const secret='fixture-web-local-api-secret',password='fixture-device-password';
 const reply={message:'Lass uns zuerst deinen Plan verstehen.',plan:'Zentrum prüfen',opponent:'Möglicher Gegenplan',risks:'Antwort beachten',playability:'Verständlich spielen',humanFactors:{idea:'Idee prüfen',calculation:'Rechnen',pitfalls:'Antwort beachten',continuation:'Plan fortsetzen'},candidates:[],openQuestions:['Was möchtest du erreichen?']};
 async function start(page:Page){await page.goto('/?platform=web');await expect(page.locator('#workspace')).not.toHaveAttribute('inert','');await expect(page.locator('#platform-status')).toContainText('Eigenständige Web-App');}
 async function settings(page:Page){await openView(page,'settings');}
-async function saveKey(page:Page){await settings(page);await page.locator('#api-settings > summary').click();await page.locator('#api-key').fill(secret);await page.locator('#vault-password').fill(password);await page.locator('#api-cost-consent').check();await page.locator('#api-connect').click();await expect(page.locator('#api-feedback')).toContainText('verschlüsselt auf diesem Gerät gespeichert');}
+async function saveKey(page:Page){await settings(page);await page.locator('#api-settings > summary').click();await page.locator('#api-key').fill(secret);if(await page.locator('#vault-setup').getAttribute('open')===null)await page.locator('#vault-setup > summary').click();await page.locator('#vault-password').fill(password);await page.locator('#api-cost-consent').check();await page.locator('#api-connect').click();await expect(page.locator('#api-feedback')).toContainText('verschlüsselt auf diesem Gerät gespeichert');}
 async function unlock(page:Page){await settings(page);await page.locator('#api-settings > summary').click();await page.locator('#vault-unlock-password').fill(password);await page.locator('#vault-unlock').click();await expect(page.locator('#api-feedback')).toContainText('Schlüsselfach entsperrt');}
 async function ask(page:Page,question='Welche Idee habe ich?'){await page.getByRole('tab',{name:'Lernmodus',exact:true}).click();if(await page.locator('#learning-extras').getAttribute('open')===null)await page.locator('#learning-extras > summary').click();await page.locator('#dialogue-mode').selectOption('model');await page.locator('#question').fill(question);await page.locator('#ask').click();}
 async function readStore(page:Page,store:string){return page.evaluate(async store=>{const db=await new Promise<IDBDatabase>((resolve,reject)=>{const r=indexedDB.open('ai-chess-studio',1);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);});const value=await new Promise<any>((resolve,reject)=>{const r=db.transaction(store).objectStore(store).get('current');r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);});db.close();return value;},store);}
@@ -100,4 +100,18 @@ test.describe('offline shell',()=>{
   }finally{await context.setOffline(false);await page.goto('about:blank');await new Promise<void>(resolve=>server.close(()=>resolve()));rmSync(folder,{recursive:true,force:true});}
  });
 
+});
+
+test('default key storage needs no password, survives reload and synchronizes deletion',async({page,context})=>{
+ const calls={count:0};await mockedProvider(page,calls);await start(page);await settings(page);await page.locator('#api-settings > summary').click();
+ await expect(page.locator('#vault-password')).toBeHidden();await page.locator('#api-key').fill(secret);await page.locator('#api-cost-consent').check();await page.locator('#api-connect').click();await expect(page.locator('#api-feedback')).toContainText('Kein zusätzliches App-Passwort');
+ const sealed=await readStore(page,'vault');expect(sealed.version).toBe(2);
+ const protectedKey=await page.evaluate(async()=>{const r=indexedDB.open('ai-chess-studio',1);const db=await new Promise<IDBDatabase>(resolve=>{r.onsuccess=()=>resolve(r.result);});const request=db.transaction('vault').objectStore('vault').get('current');return new Promise<boolean>(resolve=>{request.onsuccess=()=>{const v=request.result;db.close();resolve(v.key instanceof CryptoKey&&!v.key.extractable&&!new TextDecoder().decode(v.ciphertext).includes('fixture-web-local-api-secret'));};});});expect(protectedKey).toBe(true);
+ await page.reload();await expect(page.locator('#credential-status')).toContainText('Kein zusätzliches App-Passwort');await settings(page);await page.locator('#api-settings > summary').click();await expect(page.locator('#vault-controls')).toBeHidden();expect(calls.count).toBe(0);
+ const other=await context.newPage();await start(other);await expect(other.locator('#credential-status')).toContainText('gespeichert und bereit');
+ await page.locator('#api-disconnect').click();await expect(other.locator('#credential-status')).toContainText('Kein API-Schlüssel');await other.close();expect(calls.count).toBe(0);
+});
+
+test('existing password storage can be converted without re-entering the API key',async({page})=>{
+ await start(page);await saveKey(page);await page.reload();await unlock(page);await page.locator('#vault-use-device').click();await expect(page.locator('#api-feedback')).toContainText('Kein zusätzliches App-Passwort mehr');await page.reload();await expect(page.locator('#credential-status')).toContainText('gespeichert und bereit');expect((await readStore(page,'vault')).version).toBe(2);
 });

@@ -274,3 +274,17 @@ h2{font-size:1.65rem}
  .board-heading{order:1}.position>#position-status{order:2}.position>#workbench-status{order:3}
  #learning-controls{order:1}.board-tools{order:4}#move-feedback{order:5}.games-menu{order:6}
 }
+/* Native selects must shrink inside grid tracks at larger Windows text sizes. */
+#game-form{grid-template-columns:repeat(2,minmax(0,1fr))}
+#game-form select,#game-form input,#game-form button{min-width:0;width:100%;max-width:100%}
+#game-form label{min-width:0;overflow-wrap:anywhere}
+.workspace-panel select,.settings-panel select{min-width:0;max-width:100%}
+.panel button{max-width:100%;overflow-wrap:anywhere}
+.game-panel{container-type:inline-size;container-name:game-setup}
+@container game-setup (max-width:420px){
+ #game-form{display:flex;flex-direction:column;align-items:stretch;gap:6px}
+ #game-form label{margin-top:10px}
+}
+.scroll-help{flex-direction:column;align-items:flex-end;background:transparent;border:0;box-shadow:none;opacity:1}
+#scroll-help-toggle{background:var(--paper);color:var(--green);border-color:var(--line)}
+#scroll-help-actions{display:flex;gap:4px;padding:4px;background:var(--paper);border:1px solid var(--line);border-radius:9px}

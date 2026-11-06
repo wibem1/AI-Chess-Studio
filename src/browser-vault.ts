@@ -1,4 +1,4 @@
-import type {SealedVault} from './browser-store.js';
+import type {SealedVault,DeviceVault} from './browser-store.js';
 export interface LocalModelConfig {enabled:true;apiKey:string;model:string}
 const ITERATIONS=250000;
 const encoder=new TextEncoder();
@@ -25,4 +25,18 @@ export async function openConfig(raw:SealedVault,password:string):Promise<LocalM
   const decoded=await crypto.subtle.decrypt({name:'AES-GCM',iv,additionalData:encoder.encode('AI-Chess-Studio/vault/1')},key,raw.ciphertext);
   return validateLocalConfig(JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(decoded)));
  }catch{throw new Error('Schlüsselfach konnte nicht entsperrt werden. Gerätepasswort prüfen.');}
+}
+
+/** Browser-profile storage, no separate app password. Same-origin code can use this key. */
+export async function sealDeviceConfig(raw:unknown):Promise<DeviceVault>{
+ const config=validateLocalConfig(raw),key=await crypto.subtle.generateKey({name:'AES-GCM',length:256},false,['encrypt','decrypt']),iv=crypto.getRandomValues(new Uint8Array(12));
+ const ciphertext=await crypto.subtle.encrypt({name:'AES-GCM',iv,additionalData:encoder.encode('AI-Chess-Studio/device-vault/2')},key,encoder.encode(JSON.stringify(config)));
+ return {version:2,key,iv,ciphertext};
+}
+export async function openDeviceConfig(raw:DeviceVault):Promise<LocalModelConfig>{
+ try{
+  if(raw.version!==2||!(raw.key instanceof CryptoKey)||raw.key.extractable||raw.key.type!=='secret'||raw.key.algorithm.name!=='AES-GCM'||!(raw.iv instanceof Uint8Array)||raw.iv.length!==12||!(raw.ciphertext instanceof ArrayBuffer)||raw.ciphertext.byteLength>8192)throw new Error();
+  const decoded=await crypto.subtle.decrypt({name:'AES-GCM',iv:new Uint8Array(raw.iv),additionalData:encoder.encode('AI-Chess-Studio/device-vault/2')},raw.key,raw.ciphertext);
+  return validateLocalConfig(JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(decoded)));
+ }catch{throw new Error('Lokaler Schlüssel konnte nicht gelesen werden. Bitte erneut speichern.');}
 }

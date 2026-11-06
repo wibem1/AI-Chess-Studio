@@ -2,6 +2,8 @@ import {CostLedger,type CostState} from './costs.js';
 
 export const BROWSER_DB='ai-chess-studio';
 export interface SealedVault {version:1;iterations:number;salt:Uint8Array;iv:Uint8Array;ciphertext:ArrayBuffer}
+export interface DeviceVault {version:2;key:CryptoKey;iv:Uint8Array;ciphertext:ArrayBuffer}
+export type StoredVault=SealedVault|DeviceVault;
 export interface BrowserSession {json:string;question:string}
 export interface SavedGame {id:string;title:string;date:string;json:string}
 export class BrowserStore {

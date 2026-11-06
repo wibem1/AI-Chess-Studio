@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {sealConfig,openConfig} from '../src/browser-vault.js';
+import {sealConfig,openConfig,sealDeviceConfig,openDeviceConfig} from '../src/browser-vault.js';
 import {BrowserStore} from '../src/browser-store.js';
 import {BrowserRuntime} from '../src/browser-runtime.js';
 import {CostLedger,type CostState} from '../src/costs.js';
@@ -73,4 +73,39 @@ test('browser access diagnosis uses model metadata only and does not spend reque
  let calls=0;const r=new BrowserRuntime(new MemoryStore(),(async(url,init)=>{calls++;assert.equal(url,'https://api.openai.com/v1/models/gpt-4.1-mini');assert.equal(init!.method,'GET');assert.equal(init!.credentials,'omit');return new Response('{}');}) as typeof fetch);
  assert.equal((await r.handle('/api/diagnostics','POST',{})).ok,false);assert.equal(calls,0);await connect(r);
  assert.equal((await r.handle('/api/diagnostics','POST',{})).ok,true);assert.equal(calls,1);assert.equal((await r.status()).remaining,3);assert.equal((await r.store.budget(l=>l.snapshot())).state.requests,0);
+});
+
+
+test('device vault keeps credentials encrypted with a non-exportable key and rejects tampering',async()=>{
+ const a=await sealDeviceConfig(config),b=await sealDeviceConfig(config);
+ assert.equal(a.key.extractable,false);assert.deepEqual(await openDeviceConfig(structuredClone(a)),config);
+ await assert.rejects(crypto.subtle.exportKey('raw',a.key));
+ assert.ok(!Buffer.from(a.ciphertext).includes(Buffer.from(config.apiKey)));
+ assert.ok(!JSON.stringify(a).includes(config.apiKey));assert.notDeepEqual(a.iv,b.iv);
+ await assert.rejects(openDeviceConfig({...a,key:b.key}),/nicht gelesen/);
+ new Uint8Array(a.ciphertext)[0]!^=1;await assert.rejects(openDeviceConfig(a),/nicht gelesen/);
+});
+test('default local save restores without a password and does not call a provider or reset costs',async()=>{
+ const store=new MemoryStore();let calls=0;const transport=(async()=>{calls++;throw new Error('unexpected');}) as typeof fetch;
+ await store.budget(l=>l.configure({action:'configure',budgetUsd:0.03,inputUsdPerMillion:0.4,outputUsdPerMillion:1.6}));
+ const before=(await store.budget(l=>l.snapshot())).state;
+ const first=new BrowserRuntime(store,transport);await first.handle('/api/model-config','POST',{action:'connect',...config,allowPaid:true});
+ assert.equal((await store.get<{version:number}>('vault'))!.version,2);
+ const next=new BrowserRuntime(store,transport);assert.equal((await next.status()).available,true);
+ const data=await next.handle('/api/diagnostics','GET');assert.equal(data.model.storageMode,'device');assert.ok(!JSON.stringify(data).includes(config.apiKey));
+ await next.handle('/api/vault','POST',{action:'lock'});assert.equal((await next.status()).available,false);
+ await next.handle('/api/vault','POST',{action:'unlock'});assert.equal((await next.status()).available,true);
+ await next.handle('/api/model-config','POST',{action:'disconnect'});assert.equal((await new BrowserRuntime(store,transport).status()).available,false);
+ assert.deepEqual((await store.budget(l=>l.snapshot())).state,before);assert.equal(calls,0);
+});
+test('password vault stays readable and can switch to profile storage only after unlocking',async()=>{
+ const store=new MemoryStore(),runtime=new BrowserRuntime(store);await connect(runtime);
+ const before=(await store.budget(l=>l.snapshot())).state,next=new BrowserRuntime(store);
+ assert.equal((await next.status()).available,false);
+ await assert.rejects(next.handle('/api/vault','POST',{action:'use-device'}),/zuerst/);
+ assert.equal((await store.get<{version:number}>('vault'))!.version,1);
+ await next.handle('/api/vault','POST',{action:'unlock',password});await next.handle('/api/vault','POST',{action:'use-device'});
+ assert.equal((await store.get<{version:number}>('vault'))!.version,2);
+ assert.equal((await new BrowserRuntime(store).status()).available,true);
+ assert.deepEqual((await store.budget(l=>l.snapshot())).state,before);
 });

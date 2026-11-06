@@ -1,5 +1,5 @@
-import {BrowserStore} from './browser-store.js';
-import {sealConfig,openConfig,type LocalModelConfig} from './browser-vault.js';
+import {BrowserStore,type StoredVault} from './browser-store.js';
+import {sealConfig,openConfig,sealDeviceConfig,openDeviceConfig,type LocalModelConfig} from './browser-vault.js';
 import {ApiError,parseRequest,SYSTEM_PROMPT} from './model-contract.js';
 import {validateReply} from './dialogue.js';
 import {APP_VERSION} from './version.js';
@@ -13,16 +13,19 @@ async function readProvider(response:Response):Promise<any>{
  const bytes=new Uint8Array(total);let offset=0;for(const chunk of chunks){bytes.set(chunk,offset);offset+=chunk.length;}
  return JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(bytes));
 }
-/** Private in-memory unlocked credentials; IndexedDB holds only AES-GCM ciphertext. */
+/** Credentials are plaintext only in RAM. Profile mode stores ciphertext and a non-exportable CryptoKey. */
 export class BrowserRuntime {
  private config:LocalModelConfig|null=null;private vaultEpoch=0;private attempts=0;private busy=false;
  private tactics=new BrowserTacticalAdapter();
+ private restoring:Promise<void>|undefined;
  private channel=typeof window!=='undefined'&&typeof BroadcastChannel!=='undefined'?new BroadcastChannel('chess-studio-vault'):null;
- constructor(readonly store=new BrowserStore(),private transport:typeof fetch=(input,init)=>fetch(input,init)){if(this.channel)this.channel.onmessage=()=>{this.vaultEpoch++;this.config=null;window.dispatchEvent(new Event('chess-vault-change'));};}
- async status(){const c=(await this.store.budget(ledger=>ledger.snapshot())).state;return {available:!!this.config,remaining:Math.max(0,Math.min(3-this.attempts,3-c.requests))};}
+ constructor(readonly store=new BrowserStore(),private transport:typeof fetch=(input,init)=>fetch(input,init)){if(this.channel)this.channel.onmessage=event=>{this.vaultEpoch++;this.config=null;this.restoring=event.data==='changed'?undefined:Promise.resolve();window.dispatchEvent(new Event('chess-vault-change'));};}
+ private restoreDevice(){return this.restoring??= (async()=>{const epoch=this.vaultEpoch,record=await this.store.get<StoredVault>('vault');if(record?.version===2){try{const config=await openDeviceConfig(record);if(epoch===this.vaultEpoch)this.config=config;}catch{if(epoch===this.vaultEpoch)this.config=null;}}})();}
+ async status(){await this.restoreDevice();const c=(await this.store.budget(ledger=>ledger.snapshot())).state;return {available:!!this.config,remaining:Math.max(0,Math.min(3-this.attempts,3-c.requests))};}
  async handle(path:string,method:string,raw?:any):Promise<any>{
+  await this.restoreDevice();
   if(path==='/api/status'&&method==='GET')return this.status();
-  if(path==='/api/diagnostics'&&method==='GET')return {version:APP_VERSION,node:'nicht erforderlich',platform:'Web-App',model:{...await this.status(),configured:!!this.config,localKeySaved:!!await this.store.get('vault'),locked:!this.config,model:this.config?.model??null,costs:(await this.store.budget(l=>l.snapshot())).state,pricingIsEstimate:true},update:{stage:'web',message:'Web-App: unter App auf diesem Gerät nach Updates suchen.'}};
+  if(path==='/api/diagnostics'&&method==='GET'){const record=await this.store.get<StoredVault>('vault');return {version:APP_VERSION,node:'nicht erforderlich',platform:'Web-App',model:{...await this.status(),configured:!!this.config,localKeySaved:!!record,storageMode:record?.version===2?'device':record?'password':'none',locked:!this.config,model:this.config?.model??null,costs:(await this.store.budget(l=>l.snapshot())).state,pricingIsEstimate:true},update:{stage:'web',message:'Web-App: unter App auf diesem Gerät nach Updates suchen.'}};}
   if(method!=='POST')throw new ApiError(405,'Aktion nicht unterstützt.');
   if(path==='/api/vault'||path==='/api/model-config'){
    if(this.busy)throw new ApiError(429,'Eine lokale Schlüsselaktion oder Modellanfrage läuft.');
@@ -30,16 +33,20 @@ export class BrowserRuntime {
    try{
     if(path==='/api/vault'){
      if(raw?.action==='lock'){this.config=null;this.channel?.postMessage('lock');return await this.status();}
+     if(raw?.action==='use-device'){
+      if(!this.config)throw new ApiError(403,'Bisherigen Passwortschutz zuerst entsperren.');
+      const sealed=await sealDeviceConfig(this.config);if(epoch!==this.vaultEpoch)throw new ApiError(409,'Schlüssel wurde zwischenzeitlich geändert.');await this.store.put('vault',sealed);this.channel?.postMessage('changed');return await this.status();
+     }
      if(raw?.action!=='unlock')throw new ApiError(400,'Ungültige Schlüsselaktion.');
-     const record=await this.store.get<import('./browser-store.js').SealedVault>('vault');
+     const record=await this.store.get<StoredVault>('vault');
      if(!record)throw new ApiError(400,'Kein lokales Schlüsselfach vorhanden.');
-     const config=await openConfig(record,raw.password);if(epoch!==this.vaultEpoch)throw new ApiError(409,'Schlüsselfach wurde in einem anderen Fenster geändert.');this.config=config;return await this.status();
+     const config=record.version===2?await openDeviceConfig(record):await openConfig(record,raw.password);if(epoch!==this.vaultEpoch)throw new ApiError(409,'Schlüsselfach wurde in einem anderen Fenster geändert.');this.config=config;return await this.status();
     }
-    if(raw?.action==='disconnect'){await this.store.clear('vault');this.config=null;this.channel?.postMessage('lock');return await this.status();}
+    if(raw?.action==='disconnect'){await this.store.clear('vault');this.config=null;this.channel?.postMessage('changed');return await this.status();}
     if(raw?.action!=='connect'||raw.allowPaid!==true)throw new ApiError(400,'Kostenfreigabe und Schlüssel prüfen.');
     const config={enabled:true,apiKey:raw.apiKey,model:raw.model};
-    const sealed=await sealConfig(config,raw.password);await this.store.put('vault',sealed);this.channel?.postMessage('lock');
-    const unlocked=await openConfig(sealed,raw.password);if(epoch!==this.vaultEpoch)throw new ApiError(409,'Schlüsselfach wurde in einem anderen Fenster geändert.');this.config=unlocked;return await this.status();
+    const sealed=typeof raw.password==='string'&&raw.password.length?await sealConfig(config,raw.password):await sealDeviceConfig(config);await this.store.put('vault',sealed);this.channel?.postMessage('changed');
+    const unlocked=sealed.version===2?await openDeviceConfig(sealed):await openConfig(sealed,raw.password);if(epoch!==this.vaultEpoch)throw new ApiError(409,'Schlüsselfach wurde in einem anderen Fenster geändert.');this.config=unlocked;return await this.status();
    }finally{this.busy=false;}
   }
   if(path==='/api/costs'){

@@ -36,11 +36,18 @@ es keinen stillen Wechsel zwischen den getrennten Schlüssel-/Kostenprofilen.
 Entsprechend dem ausdrücklichen Nutzerwunsch nach lokalem Schlüssel in einer
 Web-App wird ausschließlich verschlüsselter Inhalt im Browser dauerhaft gespeichert.
 Kein Klartextschlüssel in Browser-Storage, Sitzungen, Diagnose oder Offline-Dateien.
-PBKDF2-SHA256 mit 250.000 Iterationen, Salt 16 Byte; AES-GCM-256 mit zufälligem
-12-Byte-IV und Formatbindung als AAD. Gerätepasswort mindestens zehn Zeichen,
-nicht persistiert; nach Neustart explizit entsperren. Kein Schlüssel-Sync.
-Dieser Web-Speicher ersetzt keinen nativen Keychain-/Keystore-Adapter und schützt
-nicht gegen kompromittierten App-Code oder ein kompromittiertes Browserprofil.
+Standard ab 0.5.0: AES-GCM-256, zufälliger 12-Byte-IV, Formatbindung als AAD,
+nicht exportierbarer CryptoKey zusammen mit Ciphertext in IndexedDB (ein atomarer
+Vault-Datensatz, Format 2). Automatisches lokales Öffnen ohne zusätzliches
+App-Passwort und ohne Provideraufruf. Dieses Modell schützt nicht vor Same-Origin-
+Code oder einem zugänglichen Browserprofil; kein OS-/Hardware-Schlüsseltresor.
+
+Optionaler und vorhandener Passwortschutz bleibt Format 1: PBKDF2-SHA256 mit
+250.000 Iterationen, Salt 16 Byte, AES-GCM-256; Passwort nicht persistiert.
+Format 1 wird nicht automatisch überschrieben. Nach Entsperren explizit auf
+Profilmodus umstellen, ohne Kostenperiode oder Partie zu verändern. Explizites
+Sperren bleibt im jeweiligen Fenster wirksam; Änderungen/Löschen anderer Fenster
+invalidieren RAM-Zugang über BroadcastChannel. Kein Schlüssel-Sync zwischen Geräten.
 
 OpenAI ist der einzige Provider-Zielhost: feste HTTPS-Pfade, keine Weiterleitung,
 keine Cookies/Referrer, CORS, 15 Sekunden, maximal 800 Ausgabe-Tokens und 64 KiB

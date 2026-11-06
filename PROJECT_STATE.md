@@ -1,6 +1,7 @@
 # Projektstand
 
-Stand: 6. November 2026 · **0.4.1 veröffentlicht, GitHub-Erfolg bestätigt**.
+Stand: 6. November 2026 · **0.5.0 geprüft; Bereitstellung wird kontrolliert**.
+Voriger bestätigter Stand 0.4.1:
 Aktueller Quellcommit 9626a023c6158db36060c584eec50c245b30ddba, gh-pages
 9a8785e55c760e077338b68c9a98e579a74dabfe, Run 42290733124 SUCCESS.
 Commitgebundenes öffentliches BUILD.json bestätigt 0.4.1 und Quellcommit.
@@ -15,6 +16,33 @@ Run 42285782065 SUCCESS. Commitgebundenes öffentliches BUILD.json bestätigt
 bleibt hier durch Netzwerkpolitik gesperrt. Nutzer hatte das vorige Update
 auf 0.3.3 bereits bestätigt.
 Bestehendes öffentliches Repository und gh-pages verwenden, keine neue Ablage.
+
+## Aktueller Auftrag 0.5.0: kein Pflichtpasswort, Windows-Überlauf beheben
+
+Nutzer beanstandet die Pflicht zu einem mindestens zehnstelligen Zusatzpasswort
+und liefert 0.4.1-Screenshot mit horizontalem Scrollbalken und abgeschnittener
+rechter Spalte. Überlauf vor Korrektur reproduziert bei 1066 px schon mit 16 px
+Schrift: intrinsische Mindestbreite des Level-Selects verbreiterte Grid-Spalten.
+
+Standard jetzt lokales Browserprofil ohne zusätzliches App-Passwort:
+AES-GCM-256, nicht exportierbarer CryptoKey und Ciphertext in einem IndexedDB-
+Vault-Datensatz (Version 2); automatisch lokal öffnen. Kein OS-/Hardwaretresor,
+keine zusätzliche Sperre gegen dieses Browserprofil/Same-Origin-Code.
+Vorhandene Version-1-Passwortfächer bleiben unverändert lesbar. Optionaler
+Zusatzschutz bleibt; nach Entsperren ausdrücklich ohne erneute Key-Eingabe auf
+Profilmodus umstellen. Kein automatisches Überschreiben alter Daten.
+Budget und Partien unverändert. Keine Provideranfrage durch Speichern/Start.
+
+Formularspalten minmax(0,1fr), Felder/Beschriftungen innerhalb ihrer Breite,
+schmale Einrichtung untereinander. Hilfstasten hinter „Bedienungshilfe“;
+Diagnose nutzt im Webbetrieb den lokalen Adapter statt falschem Serverfehler.
+Gezielte Layoutprüfung bei 1066/1280/1440 und 16/24 px Schrift vor/nach Korrektur.
+103/103 Einzeltests und 60/60 Browsertests einschließlich Scrollhilfe bestanden.
+Gesamtsuite und Auslieferung sind in docs/VALIDATION.md dokumentiert.
+
+Nächster Schritt: 0.5.0 auf bestehendem gh-pages-Ziel bereitstellen, exakten
+GitHub-Lauf bestätigen. Nutzer übernimmt Update und prüft Windowsdarstellung.
+Native Windows-/Android-Abnahme und echte KI-Qualität bleiben offen.
 
 ## Korrektur 0.4.1 – aktueller Nutzerauftrag
 

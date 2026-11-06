@@ -278,7 +278,7 @@ $('api-form').addEventListener('submit', async event => {
     modelAvailable = status.remaining > 0;
     $<HTMLSelectElement>('dialogue-mode').value = 'model'; updateMode();
     message('credential-status',isWebPlatform()?'✓ Schlüsselfach verschlüsselt auf diesem Gerät gespeichert und entsperrt.':'✓ API-Schlüssel lokal gespeichert. Er wird beim nächsten App-Start wieder geladen.');
-    message('api-feedback',isWebPlatform()?'Schlüssel verschlüsselt auf diesem Gerät gespeichert. Nach Neustart mit deinem Gerätepasswort entsperren. Keine Modellanfrage ausgeführt.':'Schlüssel lokal gespeichert und für den nächsten Start hinterlegt. Das leere Feld ist beabsichtigt; du musst den Schlüssel nicht erneut eingeben. Noch keine Modellanfrage ausgeführt.');
+    message('api-feedback',isWebPlatform()?`Schlüssel verschlüsselt auf diesem Gerät gespeichert. ${payload.password?'Nach Neustart mit deinem zusätzlichen Passwort entsperren.':'Kein zusätzliches App-Passwort nötig. In diesem Browserprofil wird er beim nächsten Start wieder geladen.'} Keine Modellanfrage ausgeführt.`:'Schlüssel lokal gespeichert und für den nächsten Start hinterlegt. Das leere Feld ist beabsichtigt; du musst den Schlüssel nicht erneut eingeben. Noch keine Modellanfrage ausgeführt.');
     void refreshModelStatus();void refreshCosts();
   } catch (error) {
     message('api-feedback',error instanceof DOMException && (error.name === 'TimeoutError' || error.name === 'AbortError')
@@ -311,9 +311,9 @@ async function diagnosticData() {
   const response=await platformFetch('/api/diagnostics',{signal:AbortSignal.timeout(10000)});
   if(!response.ok)throw new Error('Diagnose nicht verfügbar.');
   const data=await response.json();
-  if(isWebPlatform()){$('vault-controls').hidden=!data.model.localKeySaved;$('vault-unlock-fields').hidden=!data.model.locked;$('vault-lock').hidden=data.model.locked;}
+  if(isWebPlatform()){$('vault-controls').hidden=!data.model.localKeySaved||data.model.storageMode==='device';$('vault-unlock-fields').hidden=!data.model.locked;$('vault-lock').hidden=data.model.locked;$('vault-use-device').hidden=data.model.locked;}
   message('credential-status',data.model.localKeySaved === true
-    ? isWebPlatform()?`✓ Verschlüsseltes Schlüsselfach auf diesem Gerät · ${data.model.locked?'gesperrt: mit Gerätepasswort entsperren':'entsperrt'}.`:'✓ API-Schlüssel lokal gespeichert. Du musst ihn nicht erneut eingeben.'
+    ? isWebPlatform()?data.model.storageMode==='device'?data.model.locked?'Lokaler Schlüssel derzeit nicht lesbar. Bitte erneut speichern.':'✓ API-Schlüssel in diesem Browserprofil gespeichert und bereit. Kein zusätzliches App-Passwort nötig.':`✓ Verschlüsseltes Schlüsselfach auf diesem Gerät · ${data.model.locked?'gesperrt: mit bisherigem Gerätepasswort entsperren':'entsperrt'}.`:'✓ API-Schlüssel lokal gespeichert. Du musst ihn nicht erneut eingeben.'
     : 'Kein API-Schlüssel lokal gespeichert.');
   return data;
 }
@@ -445,12 +445,12 @@ $('dialogue-begin').addEventListener('click',()=>{
 });
 
 text('question').addEventListener('input',()=>{if(initialized&&isWebPlatform())void autosave.save().catch(()=>{});});
-for(const action of ['unlock','lock'] as const)$('vault-'+action).addEventListener('click',async()=>{
+for(const action of ['unlock','lock','use-device'] as const)$('vault-'+action).addEventListener('click',async()=>{
  const password=input('vault-unlock-password').value;input('vault-unlock-password').value='';
  try{const response=await platformFetch('/api/vault',{method:'POST',body:JSON.stringify({action,password})});
   if(!response.ok)throw new Error((await response.json()).error);
   await refreshModelStatus();await refreshCosts();
-  message('api-feedback',action==='unlock'?'Schlüsselfach entsperrt. Keine Modellanfrage ausgeführt.':'Schlüsselfach gesperrt.');
+  message('api-feedback',action==='unlock'?'Schlüsselfach entsperrt. Keine Modellanfrage ausgeführt.':action==='use-device'?'Schlüssel auf diesem Gerät gespeichert. Kein zusätzliches App-Passwort mehr nötig. Keine Modellanfrage ausgeführt.':'Schlüsselfach gesperrt.');
  }catch(error){message('api-feedback',error instanceof Error?error.message:'Schlüsselaktion fehlgeschlagen.');}
 });
 $('session-clear').addEventListener('click',async()=>{
@@ -475,8 +475,8 @@ void(async()=>{
   message('platform-status',mode==='web'?'Eigenständige Web-App · Daten bleiben in diesem Browser auf diesem Gerät.':'Desktopbetrieb · Schlüssel und Kosten liegen im lokalen App-Server.');
   if(mode==='web'){
    $('web-mode-link').hidden=true;$('vault-setup').hidden=false;$('desktop-update').hidden=true;$('autosave-controls').hidden=false;
-   input('vault-password').required=true;
-   message('key-storage-explanation','Dein Schlüssel wird verschlüsselt auf diesem Gerät gespeichert. Nach einem Neustart entsperrst du ihn mit deinem Gerätepasswort. Nur von dir gestartete KI-Anfragen oder Zugangsprüfungen verbinden sich mit OpenAI. Der Schlüssel gehört nicht zum Sitzungsexport.');
+   input('vault-password').required=false;
+   message('key-storage-explanation','Dein Schlüssel wird verschlüsselt in diesem Browserprofil gespeichert und beim nächsten Start wieder geladen. Kein zusätzliches App-Passwort nötig. Wer dieses Browserprofil benutzt, kann den Schlüssel in der App verwenden. Nur ausdrücklich gestartete KI-Anfragen oder Zugangsprüfungen verbinden sich mit OpenAI. Der Schlüssel gehört nicht zum Partieexport.');
    message('session-storage-explanation','Sitzung und Nachrichtenentwurf werden automatisch in diesem Browser gespeichert, ohne Schlüssel oder Gerätepasswort. Pro Browseradresse gilt die zuletzt gespeicherte Sitzung; zum unabhängigen Sichern oder Übertragen JSON exportieren.');
    $<HTMLSelectElement>('engine-location').value='browser';$<HTMLSelectElement>('engine-location').options[0]!.disabled=true;
    $('engine-options').hidden=true;

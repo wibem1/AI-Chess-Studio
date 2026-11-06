@@ -1,4 +1,5 @@
 import { APP_VERSION } from '../src/version.js';
+import {platformFetch} from './platform.js';
 
 /** Explicit scroll fallback plus local, text-free observations for native browser issues. */
 export function installScrollHelp(cancelDrag: () => void) {
@@ -8,7 +9,10 @@ export function installScrollHelp(cancelDrag: () => void) {
   const diagnose = document.createElement('button');
   up.textContent = '↑ Hoch'; down.textContent = '↓ Runter'; diagnose.textContent = 'Bedienung prüfen';
   for (const button of [up, down, diagnose]) button.type = 'button';
-  bar.append(up, down, diagnose);
+  const toggle=document.createElement('button'),actions=document.createElement('div');
+  toggle.type='button';toggle.id='scroll-help-toggle';toggle.textContent='Bedienungshilfe';toggle.setAttribute('aria-controls','scroll-help-actions');toggle.setAttribute('aria-expanded','false');
+  actions.id='scroll-help-actions';actions.hidden=true;actions.append(up,down,diagnose);bar.append(toggle,actions);
+  toggle.addEventListener('click',()=>{actions.hidden=!actions.hidden;toggle.setAttribute('aria-expanded',String(!actions.hidden));});
   const panel = document.createElement('section'); panel.className = 'scroll-report'; panel.hidden = true;
   panel.setAttribute('aria-label', 'Bedienungsdiagnose');
   const title = document.createElement('h2'); title.textContent = 'Bedienungsdiagnose';
@@ -68,7 +72,7 @@ export function installScrollHelp(cancelDrag: () => void) {
   up.addEventListener('click', () => scroll(-1)); down.addEventListener('click', () => scroll(1));
   diagnose.addEventListener('click', () => {
     panel.hidden = false; feedback.textContent = ''; update();
-    void fetch('/api/diagnostics',{signal:AbortSignal.timeout(5000)}).then(response => {
+    void platformFetch('/api/diagnostics',{signal:AbortSignal.timeout(5000)}).then(response => {
       if (!response.ok) throw new Error(); return response.json();
     }).then(data => {
       serverVersion = typeof data.version === 'string' ? data.version : 'älterer Server ohne Versionsangabe'; update();
