@@ -5,6 +5,7 @@ import { checkTactics, ServerTacticalAdapter } from '../src/tactics.js';
 import { LearningGame, ServerPlayingEngine, pathTo } from '../src/game.js';
 import type {HintMode} from '../src/learning.js';
 import './style.css';
+import { installNavigation } from './navigation.js';
 import { installPagePan } from './page-pan.js';
 import { installScrollHelp } from './scroll-help.js';
 import { APP_VERSION } from '../src/version.js';
@@ -28,7 +29,7 @@ function updateMode() {
   $<HTMLButtonElement>('ask').textContent = real ? 'Nachricht senden (reale KI)' : 'Nachricht senden (Simulation)';
   $<HTMLButtonElement>('ask').disabled = pending || (real && !modelAvailable);
   $('simulation-hint').hidden = real;
-  message('mode-badge', real ? 'Reale KI · Hypothesen · Kann API-Kosten verursachen' : 'Simulation · Keine reale KI · Keine Modellanfragen');
+  message('mode-badge', real ? 'Eigener KI-Zugang' : 'Simulation aktiv');
 }
 async function refreshModelStatus() {
   try {
@@ -61,6 +62,7 @@ const cancelBoardDrag = installBoardDrag($('board'), () => {
 }, (from, to) => move({ from, to, promotion: $<HTMLSelectElement>('promotion').value }));
 installScrollHelp(cancelBoardDrag);
 installPagePan();
+installNavigation(cancelBoardDrag);
 function render() {
   cancelBoardDrag();
   const data = studio.session.snapshot();
@@ -74,6 +76,7 @@ function render() {
   }else message('game-status','Noch keine Enginepartie gestartet. Das Brett kann frei untersucht werden.');
   $<HTMLButtonElement>('game-pause').disabled=!live || live.paused;
   $<HTMLButtonElement>('game-resume').disabled=!live;
+  message('game-line',live ? pathTo(data,live.cursor).filter(n=>n.san).map(n=>n.san).join(' · ') || 'Die Anfangsstellung ist bereit.' : 'Deine Partie beginnt hier.');
   const mainIds=new Set(live?pathTo(data,live.cursor).slice(pathTo(data,live.cursor).findIndex(n=>n.id===live.start)).map(n=>n.id):[]);
   message('position-status', `${current.id} · ${chess.turn() === 'w' ? 'Weiß' : 'Schwarz'} am Zug${status.checkmate ? ' · Schachmatt' : status.draw ? ' · Remis' : status.check ? ' · Schach' : ''}`);
   const pieces: Record<string, string> = { wk:'♔',wq:'♕',wr:'♖',wb:'♗',wn:'♘',wp:'♙',bk:'♚',bq:'♛',br:'♜',bb:'♝',bn:'♞',bp:'♟' };

@@ -79,7 +79,11 @@ Qualität; Simulationen bleiben sichtbar als Simulation gekennzeichnet.
 
 ## Plattformziel
 
-Windows, macOS, Android und iPadOS sind langfristige Zielplattformen.
+Nutzerentscheidung vom 6. November 2026: Primäres Ziel ist eine gemeinsame
+plattformübergreifende Web-App für Windows, macOS, Android und iPadOS, langfristig
+als installierbare PWA. Native Hüllen bleiben optional. Die Oberfläche gliedert
+sich in Partie, Lernen, Varianten und Einstellungen; seltene Optionen werden
+aufgeklappt. Version 0.2.0 setzt diesen Oberflächenumbau um.
 Gemeinsamer Lernkern, responsives Frontend und getrennte Engine-/Modell-/
 Speicheradapter sind verbindlich. Aktuell gibt es einen Desktop-Node-Backendweg;
 eine mobile Standalone-App ist noch nicht fertig. Siehe PLATFORM_ARCHITECTURE.md.

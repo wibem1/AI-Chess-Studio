@@ -1,12 +1,35 @@
 # AI-Chess-Studio
 
-Aktuelle Entwicklungsversion: **0.1.2**. Die Nummer steht oben in der App,
+Aktuelle Entwicklungsversion: **0.2.0**. Die Nummer steht oben in der App,
 im Browser-Titel, beim Serverstart und in der lokalen Diagnose.
 Änderungen: [CHANGELOG.md](CHANGELOG.md).
 
 Persönliches Schach-Lernprogramm: gegen Stockfish spielen und während oder
 nach der Partie mit einer getrennten KI über Stellungen, Strategien und
 Varianten sprechen. Varianten ausprobieren, benennen, speichern und vergleichen.
+
+## Die neue Oberfläche
+
+Vier Tabs gliedern die App:
+
+| Tab | Inhalt |
+| --- | --- |
+| Partie | Brett, Farbe und Stärke, Start/Pause/Fortsetzen, Partieverlauf |
+| Lernen | Dasselbe Brett, fortlaufender Lerndialog, eigene Gedanken und Notizen |
+| Varianten | Variantenbaum, Namen und Vergleich A/B neben dem Brett |
+| Einstellungen | Lokaler Schlüssel, Budget, Sitzungsexport/-import, Diagnose und Updates |
+
+Auf großen Bildschirmen stehen Brett und Arbeitsbereich nebeneinander. Auf
+Handy-/Tabletbreiten bleibt die Navigation unten sichtbar. „Neue Partie“ am
+Brett führt direkt zur Einrichtung. „Züge & Optionen“ öffnet Texteingabe,
+Bauernumwandlung und legale Züge. Seltene Werkzeuge sind aufklappbar.
+Tabwechsel erhalten Stellung, Partie, Varianten und Gesprächsentwurf und starten
+keine Engine-/Modellanfrage. Pfeiltasten/Home/End bedienen die Tabnavigation;
+Direktlinks #partie, #lernen, #varianten und #einstellungen sind möglich.
+
+Dies ist die responsive Weboberfläche mit dem bisherigen lokalen Desktop-
+Backend. Ein eigenständig auf Android/iPad laufender Engine-/Modell-/Schlüsselweg
+und Offlinebetrieb sind noch nicht umgesetzt. Details: PLATFORM_ARCHITECTURE.md.
 
 ## Start auf deinem PC
 
@@ -38,8 +61,7 @@ ist kein veröffentlichtes Release; native Windows-Abnahme steht weiterhin aus.
 
 ## Spielen und dabei lernen
 
-1. Farbe und Engine-Spielstärke (Level 1 bis 5) wählen und „Partie ab dieser
-   Stellung starten“ drücken. Am Anfang ist dies die normale Anfangsstellung.
+1. Farbe und Engine-Spielstärke (Level 1 bis 5) wählen und „Partie starten“ drücken. Am Anfang ist dies die normale Anfangsstellung.
    Als Schwarz führt Stockfish den ersten Zug aus. Sonst spielst du zuerst.
 2. Figuren mit der Maus auf das Zielfeld ziehen; legale Ziele werden markiert.
    Stockfish antwortet automatisch. Start-/Zielklicks und SAN-Eingabe bleiben möglich.
@@ -54,7 +76,7 @@ ist kein veröffentlichtes Release; native Windows-Abnahme steht weiterhin aus.
    Vergleich geht als begrenzter Kontext in die nächste KI-Frage ein.
 6. „Zur Partie zurück und fortsetzen“ kehrt exakt zur tatsächlichen Partie
    zurück. Bei Enginefehlern bleibt sie pausiert, ohne automatische Retry-Schleife.
-7. Die Sitzung als JSON speichern. Sie enthält Partie, Varianten, Namen,
+7. Unter „Einstellungen → Sitzung speichern oder laden“ die Sitzung als JSON speichern. Sie enthält Partie, Varianten, Namen,
    Vergleich und Gespräche; Import startet keine Engine automatisch, sondern
    pausiert die Partie zur sicheren Durchsicht.
 
@@ -66,7 +88,7 @@ Faktencheck bleibt ein separater ausdrücklicher Aufruf.
 
 ## Fortlaufender Lerndialog während und nach der Partie
 
-Im Bereich „Lerndialog“ wählst du aktuelle Stellung, Varianten A/B oder
+Im Tab „Lernen“ wählst du aktuelle Stellung, Varianten A/B oder
 Partierückblick. „Lerngespräch vorbereiten“ pausiert die Partie und formuliert
 einen Einstieg aus deinen Angaben, startet aber noch keine Anfrage. Erst
 „Nachricht senden“ sendet sie im ausgewählten echten oder simulierten Modus.
@@ -119,7 +141,7 @@ noch nachweisen. Siehe Humanfaktor-Kriterien in DEVELOPMENT_PLAN.md.
 
 ## Eigenen API-Schlüssel direkt eingeben
 
-1. In der App „Eigenen API-Schlüssel eingeben“ öffnen.
+1. Unter „Einstellungen“ den Abschnitt „Eigenen API-Schlüssel eingeben“ öffnen.
 2. Schlüssel und Modell eingeben (vorbelegt: gpt-4.1-mini).
 3. Preisannahmen/Budget in „Kostenkontrolle“ prüfen.
 4. Kostenpflichtige Anfragen bewusst erlauben und „Schlüssel lokal speichern
@@ -230,7 +252,7 @@ des Updates keine zweite Installation starten und keinen Quellcode bearbeiten.
 
 ## Nachweise und Grenzen
 
-`npm run test:all`: Typprüfung, Build, **68 Einzeltests und 31 Chromium-
+`npm run test:all`: Typprüfung, Build, **68 Einzeltests und 34 Chromium-
 Browsertests**. Der gebaute Anwendungsserver wird getestet, einschließlich
 echtem lokalem Stockfish. Schlüsseltests verwenden ausschließlich bedeutungslose
 Testwerte, Provider-/Update-Tests lokale Fixtures. Es wurde kein echtes Update

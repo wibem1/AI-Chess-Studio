@@ -2,12 +2,17 @@
 
 Zielplattformen des Nutzers: Windows, macOS, Android und iPadOS. Das ist eine
 langfristige Anforderung, keine Behauptung einer bereits fertigen Mobil-App.
+Seit 6. November 2026 ist die gemeinsame browserbasierte App der primäre Weg;
+eine installierbare PWA ist das langfristige Ziel, native Hüllen sind optional.
+0.2.0 liefert die Tab-Oberfläche und noch keinen eigenständigen mobilen Backendweg.
 
 ## Gemeinsamer Kern
 
 `src/` enthält Schachzustand, Lernpartie, Varianten, Lernangaben und
 Dialogverträge ohne Node-/Windows-Imports. `web/` ist eine gemeinsame
-responsive HTML-/TypeScript-Oberfläche mit Touch-/Tastaturbedienung.
+responsive HTML-/TypeScript-Oberfläche mit Touch-/Tastaturbedienung. Die vier
+Tabs Partie/Lernen/Varianten/Einstellungen teilen dasselbe Brett und behalten
+Daten/Entwürfe beim Wechsel; auf kleinen Viewports steht die Navigation unten.
 Lerninformationen bleiben im plattformneutralen JSON-Format exportierbar.
 Manifest, Startbildschirm-Icons und Apple-Touch-Icon sind vorhanden. Es gibt
 bewusst keine Service-Worker-Caches für Schlüssel, Sitzungen oder API-Antworten
@@ -29,6 +34,15 @@ implementieren diese Grenzen; sie duplizieren nicht die Lernlogik.
 Der aktuelle lokale Node-Server bindet nur an Loopback. Eine iPad-/Android-
 Standalone-App kann ihn nicht einfach auf dem Gerät starten. Das Manifest
 ersetzt weder diesen Backendteil noch eine native App oder Offline-Engine.
+
+## Nächster Schritt zur selbständigen Web-App
+
+Den vorhandenen PlayingEngine-Vertrag zuerst durch einen begrenzten Stockfish-
+WASM-Worker im Browser ergänzen und dieselben Regel-/Spieltests ausführen.
+Danach Modelltransport und dauerhaft lokale Schlüsselablage für Browsergeräte
+festlegen und prüfen. Bestehende Windows-DPAPI-/POSIX-Profile werden nicht als
+mobil verfügbar ausgegeben. Ein Manifest und responsive Tabs ersetzen diese
+Adapter nicht; keine Schlüssel-/API-Caches als Abkürzung einführen.
 
 ## Nächste Plattformadapter
 

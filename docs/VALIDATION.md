@@ -540,3 +540,43 @@ Scrollhilfe/Diagnose bleiben erfolgreich.
 npm run test:all vollständig bestanden: Typprüfung/Build, 68 Einzeltests und
 31 Chromium-Browsertests. Keine kostenpflichtigen Provideranfragen. Das Symptom
 ist im Browserablauf geprüft; echte Windows-Geräteabnahme bleibt offen.
+
+## 0.2.0: Responsive Tab-Oberfläche
+
+6. November 2026: Nutzer wünscht gemeinsame Web-App und übersichtlichere Tabs/
+aufklappbare Menüs. Umgebung nach Startfehler wieder verfügbar; globale und
+lokale Regeln/Stand erneut gelesen. Vier Bereiche umgesetzt: Partie, Lernen,
+Varianten, Einstellungen. Das gemeinsame Brett wird nur in Einstellungen
+verborgen und nicht beim Wechsel neu erzeugt. Tabwechsel starten keinen
+Engine-/Modellaufruf und ersetzen keine Sitzung. Weniger häufige Funktionen
+stehen in Details-Abschnitten; direkte Neue-Partie-Aktion fokussiert Einrichtung.
+
+Ruhige Desktop-Zweispaltenansicht und gestapelte Touch-Ansicht mit fester
+Bodennavigation, skalierbarem Brett, klarer Version und kompakten Werkzeugen.
+Monochrome Schachsymbol-Fontfallbacks und inline SVG für Navigation ohne
+externe Ressourcen. Screenshots der echten gebauten App auf Desktop/Mobil
+und im Lernbereich geprüft; keine generierten Mockups.
+
+Die 31 bisherigen Browserfälle wurden an echte Tab-/Details-Navigation
+angepasst. Testhilfe liest das zugehörige Panel und klickt dessen Tab bzw.
+Zusammenfassung; sie setzt kein hidden/open und verändert keine App-Daten.
+Erster unadaptierter Lauf wurde nach Auffinden versteckter Controls abgebrochen.
+Anschließend vollständiger Lauf mit 68 Einzeltests/34 Browsertests bestanden.
+Nach visueller Brett-/Optionsanpassung neun relevante Browserfälle erfolgreich,
+abschließend nochmals vollständiger Lauf erfolgreich: Typprüfung, Build,
+**68 Einzeltests und 34 Chromium-Browsertests**, keine übersprungenen Tests.
+
+Neue Nachweise: exakt vier Tabs, nur aktives Panel sichtbar, Brett-DOM-Identität
+und Stellung erhalten, Gesprächsentwurf erhalten, kein Modellrequest durch
+Tabwechsel, Pfeiltasten/Home/End, Fokus, Direktlink, Reload und Browser-Zurück.
+Neue-Partie-Einstieg wechselt/fokussiert Einrichtung ohne Anfrage. Alle vier Tabs
+bei 390x844 (Telefon), 820x1180 (iPad-Größe), 1440x900 (Desktop) ohne horizontales
+Überlaufen; Touch-Navigation bleibt erreichbar und Brett-Taps funktionieren.
+Bestehende echte Enginepartien, Sonderzüge, Varianten/Import/Export, Lerndialog,
+Schlüsselspeicherung/Fehler und natives Wischen weiterhin erfolgreich.
+
+Der echte KI-Provider wurde nicht aufgerufen. Keine kostenpflichtigen Anfragen,
+kein Deployment oder Release. Responsive Oberfläche und bestehendes Manifest
+sind noch keine eigenständige mobile/offlinefähige PWA: Engine-Worker,
+Modelltransport und Browser-/Geräte-Schlüsseladapter bleiben erforderlich.
+Echte Windows-/Mac-/Android-/iPad-/Safari-Abnahme bleibt gesondert offen.

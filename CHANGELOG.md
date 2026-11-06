@@ -1,5 +1,17 @@
 # Änderungen
 
+## 0.2.0 – 6. November 2026
+
+- Neue responsive Oberfläche mit Partie, Lernen, Varianten und Einstellungen.
+- Gemeinsames Brett bleibt über die drei Lernbereiche erhalten; Einstellungen
+  enthalten Schlüssel, Budget, Sitzungssicherung und Diagnose.
+- Aufklappbare Zusatzwerkzeuge, kompakte Bretteingabe, direkter Partie-Einstieg.
+- Desktop mit zwei Spalten, mobile Navigation fest unten; Tastatur und Direktlinks.
+- Vorhandene Engine-, Dialog- und Speicherabläufe bleiben erhalten.
+- 68 Einzeltests und 34 Chromium-Browsertests bestanden; echte lokale Engine,
+  Modellzugriff mit Fixtures. Native Geräteabnahme und eigenständiger mobiler
+  Backendbetrieb sind weiterhin offen. Kein Release/Deployment.
+
 ## 0.1.2 – 5. November 2026
 
 - Schutz gegen Textmarkierung beim Ziehen normaler Seitentexte.

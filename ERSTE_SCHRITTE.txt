@@ -36,3 +36,11 @@ VERSION ERKENNEN
 Oben in der App steht die Versionsnummer. Dieselbe Nummer erscheint im
 Startfenster und unter Lokale Diagnose anzeigen. Bei Fehlern bitte diese
 Nummer nennen. Neue Windows-Pakete und ihr entpackter Ordner tragen die Version.
+
+OBERFLAECHE AB VERSION 0.2.0
+Partie: Brett, Neue Partie, Farbe, Staerke und Pause/Fortsetzen.
+Lernen: Gespraech und eigene Gedanken neben bzw. unter demselben Brett.
+Varianten: Variantenbaum und A/B-Vergleich.
+Einstellungen: Schluessel, Budget, Sitzung speichern/laden und Diagnose.
+Auf kleineren Bildschirmen stehen die vier Tabs unten. Zusaetzliche
+Bretteingaben befinden sich unter Zuege & Optionen.
