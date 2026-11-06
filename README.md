@@ -4,13 +4,12 @@ Aktueller Web-Korrekturstand: **0.3.2**. Die Nummer steht oben in der App,
 im Browser-Titel, beim Serverstart und in der lokalen Diagnose.
 Änderungen: [CHANGELOG.md](CHANGELOG.md).
 
-Öffentliche Veröffentlichung über GitHub Pages beauftragt. Der passende Build
-ist vorbereitet; wir verwenden das bestehende Repository mit einem getrennten gh-pages-Branch.
-Der Nutzer hat es bereits öffentlich gestellt; die Pages-Verwaltungs-API ist
-hier weiterhin blockiert, der fertige Web-Stand liegt bereits auf gh-pages. Die einmalige Pages-Einstellung
-und die Live-Erreichbarkeit sind noch nicht bestätigt.
-Bereitstellung und spätere Updates:
-[Web-App bereitstellen](docs/WEB_PUBLISHING.md).
+Die Web-App wird über den Branch gh-pages im bestehenden öffentlichen Repository
+bereitgestellt. GitHub hat den erneuten Veröffentlichungslauf für 0.3.2 erfolgreich
+abgeschlossen. Der vorherige Versuch war bei GitHub mit Timeout gescheitert.
+Die neue Kontrolle `npm run check:pages` prüft deshalb den exakten veröffentlichten
+Commit; ein Git-Push allein gilt nicht als erfolgreiche Bereitstellung.
+Bedienung und spätere Updates: [Web-App bereitstellen](docs/WEB_PUBLISHING.md).
 
 Auf Branch `work` zusätzlich integriert: **„Partie verstehen“ und die eigenständige Web-App
 als noch nicht freigegebener Entwicklungsstand**. Der Rückblick
@@ -387,7 +386,7 @@ des Updates keine zweite Installation starten und keinen Quellcode bearbeiten.
 
 ## Nachweise und Grenzen
 
-`npm run test:all`: Typprüfung, Build, **94 Einzeltests und 52 Chromium-
+`npm run test:all`: Typprüfung, Build, **98 Einzeltests und 52 Chromium-
 Browsertests**. Der gebaute Anwendungsserver wird getestet, einschließlich
 echtem lokalem Stockfish. Schlüsseltests verwenden ausschließlich bedeutungslose
 Testwerte, Provider-/Update-Tests lokale Fixtures. Die bestätigte Web-Updateübernahme wurde mit einem echten Service Worker auf

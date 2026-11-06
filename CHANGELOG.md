@@ -1,5 +1,14 @@
 # Änderungen
 
+## Veröffentlichungskontrolle – 6. November 2026, App bleibt 0.3.2
+
+- Ausgebliebenes Update auf GitHub-deploy-Timeout eingegrenzt. Einmaliger neuer
+  Lauf für die unveränderte App 0.3.2 erfolgreich abgeschlossen.
+- Veröffentlichung wartet künftig auf den bestätigten Pages-Erfolg des exakten
+  Commits. Upload, Pending oder Failure werden nicht als fertiges Update gemeldet.
+- Vier zusätzliche Statusregressionen; 98 Einzeltests grün, unveränderter Appstand
+  mit 52 Browsertests geprüft. Android-Meldung noch nicht am Gerät geklärt.
+
 ## 0.3.2 – vollständige Brettdarstellung, 6. November 2026
 
 - Abgeschnittene rechte Brettspalten bei kleinen Desktopfenstern behoben.

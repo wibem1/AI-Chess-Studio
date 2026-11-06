@@ -96,3 +96,28 @@ Die Pages-Einstellung über die Verwaltungs-API bleibt blockiert. Der direkte
 Live-Prüfversuch wird vom Netzwerkproxy mit CONNECT 403 (HTTP 000) abgewiesen;
 daraus folgt keine Aussage über den tatsächlichen HTTP-Status der Website.
 Einmalige Pages-Quellwahl und Live-Bestätigung durch GitHub/Nutzer sind noch offen.
+
+## Kontrolle nach einem ausbleibenden Update
+
+Ein Datei-Upload allein bestätigt keinen Onlinegang. Nach Nutzerbefund wurde
+GitHubs Lauf 42245157162 für 73dfea1 überprüft: FAILURE nach 10m44s, deploy-Job
+„Timeout reached, aborting!“. Einmalige erneute Übertragung der unveränderten
+geprüften 0.3.2-App als 47427bd700213e6b22412dec23c5df9201bb664a erfolgreich:
+https://github.com/wibem1/AI-Chess-Studio/actions/runs/42253628918 .
+Erfolg für genau diesen Commit über Laufstatus, Seitentitel und vollen Commitlink
+verifiziert. Kein neuer Workflow und keine zusätzlichen KI-Aufrufe.
+
+`npm run publish:pages` wartet jetzt nach dem Upload auf diese Kontrolle.
+Separat: `npm run check:pages` (maximal zwölf Minuten, keine weiteren Pushes).
+Bei Failure/Timeout/unklarem Datenformat wird keine fertige Veröffentlichung
+behauptet. Der Check nutzt öffentliche GitHub-HTML-Daten, weil die Verwaltungs-
+API hier blockiert ist. Formatänderungen können die Kontrolle fehlschlagen lassen;
+sie darf dann keinen Erfolg erfinden. GitHub-Erfolg und ein zusätzlicher realer
+Browser-/Gerätetest bleiben unterschiedliche Nachweise.
+
+Android: Die App erzeugt keine Meldung „bereits installiert“ und speichert keinen
+geräteübergreifenden Installationsstatus. Manifest-ID ./ löst innerhalb des
+Projektpfades auf /AI-Chess-Studio/ auf und bleibt stabil. Eine Installation auf
+Windows ist kein Nachweis einer Androidinstallation. Die native Chrome-Meldung
+muss am konkreten Dialog/Browser geprüft werden; nicht durch wechselnde IDs,
+Datenlöschung oder einen behaupteten erfolgreichen Androidtest überdecken.

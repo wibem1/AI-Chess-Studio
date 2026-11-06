@@ -947,3 +947,37 @@ Auslieferungsnachweis 0.3.2: work 97cb9ec und gh-pages
 commitgebundenes BUILD.json abgerufen, Version 0.3.2 und sourceCommit
 97cb9ec verifiziert. Das bestätigt den hochgeladenen Stand, keinen eigenen
 Live-Browsertest am durch den Netzwerkproxy gesperrten github.io-Host.
+
+## Ausbleibendes Update: tatsächlicher GitHub-Deploy-Timeout
+
+Nutzer meldet fehlendes Update und Chrome-Android-Meldung „bereits installiert“.
+Vor Appänderungen öffentlicher GitHub-Actions-Verlauf geprüft: Lauf
+42245157162 für den übertragenen gh-pages-Commit 73dfea1 tatsächlich FAILURE,
+deploy-Annotation „Timeout reached, aborting!“, Laufdauer 10m44s. Buildartefakt
+vorhanden (1,22 MB), Veröffentlichung nicht erfolgreich. Kein belegter App-Cache-
+Fehler daraus abgeleitet. Die frühere Aussage „Update bereit“ allein aufgrund
+des übertragenen Buildmanifests war zu weitgehend.
+
+Genau ein neuer Lauf der unveränderten, zuvor 94/52 geprüften App 0.3.2 ausgelöst,
+Commit 47427bd700213e6b22412dec23c5df9201bb664a. Lauf 42253628918 erfolgreich:
+https://github.com/wibem1/AI-Chess-Studio/actions/runs/42253628918 .
+Neuer Statusprüfer mit vollem Commitlink und passendem Titel auf dem echten Lauf
+geprüft: state success, zugehörige GitHub-Schlussfolgerung SUCCESS. Das belegt
+GitHubs Bereitstellung; Livehost und Android-Browser wurden damit nicht simuliert.
+Keine weiteren automatischen Deployversuche, keine neuen Workflow-Dateien.
+
+Manueller Veröffentlichungsbefehl ergänzt um wartende Kontrolle. Öffentliche
+HTML-Daten nur als Daten parsen, feste Repo-/Laufpfade und numerische IDs. Vier
+neue Einzeltests: nur gh-pages-/Pages-Läufe zulassen, exakten Commit verlangen,
+Failure/Cancelled/Timeout/Pending/Unknown nicht als Erfolg behandeln, unbekanntes
+Antwortformat fail-closed. npm run check und abschließend npm test **98/98 grün**.
+App-/PWA-Code, Installationskennung und 0.3.2-UI unverändert; der vorherige echte
+komplette Browserteststand **52/52** gilt für diesen unveränderten Appcode.
+Kein neuer kostenpflichtiger Aufruf und keine Daten-/Schlüssellöschung.
+
+Androidbefund bleibt offen: Quellprüfung bestätigt, dass unsere App keine
+„bereits installiert“-Meldung oder geräteübergreifende Installationsliste besitzt.
+Manifest-ID bleibt /AI-Chess-Studio/ nach relativer Auflösung. Daraus folgt kein
+Nachweis einer vorhandenen Installation auf dem Telefon. Versionsnummer und
+Ort des nativen Dialogs beim Nutzer angefragt; tatsächliche Android-Installation
+nicht mit Linux-Chromium-/Touchgrößentests gleichsetzen.

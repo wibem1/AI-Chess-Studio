@@ -5,10 +5,16 @@ Stand: 6. November 2026 · ausgelieferte Basis **0.2.0**, Pages-Korrektur **0.3.
 Veröffentlichungsauftrag: öffentliche Web-App über kostenloses GitHub Pages,
 **im bestehenden Repository AI-Chess-Studio**, kein neues Repository. Version
 0.3.2 für /AI-Chess-Studio/ und Distributionsbranch gh-pages geprüft.
-Nutzer hat das bestehende Repository auf Public gestellt und bestätigt;
-öffentlicher HTTP-Abruf 200. Diese Freigabe nicht erneut anfordern. GitHub-Verwaltungs-API liefert Forbidden, Git-
-Zugriff funktioniert. Kein neues Repository. Web-Dateien auf gh-pages übertragen; Pages-Aktivierung
-und Live-Erreichbarkeit noch nicht bestätigt.
+Nutzer hat das bestehende Repository auf Public gestellt und Pages gespeichert.
+**GitHub-Bereitstellung 0.3.2 jetzt erfolgreich bestätigt:** Run 42253628918 für
+Commit 47427bd700213e6b22412dec23c5df9201bb664a. Der vorherige Lauf für
+73dfea1 war beim deploy-Job nach zehn Minuten mit Timeout gescheitert; der reine
+Datei-Upload war deshalb noch kein verfügbares App-Update. Einmaliger neuer Lauf
+erfolgreich, kein zusätzlicher Workflow. Eigener Live-Abruf auf github.io bleibt
+am Netzwerkproxy gesperrt; die Bestätigung stammt aus dem exakten GitHub-Lauf.
+Android meldet laut Nutzer „bereits installiert“, obwohl nur Windows installiert
+wurde. Ursache auf Android noch offen; keine geräteübergreifende App-Installation
+angenommen. Rückfrage nach Versionsnummer und Ort der Meldung gestellt.
 Konkrete Schritte und Updatebefehl: docs/WEB_PUBLISHING.md.
 
 ## Verbindliches Ziel
@@ -145,7 +151,7 @@ Android-/iPad-Abnahme bleibt offen.
 
 ## Prüfstand
 
-Typprüfung/Build, **94 Einzeltests und 52 Chromium-Browsertests** bestanden.
+Typprüfung/Build, **98 Einzeltests und 52 Chromium-Browsertests** bestanden.
 Echte lokale Stockfish-Prozesse/Worker, Offline-Reload und wartender Service-
 Worker mit bestätigter Updateübernahme. Providerzugriff nur Fixtures; kein
 kostenpflichtiger Aufruf. Details und Prüfgrenzen: docs/VALIDATION.md.
@@ -244,3 +250,20 @@ BUILD.json mit 0.3.2, /AI-Chess-Studio/ und Quellcommit 97cb9ec abgerufen.
 GitHub-Pages-Bereitstellung kann nachlaufen; eigener Live-Host weiterhin
 netzwerkbedingt nicht prüfbar. Aktualisierung über die bestehende Web-App-
 Updatefunktion, keine erneute Einrichtung oder Datenlöschung.
+
+## Auslieferungsfehler eingegrenzt und korrigiert
+
+GitHub-Lauf 42245157162 für 73dfea1: FAILURE, deploy-Annotation „Timeout reached,
+aborting!“, Dauer 10m44s. Das erklärt das ausgebliebene 0.3.2-Update, ohne aus
+Browser-Caches eine unbelegte Ursache abzuleiten. Unveränderte bereits geprüfte
+App einmal erneut als 47427bd übertragen. Lauf 42253628918: SUCCESS; voller
+Commitlink und Laufstatus über öffentliche GitHub-Seiten verifiziert.
+
+Neue manuelle Statuskontrolle scripts/pages-status.mjs, npm run check:pages.
+Veröffentlichungsbefehl wartet jetzt nach Upload auf einen bestätigten Erfolg
+für genau den gh-pages-Commit. Fehler, unbekanntes Schema und ausstehende Läufe
+melden keinen Erfolg, lösen keine weiteren Pushes aus. Vier Parser-/Status-
+Regressionen; npm test 98/98, bestehender unveränderter Appstand zuvor 52/52
+Browserfälle. Keine neue App-Version, Appkennung, Löschung oder Migration.
+Android-Installation ohne tatsächlichen Geräte-/Dialogbefund nicht als behoben
+behauptet; Windows-Installation allein blockiert kein zweites Androidgerät.
