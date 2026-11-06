@@ -1,5 +1,15 @@
 # Änderungen
 
+## 0.3.1 – GitHub Pages vorbereitet, 6. November 2026
+
+- App, Engine, Links, Manifest und Offline-Worker für Projekt-Unterordner.
+- Cache-Namensraum pro App-Pfad, HTML-CSP und .nojekyll für statisches Pages.
+- Separater Web-Build und manuell gestarteter gh-pages-Publisher im bestehenden Repository mit
+  vorgeschalteten Tests; keine eigenen Actions, kein Sichtbarkeitswechsel.
+- 94 Einzeltests und 50 Browsertests einschließlich echter Unterordner-/Offline-
+  Engine und lokalem Git-Veröffentlichungsweg. Keine Live-Veröffentlichung:
+  Repository vom Nutzer auf Public gestellt; Pages-Verwaltungs-API weiter blockiert.
+
 ## 0.3.0 – zur Web-Bereitstellung vorbereitet, 6. November 2026
 
 - Verbindet die integrierte Web-App und „Partie verstehen“ in einem nummerierten

@@ -1,3 +1,4 @@
+import {APP_BASE,appPath} from '../src/app-path.js';
 declare const __PWA_ENABLED__:boolean;
 interface InstallPrompt extends Event {prompt():Promise<void>;userChoice:Promise<{outcome:string}>}
 export function installPwa(save:()=>Promise<void>){
@@ -8,7 +9,7 @@ export function installPwa(save:()=>Promise<void>){
  window.addEventListener('beforeinstallprompt',event=>{event.preventDefault();prompt=event as InstallPrompt;install.hidden=false;});
  install.addEventListener('click',async()=>{if(prompt){await prompt.prompt();await prompt.userChoice;prompt=undefined;install.hidden=true;}});
  navigator.serviceWorker.addEventListener('controllerchange',()=>{if(reload)location.reload();});
- void navigator.serviceWorker.register('/service-worker.js',{updateViaCache:'none'}).then(async reg=>{
+ void navigator.serviceWorker.register(appPath('service-worker.js'),{scope:APP_BASE,updateViaCache:'none'}).then(async reg=>{
   registration=reg;ready();reg.addEventListener('updatefound',()=>{const worker=reg.installing;worker?.addEventListener('statechange',()=>{if(worker.state==='installed')ready();});});
   await navigator.serviceWorker.ready;
   if(!reg.waiting)status.textContent='App-Oberfläche und Stockfish sind für den Offline-Start vorbereitet. KI-Chat und Zugangsprüfung brauchen Internet.';

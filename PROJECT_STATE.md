@@ -1,12 +1,14 @@
 # Projektstand
 
-Stand: 6. November 2026 · ausgelieferte Basis **0.2.0**, Web-Paket **0.3.0** vorbereitet
+Stand: 6. November 2026 · ausgelieferte Basis **0.2.0**, Pages-Stand **0.3.1** vorbereitet
 
-Neuer Auftrag nach Integration: Web-App veröffentlichen. Version 0.3.0 und
-statisches Paket werden dafür vorbereitet. **Noch nicht online:** kein Hosting-
-zugang verbunden, Zugriff auf GitHub-Website-Einstellungen via API Forbidden.
-Kein Anbieter gebucht, keine öffentliche URL oder erfolgreiche Veröffentlichung
-behauptet. Anleitung/aktueller Blocker: docs/WEB_PUBLISHING.md.
+Veröffentlichungsauftrag: öffentliche Web-App über kostenloses GitHub Pages,
+**im bestehenden Repository AI-Chess-Studio**, kein neues Repository. Version
+0.3.1 für /AI-Chess-Studio/ und Distributionsbranch gh-pages vorbereitet.
+Nutzer hat das bestehende Repository auf Public gestellt und bestätigt;
+öffentlicher HTTP-Abruf 200. Diese Freigabe nicht erneut anfordern. GitHub-Verwaltungs-API liefert Forbidden, Git-
+Zugriff funktioniert. Kein neuer Repository-/Pages-/Live-Erfolg behauptet.
+Konkrete Schritte und Updatebefehl: docs/WEB_PUBLISHING.md.
 
 ## Verbindliches Ziel
 
@@ -142,7 +144,7 @@ Android-/iPad-Abnahme bleibt offen.
 
 ## Prüfstand
 
-Typprüfung/Build, **93 Einzeltests und 49 Chromium-Browsertests** bestanden.
+Typprüfung/Build, **94 Einzeltests und 50 Chromium-Browsertests** bestanden.
 Echte lokale Stockfish-Prozesse/Worker, Offline-Reload und wartender Service-
 Worker mit bestätigter Updateübernahme. Providerzugriff nur Fixtures; kein
 kostenpflichtiger Aufruf. Details und Prüfgrenzen: docs/VALIDATION.md.
@@ -176,3 +178,14 @@ Webstands. Fehlende Nachweise offen benennen; keine weitere Entwicklungs-
 Teilstufe als fertige native App ausgeben. Der Veröffentlichungsauftrag liegt
 nun vor; als nächsten Schritt den tatsächlich verbundenen Hostingzugang nutzen
 und die öffentliche HTTPS-Adresse samt Live-Prüfung nachtragen.
+
+## Pages-Anpassung 0.3.1 im vorhandenen Repository
+
+Unterordnerfähig: Worker, Web-Adapter, Manifest, Icons, Lizenzen und scoped
+Offline-Cache. Cache-Aufräumen auf eigenes Basisverzeichnis begrenzt. Root-
+Desktop-/Web-Build bleibt erhalten. HTML-CSP ergänzt, da Pages keine _headers
+verarbeitet. Kein eigener Actions-Workflow, kein bezahlter Aufruf, keine Änderung
+der Repository-Sichtbarkeit. Echte Unterordner-/Offline-/WASM-Prüfung bestanden.
+Manueller Publisher überträgt ausschließlich öffentliche Builddateien und schützt
+fremde Zielinhalte; lokal mit echten Git-Repositories geprüft. Nutzer hat Public selbst gesetzt; Pages-Aktivierung bleibt bei blockierter
+Verwaltungs-API über die GitHub-Einstellungen vorzunehmen. Kein neues Repository.

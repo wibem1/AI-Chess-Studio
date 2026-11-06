@@ -1,3 +1,4 @@
+import {appPath} from './app-path.js';
 import {ENGINE_ASSET_BASE,ENGINE_FILES} from './engine-files.js';
 export interface EngineWorker {
  postMessage(message:string):void;terminate():void;
@@ -7,7 +8,7 @@ export interface BrowserSearch<T>{position:string;go:string;options:string[];req
 /** One bounded UCI worker; used by both the opponent and explicit factcheck. */
 export class BrowserUciProcess {
  private pendingCancel:(()=>void)|undefined;
- constructor(private createWorker:()=>EngineWorker=()=>new Worker(ENGINE_ASSET_BASE+ENGINE_FILES.script),private timeoutMs=8000){if(!Number.isInteger(timeoutMs)||timeoutMs<1||timeoutMs>8000)throw new Error('Ungültiges Engine-Zeitlimit.');}
+ constructor(private createWorker:()=>EngineWorker=()=>new Worker(appPath(ENGINE_ASSET_BASE+ENGINE_FILES.script)),private timeoutMs=8000){if(!Number.isInteger(timeoutMs)||timeoutMs<1||timeoutMs>8000)throw new Error('Ungültiges Engine-Zeitlimit.');}
  cancel(){this.pendingCancel?.();}
  async search<T>(search:BrowserSearch<T>):Promise<T>{
   if(this.pendingCancel)throw new Error('Die Browser-Spielengine ist beschäftigt.');

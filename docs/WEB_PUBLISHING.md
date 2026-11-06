@@ -1,61 +1,88 @@
-# Web-App bereitstellen
+# GitHub Pages im bestehenden Chess-Studio-Repository
 
-Der Nutzer hat die Veröffentlichung der Web-App am 6. November 2026 ausdrücklich
-beauftragt. Bereitstellungsstand: 0.3.0. Öffentliches Hosting ist noch **nicht**
-aktiv: kein Hostingkonto verbunden; `gh api repos/wibem1/AI-Chess-Studio` wird in
-dieser Sitzung mit Forbidden abgewiesen. Git-Branchzugriff ersetzt keine
-Berechtigung zur Einrichtung von GitHub Pages. Kein Konto/Bezahldienst angelegt,
-keine Sichtbarkeit geändert und kein Actions-Workflow eingerichtet.
+Nutzerentscheidung: **kein neues Repository**. Ausschließlich das vorhandene
+`wibem1/AI-Chess-Studio` verwenden. Kein neues Repository wurde angelegt; der
+vorangegangene Anlegeversuch war schon bei einer lesenden Benutzerabfrage mit
+Forbidden gescheitert. Netlify ist wegen der Kontingente keine gewünschte Lösung.
 
-## Fertiges Paket
+## Öffentliche Website und Repository-Sichtbarkeit
 
-`artifacts/AI-Chess-Studio-Web-0.3.0.zip` enthält nur den gebauten statischen
-Inhalt von `web-dist`, mit index.html unmittelbar im ZIP-Stamm. Keine Node-
-Server, Profile, API-Schlüssel, Sitzungen, Entwicklungsabhängigkeiten oder .env.
-Lizenz/Quellverweis für Stockfish und vollständige chess.js-Lizenz enthalten.
-Die Dateien unter artifacts sind ignorierte Ausgaben, keine Engine-Binaries in Git.
+Der Nutzer hat die bestehende Ablage selbst auf **Public** gestellt und dies
+bestätigt. Öffentlicher HTTP-Abruf des Repositorys liefert jetzt 200. Die dafür
+nötige Freigabe ist damit vorhanden; nicht erneut nach der Sichtbarkeit fragen.
+Kein neues Repository, keine weitere Sichtbarkeitsänderung durch den Agenten.
+Die GitHub-Verwaltungs-API `/repos/wibem1/AI-Chess-Studio/pages` liefert auch nach
+dieser tatsächlichen Änderung weiterhin Forbidden. Native Git-Berechtigung und
+Pages-Verwaltungsberechtigung bleiben getrennt zu prüfen.
 
-Reproduzieren: Node 24 und unverändertes Lockfile, `npm ci`, `npm run test:all`,
-dann ausschließlich den Inhalt von `web-dist` als ZIP packen. Version immer aus
-package.json; package-lock.json synchron. Öffentliche Dateien `_headers`,
-`licenses.html` und `licenses/chess.js-LICENSE.txt` werden beim Build kopiert.
+Vor der Freigabe fand ein heuristischer Scan aller 30 vorhandenen Revisionen
+keine Treffer für verbreitete API-Key-/GitHub-Token-/Private-Key-Muster; keine
+Werte ausgegeben. Das ist kein allgemeiner Nachweis über sämtliche privaten
+Inhalte in einer Historie.
 
-## Einfacher manueller Hostingweg
+## Vorbereiteter Stand 0.3.1
 
-Wenn noch kein eigener Webspace existiert, ist ein statischer Hostinganbieter
-mit manuellem Upload geeignet, beispielsweise Netlify Drop:
-https://app.netlify.com/drop . Dafür ist ein eigenes Anbieterkonto erforderlich.
-Der Nutzer meldet sich dort selbst an; kein Passwort oder API-Key im Chat.
-Keine kostenpflichtigen Anbieteroptionen oder eigenen Domains buchen.
+`npm run build:pages` erzeugt `pages-dist` für **/AI-Chess-Studio/**.
+Worker, Links, Manifest, Startadresse, Icons, Lizenzen und Offline-Cache sind auf
+diesen Unterordner abgestimmt. Root-Build und Desktopbetrieb bleiben unterstützt.
+`.nojekyll` enthalten; HTML-CSP ergänzt, weil GitHub Pages `_headers` nicht
+verarbeitet. HTTP-Header wie frame-ancestors/Referrer-Policy werden durch eine
+Meta-CSP nicht vollständig ersetzt. Keine Behauptung eines persönlichen Logins.
 
-1. Web-Paket herunterladen und entpacken.
-2. Bei Netlify anmelden und den entpackten Ordner mit index.html hochladen.
-3. Die dort tatsächlich angezeigte HTTPS-Adresse öffnen. Keine URL erfinden.
+```sh
+npm ci
+npm run test:all
+node scripts/publish-pages.mjs --prepare-only
+```
 
-Es ist kein npm-Build beim Hosting nötig. `_headers` gibt für Netlify/kompatible
-Hosts CSP, Referrerschutz, WASM-MIME und revalidierte Worker/Index-Dateien vor.
-Andere Hosts müssen entsprechende Header selbst konfigurieren. Das Paket braucht
-das Stammverzeichnis einer Website, keinen Unterpfad wie /AI-Chess-Studio/.
-GitHub Pages im Projekt-Unterpfad wird daher nicht ungeprüft als Ziel angeboten.
+`--prepare-only` erzeugt ausschließlich lokal einen neuen Ordner unter
+artifacts/Pages-0.3.1-… mit exakter öffentlicher Dateiliste und BUILD.json
+(Version, Quellcommit, SHA-256 je Datei). Keine Schlüssel, Sitzungen, Profile,
+Node-Server oder Entwicklungsdateien. Das frühere Root-ZIP 0.3.0 bleibt erhalten
+und ist nicht das neue Unterordner-Paket.
 
-## Nach tatsächlicher Bereitstellung prüfen
+## Veröffentlichung und spätere Updates
 
-- HTTPS, korrekte Version 0.3.0, alle vier Tabs; keine horizontalen Überläufe.
-- Browser-Stockfish zieht auf bewussten Partiestart, Wasm kommt vom eigenen Host.
-- Offline-Bereitschaft abwarten, Seite offline neu laden, Sitzung wiederhergestellt.
-- Lizenz- und Quelllinks funktionieren; Hosting-CSP/Cache-/WASM-Header kontrollieren.
-- Schlüssel wird nur nach eigener Eingabe verschlüsselt lokal gespeichert;
-  Neuladen sperrt. Keine automatische Textgenerierung zum Deploymenttest.
-- Öffentliche URL und Ergebnis in PROJECT_STATE/VALIDATION nachtragen. Vorher
-  keine erfolgreiche Veröffentlichung oder vollständige Geräteabnahme behaupten.
+Der Publisher nutzt ausschließlich den Branch **gh-pages im bestehenden
+Repository**. Der Codebranch und dessen Historie werden nicht überschrieben.
+Auf gh-pages werden die gebauten Web-Dateien veröffentlicht. Ein neuer Stand
+hängt als weiterer Commit an; keine erzwungenen Pushes. Fremde Zielinhalte
+oder eine andere Zielanwendung blockieren den Vorgang. WebAssembly liegt für
+Pages auf diesem Distributionsbranch; nicht im Entwicklungsbranch.
 
-Die Website liefert nur App-/Engine-Dateien aus. Eigene Sitzungen und das
-verschlüsselte Schlüsselfach bleiben im jeweiligen Browser; bewusste KI-Anfragen
-gehen direkt an OpenAI. Die lokale Desktop-Adresse und die neue HTTPS-Adresse
-haben getrennte Speicher. Sitzung bei Bedarf als JSON übertragen; Schlüssel auf
-dem neuen Gerät einmal hinterlegen. Vorhandene Cloud-Entwicklungsumgebung hat
-mit der installierten Web-App nichts zu tun.
+Nach einmaliger Einrichtung lautet der manuell gestartete Updatebefehl:
 
-Paketprüfung: ZIP-CRC vollständig geprüft, 16 öffentliche Dateien, index.html im
-Stamm, Version 0.3.0 im Buildmanifest. SHA-256:
-`403f030ff10afe53dc60397d7b9d9bd609038af94ecdbbb2cb57f07e93617202`.
+```sh
+npm run publish:pages
+```
+
+Der Befehl führt zuerst alle App-Tests und beide Builds aus und überträgt dann
+nur die öffentlichen Dateien nach gh-pages. Keine eigenen GitHub-Actions-
+Workflows werden eingerichtet. GitHub Pages unterliegt eigenen Nutzungsgrenzen;
+keine unbegrenzte Zahl von Updates oder unbegrenzter Datenverkehr zugesagt.
+
+Repository-Sichtbarkeit ist bereits öffentlich. Nach Übertragung des gh-pages-
+Branches einmal unter **Settings → Pages** einstellen:
+**Deploy from a branch → gh-pages → / (root) → Save**.
+Danach die von GitHub tatsächlich angezeigte HTTPS-Adresse prüfen. Erwarteter
+Pfad ist `/AI-Chess-Studio/`; Live-Erreichbarkeit erst nach Prüfung bestätigen.
+
+Die GitHub-Verwaltungs-API liefert hier Forbidden; Git-Push-Rechte sind kein
+Nachweis für Sichtbarkeits-/Pages-Verwaltungsrechte. Eine notwendige manuelle
+Einstellung nicht als automatisch erledigt ausgeben. Kein kostenpflichtiger
+Tarif, keine neue Domain oder andere Anbieterleistung beauftragt.
+
+## Prüfung
+
+94 Einzeltests und 50 Chromium-Browserfälle; darunter echter Stockfish,
+Unterordner-Manifest/Scope, Offline-Reload mit pausierter Partie/Entwurf und
+Lizenznavigation ohne Root-Requests. Der Publisher ist mit echten lokalen Git-
+Repositories auf Erstveröffentlichung, fortlaufende gh-pages-Historie,
+unveränderten Codebranch und Abbruch bei fremden Dateien getestet. Diese Tests
+sind auf file:// beschränkt und veröffentlichen nichts extern.
+
+Nach tatsächlicher Pages-Aktivierung HTTPS, sichtbare Version, Wasm-MIME,
+Installation, Offline-Restore und bestätigte Updates an der echten Adresse
+prüfen. Live-Abnahme, echte KI-Qualität, native Geräte und Nutzer-PGN bleiben
+offen. Sitzungen und verschlüsselter Key bleiben im jeweiligen Browser; eine
+neue Domain hat einen eigenen Speicher, Übertragung von Partien erfolgt per JSON.

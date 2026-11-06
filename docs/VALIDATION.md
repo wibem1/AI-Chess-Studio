@@ -840,3 +840,47 @@ Hosting-CSP und Browserfunktion an einer tatsächlichen öffentlichen HTTPS-Adre
 müssen nach Zugang/Bereitstellung verifiziert werden. Kein öffentlicher Link
 oder kostenfreier Kontotarif wurde ohne Providerbeleg erfunden. Echte KI-Qualität,
 Geräteabnahme und die vollständige Nutzer-PGN bleiben weiterhin offen.
+
+## GitHub Pages im bestehenden Repository – 0.3.1
+
+6. November 2026: Nutzer lehnt ein zusätzliches Repository ab. Kein neues
+Repository angelegt. Nutzer stellt AI-Chess-Studio selbst auf Public;
+öffentlicher HTTP-Abruf danach 200. Quelle und Ziel für den Distributionsbranch
+sind ausschließlich wibem1/AI-Chess-Studio, separater Branch gh-pages. Die
+Verwaltungs-API für /pages liefert nach der echten Sichtbarkeitsänderung weiter
+Forbidden; eine Pages-Einstellung wird deshalb nicht als erledigt ausgegeben.
+
+Root- und Unterordner-Build über dieselbe Vite-Konfiguration. Aufgelöste Basis
+für Web-Transport, Engine-Worker, Navigation und SW-Registrierung; Manifest
+relativ. Cache-Namensraum enthält das Basisverzeichnis und löscht ausschließlich
+eigene Shell-Caches. .nojekyll und HTML-CSP für Pages; keine Behauptung eigener
+HTTP-Header, die Pages nicht unterstützt. Kein automatischer Actions-Workflow.
+
+`npm run test:all` im abschließenden Stand: Typprüfung, Root- und Pages-Build,
+**94 Einzeltests und 50 Chromium-Browsertests bestanden**, keine ausgelassen.
+Neuer realer Unterordnerfall: /AI-Chess-Studio/ einschließlich Redirect, Manifest-
+Scope/Icons, echter Stockfish-WASM-Gegenzug, echte SW-Kontrolle, ausschließlich
+scoped Cache-Dateien, Offline-Reload mit pausierter Partie und Nachrichtenentwurf,
+Offline-Lizenznavigation, keine Root-Anfragen oder Browserexceptions.
+
+Zusätzlicher Publisher-Test arbeitet mit echten lokalen Git-Repositories und
+auf file:// beschränkten Git-Protokollen. Er prüft ersten gh-pages-Commit,
+weiteren Updatecommit ohne erzwungenen Push, unveränderten main-Codebranch,
+Abbruch bei fremden Zieldateien und Zurückweisung einer credentials.json im
+Build. Erstes Fixture deckte ein vom main abweichendes Remote-HEAD auf; der
+Publisher wählt nun den exakten Distributionsbranch. Auf bestehenden Quellcode-
+Branches werden keine Build-Dateien gelöscht oder geschrieben. Lokale Prozess-
+Sandbox erfordert für verschachtelte Git-Prozesse einen freigegebenen Testlauf;
+der vollständige abschließende Lauf besteht. Keine bezahlte API-Anfrage.
+
+Beim Nutzerwechsel vom zusätzlich vorgeschlagenen Repository zum bestehenden
+Projekt wurde auch der Unterordner-Test angepasst. Ein verbliebener alter
+Repositoryname in der Icon-Assertion verursachte einen vorübergehenden Testfehler;
+korrigierte Assertion und kompletter finaler Lauf 94/50 grün. Kein Testschutz
+entfernt und keine Anwendungssperre abgeschwächt.
+
+Heuristische Historienprüfung vor öffentlicher Freigabe: 30 vorhandene Revisionen
+auf verbreitete Token-/Schlüssel-/Private-Key-Muster, keine Treffer und keine
+Werte ausgegeben. Das ist keine allgemeine Zusicherung über alle privaten Inhalte.
+Live-Adresse und Pages-Aktivierung werden erst nach tatsächlichem Ergebnis
+bestätigt. Reale KI-Qualität, native Geräteabnahme und Nutzer-PGN bleiben offen.

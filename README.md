@@ -1,18 +1,21 @@
 # AI-Chess-Studio
 
-Zur Web-Bereitstellung vorbereitete Version: **0.3.0**. Die Nummer steht oben in der App,
+Zur Web-Bereitstellung vorbereitete Version: **0.3.1**. Die Nummer steht oben in der App,
 im Browser-Titel, beim Serverstart und in der lokalen Diagnose.
 Änderungen: [CHANGELOG.md](CHANGELOG.md).
 
-Veröffentlichung beauftragt; Hostingzugang noch offen, die App ist noch nicht
-öffentlich erreichbar. Fertiges Web-Paket und kurze Bereitstellungsschritte:
+Öffentliche Veröffentlichung über GitHub Pages beauftragt. Der passende Build
+ist vorbereitet; wir verwenden das bestehende Repository mit einem getrennten gh-pages-Branch.
+Der Nutzer hat es bereits öffentlich gestellt; die Pages-Verwaltungs-API ist
+hier weiterhin blockiert, die einmalige Pages-Einstellung steht noch aus. Die App ist noch nicht online.
+Bereitstellung und spätere Updates:
 [Web-App bereitstellen](docs/WEB_PUBLISHING.md).
 
 Auf Branch `work` zusätzlich integriert: **„Partie verstehen“ und die eigenständige Web-App
 als noch nicht freigegebener Entwicklungsstand**. Der Rückblick
 berücksichtigt Plancommit 2744e63e. Die frühere Integration blieb zunächst
 ohne neue Version; nach dem Veröffentlichungsauftrag wird nun das Web-Paket
-0.3.0 vorbereitet. Hosting und öffentliche Adresse sind noch offen.
+0.3.1 für GitHub Pages vorbereitet. Öffentliche Adresse ist noch offen.
 
 Persönliches Schach-Lernprogramm: gegen Stockfish spielen und während oder
 nach der Partie mit einer getrennten KI über Stellungen, Strategien und
@@ -383,7 +386,7 @@ des Updates keine zweite Installation starten und keinen Quellcode bearbeiten.
 
 ## Nachweise und Grenzen
 
-`npm run test:all`: Typprüfung, Build, **93 Einzeltests und 49 Chromium-
+`npm run test:all`: Typprüfung, Build, **94 Einzeltests und 50 Chromium-
 Browsertests**. Der gebaute Anwendungsserver wird getestet, einschließlich
 echtem lokalem Stockfish. Schlüsseltests verwenden ausschließlich bedeutungslose
 Testwerte, Provider-/Update-Tests lokale Fixtures. Die bestätigte Web-Updateübernahme wurde mit einem echten Service Worker auf
