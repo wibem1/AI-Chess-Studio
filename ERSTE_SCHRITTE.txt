@@ -44,3 +44,18 @@ Varianten: Variantenbaum und A/B-Vergleich.
 Einstellungen: Schluessel, Budget, Sitzung speichern/laden und Diagnose.
 Auf kleineren Bildschirmen stehen die vier Tabs unten. Zusaetzliche
 Bretteingaben befinden sich unter Zuege & Optionen.
+
+EIGENSTÄNDIGE WEB-APP IM ENTWICKLUNGSSTAND
+
+In Einstellungen „Eigenständige Web-App auf diesem Gerät verwenden“ öffnen.
+Stockfish und der zusätzliche Faktencheck laufen dann auf dem Gerät. Den
+Schlüssel einmal mit einem eigenen Gerätepasswort verschlüsselt speichern;
+nach Neustart nur das Gerätepasswort zum Entsperren eingeben. Der KI-Chat
+braucht Internet und eine bewusste Kostenfreigabe; Spielen braucht keinen Key.
+
+Sitzungen werden im Webbetrieb automatisch in diesem Browser gespeichert.
+JSON-Export bleibt die unabhängige Sicherung für andere Geräte/Adressen.
+Unter „App auf diesem Gerät · offline und Updates“ Offline-Bereitschaft prüfen
+und dann über das Browsermenü installieren. Auf dem iPad: Teilen → Zum
+Home-Bildschirm. Updates erst nach Bestätigung; Entwürfe werden vorher gesichert.
+Es wurde kein neuer Download und kein öffentlicher Web-Startpunkt freigegeben.

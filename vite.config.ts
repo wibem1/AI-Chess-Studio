@@ -1,3 +1,4 @@
+import {pwaAssets} from './server/pwa-assets.js';
 import {browserEngineAssets} from './server/browser-engine-assets.js';
 import { FileCredentialsStore, credentialsPath } from './server/credentials.js';
 import { CostControl } from './server/costs.js';
@@ -9,7 +10,8 @@ import { StockfishService } from './server/stockfish.js';
 import { modelMiddleware } from './server/http.js';
 
 export default defineConfig({
-  plugins: [browserEngineAssets(),{ name: 'local-model-server', configureServer(server) {
+  define:{__PWA_ENABLED__:JSON.stringify(true)},
+  plugins: [browserEngineAssets(),pwaAssets(),{ name: 'local-model-server', configureServer(server) {
     // Never use VITE_* for secrets; this module is only loaded by the Node server.
     const stockfish = new StockfishService();
     const playingEngine=new PlayingEngineService();

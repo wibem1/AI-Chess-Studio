@@ -785,11 +785,13 @@ test('imported black perspective and turn controls work on phone and iPad withou
  }
 });
 
-test('real Stockfish browser worker plays all five levels without a desktop engine API',async({page})=>{
- let apiCalls=0;const errors:string[]=[];page.on('pageerror',error=>errors.push(error.message));
- page.on('request',r=>{if(r.url().endsWith('/api/play'))apiCalls++;});
- await page.route('**/api/**',route=>route.fulfill({status:503,json:{error:'Backend deliberately unavailable'}}));
+test('real Stockfish browser worker plays all five levels without a desktop engine API',async({browser})=>{
+ let apiCalls=0;const errors:string[]=[];
  for(const level of ['1','2','3','4','5']){
+  const context=await browser.newContext({serviceWorkers:'block'}),page=await context.newPage();
+  page.on('pageerror',error=>errors.push(error.message));
+  page.on('request',r=>{if(r.url().endsWith('/api/play'))apiCalls++;});
+  await page.route('**/api/**',route=>route.fulfill({status:503,json:{error:'Backend deliberately unavailable'}}));
   await page.goto('/');
   expect(await page.evaluate(()=>crossOriginIsolated)).toBe(false);
   await page.getByLabel('Spielengine',{exact:true}).selectOption('browser');
@@ -797,6 +799,7 @@ test('real Stockfish browser worker plays all five levels without a desktop engi
   await page.getByRole('button',{name:'Partie starten',exact:true}).click();await play(page,'e4');
   await expect(page.locator('#game-feedback')).toContainText('Stockfish hat gezogen');
   const data=JSON.parse(await exportData(page));expect(data.nodes).toHaveLength(3);expect(data.game.engine).toBe('browser');expect(data.game.level).toBe(Number(level));
+  await context.close();
  }
  expect(apiCalls).toBe(0);expect(errors).toEqual([]);
 });

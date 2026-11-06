@@ -4,8 +4,8 @@ Aktuelle Entwicklungsversion: **0.2.0**. Die Nummer steht oben in der App,
 im Browser-Titel, beim Serverstart und in der lokalen Diagnose.
 Änderungen: [CHANGELOG.md](CHANGELOG.md).
 
-Auf Branch `work` zusätzlich integriert: **„Partie verstehen“ und die Browser-
-Spielengine als noch nicht freigegebener Entwicklungsstand**. Der Rückblick
+Auf Branch `work` zusätzlich integriert: **„Partie verstehen“ und die eigenständige Web-App
+als noch nicht freigegebener Entwicklungsstand**. Der Rückblick
 berücksichtigt Plancommit 2744e63e. Keine neue App-Version
 oder neues Downloadpaket für diesen Schritt. Code und Prüfergebnisse sind im
 Projektstand dokumentiert.
@@ -33,10 +33,60 @@ Tabwechsel erhalten Stellung, Partie, Varianten und Gesprächsentwurf und starte
 keine Engine-/Modellanfrage. Pfeiltasten/Home/End bedienen die Tabnavigation;
 Direktlinks #partie, #lernen, #varianten und #einstellungen sind möglich.
 
-Dies ist die responsive Weboberfläche mit dem bisherigen lokalen Desktop-
-Backend. Der Spielgegner kann im Entwicklungsstand als Browser-Worker laufen;
-Modelltransport, Schlüsselverwaltung und vollständiger Offlinebetrieb sind noch
-nicht für einen eigenständigen Android-/iPad-Betrieb umgesetzt. Details: PLATFORM_ARCHITECTURE.md.
+Der gebaute Web-Stand läuft auch ohne Node-Backend: Stockfish-Spiel und
+zusätzlicher Faktencheck rechnen auf dem Gerät, die Sitzung wird lokal gesichert,
+der KI-Dialog verbindet sich nach deiner Freigabe direkt mit OpenAI. Ein
+Service Worker bereitet Oberfläche und Engine für den Offline-Start vor.
+KI-Anfragen brauchen Internet. Native Geräteabnahme steht noch aus.
+Details: [PLATFORM_ARCHITECTURE.md](PLATFORM_ARCHITECTURE.md).
+
+## Eigenständige Web-App verwenden
+
+In den Einstellungen „Eigenständige Web-App auf diesem Gerät verwenden“ öffnen.
+Ohne Desktop-Backend wird dieser Betriebsweg automatisch gewählt; eine über das
+Browsermenü installierte App startet ebenfalls so. Die vier Tabs bleiben gleich.
+
+- Unter „Eigenen API-Schlüssel eingeben“ Schlüssel, Modell und ein eigenes
+  Gerätepasswort mit mindestens zehn Zeichen eingeben. Nach Kostenfreigabe
+  speichern: Das Feld wird geleert, die Speicherung sichtbar bestätigt. Nach
+  einem Neustart nur das Gerätepasswort unter „Schlüsselfach entsperren“ eingeben.
+  Speichern und Entsperren erzeugen keine KI-Antwort und keine Generierungskosten.
+- Unter „Kostenkontrolle“ Preisannahmen und USD-Budget prüfen. Höchstens drei
+  Generierungsversuche pro Fenster und gespeicherter Budgetperiode; die Periode
+  gilt für alle Fenster derselben Browseradresse. Neuladen, Schlüsselwechsel und
+  Löschen des Schlüssels setzen den Verbrauch nicht zurück. Unsichere Anfragen
+  behalten ihre Reservierung. Die Schätzung ersetzt kein Anbieterlimit.
+- Partie, Varianten, Notizen, Reflexionen, Dialog, importierte PGN und der
+  Nachrichtenentwurf werden automatisch lokal gespeichert. Nach Neuladen bleibt
+  eine Enginepartie pausiert. Mehrere Fenster teilen die zuletzt gespeicherte
+  Sitzung; unabhängige Arbeitsstände als JSON exportieren.
+- „App auf diesem Gerät · offline und Updates“ zeigt die Offline-Bereitschaft.
+  Danach im Browsermenü installieren; auf dem iPad unter Teilen → Zum
+  Home-Bildschirm. Die erste Vorbereitung braucht HTTPS oder localhost und eine
+  Verbindung. Aktualisierungen werden heruntergeladen, aber erst nach deiner
+  Bestätigung und erfolgreicher Sitzungssicherung mit Neuladen übernommen.
+
+**Lokaler Schlüsselspeicher:** AES-GCM-256 mit zufälligem Salt/IV und PBKDF2-
+SHA256 (250.000 Iterationen) verschlüsselt die Zugangsdaten in IndexedDB.
+Das Gerätepasswort wird nicht gespeichert. Der Klartextschlüssel bleibt nur im
+Arbeitsspeicher des entsperrten Fensters. Keine Schlüssel in localStorage,
+sessionStorage, JSON-Export, Diagnose oder Service-Worker-Cache. Sperren,
+Schlüsselwechsel und Löschen sperren über BroadcastChannel auch andere offene
+Fenster derselben Adresse, soweit der Browser diese Schnittstelle unterstützt.
+Bereits gesendete Anfragen lassen sich dadurch nicht zurückrufen.
+
+Das ist ein verschlüsselter lokaler Web-Speicher entsprechend deinem Wunsch,
+kein nativer System-Schlüsselbund. Browserdaten löschen oder eine andere
+Adresse/einen anderen Port verwenden ergibt einen anderen/leeren Speicher.
+Ohne Gerätepasswort kann das Schlüsselfach nicht wiederhergestellt werden;
+den API-Schlüssel dann erneut hinterlegen. Sitzungen bleiben unabhängig als
+JSON übertragbar. App-Code und Browserprofil müssen vertrauenswürdig bleiben.
+Desktop-Dateiprofile werden nicht automatisch in den Browser übertragen.
+
+Zum Prüfen ohne Veröffentlichung reicht `npm run build` und ein statischer
+HTTP-Host für den Inhalt von `web-dist` (am Domain-Stamm, nicht über file://).
+Der Web-Stand benötigt im Betrieb weder Node noch npm oder ein Cloud-Secret.
+Öffentliches Hosting ist ein separater Auftrag und wurde nicht eingerichtet.
 
 ## Start auf deinem PC
 
@@ -60,8 +110,8 @@ Die App läuft nur lokal, standardmäßig auf Port 5173 (`CHESS_PORT` ist option
 Ist der Standardport belegt oder vom Betriebssystem gesperrt, wählt die App
 automatisch einen freien lokalen Port und öffnet dessen Adresse. Ein ausdrücklich
 gesetzter CHESS_PORT bleibt verbindlich und meldet bei Problemen den Fehlercode.
-Der reine statische Web-Build hat keine Modell-/Engine-API; npm start stellt
-beides bereit. Quellcodeentwicklung ist mit npm run dev möglich.
+Der statische Web-Build verwendet die lokalen Browseradapter. `npm start` stellt
+zusätzlich die bisherigen Desktop-APIs bereit. Quellcodeentwicklung ist mit npm run dev möglich.
 
 Eine kurze Schrittfolge liegt auch in **ERSTE_SCHRITTE.txt**. Das Windows-Paket
 ist kein veröffentlichtes Release; native Windows-Abnahme steht weiterhin aus.
@@ -96,7 +146,7 @@ Faktencheck bleibt ein separater ausdrücklicher Aufruf.
 ## Spielengine im Browser – integrierter Entwicklungsstand
 
 Unter „Partie → Neue Partie einrichten → Spielengine“ zwischen Desktop-Engine
-(bisheriger Standard) und „Browser-Engine · auf deinem Gerät“ wählen. Die zweite
+(Standard im Desktopbetrieb) und „Browser-Engine · auf deinem Gerät“ wählen. Die zweite
 Variante berechnet Stockfish-Züge in einem eigenen Web Worker auf dem Gerät;
 sie ruft keine Spielengine-API und keinen KI-Anbieter auf. Alle fünf Spielstufen
 verwenden dieselben Grenzen: ein Thread, 16 MiB Hash, Tiefe 12, 20.000 Knoten und
@@ -111,13 +161,11 @@ Tabwechsel und PGN-Import starten keinen Worker.
 
 Der Web-Build enthält unveränderte Stockfish-19.0.1-Lite-Single-Dateien (WASM
 etwa 1,85 MB), GPL-Lizenz und Quellverweis. Es gibt keinen Engine-CDN-Aufruf.
-Nur diese versionierten öffentlichen Engine-Dateien dürfen im HTTP-Cache liegen;
-keine API-Antworten, Schlüssel oder Sitzungen. Kein Service Worker wurde ergänzt.
-Die Engine läuft ohne SharedArrayBuffer/cross-origin isolation. Ein statischer
-HTTP-Host für die App-Dateien reicht für diesen Spielmodus; file:// ist kein
-unterstützter Startweg. Der komplette KI-Lerndialog und Schlüsselweg benötigen
-weiterhin das bisherige Backend. Native Safari-/Android-/iPad-Abnahme und
-vollständiger PWA-Offlinebetrieb bleiben offen.
+Der Service Worker speichert ausschließlich öffentliche App-Dateien und Engine-
+Assets, niemals API-Antworten, Schlüssel oder Sitzungen. Die Engine läuft ohne
+SharedArrayBuffer/cross-origin isolation. Spielgegner und zusätzlicher taktischer
+Faktencheck laufen im Webbetrieb als getrennte, begrenzte Worker auf Aufruf.
+Die Nutzer-PGN und native Safari-/Android-/iPad-/Windows-Abnahme bleiben offen.
 
 ## Partie verstehen – integrierter Entwicklungsstand
 
@@ -218,7 +266,7 @@ Ein verständlicher Plan ist dadurch noch nicht taktisch bestätigt.
 Dieser Auftrag ist implementiert; ein realer Lerndialog muss die Qualität
 noch nachweisen. Siehe Humanfaktor-Kriterien in DEVELOPMENT_PLAN.md.
 
-## Eigenen API-Schlüssel direkt eingeben
+## API-Schlüssel im bisherigen Desktopbetrieb
 
 1. Unter „Einstellungen“ den Abschnitt „Eigenen API-Schlüssel eingeben“ öffnen.
 2. Schlüssel und Modell eingeben (vorbelegt: gpt-4.1-mini).
@@ -325,17 +373,18 @@ des Updates keine zweite Installation starten und keinen Quellcode bearbeiten.
   1 s Suchzeit, 8 s Prozess-Timeout. Aktuelle FEN ohne Wiederholungshistorie
   oder Tablebases. Angezeigte Varianten sind regelgeprüft; Werte gelten unter
   diesen Suchbedingungen und sind keine absolute strategische Wahrheit.
-- Sitzungsdaten liegen bis zum JSON-Export nur im Arbeitsspeicher. Vor Neuladen
-  exportieren; Datei-/Textimport validiert Varianten und erhält Gedächtnis und
+- Im Desktopbetrieb liegen Sitzungen bis zum JSON-Export im Arbeitsspeicher;
+  im Webbetrieb werden sie automatisch in IndexedDB gesichert. Datei-/Textimport validiert Varianten und erhält Gedächtnis und
   Suchbefunde. API-Schlüssel und Kostenkonto gehören nicht zum Export.
 
 ## Nachweise und Grenzen
 
-`npm run test:all`: Typprüfung, Build, **86 Einzeltests und 43 Chromium-
+`npm run test:all`: Typprüfung, Build, **93 Einzeltests und 49 Chromium-
 Browsertests**. Der gebaute Anwendungsserver wird getestet, einschließlich
 echtem lokalem Stockfish. Schlüsseltests verwenden ausschließlich bedeutungslose
-Testwerte, Provider-/Update-Tests lokale Fixtures. Es wurde kein echtes Update
-auf diesen Arbeitsstand und keine kostenpflichtige Textgenerierung ausgeführt.
+Testwerte, Provider-/Update-Tests lokale Fixtures. Die bestätigte Web-Updateübernahme wurde mit einem echten Service Worker auf
+einem lokalen Prüfserver getestet. Kein Release, Deployment, Git-App-Update
+oder kostenpflichtige Textgenerierung ausgeführt.
 Ein realer Modelltest und manuelle Nutzerabnahme stehen aus.
 
 [Entwicklungsplan](DEVELOPMENT_PLAN.md) · [Projektstand](PROJECT_STATE.md) · [Prüfergebnisse](docs/VALIDATION.md) ·

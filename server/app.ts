@@ -21,7 +21,7 @@ export function createStudioServer(options: { webRoot?: string; env?: NodeJS.Pro
   const api = modelMiddleware(new ModelService(readConfig(env), fetch, store,new CostControl((options.credentialsPath ?? credentialsPath(env))+'.usage.json')), raw => stockfish.check(raw),new UpdateService(fileURLToPath(new URL('../../',import.meta.url))),raw=>playingEngine.move(raw));
   return createServer((req,res) => {
     res.setHeader('X-Content-Type-Options','nosniff');
-    res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'");
+    res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; style-src 'self'; connect-src 'self' https://api.openai.com; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'");
     const host = req.headers.host ?? '';
     if (!/^(127\.0\.0\.1|localhost|\[::1\]):\d+$/.test(host)) { res.writeHead(403);res.end('Nur lokal verfügbar.');return; }
     void api(req,res,() => { void (async () => {
@@ -31,7 +31,7 @@ export function createStudioServer(options: { webRoot?: string; env?: NodeJS.Pro
       let relative: string;
       if(engine)relative=path.slice(1);
       else if (path === '/' || path === '/index.html') relative = 'index.html';
-      else if(path==='/manifest.webmanifest' || /^\/icons\/(icon-192|icon-512|apple-touch-icon)\.png$/.test(path))relative=path.slice(1);
+      else if(path==='/service-worker.js' || path==='/manifest.webmanifest' || /^\/icons\/(icon-192|icon-512|apple-touch-icon)\.png$/.test(path))relative=path.slice(1);
       else if (/^\/assets\/[a-zA-Z0-9_-]+\.(js|css)$/.test(path)) relative = path.slice(1);
       else {res.writeHead(404);res.end('Nicht gefunden.');return;}
       try {

@@ -52,9 +52,10 @@ export async function checkTactics(session: Session, current: () => Session, ada
   return 'stored';
 }
 export class ServerTacticalAdapter implements TacticalAdapter {
+  constructor(private transport:typeof fetch=(input,init)=>fetch(input,init)){}
   async check(fen: string, candidate: string | null,history?:PositionHistory): Promise<unknown> {
     let response: Response;
-    try { response = await fetch('/api/tactics', { method:'POST', headers:{'Content-Type':'application/json'},
+    try { response = await this.transport('/api/tactics', { method:'POST', headers:{'Content-Type':'application/json'},
       body:JSON.stringify({fen,candidate,...(history?{history}:{})}), signal:AbortSignal.timeout(12000) }); }
     catch { throw new Error('Stockfish nicht erreichbar oder Zeitlimit überschritten.'); }
     if (!response.ok) throw new Error(response.status === 429 ? 'Stockfish prüft bereits eine Stellung.' : 'Stockfish-Prüfung fehlgeschlagen. Stellung und Eingabe prüfen.');

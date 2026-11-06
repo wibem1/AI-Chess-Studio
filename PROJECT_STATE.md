@@ -3,7 +3,7 @@
 Stand: 6. November 2026 · ausgelieferte Basis **0.2.0**
 
 Branch work: zusätzlich integrierter, noch nicht freigegebener Entwicklungsstand
-„Partie verstehen“ und Browser-Spielengine. Gemäß neuer Anforderung keine neue
+„Partie verstehen“ und eigenständige Web-App mit Browser-Spielengine. Gemäß neuer Anforderung keine neue
 App-Versionsnummer und kein Downloadpaket für diese Integrationsschritte.
 
 ## Verbindliches Ziel
@@ -110,50 +110,65 @@ Native Safari-/Android-/iPad-Abnahme offen.
 - Mausziehen, Touch-Taps, natives Wischen, Seitenziehen auf Text statt Markieren,
   separate Scrollhilfe und rein lokale Bedienungsdiagnose ohne Eingabewerte.
 
+## Integriert: eigenständige Web-App und Offlineweg
+
+- Ohne Node-Backend bzw. bewusst über den Web-Link: browserlokaler Enginegegner
+  und zusätzlicher taktischer Faktencheck, direkter begrenzter OpenAI-Transport.
+  Bestehender Desktopbetrieb bleibt als separater Adapter verfügbar.
+- Nutzerentscheidung „Key wird lokal gespeichert“ für den Webbetrieb umgesetzt:
+  ausschließlich AES-GCM-verschlüsseltes Schlüsselfach in IndexedDB, eigenes
+  Gerätepasswort nicht gespeichert; Klartext nur im entsperrten RAM. Kein
+  Klartextschlüssel in Browser-Storage/Export/Diagnose/Offline-Cache. Nach Reload
+  entsperren statt Key erneut eingeben, sichtbare Speicher- und Fehlerbestätigung.
+- Gemeinsame Dialogvalidierung/Systemvorgaben und Kostenlogik mit Desktop.
+  Höchstens drei Versuche je Fenster und persistenter Budgetperiode, atomare
+  Reservierung auch zwischen Fenstern, konservativer Rest bei unklarer Nutzung.
+  Schlüsselwechsel, Reload und Löschen umgehen den Periodenverbrauch nicht.
+- Browser-Sitzung samt Varianten, Gedanken, Dialog, PGN-Rückblick und Entwurf
+  automatisch lokal gesichert. Wiederherstellung validiert, Partie pausiert;
+  JSON bleibt unabhängige Sicherung/Übertragung. Fehlerhafte gespeicherte Daten
+  werden nicht automatisch überschrieben. Letzte Sitzung gilt je Browseradresse.
+- Installierbarer öffentlicher App-Rahmen: Build erzeugt inhaltsbasierten
+  Service-Worker-Cache nur für App-/Engine-Dateien. Kein API-/Provider-/Schlüssel-
+  Cache. Echter Offline-Neustart mit PGN und Stockfish nach Vorbereitung geprüft.
+- Updates warten auf Zustimmung und erfolgreiche Sitzungssicherung. Kein
+  automatisches Neuladen. Desktop-Git-Update nur im Desktopbetrieb angeboten.
+  Diagnose und Schlüsselfach/Entsperren brauchen keine Textgenerierung.
+- Natives Wischen nach Web-Schlüsselspeicherung bei Windows-/Telefon-/Tablet-
+  Größen, Mausrad und fehlende Textmarkierung automatisiert geprüft. Das ersetzt
+  keine reale Windows-Touch-/Safari-/Android-/iPad-Abnahme.
+
 ## Prüfstand
 
-Typprüfung/Build, **86 Einzeltests und 43 Chromium-Browsertests** bestanden.
-Tests nutzen die tatsächliche gebaute App und echte lokale Stockfish-Prozesse;
-Provider-/Updatezugriffe sind Fixtures, keine bezahlte Anfrage.
+Typprüfung/Build, **93 Einzeltests und 49 Chromium-Browsertests** bestanden.
+Echte lokale Stockfish-Prozesse/Worker, Offline-Reload und wartender Service-
+Worker mit bestätigter Updateübernahme. Providerzugriff nur Fixtures; kein
+kostenpflichtiger Aufruf. Details und Prüfgrenzen: docs/VALIDATION.md.
 
-Bestehende Browserabläufe folgen den sichtbaren Tabs und Aufklappabschnitten
-mit echten Klicks; versteckte Controls werden nicht per DOM-Manipulation geöffnet.
-Neue Fälle prüfen gemeinsame Brettidentität/Daten/Entwurf, keine Modellanfrage
-beim Wechsel, Tastatur, Direktlink/Reload/Browser-Zurück, Partiestart-Einstieg und
-alle Tabs bei 390x844, 820x1180 und 1440x900 ohne horizontales Überlaufen.
-Desktop-/Mobil-/Lern-Screenshots der echten App visuell geprüft. Ausführlicher
-Nachweis und frühere Korrekturen: docs/VALIDATION.md.
+Zentrale Regeln und origin/work vor Sicherung abgeglichen. Keine parallelen
+Agenten, neue Abhängigkeiten, Releases, Deployments, Actions oder Sichtbarkeits-
+änderungen. Version bleibt gemäß Integrationsplan 0.2.0; kein neues Downloadpaket.
+Die vorhandene Cloud-Konfiguration reicht zum Entwickeln/Testen; keine Secrets
+oder neuen Netzfreigaben nötig, kein Umgebungsentwurf geändert/veröffentlicht.
 
-## Grenzen und Nutzerbefunde
+## Offene Abnahme und Grenzen
 
-Nutzer meldete erfolgreichen lokalen Windows-Start und später funktionierende
-Schlüsselspeicherung. Scrollproblem wurde als Textmarkierung beim Ziehen
-präzisiert; die gezielte Browserkorrektur ist geprüft, echte Windows-Touch-
-Abnahme weiterhin offen. Native DPAPI-/Mac-/Safari-/Android-/iPad-Abnahme und
-ein realer pädagogischer Lerndialog sind nicht durch Linux-/Fixturetests ersetzt.
-
-Der Node-Server bindet weiterhin ausschließlich an Loopback. Die Browser-
-Spielengine benötigt nur einen statischen HTTP-Host; Modell-/Schlüsselwege liefern
-noch keinen eigenständigen Android-/iPad-Lernbetrieb. Es gibt keinen Service-
-Worker-/API-/Schlüsselcache und keinen vollständigen Offlinebetrieb.
-Sitzungen bleiben bis zum bewussten Export im Arbeitsspeicher. Skill-Stufen sind
-keine geeichten Elo-Werte; Kostenanzeige ist kein verbindliches Anbieterlimit.
-
-Keine Releases, Deployments, Actions, Sichtbarkeitsänderungen oder kostenpflichtige
-Textgenerierung ausgeführt. Bestehende Freigabe für bis zu drei begrenzte reale
-KI-Tests gilt weiter; nicht erneut nach Cloud-Secrets fragen und niemals einen
-Schlüssel im Chat anfordern.
+- Vollständige Nutzer-PGN 1Vh80QL2 fehlt weiterhin. Synthetische PGNs sind klar
+  benannt und ersetzen diese reale Abnahme nicht. Keine Motive/Züge erfunden.
+- Echter pädagogischer KI-Dialog sowie Provider-CORS/Kontozugriff nicht mit
+  realem Schlüssel geprüft. Tests belegen Vertrag/Bedienung, keine Lernqualität.
+- Native Windows-Touch/DPAPI, macOS/Safari, Android/iPadOS und jeweilige
+  Installation bleiben offen. Browserpasswort-Speicher ist kein nativer Keychain.
+- Webspeicher ist an Browseradresse/Port/Profil gebunden; Browserdatenlöschung
+  entfernt ihn. Mehrere Fenster teilen die letzte Sitzung, keine Cloud-Synchronisation.
+  Preisannahmen sind kein hartes Anbieter-Geldlimit; Web-/Desktopprofile getrennt.
+- Bestehender Node-Server weiterhin ausschließlich Loopback. Für einen öffentlich
+  erreichbaren Start auf Mobilgeräten wäre eine gesondert beauftragte HTTPS-
+  Bereitstellung nötig; diese wurde nicht ausgeführt.
 
 ## Nächste Abnahme
 
-Vollständige Nutzer-PGN 1Vh80QL2 importieren und Perspektive, alle relevanten
-Entscheidungsnummern, zugeordnete Uhrzeiten und Wiederholungen am realen Verlauf
-prüfen. Reale pädagogische KI-Qualität und native Geräteabnahme bleiben offen.
-Keine neue Version/Downloadfreigabe ohne den vereinbarten nächsten Auftrag.
-
-## Weiter vorgesehener Plattformschritt
-
-Browser-Spielengine abgeschlossen. Als nächsten Plattformschritt mobilen
-Modelltransport und dauerhaft lokale Schlüsselablage festlegen und prüfen;
-zusätzlichen browserfähigen Faktencheck und PWA-Offlineweg danach ergänzen. Details und verbleibende Plattformadapter:
-PLATFORM_ARCHITECTURE.md. Parallel bleibt die native Nutzerabnahme offen.
+Reale Nutzer-PGN und gezielte Geräte-/KI-Praxisabnahme des jetzt integrierten
+Webstands. Fehlende Nachweise offen benennen; keine weitere Entwicklungs-
+Teilstufe als fertige native App ausgeben. Keine neue Version/Downloadfreigabe
+oder Veröffentlichung ohne den vereinbarten Auftrag.

@@ -701,3 +701,108 @@ Eigenen statischen Prüfserver danach beendet; keine Netzfreigabe geändert.
 Dies belegt den browserlokalen Spielgegner, keine vollständige mobile/offline-
 fähige Lern-App. Modell-/Schlüssel-/Faktencheckadapter weiterhin Backend; echte
 Safari-/Android-/iPad-/Windows-Abnahme und vollständige Nutzer-PGN bleiben offen.
+
+## Eigenständige Web-App – Abschluss auf work, 6. November 2026
+
+Nutzerauftrag „fertigmachen“: gemeinsame Web-App ohne Node-Pflicht im Betrieb,
+mit lokalem Schlüssel, Humanfaktor/Lerndialog, Sitzungssicherung und Offlineweg.
+Globale Regeln und origin/work abgeglichen; keine neueren fremden Änderungen.
+Keine neue Version/Downloadfreigabe, kein Release/Deployment, keine bezahlte API.
+Die vorhandene Entwicklungsumgebung wurde genutzt, keine neue Netzfreigabe oder
+Secrets konfiguriert und kein Umgebungsentwurf geändert/veröffentlicht.
+
+### Implementierte Grenzen
+
+- Shared model-contract/CostLedger erhalten Desktopprüfung und Humanfaktor.
+  Browsertransport: feste OpenAI-HTTPS-Pfade, CORS, keine Cookies/Referrer/
+  Redirects, 15 Sekunden, 800 Ausgabe-Tokens, 64 KiB Antwort. Speichern und
+  Entsperren ohne Providerkontakt; Modell-Metadaten nur auf ausdrücklichen Aufruf.
+- Gerätepasswort-geschütztes AES-GCM-256-Schlüsselfach in IndexedDB, PBKDF2-SHA256
+  250.000 Iterationen, frisches Salt/IV; Passwort nicht persistiert. Ausschließlich
+  Ciphertext im Webspeicher, Klartext nur im entsperrten RAM. Dies konkretisiert
+  den ausdrücklichen lokalen Schlüsselwunsch für die Web-App, kein nativer Keystore.
+  BroadcastChannel sperrt andere Fenster bei Sperren/Ändern/Löschen, ohne Werte
+  zu übertragen; Schlüsselaktion und Modellanfrage können lokal nicht überlappen.
+- Jede Budgetreservierung ist eine vollständige IndexedDB-Transaktion. Drei
+  Versuche je Fenster und gespeicherter Periode, auch über Reload/Schlüsselwechsel
+  hinweg. Unsichere Nutzung bleibt reserviert; Preise/Budget sind Schätzwerte.
+- Browser-UCI-Prozess für Gegner und getrennten Faktencheck: bounded Worker,
+  volle historische importierte Zugfolge, Kandidat/SAN/PV/Perspektive validiert.
+  Kein ungefragter Faktencheck, Wiederholungsschutz und Originalzug-Sperre intakt.
+- Serialisierte automatische Sitzungssicherung plus Entwurf, validierter Restore,
+  pausierte Partie und bestehender JSON-Weg. Ladefehler überschreiben vorhandene
+  lokale Daten nicht. Ein Speicherstand pro Browseradresse, keine Cloud-Synchronisation.
+- Inhaltsbasierter SW-Cache nur für exakt gebaute öffentliche App-/Engine-Dateien.
+  Nie APIs, externe Hosts, POSTs oder Asset-Queries. Kein Key-/Passwort-/Sitzungs-
+  Cache. Installation verlangt HTTPS/localhost. Neuer Worker bleibt wartend bis
+  Zustimmung und erfolgreicher Sitzungssicherung; kein automatisches Neuladen.
+
+### Prüfungen und Ergebnisse
+
+`npm run test:all` im finalen Quellstand: Typprüfung und Produktionsbuild sowie
+**93 Einzeltests und 49 Chromium-Browsertests bestanden**, keine Fehler,
+übersprungenen oder ausstehenden Fälle. Node 24.22.1, gepinnte Abhängigkeiten
+unverändert. Echte lokale Stockfish-Prozesse und Browser-WASM, Anbieter-/Git-
+Updateantworten ausschließlich Fixtures; keine echten Anbieterzugangsdaten.
+
+Sieben neue Einzeltests prüfen AES-Zufallswerte/Entschlüsselung/Manipulations-
+schutz, Neustart/Entsperren/Löschen ohne Provider, festen Transportvertrag und
+periodisches Limit über neue Runtimeinstanzen, ungültige Anfrage/Antwort und
+konservative Reservierung, Schutz vor paralleler Schlüsseländerung, UCI-Historie/
+Kandidat/Weißperspektive sowie Metadatenprüfung ohne Anfrageverbrauch.
+
+Sechs neue Browserfälle prüfen:
+
+1. Reale IndexedDB-Verschlüsselung, klare Speicherbestätigung und leere Eingaben,
+   Mausrad nach Speichern, falsches/richtiges Gerätepasswort, nach Reload gesperrt,
+   erfolgreicher Fixture-Dialog, Wiederherstellung und kein Key/Passwort im Export.
+2. Zwei Fenster mit gemeinsamen atomaren Reservierungen: von vier zeitnahen
+   Anfragen kommen genau drei zum nachgebildeten Provider; Limit nach Reload erhalten.
+3. Echter zusätzlicher Browser-Stockfish-Befund samt Auto-Restore bei gesperrten
+   Backend-APIs, keine Spiel-/Taktik-/Modellanfrage an einen App-Server.
+4. Natives Fingerwischen nach Schlüssel-Speichern bei 1440x900, 390x844 und
+   820x1180: Seite bewegt sich, kein markierter Text, kein horizontales Überlaufen.
+5. Echter SW-App-Cache, Offline-Reload mit PGN/Reflexion und gesperrtem Key;
+   anschließend ausdrücklicher Wechsel zum freien Spiel und echter WASM-Gegenzug.
+   Cache enthält Engine, keine API-/OpenAI-URLs. Kein künstlicher Offline-Fixture-HTML.
+6. Auf separatem lokalen Prüfserver geänderter SW/Index: real wartender Worker,
+   keine vorzeitige Aktualisierung, fehlende Zustimmung verhindert Reload,
+   bestätigte Übernahme lädt neuen Index und erhält den Nachrichtenentwurf.
+
+Die fünf Spielstufen werden jetzt in getrennten frischen Browserkontexten geprüft:
+Neuladen ist wegen des neuen Auto-Restore keine Garantie einer leeren Partie mehr.
+Keine Assertion abgeschwächt. Neue Engine-UCI-Helfer erhalten alle vorherigen
+Abbruch-/Timeout-/Zugschutztests. Bestehende 43 Desktop-/PGN-/Dialog-/Touchfälle grün.
+
+Bei der Eingrenzung gab es einen nativen fetch-Aufruf mit falschem `this` im neuen
+Browsertransport; durch Wrapperbindung behoben und echte Browser-Fixture-Aufrufe
+verifiziert. Der Offline-Spieltest verlässt jetzt ausdrücklich den geführten
+Rückblick und wählt die Ausgangsstellung, statt eine dort absichtlich gesperrte
+Enginepartie oder einen falschen Zugturn zu erwarten. Schutzlogik unverändert.
+Die abschließende Sichtprüfung kürzt Schlüsseltexte und zeigt Entsperren vor
+Neueingabe; die letzte Oberfläche wurde erneut im vollständigen Prüflauf getestet.
+
+Erster Standard-Sandboxlauf scheiterte an EPERM für localhost, vollständiger Lauf
+mit zulässigen lokalen Serverprozessen erfolgreich. Zusätzlicher direkter Node-
+Lauf außerhalb npm hatte beim Update-Fixture den fehlenden npm_execpath als
+Voraussetzung; dokumentierter npm-Prüfweg bestand vollständig, gezielter Update-
+Test mit dem vorhandenen npm-Pfad ebenfalls 5/5. Keine Tests deaktiviert.
+
+Zusätzliche Prüfung auf reinem Python-http.server über Loopback, ohne Node-App:
+
+```json
+{"staticHost":true,"backendStatus":404,"browserEngineReply":true,"backendModelPlayTacticsCalls":0,"viewportFits":true}
+```
+
+Eigener statischer Prüfserver anschließend beendet. Desktop- und Telefon-
+Einstellungen der echten gebauten App als lokale Screenshots gesichtet; keine
+Schlüsselwerte aufgenommen. `git diff --check` sauber. Code, diese Prüfergebnisse
+und aktueller PROJECT_STATE werden zusammen auf work gesichert.
+
+### Verbleibende Abnahme
+
+Kein Beleg für echten OpenAI-CORS/Kontozugriff oder pädagogische Antwortqualität,
+keine native Windows-Touch/DPAPI-/macOS-Safari-/Android-/iPadOS-Abnahme. Ein
+öffentlicher HTTPS-Startpunkt für Mobilgeräte wurde nicht veröffentlicht.
+Vollständige Nutzer-PGN 1Vh80QL2 fehlt weiterhin; synthetische legale Test-PGNs
+bleiben ausdrücklich als solche markiert und ersetzen diesen Pflichtfall nicht.

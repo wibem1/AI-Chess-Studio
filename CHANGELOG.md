@@ -1,5 +1,19 @@
 # Änderungen
 
+## Noch nicht freigegeben – eigenständige Web-App (6. November 2026)
+
+- Browserlokaler KI-Transport mit lokaler AES-GCM-Schlüsselverschlüsselung;
+  Gerätepasswort entsperrt nach Neustart, kein Klartextschlüssel im Webspeicher.
+- Persistente, fensterübergreifend atomare Budgetreservierung und Diagnose ohne
+  Textgenerierung; gemeinsame Vertrag-/Kostenlogik mit dem Desktopbetrieb.
+- Browserfähiger zusätzlicher taktischer Faktencheck, automatische Sitzungssicherung
+  und pausierte Wiederherstellung einschließlich PGN-Lernrückblick/Entwurf.
+- Installierbare PWA mit ausschließlich öffentlichem Offline-App-/Engine-Cache,
+  Updates erst nach Bestätigung und erfolgreicher Sitzungssicherung.
+- 93 Einzeltests und 49 Chromium-Browsertests; echte Engines und Offline-/Worker-
+  Abläufe, Anbieter nur Fixtures. Reale PGN, Geräte- und KI-Abnahme bleiben offen.
+  Keine neue Versionsnummer, Downloadfreigabe, Veröffentlichung oder bezahlte API.
+
 ## Noch nicht freigegeben – Browser-Spielengine (6. November 2026)
 
 - Zusätzlicher begrenzter Stockfish-WASM-Worker im Browser, bestehende

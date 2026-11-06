@@ -1,80 +1,91 @@
 # Gemeinsame Plattformbasis
 
-Zielplattformen des Nutzers: Windows, macOS, Android und iPadOS. Das ist eine
-langfristige Anforderung, keine Behauptung einer bereits fertigen Mobil-App.
-Seit 6. November 2026 ist die gemeinsame browserbasierte App der primäre Weg;
-eine installierbare PWA ist das langfristige Ziel, native Hüllen sind optional.
-0.2.0 liefert die Tab-Oberfläche. Auf work ist zusätzlich ein Browser-Spielgegner
-integriert; Modell-/Schlüsselwege sind noch nicht eigenständig mobil umgesetzt.
+Ziel: eine persönliche deutschsprachige Schach-Lern-App für Windows, macOS,
+Android und iPadOS. Die gemeinsame responsive Web-App ist der primäre Weg;
+native Hüllen sind optional. Der Stand auf work ist integriert, noch nicht
+als neue App-Version oder Download freigegeben. Native Geräteabnahme bleibt offen.
 
-## Gemeinsamer Kern
+## Gemeinsamer Kern und Betriebsarten
 
-`src/` enthält Schachzustand, Lernpartie, Varianten, Lernangaben und
-Dialogverträge ohne Node-/Windows-Imports. `web/` ist eine gemeinsame
-responsive HTML-/TypeScript-Oberfläche mit Touch-/Tastaturbedienung. Die vier
-Tabs Partie/Lernen/Varianten/Einstellungen teilen dasselbe Brett und behalten
-Daten/Entwürfe beim Wechsel; auf kleinen Viewports steht die Navigation unten.
-Lerninformationen bleiben im plattformneutralen JSON-Format exportierbar.
-Manifest, Startbildschirm-Icons und Apple-Touch-Icon sind vorhanden. Es gibt
-bewusst keine Service-Worker-Caches für Schlüssel, Sitzungen oder API-Antworten
-und noch keinen Offlinebetrieb.
+`src/` enthält Zustand, Regelprüfung, Varianten, eigene Gedanken und
+Lernverträge ohne Node-/Windows-Abhängigkeiten. Vier Tabs teilen ein Brett.
+Enginegegner, zusätzliche taktische Prüfung und KI-Lernbegleiter sind getrennt.
+`PlayingEngine`, `TacticalAdapter` und `DialogueAdapter` bleiben Austauschgrenzen.
+`model-contract.ts` und `costs.ts` teilen Dialogprüfung und Kostenlogik zwischen
+Browser und Desktop; filesystem/DPAPI/Git bleiben in `server/`.
 
-Vorhandene Austauschgrenzen: `PlayingEngine`, `TacticalAdapter`,
-`DialogueAdapter` und serverseitig `CredentialsStore`. Neue Plattformen
-implementieren diese Grenzen; sie duplizieren nicht die Lernlogik.
-
-## Aktueller und geplanter Betriebsweg
-
-| Plattform | Aktuell implementiert/geprüft | Für eigenständigen Betrieb noch nötig |
+| Funktion | Eigenständiger Webbetrieb | Bisheriger Desktopbetrieb |
 | --- | --- | --- |
-| Windows | Node-Server/Starter/DPAPI-Code; zusätzlich realer Browser-Worker unter Chromium | Native Windows-/DPAPI-Abnahme |
-| macOS | Derselbe Node-Server, ausführbarer .command-Starter bei installiertem Node 24 | Native Safari-/Mac-Abnahme; Keychain-Adapter und Mac-Paket |
-| Android | Touch-Oberfläche und echter WASM-Spielgegner bei Android-Größe im Chromium-Test | Mobile Modell-/Schlüsseladapter und native Geräteprüfung |
-| iPadOS | Touch-Oberfläche und echter WASM-Spielgegner bei iPad-Größe im Chromium-Test | Safari-/Echtgerätetest, mobile Modell-/Schlüsseladapter |
+| Auswahl | Statischer Host, installierte PWA oder explizit `?platform=web` | Erreichbare lokale Node-API |
+| Spielen | Begrenzter Stockfish-Lite-Single-WASM-Worker | Stockfish-Prozess oder Browser-Worker |
+| Zusätzlicher Faktencheck | Eigener WASM-Worker auf Klick | Lokaler Stockfish-Prozess auf Klick |
+| KI-Dialog | Direkter CORS-HTTPS-Aufruf zu OpenAI nach Freigabe | Lokaler HTTP-Adapter, dann HTTPS zu OpenAI |
+| Schlüssel | AES-GCM-verschlüsselte IndexedDB; Gerätepasswort nicht gespeichert; Klartext nur RAM | Windows-DPAPI-Dateiprofil; POSIX privat, derzeit unverschlüsselt |
+| Kosten | IndexedDB, atomare Reservierungen über Fenster hinweg | Persistente private JSON-Datei |
+| Sitzung | Automatisch lokal in IndexedDB plus bewusster JSON-Export | RAM plus bewusster JSON-Export |
+| Update | Neuer Service Worker wartet auf Zustimmung und erfolgreiche Sicherung | Bestätigtes Git-/npm-Update mit Schutz eigener Änderungen |
 
-Der aktuelle lokale Node-Server bindet nur an Loopback. Eine iPad-/Android-
-Standalone-App kann ihn nicht einfach auf dem Gerät starten. Das Manifest
-ersetzt diesen Backendteil nicht. Nur der neue Browser-Spielgegner benötigt
-keine Node-Engine-API; Modellzugriff, lokaler Key-Store und Git-Updates sind
-weiterhin Desktop-Funktionen. Es gibt noch keinen vollständigen Offlinebetrieb.
+Der vorhandene Node-Server bleibt an Loopback gebunden. Keine Netzfreigabe,
+öffentliche Bereitstellung oder neue Authentifizierungsbehauptung. Der statische
+Build braucht HTTPS oder localhost, am Domain-Stamm; file:// ist nicht unterstützt.
+Ein Backend-Ausfall beim Start wählt den Webbetrieb; im geöffneten Fenster gibt
+es keinen stillen Wechsel zwischen den getrennten Schlüssel-/Kostenprofilen.
 
-## Browser-Engine im Entwicklungsstand
+## Lokale Schlüssel und Transport
 
-PlayingEngine hat jetzt Browser- und Desktopadapter. Gemeinsam genutzt werden
-Geschichte, legale Züge, Endbedingungen und die fünf begrenzten Stufen. Jeder
-Browserzug verwendet einen frischen Lite-Single-Worker und beendet ihn danach;
-Pause/Neustart können ihn sofort abbrechen. Kein SharedArrayBuffer und keine
-COOP-/COEP-Voraussetzung. Genau definierte selbst ausgelieferte Engine-Assets,
-keine fremden Laufzeitdomains. Lizenz/Quellbezug siehe THIRD_PARTY_NOTICES.md.
+Entsprechend dem ausdrücklichen Nutzerwunsch nach lokalem Schlüssel in einer
+Web-App wird ausschließlich verschlüsselter Inhalt im Browser dauerhaft gespeichert.
+Kein Klartextschlüssel in Browser-Storage, Sitzungen, Diagnose oder Offline-Dateien.
+PBKDF2-SHA256 mit 250.000 Iterationen, Salt 16 Byte; AES-GCM-256 mit zufälligem
+12-Byte-IV und Formatbindung als AAD. Gerätepasswort mindestens zehn Zeichen,
+nicht persistiert; nach Neustart explizit entsperren. Kein Schlüssel-Sync.
+Dieser Web-Speicher ersetzt keinen nativen Keychain-/Keystore-Adapter und schützt
+nicht gegen kompromittierten App-Code oder ein kompromittiertes Browserprofil.
 
-Echte Chromium-Worker auf allen fünf Stufen, mit vollständig gesperrten
-Backend-APIs, auf Telefon-/iPad-Größen, mit Abbruch/Fortsetzen und Fehlerfall
-geprüft. Die Fähigkeit wird nicht als native Safari-/Android-Abnahme ausgegeben.
-Der zusätzliche TacticalAdapter bleibt serverseitig und startet nur auf Klick.
+OpenAI ist der einzige Provider-Zielhost: feste HTTPS-Pfade, keine Weiterleitung,
+keine Cookies/Referrer, CORS, 15 Sekunden, maximal 800 Ausgabe-Tokens und 64 KiB
+Antwort. Keine automatischen Zugangs-/Generierungsaufrufe beim Speichern,
+Entsperren, Tabwechsel oder PGN-Import. Metadatenprüfung nur ausdrücklich.
+Kontext, Humanfaktor, Kandidaten und Antwortformat werden gleich wie am Desktop
+validiert. Providerfehler geben keine Rohantwort/Schlüssel aus. Reales Provider-
+CORS und pädagogische Antwortqualität wurden nicht mit einem echten Key geprüft.
 
-## Nächster Schritt zur selbständigen Web-App
+Kostenreservierungen laufen in jeweils einer IndexedDB-Lese-/Schreibtransaktion,
+sodass mehrere Fenster die Periode nicht gleichzeitig überbuchen können.
+Maximal drei Versuche je Fenster und Periode, konservative Reservierung bei
+unklarem Verbrauch, keine Retries. Preisannahmen sind Schätzwerte, kein hartes
+Anbieter-Geldlimit. Web-/Desktopbudgets sind getrennt; Wechsel setzt kein Profil
+zurück. Sperr-/Änderungssignal per BroadcastChannel enthält keine Zugangsdaten.
 
-Modelltransport und dauerhaft lokale Schlüsselablage für Browsergeräte festlegen
-und prüfen. Bestehende Windows-DPAPI-/POSIX-Profile werden nicht als mobil verfügbar
-ausgegeben. Danach browserfähigen taktischen Faktencheck und den vollständigen
-PWA-/Offlineweg ergänzen; keine Schlüssel-/API-Caches als Abkürzung einführen.
+## Engine, Daten und Offlineweg
 
-## Nächste Plattformadapter
+Stockfish 19.0.1 Lite-Single wird unverändert mit GPL-Lizenz und Quellverweis
+selbst ausgeliefert, kein CDN. Ein Thread, Hash 16 MiB, Tiefe 12/20.000 Knoten,
+200–1000 ms für Spielzüge; Faktencheck 1000 ms. Acht Sekunden Gesamtfrist,
+64 KiB Ausgabe, Workerende bei Erfolg/Fehler/Abbruch. Keine COOP-/COEP- oder
+SharedArrayBuffer-Voraussetzung. Volle geprüfte Historie beim Spielgegner und
+beim Faktencheck importierter Partien; historischer Wiederholungsschutz bleibt.
 
-- Engine: Desktopadapter mit eigenem Stockfish-Prozess und zusätzlicher begrenzter
-  Browser-WASM-Worker implementiert; native mobile Abnahme steht aus.
-- Modelltransport: gemeinsamer Dialogvertrag; sichere native HTTP-Anbindung
-  oder authentifizierter Backendadapter, keine Schlüssel in Browser-Storage.
-- Schlüssel: Windows DPAPI, künftig macOS-/iPadOS-Keychain und Android-Keystore.
-  Der aktuelle POSIX-Dateiweg auf Mac ist privat, aber nicht verschlüsselt.
-  Kein automatisches Synchronisieren des Schlüssels zwischen Geräten.
-- Sitzungen: gemeinsames Schema, später lokaler Datenadapter pro Gerät.
-  Aktuell bewusster JSON-Export/-Import; keine versprochene Cloud-Synchronisierung.
-- Updates: Desktop-Git-Weg existiert; Android/iPad benötigen einen eigenen
-  Paket-/Storeweg. Keine Git-/npm-Installation auf einem iPad voraussetzen.
+Sitzungsformat 1/2 bleibt plattformneutral. Browserdaten sind an Adresse, Port
+und Profil gebunden; mehrere Fenster teilen die zuletzt gespeicherte Sitzung.
+Schreibreihenfolge wird serialisiert; ungültige gespeicherte Daten werden nicht
+stillschweigend überschrieben. Nach Restore pausiert die Partie. JSON ist der
+unabhängige Backup-/Gerätewechselweg, keine Cloud-Synchronisierung.
 
-Vor einer Netzfreigabe über Loopback hinaus sind HTTPS, Authentifizierung,
-Berechtigungen und explizites Pairing nötig. Die bestehenden Schutzregeln
-werden nicht für einen schnellen mobilen Zugriff abgeschaltet. Native
-Hüllentechnik wird separat anhand der genannten Adapter geprüft; aktuell
-wird kein ungeprüftes Framework als fertige Lösung eingeführt.
+Der Service Worker cached eine beim Build erzeugte exakte Liste öffentlicher
+Dateien (Index, gehashte JS/CSS, Manifest/Icons, Engine und Lizenz). Inhaltsbasierter
+Cache-Name; weder APIs noch externe Hosts, POSTs oder Query-Asset-URLs werden
+gecached. Sitzungen liegen separat in IndexedDB. Nach vollständiger Vorbereitung
+startet die Web-App offline und kann lokal spielen/lernen; reale KI braucht Netz.
+Neue Worker aktivieren ein Update erst nach Zustimmung und erfolgreicher Sicherung,
+kein automatisches Neuladen einer laufenden Partie. Alte eigene Shell-Caches
+werden bei Aktivierung entfernt. Keine native Store-/Updateprüfung behauptet.
+
+## Nachgewiesen und offen
+
+Linux-Chromium prüft reale WASM-Spielzüge auf fünf Stufen, browserlokalen
+Faktencheck, Touchgrößen, verschlüsseltes Schlüsselfach, Kostenkonkurrenz,
+Sitzungsrestore, echten Offline-Reload und bestätigte Worker-Updateübernahme.
+Providerantworten sind Fixtures. Native Windows-Touch/DPAPI, macOS/Safari,
+Android und iPadOS sowie echte KI-Lernqualität und die vollständige Nutzer-PGN
+1Vh80QL2 sind noch nicht abgenommen. Details: docs/VALIDATION.md.

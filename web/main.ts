@@ -1,3 +1,6 @@
+import {platformFetch,platformReady,isWebPlatform,browserRuntime} from './platform.js';
+import {AutoSave} from './autosave.js';
+import {installPwa} from './pwa.js';
 import { Chess, type Square } from 'chess.js';
 import { Studio, SimulationAdapter, type SimulationMode,type DialogueTopic } from '../src/dialogue.js';
 import { ServerModelAdapter } from '../src/model-client.js';
@@ -17,6 +20,8 @@ import { installBoardDrag } from './board-drag.js';
 document.getElementById('app-version')!.textContent = `Version ${APP_VERSION}`;
 document.title = `AI-Chess-Studio ${APP_VERSION}`;
 const studio = new Studio();
+let initialized=false;
+const autosave=new AutoSave(browserRuntime.store,()=>({json:studio.session.export(),question:text('question').value}),value=>message('autosave-status',value));
 const game=new LearningGame(()=>studio.session);
 const browserEngine=new BrowserPlayingEngine();
 const desktopEngine=new ServerPlayingEngine();
@@ -38,16 +43,15 @@ function updateMode() {
 }
 async function refreshModelStatus() {
   try {
-    const response = await fetch('/api/status',{signal:AbortSignal.timeout(10000)});
+    const response = await platformFetch('/api/status',{signal:AbortSignal.timeout(10000)});
     if (!response.ok) throw new Error();
     const status = await response.json();
     modelAvailable = status.available === true && status.remaining > 0;
-    message('model-status', modelAvailable ? `KI-Zugang konfiguriert, noch kein Verbindungsnachweis. Verbleibende Anfragen im Serverprozess: ${status.remaining}. Keine Kostengarantie.` : 'Reale KI gesperrt oder Anfragelimit erreicht. Simulation ist verfügbar.');
+    message('model-status', modelAvailable ? `KI-Zugang konfiguriert, noch kein Verbindungsnachweis. Verbleibende Anfragen ${isWebPlatform()?'in diesem Fenster':'im Serverprozess'}: ${status.remaining}. Keine Kostengarantie.` : 'Reale KI gesperrt oder Anfragelimit erreicht. Simulation ist verfügbar.');
   } catch { modelAvailable = false; message('model-status', 'Modellserver nicht verfügbar. Simulation ist verfügbar.'); }
   updateMode();
 }
 $('dialogue-mode').addEventListener('change', updateMode);
-void refreshModelStatus();
 function message(id: string, value: string) { $(id).textContent = value; }
 function attempt(action: () => void, target: string, success: string) {
   try { action(); selected = null; render(); message(target, success); }
@@ -168,6 +172,7 @@ function render() {
   }
   reviewUI.render(data);
   updateMode();
+  if(initialized&&isWebPlatform())void autosave.save().catch(()=>{});
 }
 $('move-form').addEventListener('submit', event => { event.preventDefault(); move(input('move').value.trim()); });
 $('memory-form').addEventListener('submit', event => {
@@ -189,7 +194,7 @@ $('dialogue-form').addEventListener('submit', async event => {
   pending = true; $<HTMLButtonElement>('ask').disabled = true;
   message('dialogue-feedback', `${real ? 'Modellanfrage' : 'Simulation'} läuft … Stellungswechsel ist weiterhin möglich.`);
   try {
-    const result = await studio.ask(question, real ? new ServerModelAdapter() : new SimulationAdapter($<HTMLSelectElement>('simulation-mode').value as SimulationMode),$<HTMLSelectElement>('dialogue-topic').value as DialogueTopic);
+    const result = await studio.ask(question, real ? new ServerModelAdapter(platformFetch) : new SimulationAdapter($<HTMLSelectElement>('simulation-mode').value as SimulationMode),$<HTMLSelectElement>('dialogue-topic').value as DialogueTopic);
     message('dialogue-feedback', result === 'stored' ? `${real ? 'Modellantwort' : 'Beispielantwort'} an der angefragten Stellung gespeichert.` : 'Veraltete Antwort nach Sitzungswechsel verworfen.');
     render();
   } catch (error) {
@@ -223,7 +228,7 @@ $('tactical-form').addEventListener('submit', async event => {
   tacticalPending = true; render();
   message('tactical-feedback', 'Lokaler Faktencheck läuft … Stellungswechsel ist weiterhin möglich.');
   try {
-    const result = await checkTactics(session, () => studio.session, new ServerTacticalAdapter(), input('tactical-candidate').value.trim() || null);
+    const result = await checkTactics(session, () => studio.session, new ServerTacticalAdapter(platformFetch), input('tactical-candidate').value.trim() || null);
     message('tactical-feedback', result === 'stored' ? 'Suchbefund an der angefragten Stellung gespeichert.' : 'Veralteter Suchbefund nach Sitzungswechsel verworfen.');
   } catch (error) {
     message('tactical-feedback', studio.session !== session ? 'Veralteter Faktencheck verworfen.' : error instanceof Error ? error.message : 'Faktencheck fehlgeschlagen.');
@@ -237,14 +242,16 @@ $('api-form').addEventListener('submit', async event => {
   if (button.disabled) return;
   button.disabled = true;
   $('api-form').setAttribute('aria-busy', 'true');
-  const payload = {action:'connect',apiKey:input('api-key').value,model:input('api-model').value.trim(),allowPaid:true};
+  const payload = {action:'connect',apiKey:input('api-key').value,model:input('api-model').value.trim(),allowPaid:true,...(isWebPlatform()?{password:input('vault-password').value}:{})};
+  input('vault-password').value='';
   input('api-key').value = ''; input('api-cost-consent').checked = false;
   input('api-key').blur(); // Dismiss the touch keyboard before waiting for the local store.
   message('api-feedback','Schlüssel wird lokal gespeichert … Das Eingabefeld wurde geleert. Du kannst die Seite weiterhin scrollen.');
   $('api-feedback').focus();
   try {
-    const response = await fetch('/api/model-config', { method:'POST', headers:{'Content-Type':'application/json'},
+    const response = await platformFetch('/api/model-config', { method:'POST', headers:{'Content-Type':'application/json'},
       body:JSON.stringify(payload), signal:AbortSignal.timeout(15000) });
+    if (!response.ok && isWebPlatform()) throw new Error((await response.json()).error);
     if (!response.ok) throw new Error(response.status === 429
       ? 'Eine Modellanfrage läuft. Bitte nach deren Ende erneut speichern.'
       : response.status === 500
@@ -254,42 +261,43 @@ $('api-form').addEventListener('submit', async event => {
     if (status.available !== true) throw new Error('Die Speicherung ist nicht bestätigt. Bitte die lokale Diagnose öffnen.');
     modelAvailable = status.remaining > 0;
     $<HTMLSelectElement>('dialogue-mode').value = 'model'; updateMode();
-    message('credential-status','✓ API-Schlüssel lokal gespeichert. Er wird beim nächsten App-Start wieder geladen.');
-    message('api-feedback','Schlüssel lokal gespeichert und für den nächsten Start hinterlegt. Das leere Feld ist beabsichtigt; du musst den Schlüssel nicht erneut eingeben. Noch keine Modellanfrage ausgeführt.');
-    void refreshModelStatus();
+    message('credential-status',isWebPlatform()?'✓ Schlüsselfach verschlüsselt auf diesem Gerät gespeichert und entsperrt.':'✓ API-Schlüssel lokal gespeichert. Er wird beim nächsten App-Start wieder geladen.');
+    message('api-feedback',isWebPlatform()?'Schlüssel verschlüsselt auf diesem Gerät gespeichert. Nach Neustart mit deinem Gerätepasswort entsperren. Keine Modellanfrage ausgeführt.':'Schlüssel lokal gespeichert und für den nächsten Start hinterlegt. Das leere Feld ist beabsichtigt; du musst den Schlüssel nicht erneut eingeben. Noch keine Modellanfrage ausgeführt.');
+    void refreshModelStatus();void refreshCosts();
   } catch (error) {
     message('api-feedback',error instanceof DOMException && (error.name === 'TimeoutError' || error.name === 'AbortError')
       ? 'Keine rechtzeitige Speicherbestätigung. Der Schlüssel könnte gespeichert sein. Prüfe „Lokale Diagnose anzeigen“, bevor du ihn erneut eingibst.'
       : error instanceof TypeError ? 'Lokaler App-Server nicht erreichbar. Die Speicherung ist nicht bestätigt.'
       : error instanceof Error ? error.message : 'Die Speicherung ist nicht bestätigt.');
   } finally {
-    payload.apiKey = ''; button.disabled = false; $('api-form').removeAttribute('aria-busy');
+    payload.apiKey = ''; if('password' in payload)payload.password=''; button.disabled = false; $('api-form').removeAttribute('aria-busy');
     $('api-feedback').focus({preventScroll:true});
   }
 });
 $('api-disconnect').addEventListener('click', async () => {
   try {
-    const response = await fetch('/api/model-config', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'disconnect'}),signal:AbortSignal.timeout(5000)});
+    const response = await platformFetch('/api/model-config', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'disconnect'}),signal:AbortSignal.timeout(5000)});
     if (!response.ok) throw new Error();
     input('api-key').value = ''; input('api-cost-consent').checked = false;
     $<HTMLSelectElement>('dialogue-mode').value = 'simulation';
     await refreshModelStatus();
     message('api-feedback','Gespeicherter Schlüssel gelöscht. Reale KI ist gesperrt.');
-    message('credential-status','Kein API-Schlüssel lokal gespeichert.');
+    message('credential-status','Kein API-Schlüssel lokal gespeichert.');await refreshCosts();
   } catch { message('api-feedback','Schlüssel konnte nicht entfernt werden. Eine laufende Anfrage abwarten und das Löschen erneut versuchen.'); }
 });
 
 async function localPost(path:string,body:unknown):Promise<any> {
-  const response=await fetch(path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:AbortSignal.timeout(20000)});
+  const response=await platformFetch(path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:AbortSignal.timeout(20000)});
   if(!response.ok)throw new Error('Aktion fehlgeschlagen. Konfiguration, Projektänderungen und Zugriff prüfen.');
   return response.json();
 }
 async function diagnosticData() {
-  const response=await fetch('/api/diagnostics',{signal:AbortSignal.timeout(10000)});
+  const response=await platformFetch('/api/diagnostics',{signal:AbortSignal.timeout(10000)});
   if(!response.ok)throw new Error('Diagnose nicht verfügbar.');
   const data=await response.json();
+  if(isWebPlatform()){$('vault-controls').hidden=!data.model.localKeySaved;$('vault-unlock-fields').hidden=!data.model.locked;$('vault-lock').hidden=data.model.locked;}
   message('credential-status',data.model.localKeySaved === true
-    ? '✓ API-Schlüssel lokal gespeichert. Du musst ihn nicht erneut eingeben.'
+    ? isWebPlatform()?`✓ Verschlüsseltes Schlüsselfach auf diesem Gerät · ${data.model.locked?'gesperrt: mit Gerätepasswort entsperren':'entsperrt'}.`:'✓ API-Schlüssel lokal gespeichert. Du musst ihn nicht erneut eingeben.'
     : 'Kein API-Schlüssel lokal gespeichert.');
   return data;
 }
@@ -300,7 +308,7 @@ async function refreshCosts(fill=false) {
     if(fill){input('cost-budget').value=String(c.budgetUsd);input('cost-input').value=String(c.inputUsdPerMillion);input('cost-output').value=String(c.outputUsdPerMillion);}
   }catch{message('cost-summary','Kostenstatus nicht verfügbar.');}
 }
-void refreshCosts(true);
+
 $('cost-form').addEventListener('submit',async event=>{
   event.preventDefault();try{
     await localPost('/api/costs',{action:'configure',budgetUsd:Number(input('cost-budget').value),inputUsdPerMillion:Number(input('cost-input').value),outputUsdPerMillion:Number(input('cost-output').value)});
@@ -309,7 +317,7 @@ $('cost-form').addEventListener('submit',async event=>{
 });
 $('cost-reset').addEventListener('click',async()=>{
   if(!input('cost-reset-consent').checked){message('cost-feedback','Bitte den Neustart der Budgetperiode bestätigen.');return;}
-  try{await localPost('/api/costs',{action:'reset',confirm:true});input('cost-reset-consent').checked=false;await refreshCosts();await refreshModelStatus();message('cost-feedback','Neue Budgetperiode gespeichert. Das zusätzliche Limit pro Serverstart bleibt bestehen.');}
+  try{await localPost('/api/costs',{action:'reset',confirm:true});input('cost-reset-consent').checked=false;await refreshCosts();await refreshModelStatus();message('cost-feedback','Neue Budgetperiode gespeichert. Das zusätzliche Limit pro Fenster bzw. Serverstart bleibt bestehen.');}
   catch{message('cost-feedback','Budgetperiode konnte nicht neu gestartet werden.');}
 });
 $('diagnose').addEventListener('click',async()=>{
@@ -341,7 +349,7 @@ $('update-install').addEventListener('click',async()=>{
   }catch{message('update-feedback','Update nicht abgeschlossen. Diagnose und lokalen Projektstand prüfen.');}
 });
 
-function restoreSession(json:string){studio.restore(json);game.pause();}
+function restoreSession(json:string){studio.restore(json);game.pause();const g=studio.session.snapshot().game;if(isWebPlatform()&&g)studio.session.setGame({...g,engine:'browser',paused:true,revision:g.revision+1});}
 async function engineTurn(){
   if(enginePending || !game.needsEngine())return;
   enginePending=true;render();
@@ -402,3 +410,38 @@ $('dialogue-begin').addEventListener('click',()=>{
  text('question').value=topic==='comparison'?'Hilf mir, meine Varianten A und B nach Plan, Risiken und menschlicher Spielbarkeit zu vergleichen.':topic==='review'?'Lass uns die Partie durchgehen: Welche Entscheidungen sollte ich zum Lernen genauer betrachten?':r?.idea?`Meine Idee ist: ${r.idea}. ${r.reasoning?'Meine Begründung: '+r.reasoning+'. ':''}Hilf mir, diesen Plan zu prüfen und weiterzudenken.`:'Hilf mir, aus dieser Stellung einen verständlichen Plan zu entwickeln. Frag mich zuerst nach meinen Gedanken.';
  text('question').focus();message('dialogue-feedback','Gespräch vorbereitet. Erst „Nachricht senden“ startet eine Anfrage.');
 });
+
+text('question').addEventListener('input',()=>{if(initialized&&isWebPlatform())void autosave.save().catch(()=>{});});
+for(const action of ['unlock','lock'] as const)$('vault-'+action).addEventListener('click',async()=>{
+ const password=input('vault-unlock-password').value;input('vault-unlock-password').value='';
+ try{const response=await platformFetch('/api/vault',{method:'POST',body:JSON.stringify({action,password})});
+  if(!response.ok)throw new Error((await response.json()).error);
+  await refreshModelStatus();await refreshCosts();
+  message('api-feedback',action==='unlock'?'Schlüsselfach entsperrt. Keine Modellanfrage ausgeführt.':'Schlüsselfach gesperrt.');
+ }catch(error){message('api-feedback',error instanceof Error?error.message:'Schlüsselaktion fehlgeschlagen.');}
+});
+$('session-clear').addEventListener('click',async()=>{
+ if(!input('session-clear-consent').checked){message('autosave-status','Bitte das Löschen bestätigen.');return;}
+ try{game.pause();await autosave.clear();initialized=false;input('session-clear-consent').checked=false;message('autosave-status','Automatische Sitzung gelöscht. Sie wird nach dem nächsten Neuladen wieder aktiviert. Die aktuelle Sitzung kannst du weiterhin exportieren.');}
+ catch{message('autosave-status','Löschen fehlgeschlagen.');}
+});
+void(async()=>{
+ let loaded=false;
+ try{
+  const mode=await platformReady;
+  message('platform-status',mode==='web'?'Eigenständige Web-App · Daten bleiben in diesem Browser auf diesem Gerät.':'Desktopbetrieb · Schlüssel und Kosten liegen im lokalen App-Server.');
+  if(mode==='web'){
+   $('web-mode-link').hidden=true;$('vault-setup').hidden=false;$('desktop-update').hidden=true;$('autosave-controls').hidden=false;
+   input('vault-password').required=true;
+   message('key-storage-explanation','Dein Schlüssel wird verschlüsselt auf diesem Gerät gespeichert. Nach einem Neustart entsperrst du ihn mit deinem Gerätepasswort. Nur von dir gestartete KI-Anfragen oder Zugangsprüfungen verbinden sich mit OpenAI. Der Schlüssel gehört nicht zum Sitzungsexport.');
+   message('session-storage-explanation','Sitzung und Nachrichtenentwurf werden automatisch in diesem Browser gespeichert, ohne Schlüssel oder Gerätepasswort. Pro Browseradresse gilt die zuletzt gespeicherte Sitzung; zum unabhängigen Sichern oder Übertragen JSON exportieren.');
+   $<HTMLSelectElement>('engine-location').value='browser';$<HTMLSelectElement>('engine-location').options[0]!.disabled=true;
+   const saved=await browserRuntime.store.get<import('../src/browser-store.js').BrowserSession>('session');
+   if(saved){restoreSession(saved.json);text('question').value=typeof saved.question==='string'?saved.question.slice(0,16000):'';message('storage-feedback','Letzte Sitzung auf diesem Gerät wiederhergestellt. Eine Enginepartie bleibt zunächst pausiert.');}
+  }
+  loaded=true;
+ }catch{message('platform-status','Lokale Daten konnten nicht vollständig geladen werden. Vor Änderungen vorhandene Sitzungsdaten sichern. JSON-Import und Simulation bleiben verfügbar.');}
+ finally{initialized=loaded;render();$('workspace').inert=false;await refreshModelStatus();await refreshCosts(true);installPwa(async()=>{if(!initialized)throw new Error('Lokale Sitzung nicht bereit.');await autosave.save();});}
+})();
+
+window.addEventListener('chess-vault-change',()=>{void refreshModelStatus();void refreshCosts();});
