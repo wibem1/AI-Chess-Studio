@@ -1,7 +1,11 @@
 # Projektstand
 
-Stand: 6. November 2026 · **0.7.0 vollständig geprüft, Bereitstellung ausstehend**.
-Letzter bestätigter Online-Stand 0.6.0, Nachweis unten.
+Stand: 6. November 2026 · **0.7.0 veröffentlicht, GitHub-Erfolg bestätigt**.
+Quelle 5c5e9e298286b56498ad4edbfab979ecf58d8c78; gh-pages
+25527617b61573a816c3ee620acd76b68b6d0f4d; Run 42312123694 SUCCESS.
+Öffentliches commitgebundenes BUILD.json bestätigt Version, Basis, Quellcommit
+und Maia-Modellfingerabdruck (22 Builddateien). Liveabruf von github.io hier
+netzpolitisch gesperrt; native Geräteabnahme bleibt getrennt offen.
 Aktueller Auftrag: Maia als wirklichen alternativen Gegner anschließen.
 
 Echte Maia-2-Blitz-ONNX-Inferenz im einzelnen CPU-WASM-Browserworker, lokal auf
@@ -28,8 +32,9 @@ und sechs betroffene Browserfälle bestanden. Echte Maia-Desktopansicht visuell
 kontrolliert.
 Keine kostenpflichtigen Modellaufrufe. Native Windows-/macOS-/Android-/iPad-
 Abnahme und subjektive menschliche Spielqualität bleiben gesondert offen.
-Nächster Schritt: das autorisierte Update über das bestehende Pages-Verfahren
-bereitstellen und Erfolg für genau den ausgelieferten Commit bestätigen.
+Nächster einzelner Schritt: reale Spielprobe auf den Nutzergeräten mit 0.7.0,
+besonders Erstladen, Speicherbedarf und subjektiv menschlichere Zugwahl.
+Kein erneutes Einrichten von Schlüsseln, Servern oder Cloud-Umgebung nötig.
 
 ## Voriger bestätigter Stand 0.6.0
 

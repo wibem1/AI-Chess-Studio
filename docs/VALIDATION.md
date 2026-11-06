@@ -1324,3 +1324,11 @@ vendor/maia2/SOURCE.txt. Keine eigene PyTorch-Referenzausführung, kein Nachweis
 subjektiver menschlicher Spielqualität oder realer Windows-/Android-/iPad-
 Abnahme behauptet. Keine kostenpflichtigen Modellaufrufe, kein neuer Server,
 kein neues Repository oder Workflow.
+
+Bereitstellung bestätigt: Quelle `5c5e9e298286b56498ad4edbfab979ecf58d8c78`,
+`gh-pages` `25527617b61573a816c3ee620acd76b68b6d0f4d`;
+[GitHub-Lauf 42312123694](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42312123694)
+SUCCESS für genau diesen Commit. Commitgebundenes öffentliches BUILD.json
+verifiziert: 0.7.0, Basis /AI-Chess-Studio/, identische Quelle, 22 Dateien,
+Maia-Modell-SHA256 `fdfa2a8d52d88b73373074cd9124f1c1e244e6d8ff4175f2400ca532ecca9e13`.
+Keine weitere Veröffentlichung nach dem bestätigten Erfolg ausgelöst.
