@@ -300,3 +300,6 @@ h2{font-size:1.65rem}
 @media(min-width:901px){.app-navigation{height:auto;min-height:56px}}
 
 @media(min-width:901px){.app-navigation{gap:10px}#game-undo{flex:none;min-width:0}}
+
+#game-form label[for=game-opponent]{grid-column:1/-1;grid-row:1}#game-opponent{grid-column:1/-1;grid-row:2}
+#game-form label[for=game-color],#game-form label[for=game-level]{grid-row:3}#game-color,#game-level{grid-row:4}#engine-options{grid-column:1/-1;grid-row:5}

@@ -7,7 +7,7 @@ import {createHash} from 'node:crypto';
 const repository='https://github.com/wibem1/AI-Chess-Studio.git';
 const base='/AI-Chess-Studio/',build=resolve('pages-dist');
 const version=JSON.parse(readFileSync('package.json','utf8')).version;
-const allowed=path=>/^(?:index\.html|manifest\.webmanifest|service-worker\.js|licenses\.html|_headers|\.nojekyll|BUILD\.json|icons\/(?:icon-192|icon-512|apple-touch-icon)\.png|licenses\/chess\.js-LICENSE\.txt|assets\/[\w-]+\.(?:js|css)|engine\/stockfish-19\.0\.1\/(?:COPYING\.txt|SOURCE\.txt|stockfish-19-lite-single\.(?:js|wasm)))$/.test(path);
+const allowed=path=>/^engine\/maia2-blitz-ort1\.31\.1\/(?:maia2-blitz\.fp16\.onnx|ort-wasm-simd-threaded\.(?:mjs|wasm)|LICENSES\.txt|SOURCE\.txt)$/.test(path)||/^(?:index\.html|manifest\.webmanifest|service-worker\.js|licenses\.html|_headers|\.nojekyll|BUILD\.json|icons\/(?:icon-192|icon-512|apple-touch-icon)\.png|licenses\/chess\.js-LICENSE\.txt|assets\/[\w-]+\.(?:js|css)|engine\/stockfish-19\.0\.1\/(?:COPYING\.txt|SOURCE\.txt|stockfish-19-lite-single\.(?:js|wasm)))$/.test(path);
 function files(folder){return readdirSync(folder,{withFileTypes:true}).flatMap(entry=>{const path=join(folder,entry.name);if(entry.isSymbolicLink())throw new Error('Symbolische Links werden nicht veröffentlicht.');return entry.isDirectory()?files(path):[path];});}
 const input=files(build);
 for(const path of input)if(!allowed(relative(build,path).replaceAll('\\','/')))throw new Error('Unerwartete Datei im Web-Build.');

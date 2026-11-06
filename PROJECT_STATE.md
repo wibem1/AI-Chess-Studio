@@ -1,5 +1,38 @@
 # Projektstand
 
+Stand: 6. November 2026 · **0.7.0 vollständig geprüft, Bereitstellung ausstehend**.
+Letzter bestätigter Online-Stand 0.6.0, Nachweis unten.
+Aktueller Auftrag: Maia als wirklichen alternativen Gegner anschließen.
+
+Echte Maia-2-Blitz-ONNX-Inferenz im einzelnen CPU-WASM-Browserworker, lokal auf
+allen Zielplattformen verwendbarer gemeinsamer Code. Fünf Trainingsprofile
+1100/1300/1500/1700/1900, keine Elo-Zusage. Stockfish bleibt auswählbar.
+Maia-Laden erst bei tatsächlichem Einsatz (rund 60 MB Modell/Laufzeit), dann
+separater Browsercache für Offline-Spiel. Kein API-Key oder bezahlter Aufruf
+für Maia. Fehler pausieren, kein stiller Stockfish-Ersatz. Regelprüfung,
+Lernchat, Rücknahme, Varianten und Partienablage bleiben getrennt erhalten.
+
+Modellgröße und SHA-256 beim Build und vor Inferenz geprüft. Originalgewicht
+unverändert von commitgebundener GitHub-ONNX-Quelle; Encoder/Decoder und ORT
+fest versioniert. Quellen/Lizenzen in vendor/maia2 und öffentlichem Lizenzlink.
+Modellschwäche frühe Eröffnung und Nicht-Kalibrierung der Profile ausdrücklich
+benannt. Maia-Wertkopf wird nicht als Lernbewertung ausgegeben.
+
+Kleine Prüfungen bestanden: echte WASM-Vorhersagen an 18 veröffentlichten
+Referenzfällen, beide Zugfarben/drei Ratings; Maia-Spiel für beide Farben im
+Chromium, Lernmodus, Rücknahme, Downloadabbruch, Touch-Viewports sowie
+vollständiger Offline-Neustart unter /AI-Chess-Studio/. `npm run test:all`
+bestanden: Typprüfung, beide Builds, **112/112 Einzeltests und 68/68
+Chromiumfälle**. Nach abschließender Lernchat-Beschriftung erneut beide Builds
+und sechs betroffene Browserfälle bestanden. Echte Maia-Desktopansicht visuell
+kontrolliert.
+Keine kostenpflichtigen Modellaufrufe. Native Windows-/macOS-/Android-/iPad-
+Abnahme und subjektive menschliche Spielqualität bleiben gesondert offen.
+Nächster Schritt: das autorisierte Update über das bestehende Pages-Verfahren
+bereitstellen und Erfolg für genau den ausgelieferten Commit bestätigen.
+
+## Voriger bestätigter Stand 0.6.0
+
 Stand: 6. November 2026 · **0.6.0 veröffentlicht, GitHub-Erfolg bestätigt**.
 Quelle 1f73f79b6c64275fa2bd6061d0b4970ae67a0e13; gh-pages
 89f9efca91b434a4070fa64dec48abe0a9d052cd; Run 42308288822 SUCCESS.

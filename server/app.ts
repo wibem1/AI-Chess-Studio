@@ -1,3 +1,4 @@
+import {maiaAsset} from '../src/maia-files.js';
 import {engineAsset,engineContentType} from '../src/engine-files.js';
 import { FileCredentialsStore, credentialsPath } from './credentials.js';
 import { CostControl } from './costs.js';
@@ -27,7 +28,7 @@ export function createStudioServer(options: { webRoot?: string; env?: NodeJS.Pro
     void api(req,res,() => { void (async () => {
       if (req.method !== 'GET' && req.method !== 'HEAD') {res.writeHead(405);res.end();return;}
       const path = (req.url ?? '').split('?')[0]!;
-      const engine=engineAsset(path);
+      const engine=engineAsset(path)??maiaAsset(path);
       let relative: string;
       if(engine)relative=path.slice(1);
       else if (path === '/' || path === '/index.html') relative = 'index.html';
@@ -36,7 +37,7 @@ export function createStudioServer(options: { webRoot?: string; env?: NodeJS.Pro
       else {res.writeHead(404);res.end('Nicht gefunden.');return;}
       try {
         const content = await readFile(join(webRoot,relative));
-        res.setHeader('Content-Type',engine?engineContentType(engine):relative.endsWith('.webmanifest')?'application/manifest+json':relative.endsWith('.png')?'image/png':relative.endsWith('.txt')?'text/plain; charset=utf-8':relative.endsWith('.js') ? 'text/javascript; charset=utf-8' : relative.endsWith('.css') ? 'text/css; charset=utf-8' : 'text/html; charset=utf-8');
+        res.setHeader('Content-Type',engine?engineContentType(engine):relative.endsWith('.webmanifest')?'application/manifest+json':relative.endsWith('.png')?'image/png':relative.endsWith('.txt')?'text/plain; charset=utf-8':(relative.endsWith('.js')||relative.endsWith('.mjs')) ? 'text/javascript; charset=utf-8' : relative.endsWith('.css') ? 'text/css; charset=utf-8' : 'text/html; charset=utf-8');
         res.setHeader('Cache-Control',engine?'public, max-age=31536000, immutable':'no-store');
         res.writeHead(200);res.end(req.method === 'HEAD' ? undefined : content);
       } catch {res.writeHead(404);res.end('Anwendung nicht gebaut. Zuerst npm run build ausführen.');}

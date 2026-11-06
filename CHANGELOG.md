@@ -1,5 +1,16 @@
 # Änderungen
 
+## 0.7.0 – Maia als echter lokaler Spielgegner
+
+- Maia-2 Blitz neben Stockfish auswählbar, fünf Trainingsprofile 1100–1900.
+  Echte ONNX-/WASM-Inferenz auf dem Gerät, keine API oder Ersatz-Stockfish-Engine.
+- Modell/Laufzeit erst bei Maia-Nutzung laden (etwa 60 MB); danach im Browsercache
+  für Offline-Spiel. Keine Python-/GPU-/Serverabhängigkeit.
+- Weiß/Schwarz, Moduswechsel, Rücknahme, gespeicherte Gegneridentität und Abbruch
+  laufender Berechnungen unterstützt. Fehler pausieren statt Gegner zu wechseln.
+- Feste Modell-/Paketversionen, Fingerabdruckprüfung und Lizenz-/Quellnachweise.
+  Profile sind keine Elo-Zusage; frühe Eröffnung bleibt eine Modellschwäche.
+
 ## 0.6.0 – Schriftgröße, Partierücknahme, klarere Lernbeurteilung
 
 - Schriftgröße 80–200 %, im Browser gespeichert; Desktopbrett berücksichtigt

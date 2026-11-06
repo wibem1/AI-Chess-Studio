@@ -1287,3 +1287,40 @@ SUCCESS für genau diesen Commit. Öffentliches unveränderlich commitgebundenes
 BUILD.json geprüft: Version 0.6.0, Basis /AI-Chess-Studio/, Quellcommit identisch,
 16 Builddateien. Kein direkter github.io-Abruf wegen Netzwerkpolitik; tatsächliche
 Geräte-/Cache-Abnahme bleibt offen. Vorhandenes Repository/Pages-Verfahren benutzt.
+
+
+## 0.7.0 – echter Maia-2-Spielgegner
+
+6. November 2026. `npm run test:all`: Typprüfung, Web-/Pages-Build,
+**112/112 Einzeltests und 68/68 Chromiumfälle**, keine Fehler oder übersprungenen
+Tests. Nach der abschließenden Trennung der Lernchat-Demo-Beschriftung erneut
+Typprüfung, beide Builds und sechs betroffene Browserfälle bestanden.
+
+Reale Komponenten und neue Nachweise:
+
+- Originale fest gepinnte Maia-2-Blitz-ONNX-Datei mit CPU-WASM-Inferenz und
+  onnxruntime-web 1.31.1, kein Fake-/Stockfish-Ergebnis. Größe und SHA-256
+  beim Build und im Worker geprüft. 18 veröffentlichte Referenzen (beide
+  Zugfarben, drei Rating-Eingaben, Eröffnung/Mittelspiel/Endspiel): bevorzugter
+  Zug identisch, absolute Wahrscheinlichkeitsabweichung unter 0,005.
+- Echter Browsergegner für Weiß und Schwarz, laufende Partie, freie Lernvariante,
+  Zurückkehren zum tatsächlichen Spiel, Rücknahme samt erhaltenem Variantenbaum.
+- Blockierter erster Modelldownload durch Lernmodus abgebrochen; bewusstes
+  Fortsetzen lädt in neuem Worker, keine verspätete Änderung der alten Stellung.
+- Eigene Maia-Gegneridentität nach JSON-Rundlauf; Stockfish-Antwort in einer
+  Maia-Partie verworfen statt still als Ersatz anzunehmen.
+- Reale Maia-Züge in 390×844- und 820×1180-Touchviewports; keine Provideranfrage
+  oder horizontale Überläufe. Viewports sind keine native Geräteabnahme.
+- Pages-Export unter /AI-Chess-Studio/: Maia und Stockfish starten, Modell und
+  Laufzeit werden beim Maia-Einsatz gecacht. Komplett offline neuladen und
+  erneut als Schwarz gegen echte Maia spielen; Entwurf und Engineidentität
+  erhalten. Alle lokalen Abrufe bleiben im App-Unterverzeichnis.
+- Bestehende Stockfish-, Lernchat-, Datenschutz-/Kosten-, Key-, Scroll-,
+  Schriftgrößen-, Varianten-, Import-/Export- und PWA-Updatefälle unverändert grün.
+
+Die tatsächliche Desktopansicht nach Maia-Erstzug wurde visuell kontrolliert.
+Modell-/Lizenzquellen und Trainings-/Eröffnungsgrenzen: docs/MAIA.md und
+vendor/maia2/SOURCE.txt. Keine eigene PyTorch-Referenzausführung, kein Nachweis
+subjektiver menschlicher Spielqualität oder realer Windows-/Android-/iPad-
+Abnahme behauptet. Keine kostenpflichtigen Modellaufrufe, kein neuer Server,
+kein neues Repository oder Workflow.

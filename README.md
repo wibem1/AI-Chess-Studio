@@ -1,14 +1,14 @@
 # AI-Chess-Studio
 
-Aktueller veröffentlichter Funktionsstand: **0.6.0**, GitHub-Bereitstellung bestätigt; native Nutzerabnahme steht noch aus. Änderungen: [CHANGELOG.md](CHANGELOG.md).
+Aktueller veröffentlichter Funktionsstand: **0.7.0 vollständig geprüft, Bereitstellung ausstehend**; letzter bestätigter Online-Stand 0.6.0. Änderungen: [CHANGELOG.md](CHANGELOG.md).
 Ein großes gemeinsames Schachbrett und zwei Modi für dein persönliches Lernen.
 Auf dem Desktop steht das vollständige, vergrößerte Brett oben; Status und
 Werkzeuge darunter. Kleine Touchansichten behalten ihre bisherige Anordnung.
 
 ## Spielen und lernen
 
-1. Im **Spielmodus** Farbe und Spielstärke wählen, „Partie starten“ drücken.
-   Figuren ziehen oder Start- und Zielfeld antippen; Stockfish antwortet.
+1. Im **Spielmodus** Spielgegner (Stockfish oder Maia-2), Farbe und Spielstärke wählen, „Partie starten“ drücken.
+   Figuren ziehen oder Start- und Zielfeld antippen; die gewählte Schachengine antwortet.
    „Neue Partie“ startet direkt wieder in der Grundstellung mit der gewählten
    Farbe/Stärke. Der vorherige Stand bleibt als gespeicherte Sicherung erhalten.
    **„Schritt zurück“** nimmt den letzten eigenen Zug und eine bereits erfolgte
@@ -39,8 +39,12 @@ separat aus dem Brett regelgeprüft. KI-Einschätzungen bleiben fehlbar; sie sin
 keine nachgewiesene Engineanalyse. Leitfragen und kleine Hinweise bleiben
 bewusst zurückhaltend. Im Demo-Modus antwortet keine echte Lernengine.
 
-Maia als menschlicherer Gegner: [Machbarkeit und nächster Schritt](docs/MAIA.md).
-Noch nicht integriert; Stockfish bleibt der vorhandene Spielgegner.
+**Maia-2 als Alternative:** Beim Spielgegner Maia wählen und eines der Profile
+1100–1900 einstellen. Sie berechnet menschliche Zugwahrscheinlichkeiten lokal
+im Browser; kein API-Key oder kostenpflichtiger Aufruf für den Gegner nötig.
+Erster Einsatz lädt ungefähr 60 MB, danach auch offline nutzbar, solange die
+Dateien gespeichert bleiben. Profile sind keine Elo-Garantie; die frühen
+Eröffnungszüge sind eine Modellschwäche. [Details und Quellen](docs/MAIA.md).
 
 Der Humanfaktor bleibt verbindlich: eigene Gedanken, verständliche Pläne und
 praktische Schwierigkeiten besprechen, keine bloße Enginezahlenanalyse.

@@ -12,10 +12,12 @@ gleichrangige Arbeitsbereiche.
 - Lernengine: qualitativen Stellungsvorteil begründen und konkrete Gefahren
   benennen. Regelgeprüfte Brettfakten sichtbar von KI-Hypothesen trennen;
   Unsicherheit ausdrücklich nennen. Demo ist keine echte Stellungsanalyse.
-- Menschlicher Spielgegner zusätzlich zu Stockfish gewünscht. Maia technisch
-  untersucht; nicht als verfügbar ausgeben. Nächster einzelner Technikschritt:
-  isolierter Maia-Browser-Prototyp gemäß [docs/MAIA.md](docs/MAIA.md), zuerst
-  Gewichtsbedingungen/Exportfähigkeit und Laufzeit auf Mobilgeräten prüfen.
+- Menschlicher Spielgegner zusätzlich zu Stockfish: 0.7.0 integriert echte
+  Maia-2-Blitz-ONNX-Inferenz im Browserworker, fünf Profile, Laden bei Bedarf,
+  Offline-Cache und unveränderte Regel-/Rücknahme-/Lernabläufe. Reale Inferenz
+  und veröffentlichte Referenzstellungen geprüft; Details in [docs/MAIA.md](docs/MAIA.md).
+  Nächster einzelner Schritt: reale Windows-/Android-/iPad-Spielprobe, besonders
+  Erstladen, Speicherbedarf und subjektiv menschlichere Zugwahl beurteilen.
 
 ## Kernziel
 

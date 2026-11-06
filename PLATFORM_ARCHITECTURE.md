@@ -2,13 +2,13 @@
 
 Ziel: eine persönliche deutschsprachige Schach-Lern-App für Windows, macOS,
 Android und iPadOS. Die gemeinsame responsive Web-App ist der primäre Weg;
-native Hüllen sind optional. Der Stand auf work ist integriert, noch nicht
-als neue App-Version oder Download freigegeben. Native Geräteabnahme bleibt offen.
+native Hüllen sind optional. Der aktuelle geprüfte und veröffentlichte Stand steht in PROJECT_STATE.md.
+Native Geräteabnahme bleibt offen.
 
 ## Gemeinsamer Kern und Betriebsarten
 
 `src/` enthält Zustand, Regelprüfung, Varianten, eigene Gedanken und
-Lernverträge ohne Node-/Windows-Abhängigkeiten. Vier Tabs teilen ein Brett.
+Lernverträge ohne Node-/Windows-Abhängigkeiten. Spielmodus und Lernmodus teilen ein Brett.
 Enginegegner, zusätzliche taktische Prüfung und KI-Lernbegleiter sind getrennt.
 `PlayingEngine`, `TacticalAdapter` und `DialogueAdapter` bleiben Austauschgrenzen.
 `model-contract.ts` und `costs.ts` teilen Dialogprüfung und Kostenlogik zwischen
@@ -17,7 +17,7 @@ Browser und Desktop; filesystem/DPAPI/Git bleiben in `server/`.
 | Funktion | Eigenständiger Webbetrieb | Bisheriger Desktopbetrieb |
 | --- | --- | --- |
 | Auswahl | Statischer Host, installierte PWA oder explizit `?platform=web` | Erreichbare lokale Node-API |
-| Spielen | Begrenzter Stockfish-Lite-Single-WASM-Worker | Stockfish-Prozess oder Browser-Worker |
+| Spielen | Stockfish-Lite-WASM oder Maia-2-Blitz-ONNX im Browserworker | Stockfish-Prozess oder dieselben Browser-Worker |
 | Zusätzlicher Faktencheck | Eigener WASM-Worker auf Klick | Lokaler Stockfish-Prozess auf Klick |
 | KI-Dialog | Direkter CORS-HTTPS-Aufruf zu OpenAI nach Freigabe | Lokaler HTTP-Adapter, dann HTTPS zu OpenAI |
 | Schlüssel | AES-GCM-verschlüsselte IndexedDB; Gerätepasswort nicht gespeichert; Klartext nur RAM | Windows-DPAPI-Dateiprofil; POSIX privat, derzeit unverschlüsselt |
@@ -27,7 +27,7 @@ Browser und Desktop; filesystem/DPAPI/Git bleiben in `server/`.
 
 Der vorhandene Node-Server bleibt an Loopback gebunden. Keine Netzfreigabe,
 öffentliche Bereitstellung oder neue Authentifizierungsbehauptung. Der statische
-Build braucht HTTPS oder localhost, am Domain-Stamm; file:// ist nicht unterstützt.
+Build braucht HTTPS oder localhost, am Domain-Stamm oder im konfigurierten Unterverzeichnis; file:// ist nicht unterstützt.
 Ein Backend-Ausfall beim Start wählt den Webbetrieb; im geöffneten Fenster gibt
 es keinen stillen Wechsel zwischen den getrennten Schlüssel-/Kostenprofilen.
 
@@ -96,3 +96,16 @@ Sitzungsrestore, echten Offline-Reload und bestätigte Worker-Updateübernahme.
 Providerantworten sind Fixtures. Native Windows-Touch/DPAPI, macOS/Safari,
 Android und iPadOS sowie echte KI-Lernqualität und die vollständige Nutzer-PGN
 1Vh80QL2 sind noch nicht abgenommen. Details: docs/VALIDATION.md.
+
+## Maia-2 ab 0.7.0
+
+`PlayingEngine` bleibt die Schnittstelle. Der Maia-Worker lädt erst beim
+ausdrücklichen Spielzug das fest versionierte ONNX-Modell und die WASM-Laufzeit
+vom eigenen Host, prüft den Fingerabdruck und nutzt den CPU-Provider mit einem
+Thread. Keine Python-/Node-/WebGPU-Abhängigkeit im Frontend. Der Seiten-Worker
+reagiert während der Inferenz; Pausieren beendet den Inferenzworker und verwirft
+verspätete Ergebnisse. Eigene Cache-API-Ablage für unveränderliche Modelldateien;
+nicht Teil des verpflichtenden Offline-Shell-Downloads, keine Zugangsdaten.
+Modellfehler pausieren das Spiel; kein stiller Ersatz durch Stockfish.
+Die optionale `game.opponent`-Angabe bleibt in JSON-Partien erhalten; vorhandene
+Partien ohne Angabe bedeuten weiterhin Stockfish. Details in docs/MAIA.md.

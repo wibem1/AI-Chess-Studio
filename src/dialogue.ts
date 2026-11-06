@@ -1,3 +1,4 @@
+import {MAIA_PROFILES} from './maia-files.js';
 import {positionFacts,describeFacts,type PositionFacts} from './position-facts.js';
 import {reviewLocked,visibleReviewNodes,REVIEW_QUESTIONS} from './review.js';
 import {validateHumanFactors,type HumanFactors,type HintMode} from './learning.js';
@@ -60,7 +61,7 @@ export class Studio {
       const describe=(id:string)=>{const p=pathTo(snapshot,id);const notes=snapshot.annotations.filter(a=>a.nodeId===id && a.kind==='memory').slice(-1).map(a=>`${a.source}/${a.hypothesis?'Hypothese':'Eingabe'}: ${a.text.slice(0,100)}`).join('');return `${(snapshot.labels?.[id]??id).slice(0,40)}: FEN ${p.at(-1)!.fen}; Notiz ${notes}; Züge ${p.slice(1).map(n=>n.san).join(' ').slice(-60)}`.slice(0,360);};
       context.push(`Ausdrücklich ausgewählter Variantenvergleich: A ${describe(snapshot.comparison.a)} / B ${describe(snapshot.comparison.b)}`.slice(0,800));
     }
-    if(snapshot.game&&!snapshot.review?.guiding)context.push(`Lernpartie: Mensch ${snapshot.game.human==='w'?'Weiß':'Schwarz'}, Engine-Level ${snapshot.game.level}; aktuelle Partie ${snapshot.game.cursor}; Analyse ${nodeId}; ${snapshot.game.paused?'pausiert':'laufend'}.`);
+    if(snapshot.game&&!snapshot.review?.guiding)context.push(`Lernpartie: Mensch ${snapshot.game.human==='w'?'Weiß':'Schwarz'}, ${snapshot.game.opponent==='maia'?`Maia-2 Trainingsprofil ${MAIA_PROFILES[snapshot.game.level-1]}`:`Stockfish-Level ${snapshot.game.level}`}; aktuelle Partie ${snapshot.game.cursor}; Analyse ${nodeId}; ${snapshot.game.paused?'pausiert':'laufend'}.`);
     const reflection=snapshot.reflections?.[nodeId];
     if(reflection)context.push(`Eigene Angaben des Lernenden (keine Bewertung): ${JSON.stringify(reflection)}`.slice(0,800));
     if(snapshot.review){

@@ -12,5 +12,5 @@ export function engineAsset(path:string):string|null {
   return Object.values(ENGINE_FILES).some(file=>file===name)?name:null;
 }
 export function engineContentType(name:string):string {
-  return name.endsWith('.wasm')?'application/wasm':name.endsWith('.js')?'text/javascript; charset=utf-8':'text/plain; charset=utf-8';
+  return name.endsWith('.wasm')?'application/wasm':name.endsWith('.onnx')?'application/octet-stream':(name.endsWith('.js')||name.endsWith('.mjs'))?'text/javascript; charset=utf-8':'text/plain; charset=utf-8';
 }

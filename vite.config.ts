@@ -1,3 +1,4 @@
+import {maiaAssets} from './server/maia-assets.js';
 import {pwaAssets} from './server/pwa-assets.js';
 import {browserEngineAssets} from './server/browser-engine-assets.js';
 import { FileCredentialsStore, credentialsPath } from './server/credentials.js';
@@ -10,8 +11,9 @@ import { StockfishService } from './server/stockfish.js';
 import { modelMiddleware } from './server/http.js';
 
 export default defineConfig({
+  resolve:{conditions:['onnxruntime-web-use-extern-wasm','module','browser','development|production']},
   define:{__PWA_ENABLED__:JSON.stringify(true),__APP_BASE__:JSON.stringify('/')},
-  plugins: [browserEngineAssets(),pwaAssets(),{ name: 'local-model-server', configureServer(server) {
+  plugins: [maiaAssets(),browserEngineAssets(),pwaAssets(),{ name: 'local-model-server', configureServer(server) {
     // Never use VITE_* for secrets; this module is only loaded by the Node server.
     const stockfish = new StockfishService();
     const playingEngine=new PlayingEngineService();

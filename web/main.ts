@@ -1,3 +1,5 @@
+import {MaiaPlayingEngine} from './maia-engine.js';
+import {MAIA_PROFILES} from '../src/maia-files.js';
 import {platformFetch,platformReady,isWebPlatform,browserRuntime} from './platform.js';
 import {AutoSave} from './autosave.js';
 import {installPwa} from './pwa.js';
@@ -27,6 +29,16 @@ let initialized=false;
 const autosave=new AutoSave(browserRuntime.store,()=>({json:studio.session.export(),question:text('question').value}),value=>message('autosave-status',value));
 const game=new LearningGame(()=>studio.session);
 const browserEngine=new BrowserPlayingEngine();
+const maiaEngine=new MaiaPlayingEngine(value=>message('game-feedback',value));
+function updatePlayingChoice(){
+ const maia=$<HTMLSelectElement>('game-opponent').value==='maia';
+ message('playing-title',maia?'Gegen Maia spielen':'Gegen Stockfish spielen');
+ document.querySelector('label[for=game-level]')!.textContent=maia?'Maia-Spielprofil':'Engine-Spielstärke';
+ for(const [i,option] of [...$<HTMLSelectElement>('game-level').options].entries())option.textContent=maia?`Profil ${MAIA_PROFILES[i]}`:`Level ${i+1}${i===0?' · reduziert':i===4?' · stärkste Stufe hier':''}`;
+ message('game-strength-hint',maia?'Maia-2 Blitz sagt menschliche Züge voraus. Profile sind Trainingsstärken, keine Elo-Zusage und keine Einschätzung deiner Stärke. Erster Einsatz: etwa 60 MB laden, danach lokal gespeichert. Die ersten Eröffnungszüge sind weniger verlässlich.':'Stockfish Lite, Skill Level 0/5/10/15/20; keine Elo-Zusage. Auch die reduzierte Stufe kann stark sein. Bisherige Varianten bleiben beim Start erhalten.');
+ $('engine-options').hidden=maia||isWebPlatform();
+}
+
 const desktopEngine=new ServerPlayingEngine();
 let enginePending=false;
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
@@ -47,7 +59,7 @@ function updateMode() {
   $('comment-move').textContent=real?'Zug kommentieren':'Zug kommentieren (Simulation)';
   $('simulation-hint').hidden = real;
   $('learn-configure').hidden=modelAvailable;
-  message('mode-badge', real ? 'Eigener KI-Zugang' : 'Simulation aktiv');
+  message('mode-badge', real ? 'Lernchat: Eigene KI' : 'Lernchat: Demo');
 }
 async function refreshModelStatus() {
   try {
@@ -70,7 +82,7 @@ function move(value: string | { from: string; to: string; promotion: string }) {
   attempt(() => {
     if(reviewLocked(studio.session.snapshot()))throw new Error('Zuerst deine Gedanken festhalten oder den Originalzug ausdrücklich aufdecken.');
     if (studio.session.status().gameOver) throw new Error('Partie beendet. Wähle eine frühere Stellung für eine neue Variante.');
-    try{game.play(value);}catch(error){if(error instanceof Error && error.message.startsWith('Stockfish'))throw error;throw new Error('Dieser Zug ist hier nicht legal. Prüfe Eingabe und Stellung.');}
+    try{game.play(value);}catch(error){if(error instanceof Error && /^(Stockfish|Maia) ist am Zug/.test(error.message))throw error;throw new Error('Dieser Zug ist hier nicht legal. Prüfe Eingabe und Stellung.');}
     input('move').value = '';
   }, 'move-feedback', 'Zug gespielt.');
   void engineTurn();
@@ -98,12 +110,15 @@ function render() {
   message('workbench-status',learning?'Lernmodus · Züge ausprobieren und mit der Lernengine besprechen. Die Partie bleibt unverändert.':live?(live.paused?'Partie pausiert · Zum Fortsetzen Spielmodus wählen.':'Spielmodus · Schachengine ist dein Gegner.'):'Spielmodus · Starte rechts eine Partie gegen die Schachengine.');
   $<HTMLButtonElement>('learn-back').disabled=!current.parentId||locked;
   $<HTMLButtonElement>('learn-origin').disabled=locked;
+  if(data.game)$<HTMLSelectElement>('game-opponent').value=data.game.opponent??'stockfish';
+  updatePlayingChoice();
   if(live){
+    const opponent=live.opponent==='maia'?'Maia-2':'Stockfish';
     const end=studio.session.status(live.cursor);
-    message('game-status',`Du spielst ${live.human==='w'?'Weiß':'Schwarz'} · Level ${live.level} · ${live.engine==='browser'?'Browser-Engine':'Desktop-Engine'} · ${end.checkmate?'Partie beendet: Schachmatt':end.draw?'Partie beendet: Remis':live.paused?'Analysemodus · Partie pausiert':enginePending?'Stockfish denkt …':'Partie läuft'} · Partiestellung ${live.cursor}`);
+    message('game-status',`Du spielst ${live.human==='w'?'Weiß':'Schwarz'} · ${live.opponent==='maia'?`Maia-Profil ${MAIA_PROFILES[live.level-1]}`:`Level ${live.level}`} · ${live.engine==='browser'?'Browser-Engine':'Desktop-Engine'} · ${end.checkmate?'Partie beendet: Schachmatt':end.draw?'Partie beendet: Remis':live.paused?'Analysemodus · Partie pausiert':enginePending?`${opponent} denkt …`:'Partie läuft'} · Partiestellung ${live.cursor}`);
   }else message('game-status',data.review?'Importierte menschliche Partie. Kein Enginegegner gestartet.':'Noch keine Enginepartie gestartet. Das Brett kann frei untersucht werden.');
   $<HTMLButtonElement>('game-pause').disabled=!live || live.paused;
-  $<HTMLSelectElement>('engine-location').disabled=enginePending;
+  $<HTMLSelectElement>('engine-location').disabled=enginePending;$<HTMLSelectElement>('game-opponent').disabled=enginePending;
   if(data.game?.engine)$<HTMLSelectElement>('engine-location').value=data.game.engine;
   $<HTMLButtonElement>('game-resume').disabled=!live;
   message('game-line',live ? pathTo(data,live.cursor).filter(n=>n.san).map(n=>n.san).join(' · ') || 'Die Anfangsstellung ist bereit.' : data.review?'Importierte Originalpartie · geführter Rückblick im Tab Lernen.':'Deine Partie beginnt hier.');
@@ -381,7 +396,7 @@ function restoreSession(json:string){studio.restore(json);game.pause();const g=s
 async function engineTurn(){
   if(enginePending || !game.needsEngine())return;
   enginePending=true;render();
-  try{const result=await game.reply((studio.session.snapshot().game?.engine??$<HTMLSelectElement>('engine-location').value)==='browser'?browserEngine:desktopEngine);if(result==='stored')message('game-feedback','Stockfish hat gezogen. Du bist am Zug.');}
+  try{const result=await game.reply(studio.session.snapshot().game?.opponent==='maia'?maiaEngine:(studio.session.snapshot().game?.engine??$<HTMLSelectElement>('engine-location').value)==='browser'?browserEngine:desktopEngine);if(result==='stored')message('game-feedback',`${studio.session.snapshot().game?.opponent==='maia'?'Maia':'Stockfish'} hat gezogen. Du bist am Zug.`);}
   catch(error){message('game-feedback',error instanceof Error?error.message:'Enginezug fehlgeschlagen. Partie pausiert.');}
   finally{enginePending=false;render();if(game.needsEngine())void engineTurn();}
 }
@@ -397,7 +412,8 @@ async function startNewGame(){
    window.dispatchEvent(new Event('chess-games-change'));
   }
   studio.session=new Studio().session;selected=null;shownMove=undefined;text('question').value='';
-  game.start($<HTMLSelectElement>('game-color').value as 'w'|'b',Number($<HTMLSelectElement>('game-level').value),$<HTMLSelectElement>('engine-location').value as 'server'|'browser');
+  const opponent=$<HTMLSelectElement>('game-opponent').value as 'stockfish'|'maia';
+  game.start($<HTMLSelectElement>('game-color').value as 'w'|'b',Number($<HTMLSelectElement>('game-level').value),opponent==='maia'?'browser':$<HTMLSelectElement>('engine-location').value as 'server'|'browser',opponent);
   navigation.select('play');render();message('game-feedback','Neue Partie gestartet.');
  }catch{render();message('move-feedback','Neue Partie nicht gestartet: Die bisherige Partie konnte nicht gesichert werden. Bitte zuerst als Datei speichern.');}
  finally{startingGame=false;$('workspace').inert=false;}
@@ -410,6 +426,11 @@ $('game-undo').addEventListener('click',()=>attempt(()=>game.takeBack(),'move-fe
 const desktopControls=matchMedia('(min-width:901px)');
 const dockUndo=()=>{const button=$('game-undo');if(desktopControls.matches)document.querySelector('.app-navigation')!.append(button);else document.querySelector('.board-actions')!.insertBefore(button,$('open-game-setup'));};
 desktopControls.addEventListener('change',dockUndo);dockUndo();
+$('game-opponent').addEventListener('change',()=>{
+ game.pause();maiaEngine.cancel();const saved=studio.session.snapshot().game,opponent=$<HTMLSelectElement>('game-opponent').value as 'stockfish'|'maia';
+ if(saved)studio.session.setGame({...saved,opponent,...(opponent==='maia'?{engine:'browser' as const}:{}),revision:saved.revision+1});
+ render();message('game-feedback','Spielgegner gewählt. Eine bestehende Partie bleibt pausiert; zum Wechsel bewusst fortsetzen.');
+});
 $('engine-location').addEventListener('change',()=>{
  const selectedEngine=$<HTMLSelectElement>('engine-location').value as 'server'|'browser';
  game.pause();const saved=studio.session.snapshot().game;if(saved)studio.session.setGame({...saved,engine:selectedEngine,revision:saved.revision+1});render();
