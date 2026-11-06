@@ -132,3 +132,10 @@ wenn der Server keinen neuen Worker liefert; Download/Fehler/bereit sind getrenn
 Übernahme weiterhin unter Einstellungen → App auf diesem Gerät → Web-App auf
 Updates prüfen → Zustimmung zum Sichern/Neuladen → Bereites Web-Update übernehmen.
 Eine native Installation ist für diesen Ablauf nicht erforderlich.
+
+
+0.3.3 tatsächlich veröffentlicht: Quellcommit 63ef08fbe38b0186295d2a21cd41e1b700877a65,
+gh-pages 69149dcee15182f8199f15ee20b11405a895d5ee, GitHub-Run 42273159023 SUCCESS.
+https://github.com/wibem1/AI-Chess-Studio/actions/runs/42273159023
+Öffentliches BUILD.json nach Upload: Version 0.3.3, Basis /AI-Chess-Studio/ und
+exakter Quellcommit stimmen. Eigene Live-/native Android-Abnahme bleibt getrennt.

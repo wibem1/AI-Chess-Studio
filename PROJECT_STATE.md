@@ -1,12 +1,15 @@
 # Projektstand
 
-Stand: 6. November 2026 · Web-App **0.3.3** vorbereitet, bisher veröffentlicht **0.3.2**
+Stand: 6. November 2026 · Web-App **0.3.3** veröffentlicht und GitHub-Bereitstellung bestätigt
 
 Veröffentlichungsauftrag: öffentliche Web-App über kostenloses GitHub Pages,
 **im bestehenden Repository AI-Chess-Studio**, kein neues Repository. Version
-0.3.2 für /AI-Chess-Studio/ und Distributionsbranch gh-pages geprüft.
+0.3.3 für /AI-Chess-Studio/ und Distributionsbranch gh-pages geprüft.
 Nutzer hat das bestehende Repository auf Public gestellt und Pages gespeichert.
-**GitHub-Bereitstellung 0.3.2 jetzt erfolgreich bestätigt:** Run 42253628918 für
+**Aktuell 0.3.3 erfolgreich bestätigt:** Run 42273159023 für gh-pages
+69149dcee15182f8199f15ee20b11405a895d5ee, Quellcommit 63ef08f.
+
+Vorige GitHub-Bereitstellung 0.3.2 erfolgreich bestätigt: Run 42253628918 für
 Commit 47427bd700213e6b22412dec23c5df9201bb664a. Der vorherige Lauf für
 73dfea1 war beim deploy-Job nach zehn Minuten mit Timeout gescheitert; der reine
 Datei-Upload war deshalb noch kein verfügbares App-Update. Einmaliger neuer Lauf
@@ -297,5 +300,8 @@ Chromiumfälle. Abschließende Root-/Pages-Builds und vier PWA-/Pages-Fälle nac
 Listenerbereinigung erneut bestanden. Echter lokaler Übergang aus veröffentlichtem
 0.3.2-Build zu 0.3.3 mit Zustimmung, erhaltenem Entwurf und anschließender
 Aktuell-Meldung bestanden. Native Android-Abnahme weiterhin offen.
-Nächster Schritt: 0.3.3 über denselben gh-pages-Branch bereitstellen und den
-exakten GitHub-Lauf kontrollieren, danach kurze Geräteprüfung durch Nutzer.
+0.3.3 tatsächlich bereitgestellt: Quellcommit 63ef08f, gh-pages
+69149dcee15182f8199f15ee20b11405a895d5ee; Run 42273159023 SUCCESS. Öffentliches
+BUILD.json bestätigt Version, Basis und Quellcommit. Nächster einzelner Schritt:
+Nutzer übernimmt 0.3.3 über die bestehende Web-Updatefunktion und bestätigt die
+Version am Androidgerät. Keine erneute Chrome-/Pages-Einrichtung anfordern.

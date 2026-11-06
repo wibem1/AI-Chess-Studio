@@ -1028,3 +1028,10 @@ findet 0.3.3, übernimmt erst nach Zustimmung und erhält Nachrichtenentwurf;
 anschließende Prüfung meldet Version 0.3.3 aktuell. Keine Provideranfrage.
 Dies prüft echten Service Worker/Chromium, keine native Android-Installation
 und keine direkte Live-Abnahme der vom Proxy gesperrten github.io-Adresse.
+
+
+0.3.3 tatsächlich veröffentlicht: Quellcommit 63ef08fbe38b0186295d2a21cd41e1b700877a65,
+gh-pages 69149dcee15182f8199f15ee20b11405a895d5ee, GitHub-Run 42273159023 SUCCESS.
+https://github.com/wibem1/AI-Chess-Studio/actions/runs/42273159023
+Öffentliches BUILD.json nach Upload: Version 0.3.3, Basis /AI-Chess-Studio/ und
+exakter Quellcommit stimmen. Eigene Live-/native Android-Abnahme bleibt getrennt.

@@ -9,8 +9,8 @@ laufendem Download, bereitem Update und Fehler. Eine Verknüpfung nutzt denselbe
 Updateweg wie der Browser; eine native Installation ist dafür nicht erforderlich.
 
 Die Web-App wird über den Branch gh-pages im bestehenden öffentlichen Repository
-bereitgestellt. GitHub hat den erneuten Veröffentlichungslauf für 0.3.2 erfolgreich
-abgeschlossen. Der vorherige Versuch war bei GitHub mit Timeout gescheitert.
+bereitgestellt. GitHub hat den Veröffentlichungslauf für 0.3.3 erfolgreich
+abgeschlossen. Der erste Versuch für die vorige 0.3.2 war mit Timeout gescheitert.
 Die neue Kontrolle `npm run check:pages` prüft deshalb den exakten veröffentlichten
 Commit; ein Git-Push allein gilt nicht als erfolgreiche Bereitstellung.
 Bedienung und spätere Updates: [Web-App bereitstellen](docs/WEB_PUBLISHING.md).
@@ -19,7 +19,7 @@ Auf Branch `work` zusätzlich integriert: **„Partie verstehen“ und die eigen
 als noch nicht freigegebener Entwicklungsstand**. Der Rückblick
 berücksichtigt Plancommit 2744e63e. Die frühere Integration blieb zunächst
 ohne neue Version; nach dem Veröffentlichungsauftrag wird nun das Web-Paket
-0.3.2 für GitHub Pages mit vollständigem 8×8-Brett bereitgestellt.
+0.3.3 für GitHub Pages mit vollständigem 8×8-Brett bereitgestellt.
 
 Persönliches Schach-Lernprogramm: gegen Stockfish spielen und während oder
 nach der Partie mit einer getrennten KI über Stellungen, Strategien und
