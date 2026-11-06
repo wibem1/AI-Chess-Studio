@@ -1,5 +1,17 @@
 # Änderungen
 
+## 0.4.1 – Desktopbrett und neue Partie, 6. November 2026
+
+- Desktopbrett größer und vollständig im Fenster: z. B. 450 statt 300 CSS-Pixel
+  bei 1280×600. Status/Werkzeuge unter dem Brett; größere Figuren, ruhigere
+  Karten und klassische Brettfarben. Kleine Touchansicht bleibt erhalten.
+- Seitenleiste bei tatsächlich engem Inhalt unter das Brett, auch bei CSS-Zoom.
+- „Neue Partie“ und „Partie starten“ beginnen in der Grundstellung mit gewählter
+  Farbe/Stärke. Vorherige Partie samt Kommentaren/Varianten separat gesichert
+  und sofort in der Partienliste sichtbar; fehlende Sicherung verhindert Reset.
+- Zwei neue Browserfälle für Desktopgrößen, vollständige Sichtbarkeit und
+  Neustart mit Wiederherstellung der Sicherung sowie Schwarz/Engine-Erstzug.
+
 ## 0.4.0 – ein Brett, Spielmodus und Lernmodus
 
 - Großes gemeinsames Brett, zwei Modi statt vier Hauptbereiche. Umschalten

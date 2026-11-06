@@ -373,9 +373,26 @@ async function engineTurn(){
   catch(error){message('game-feedback',error instanceof Error?error.message:'Enginezug fehlgeschlagen. Partie pausiert.');}
   finally{enginePending=false;render();if(game.needsEngine())void engineTurn();}
 }
-$('game-form').addEventListener('submit',event=>{
- event.preventDefault();attempt(()=>game.start($<HTMLSelectElement>('game-color').value as 'w'|'b',Number($<HTMLSelectElement>('game-level').value),$<HTMLSelectElement>('engine-location').value as 'server'|'browser'),'game-feedback','Lernpartie gestartet.');navigation.select('play');void engineTurn();
-});
+let startingGame=false;
+async function startNewGame(){
+ if(startingGame||!initialized)return;
+ startingGame=true;$('workspace').inert=true;
+ try{
+  game.pause();
+  const current=studio.session.snapshot();
+  if(current.nodes.length>1||current.annotations.length||current.game||current.review){
+   await browserRuntime.store.savedGames({id:crypto.randomUUID(),title:'Sicherung vor neuer Partie',date:new Date().toISOString(),json:studio.session.export()});
+   window.dispatchEvent(new Event('chess-games-change'));
+  }
+  studio.session=new Studio().session;selected=null;shownMove=undefined;text('question').value='';
+  game.start($<HTMLSelectElement>('game-color').value as 'w'|'b',Number($<HTMLSelectElement>('game-level').value),$<HTMLSelectElement>('engine-location').value as 'server'|'browser');
+  navigation.select('play');render();message('game-feedback','Neue Partie gestartet.');
+ }catch{render();message('move-feedback','Neue Partie nicht gestartet: Die bisherige Partie konnte nicht gesichert werden. Bitte zuerst als Datei speichern.');}
+ finally{startingGame=false;$('workspace').inert=false;}
+ void engineTurn();
+}
+$('game-form').addEventListener('submit',event=>{event.preventDefault();void startNewGame();});
+$('open-game-setup').addEventListener('click',()=>{void startNewGame();});
 $('engine-location').addEventListener('change',()=>{
  const selectedEngine=$<HTMLSelectElement>('engine-location').value as 'server'|'browser';
  game.pause();const saved=studio.session.snapshot().game;if(saved)studio.session.setGame({...saved,engine:selectedEngine,revision:saved.revision+1});render();

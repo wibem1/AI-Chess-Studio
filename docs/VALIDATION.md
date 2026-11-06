@@ -1108,3 +1108,39 @@ zunächst gecachte 0.3.3-Metadaten; keinen Fehler des Live-Hosts daraus behaupte
 Live-Adresse weiterhin vom Netzwerkproxy gesperrt; Nutzer-/native Abnahme offen.
 Keine neue Ablage, kein Workflow, keine weitere Sichtbarkeitsänderung oder
 kostenpflichtige Modellanfrage. Projekt-/Prüfstand mit Code auf work gesichert.
+
+
+## 0.4.1 – Desktopdarstellung und Neustart
+
+Eingegrenzt: Höhenabzug 300 px in 0.4.0 verkleinert das Brett bei kurzen
+Windows-Viewports, z. B. auf 300 px bei 1280×600. Neue Partie war ausschließlich
+Navigation zur Einrichtung, ohne neue Grundstellung oder GameState.
+
+Desktop jetzt Brett zuerst, Status/Werkzeuge unterhalb; Breite durch verfügbaren
+Platz und Höhe minus 150 px begrenzt, maximal 960 px. 450 px bei 1280×600,
+750 px bei 1440×900. Kopf-/Seitenleisten getrennt ohne Überlagerung. Container-
+Query statt allein viewportbezogener Media Query für tatsächliche schmale Inhalte
+bei CSS-Zoom. Figuren proportional zum Brett. Klassische Farben/ruhigere Karten;
+kleine Touchanordnung nicht geändert. Desktop/Handy im echten Chromium visuell
+geprüft, keine native Windows-/Android-Abnahme behauptet.
+
+Neustart: vorherige Sitzung nach Pause separat im vorhandenen Partienarchiv,
+dann neue Session und Grundstellung mit gewählter Farbe/Stärke. Inert-Schutz
+während des Speicherns, kein Reset bei Sicherungsfehler; Archivanzeige aktualisiert.
+Modell-/Engineantworten zur vorigen Session können die neue Partie nicht verändern.
+Zwei neue Browserfälle prüfen sichtbare Brettunterkante und Mindestgröße an drei
+Desktopfenstern, schmales Layout, echten Reset, erhaltenen Kommentar nach Laden
+und automatischen Stockfish-Erstzug bei Schwarz. Bestehender Navigationstest
+prüft jetzt Neustart statt bloß Fokus auf Farbeingabe.
+
+Gezielte Brett-/Neustartfälle 4/4 bestanden. Ein erster Gestaltungsversuch zeigte
+bei CSS-Zoom überlagernde rechte Karte; Trace ausgewertet und mittels tatsächlicher
+Containerbreite behoben. Zwischenzeitlich zu hohes Brett störte Drag-Koordinaten;
+endgültige Variante hält das ganze Brett im Desktopfenster sichtbar.
+
+
+Endgültiger Stand: Typprüfung und 100/100 Einzeltests bestanden; nach endgültiger
+CSS-Anordnung Root-/Pages-Builds erneut bestanden und npx playwright test mit
+57/57 bestanden (2,7 Minuten), einschließlich Drag/Sonderzüge, vollständigem
+Brett bei Zoom, Touchgrößen, Speicher-/Neustartablauf und echten Enginezügen.
+Keine kostenpflichtige Modellanfrage. Native Windows-/Android-Abnahme bleibt offen.

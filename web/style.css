@@ -241,3 +241,36 @@ h2{font-size:1.65rem}
 @media(max-width:520px){.brand-icon{display:none}.app-header{gap:4px}.header-status{gap:6px}.board-heading h2{font-size:.9rem}.workspace{padding:8px}.position{padding:10px}#board{width:100%}.learning-controls button{font-size:.7rem;padding:8px}#dialogue{max-height:50dvh}}
 #board button.coach-move{box-shadow:inset 0 0 0 4px #b87720;background:#d8c889}
 #engine-options{grid-column:1/-1}#engine-options select{width:100%}
+
+/* Desktop uses board width; Windows display scaling must not shrink it by height. */
+@media(min-width:901px){
+ :root{background:#eaf0ed}
+ .app-header{max-width:1760px;min-height:56px;padding:8px 28px}
+ .app-navigation{width:fit-content;margin:0 auto;height:56px;display:flex;align-items:center;border:0;background:transparent;backdrop-filter:none}
+ .app-navigation [role=tablist]{padding:4px;background:#dce6df;border-radius:12px;gap:4px}
+ .app-navigation button{min-width:150px;border-radius:8px}
+ .workspace{max-width:1760px;grid-template-columns:minmax(0,1.8fr) minmax(320px,.8fr);padding:12px 28px 32px;gap:24px}
+ .position{position:static;max-width:1080px;padding:16px;background:#f8faf7;border-color:#d3dfd5;box-shadow:0 8px 30px #183b2910}
+ .board-heading h2{color:#526d5e;font-weight:500}.board-heading{margin-bottom:6px}
+ #board{width:min(100%,960px);min-width:0;margin:10px auto 16px;border:5px solid #304d40;border-radius:4px;box-shadow:0 8px 24px #163c2920}
+ #board button{background:#f0ecdf;color:#19372a;font-size:10cqw}
+ #board button.dark{background:#8ca794}
+ #board button.coach-move{background:#d8c889}
+ #board small{font-size:10px;color:#304c3c}
+ .panel{border-radius:14px}.game-panel,.discussion{padding:24px;box-shadow:0 6px 24px #183b2907}
+ .game-panel>.eyebrow{display:none}.game-panel h2,.discussion h2{font-size:1.25rem}
+ .game-history{background:#edf2ec}.game-history p{line-height:1.9}
+ .scroll-help{opacity:.45}.scroll-help:hover,.scroll-help:focus-within{opacity:1}
+}
+@media(min-width:901px) and (max-width:1150px){.header-status .badge{display:none}}
+@media(max-width:900px) and (any-hover:hover) and (any-pointer:fine){#board{width:min(100%,650px)}}
+/* CSS zoom can reduce the actual content width without changing media queries. */
+.workspace{container-type:inline-size}
+@container(max-width:850px){.position,.workspace-panel{grid-column:1/-1}}
+@media(min-width:901px){.app-header{flex-wrap:wrap}}
+@media(min-width:901px){
+ .position{display:flex;flex-direction:column}
+ #board{order:0;width:min(100%,960px,calc(100dvh - 150px));margin:0 auto 12px}
+ .board-heading{order:1}.position>#position-status{order:2}.position>#workbench-status{order:3}
+ #learning-controls{order:1}.board-tools{order:4}#move-feedback{order:5}.games-menu{order:6}
+}

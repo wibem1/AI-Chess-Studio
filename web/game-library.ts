@@ -13,4 +13,5 @@ export function installGameLibrary(store:BrowserStore,read:()=>string,restore:(j
  $('download-game').addEventListener('click',()=>{const url=URL.createObjectURL(new Blob([read()],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download=(title.value.trim()||'Meine Partie').replace(/[^\p{L}\p{N} _-]/gu,'_').slice(0,80)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);status('Partiedatei mit Kommentaren, Varianten und Lernchat exportiert. Sie enthält keinen API-Schlüssel.');});
  file.addEventListener('change',async()=>{try{const chosen=file.files?.[0];if(!chosen)return;if(chosen.size>8388608)throw new Error();await load(await chosen.text());}catch{status('Datei ungültig oder nicht lesbar. Die aktuelle Sitzung bleibt erhalten.');}finally{file.value='';}});
  void refresh().catch(()=>status('Lokale Partien nicht lesbar. Datei speichern und laden bleibt verfügbar.'));
+ window.addEventListener('chess-games-change',()=>{void refresh().catch(()=>status('Partienliste konnte nicht aktualisiert werden.'));});
 }

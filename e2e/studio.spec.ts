@@ -646,7 +646,7 @@ test('tabs keep the same board, position and learning draft without starting any
  await expect(page.locator('#board-area')).toBeVisible();expect(modelCalls).toBe(0);
  await page.getByRole('button',{name:'Neue Partie',exact:true}).click();
  await expect(page.getByRole('tab',{name:'Spielmodus',exact:true})).toHaveAttribute('aria-selected','true');
- await expect(page.getByLabel('Meine Farbe',{exact:true})).toBeFocused();
+ await expect(page.locator('#game-feedback')).toContainText('Neue Partie gestartet');await expect(page.locator('#position-status')).toContainText('n0');
  expect(modelCalls).toBe(0);
 });
 

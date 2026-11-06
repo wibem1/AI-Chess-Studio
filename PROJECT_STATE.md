@@ -1,6 +1,7 @@
 # Projektstand
 
-Stand: 6. November 2026 · **0.4.0 veröffentlicht, GitHub-Erfolg bestätigt**.
+Stand: 6. November 2026 · **0.4.1 geprüft, Bereitstellung wird kontrolliert**.
+Vorige Bereitstellung 0.4.0 erfolgreich bestätigt.
 Quellcommit 76de2fc, gh-pages 441b36dc64d92c8fad11b3675a52539336974ae6,
 Run 42285782065 SUCCESS. Commitgebundenes öffentliches BUILD.json bestätigt
 0.4.0 und Quellcommit. Der rohe Branch-Alias lieferte zunächst noch gecachte
@@ -8,6 +9,31 @@ Run 42285782065 SUCCESS. Commitgebundenes öffentliches BUILD.json bestätigt
 bleibt hier durch Netzwerkpolitik gesperrt. Nutzer hatte das vorige Update
 auf 0.3.3 bereits bestätigt.
 Bestehendes öffentliches Repository und gh-pages verwenden, keine neue Ablage.
+
+## Korrektur 0.4.1 – aktueller Nutzerauftrag
+
+Nutzer meldet Desktopbrett zu klein, Android passend, neue Partie ohne Wirkung
+und unbefriedigende Gestaltung. Ursachen: Höhenabzug von 300 CSS-Pixeln macht
+kurze Windows-Viewports klein; alter Button öffnete nur die Einrichtung.
+
+0.4.1: Desktopbrett oben im Panel, Status/Werkzeuge darunter; nutzbare Höhe bis
+Fensterhöhe minus 150 px, größere proportional skalierte Figuren und ruhigere
+Desktopgestaltung. Bei 1280×600 450 statt 300 px. Tatsächliche Inhaltsbreite
+steuert Umbruch, damit CSS-Zoom keine Seitenleiste über Brettknöpfe legt.
+Android-Touchlayout nicht umgestaltet.
+
+Ein gemeinsamer Neustart für Button und Formular: laufende Engine pausieren,
+aktuelle Sitzung bei Inhalt separat sichern, dann neue Session/Grundstellung
+und gewünschte Farbe/Stärke starten. Sessionwechsel verwirft alte Antworten;
+kein stiller Verlust von Kommentaren/Varianten. Partienliste sofort aktualisiert.
+Fehlschlag der Sicherung lässt die bisherige Sitzung pausiert erhalten.
+
+Zwei zusätzliche Browserregressionen: große und vollständig sichtbare Bretter
+bei 1280×600, 1440×900, 1920×1080 und schmale Darstellung; Neustart aus einem
+kommentierten Lernzweig, Wiederladen der Sicherung, Engine-Erstzug bei Schwarz.
+100/100 Einzeltests und 57/57 Browsertests bestanden; endgültige Desktop- und
+Handydarstellung visuell geprüft. Auslieferungsstatus in docs/VALIDATION.md.
+Native Windows-/Android-Abnahme durch Nutzer weiterhin erforderlich.
 
 ## Aktueller Schritt: ein Brett, zwei Modi und gespeicherte Partien
 

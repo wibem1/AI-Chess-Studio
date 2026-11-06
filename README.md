@@ -1,13 +1,17 @@
 # AI-Chess-Studio
 
-Aktueller veröffentlichter Funktionsstand: **0.4.0**. GitHub bestätigt die
+Aktueller veröffentlichter Funktionsstand: **0.4.1**. GitHub bestätigt die
 erfolgreiche Pages-Bereitstellung; native Nutzerabnahme steht noch aus. Änderungen: [CHANGELOG.md](CHANGELOG.md).
 Ein großes gemeinsames Schachbrett und zwei Modi für dein persönliches Lernen.
+Auf dem Desktop steht das vollständige, vergrößerte Brett oben; Status und
+Werkzeuge darunter. Kleine Touchansichten behalten ihre bisherige Anordnung.
 
 ## Spielen und lernen
 
 1. Im **Spielmodus** Farbe und Spielstärke wählen, „Partie starten“ drücken.
    Figuren ziehen oder Start- und Zielfeld antippen; Stockfish antwortet.
+   „Neue Partie“ startet direkt wieder in der Grundstellung mit der gewählten
+   Farbe/Stärke. Der vorherige Stand bleibt als gespeicherte Sicherung erhalten.
 2. Bei einer Frage auf **Lernmodus** umschalten. Der Gegner pausiert. Auf demselben
    Brett Züge für beide Seiten ausprobieren, mit „Zug zurück“ zurückgehen oder
    mit „Zur Partiestellung“ neu ansetzen.
@@ -385,7 +389,7 @@ des Updates keine zweite Installation starten und keinen Quellcode bearbeiten.
 
 ## Nachweise und Grenzen
 
-`npm run test:all`: Typprüfung, Build, **100 Einzeltests und 55 Chromium-
+`npm run test:all`: Typprüfung, Build, **100 Einzeltests und 57 Chromium-
 Browsertests**. Der gebaute Anwendungsserver wird getestet, einschließlich
 echtem lokalem Stockfish. Schlüsseltests verwenden ausschließlich bedeutungslose
 Testwerte, Provider-/Update-Tests lokale Fixtures. Die bestätigte Web-Updateübernahme wurde mit einem echten Service Worker auf

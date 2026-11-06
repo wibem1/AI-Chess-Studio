@@ -21,7 +21,7 @@ export function installNavigation(cancelGesture:()=>void,change:(view:View)=>voi
   tab.addEventListener('keydown',event=>{let next:number;if(event.key==='ArrowRight')next=(index+1)%tabs.length;else if(event.key==='ArrowLeft')next=(index+tabs.length-1)%tabs.length;else if(event.key==='Home')next=0;else if(event.key==='End')next=tabs.length-1;else return;event.preventDefault();select(tabs[next]!.dataset.view as View,true);});
  }
  document.querySelectorAll<HTMLElement>('[data-open-view]').forEach(button=>button.addEventListener('click',()=>select(button.dataset.openView as View,true)));
- document.getElementById('open-game-setup')!.addEventListener('click',()=>{select('play');document.querySelector<HTMLDetailsElement>('.game-panel details')!.open=true;document.querySelector('.game-panel')!.scrollIntoView({block:'start',behavior:'instant'});document.getElementById('game-color')!.focus({preventScroll:true});});
+
  window.addEventListener('popstate',()=>select(fromHash(),false,false));
  window.addEventListener('hashchange',()=>select(fromHash(),false,false));
  select(current,false,false,false);return {select};
