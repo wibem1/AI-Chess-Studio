@@ -20,7 +20,7 @@ keine Treffer für verbreitete API-Key-/GitHub-Token-/Private-Key-Muster; keine
 Werte ausgegeben. Das ist kein allgemeiner Nachweis über sämtliche privaten
 Inhalte in einer Historie.
 
-## Vorbereiteter Stand 0.3.1
+## Aktueller Stand 0.3.2
 
 `npm run build:pages` erzeugt `pages-dist` für **/AI-Chess-Studio/**.
 Worker, Links, Manifest, Startadresse, Icons, Lizenzen und Offline-Cache sind auf
@@ -36,7 +36,7 @@ node scripts/publish-pages.mjs --prepare-only
 ```
 
 `--prepare-only` erzeugt ausschließlich lokal einen neuen Ordner unter
-artifacts/Pages-0.3.1-… mit exakter öffentlicher Dateiliste und BUILD.json
+artifacts/Pages-0.3.2-… mit exakter öffentlicher Dateiliste und BUILD.json
 (Version, Quellcommit, SHA-256 je Datei). Keine Schlüssel, Sitzungen, Profile,
 Node-Server oder Entwicklungsdateien. Das frühere Root-ZIP 0.3.0 bleibt erhalten
 und ist nicht das neue Unterordner-Paket.
@@ -74,7 +74,7 @@ Tarif, keine neue Domain oder andere Anbieterleistung beauftragt.
 
 ## Prüfung
 
-94 Einzeltests und 50 Chromium-Browserfälle; darunter echter Stockfish,
+94 Einzeltests und 52 Chromium-Browserfälle; darunter echter Stockfish,
 Unterordner-Manifest/Scope, Offline-Reload mit pausierter Partie/Entwurf und
 Lizenznavigation ohne Root-Requests. Der Publisher ist mit echten lokalen Git-
 Repositories auf Erstveröffentlichung, fortlaufende gh-pages-Historie,

@@ -905,3 +905,39 @@ verifiziert. Nach dem Speichern erneuter Abruf der App-Adresse und des neuesten
 Pages-Buildstatus versucht: beide am CONNECT-Proxy mit 403/HTTP 000 blockiert.
 Keine Aussage über einen HTTP-Fehler der Website und kein erfolgreicher Live-
 Smoke-Test daraus abgeleitet. Zieladresse zum Öffnen durch den Nutzer bereit.
+
+## Brett vollständig sichtbar – Korrektur 0.3.2
+
+Nutzer-Screenshot der installierten Windows-PWA 0.3.1 zeigt rechts abgeschnittene
+h-Linie (teilweise auch g). Ursache lokal in tatsächlicher App reproduziert:
+`repeat(8,1fr)` erlaubt intrinsische Mindestbreiten der großen Figuren. Auf dem
+höhebegrenzt kleinen Desktopbrett ist die Summe der Tracks breiter als der Rahmen;
+`overflow:hidden` verdeckt die überstehenden Felder. Der DOM hat trotzdem 64
+Felder, deshalb haben bisherige reine Zähltests diesen Fehler nicht erkannt.
+
+Vor Korrektur zwei neue Browserfälle rot, anschließend beide grün. Hauptbrett
+und Vergleichsbretter nutzen nun acht `minmax(0,1fr)`-Tracks in beiden Achsen,
+Zellen ohne automatische Mindestmaße und Figurengröße relativ zum eigenen Brett.
+Kein geänderter Schachzustand, keine Speicher-/Schlüssel-/Sitzungsmigration.
+
+Neue Messung prüft alle 64 Zellrechtecke vollständig innerhalb des Brettrahmens,
+quadratische gleiche Feldgrößen sowie Textrechtecke der Figuren. Hauptbrett bei
+1280x600, 1440x900, 1920x1080, 980x560, 901x500, 900x500, 390x844 und 820x1180,
+je 100/150/200 Prozent CSS-Zoom und beiden Orientierungen. Zusätzlich 24-px-
+Grundschrift und tatsächlich ausgeführter h2-h4-Zug. Beide A/B-Bretter bei vier
+Fenstergrößen einschließlich schmaler Vergleichsspalten.
+
+CSS-Zoom ist eine gezielte Layoutsimulation und kein Nachweis nativer Browser-
+Zoom-/Windows-DPI-/Safari-Schriftmetriken. Ein erster Element-Screenshot bei
+künstlichem 150-%-CSS-Zoom zeigte nur den im kleinen Viewport gerenderten
+Ausschnitt eines sticky Brettes; nicht als vollständige Sichtprüfung verwendet.
+Die Gegenprüfung bei normalem Zoom und gleicher problematischer kompakter Größe
+1280x600 zeigt alle acht Spalten und Reihen und wurde visuell gesichtet
+(artifacts/board-032-compact.png). Die geometrischen Tests decken Zoom zusätzlich ab.
+
+Abschließend `npm run test:all`: Typprüfung, Root-/Pages-Build, **94 Einzeltests und
+52 Chromium-Browsertests bestanden**, keine Fehler oder ausgelassenen Fälle.
+Versionsquelle und Lockfile synchron auf 0.3.2, bestehende Import-/Engine-/Dialog-/
+Touch-/Offline-/Updateabläufe grün. Keine kostenpflichtige Provideranfrage.
+Code, Regressionen und Projektstand gemeinsam sichern und als 0.3.2 auf dem
+vorhandenen gh-pages-Branch bereitstellen. Keine neue Pages-Einrichtung nötig.

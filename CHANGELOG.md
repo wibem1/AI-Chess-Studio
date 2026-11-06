@@ -1,5 +1,15 @@
 # Änderungen
 
+## 0.3.2 – vollständige Brettdarstellung, 6. November 2026
+
+- Abgeschnittene rechte Brettspalten bei kleinen Desktopfenstern behoben.
+  Acht feste gleich große Rasterspalten/-reihen; Figurengröße relativ zum Brett.
+- Dieselbe Korrektur für beide Variantenvergleichsbretter.
+- Zwei neue Browserregressionen prüfen sämtliche 64 Feld- und Figurenrechtecke,
+  kleine/große Fenster, beide Orientierungen, CSS-Zoom und vergrößerte Schrift.
+- 94 Einzeltests und 52 Browsertests bestanden. Keine Datenmigration,
+  keine kostenpflichtige Anfrage; Aktualisierung über den vorhandenen Pages-Weg.
+
 ## 0.3.1 – GitHub Pages vorbereitet, 6. November 2026
 
 - App, Engine, Links, Manifest und Offline-Worker für Projekt-Unterordner.

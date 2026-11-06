@@ -1,10 +1,10 @@
 # Projektstand
 
-Stand: 6. November 2026 · ausgelieferte Basis **0.2.0**, Pages-Stand **0.3.1** vorbereitet
+Stand: 6. November 2026 · ausgelieferte Basis **0.2.0**, Pages-Korrektur **0.3.2**
 
 Veröffentlichungsauftrag: öffentliche Web-App über kostenloses GitHub Pages,
 **im bestehenden Repository AI-Chess-Studio**, kein neues Repository. Version
-0.3.1 für /AI-Chess-Studio/ und Distributionsbranch gh-pages vorbereitet.
+0.3.2 für /AI-Chess-Studio/ und Distributionsbranch gh-pages geprüft.
 Nutzer hat das bestehende Repository auf Public gestellt und bestätigt;
 öffentlicher HTTP-Abruf 200. Diese Freigabe nicht erneut anfordern. GitHub-Verwaltungs-API liefert Forbidden, Git-
 Zugriff funktioniert. Kein neues Repository. Web-Dateien auf gh-pages übertragen; Pages-Aktivierung
@@ -145,7 +145,7 @@ Android-/iPad-Abnahme bleibt offen.
 
 ## Prüfstand
 
-Typprüfung/Build, **94 Einzeltests und 50 Chromium-Browsertests** bestanden.
+Typprüfung/Build, **94 Einzeltests und 52 Chromium-Browsertests** bestanden.
 Echte lokale Stockfish-Prozesse/Worker, Offline-Reload und wartender Service-
 Worker mit bestätigter Updateübernahme. Providerzugriff nur Fixtures; kein
 kostenpflichtiger Aufruf. Details und Prüfgrenzen: docs/VALIDATION.md.
@@ -215,3 +215,25 @@ nach Nutzeraktion weiterhin durch Netzwerkproxy blockiert (CONNECT 403,
 HTTP 000); kein Fehlernachweis der Website selbst. Nutzer kann die Adresse
 jetzt öffnen; erfolgreiche Live-Nutzung bleibt bis zur Bestätigung offen.
 Nicht erneut dieselbe Pages-Einstellung anfordern.
+
+## Brettkorrektur 0.3.2
+
+Nutzer meldet auf Screenshot der installierten Windows-Web-App 0.3.1 fehlende
+rechte Brettspalte. Reproduziert in echtem Chromium: intrinsische Mindestbreite
+der Unicode-Figuren verbreitert 1fr-Tracks, overflow:hidden schneidet g/h-Felder
+ab. Die 64 Felder waren im Zustand/DOM vorhanden; bisherige Zähltests reichten
+für die visuelle Vollständigkeit nicht aus.
+
+Korrektur nur in Darstellung: minmax(0,1fr) für acht Spalten und Reihen,
+explizite Zellgrößen ohne automatische Mindestbreite und Figurenmaß relativ
+zum eigenen Brett (Container-Einheiten). Haupt- und A/B-Bretter gleich behandelt.
+Zwei neue geometrische Browserfälle schlagen vorher fehl und bestehen danach.
+Acht Viewports von 390x844 bis 1920x1080, 100/150/200 Prozent CSS-Zoom,
+beide Orientierungen, größere Grundschrift und h2-h4 als echter Randzug.
+64 vollständige quadratische Felder und passende Figurenrechtecke geprüft.
+CSS-Zoom-Nachbildung ist keine native Windows-/Safari-Abnahme. Kompaktes Brett
+bei 1280x600 zusätzlich visuell geprüft. npm run test:all: 94/52 bestanden.
+
+Bestehende Partie, Varianten, Dialog, Schlüsselfach und Speicherkennungen werden
+nicht geändert. Veröffentlichung über denselben bestehenden gh-pages-Branch;
+keine neue Ablage oder erneute Public-/Pages-Einrichtung erforderlich.

@@ -1,6 +1,6 @@
 # AI-Chess-Studio
 
-Zur Web-Bereitstellung vorbereitete Version: **0.3.1**. Die Nummer steht oben in der App,
+Aktueller Web-Korrekturstand: **0.3.2**. Die Nummer steht oben in der App,
 im Browser-Titel, beim Serverstart und in der lokalen Diagnose.
 Änderungen: [CHANGELOG.md](CHANGELOG.md).
 
@@ -16,7 +16,7 @@ Auf Branch `work` zusätzlich integriert: **„Partie verstehen“ und die eigen
 als noch nicht freigegebener Entwicklungsstand**. Der Rückblick
 berücksichtigt Plancommit 2744e63e. Die frühere Integration blieb zunächst
 ohne neue Version; nach dem Veröffentlichungsauftrag wird nun das Web-Paket
-0.3.1 für GitHub Pages vorbereitet. Öffentliche Adresse ist noch offen.
+0.3.2 für GitHub Pages mit vollständigem 8×8-Brett bereitgestellt.
 
 Persönliches Schach-Lernprogramm: gegen Stockfish spielen und während oder
 nach der Partie mit einer getrennten KI über Stellungen, Strategien und
@@ -387,7 +387,7 @@ des Updates keine zweite Installation starten und keinen Quellcode bearbeiten.
 
 ## Nachweise und Grenzen
 
-`npm run test:all`: Typprüfung, Build, **94 Einzeltests und 50 Chromium-
+`npm run test:all`: Typprüfung, Build, **94 Einzeltests und 52 Chromium-
 Browsertests**. Der gebaute Anwendungsserver wird getestet, einschließlich
 echtem lokalem Stockfish. Schlüsseltests verwenden ausschließlich bedeutungslose
 Testwerte, Provider-/Update-Tests lokale Fixtures. Die bestätigte Web-Updateübernahme wurde mit einem echten Service Worker auf
