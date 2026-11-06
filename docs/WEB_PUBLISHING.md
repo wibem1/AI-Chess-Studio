@@ -20,7 +20,7 @@ keine Treffer für verbreitete API-Key-/GitHub-Token-/Private-Key-Muster; keine
 Werte ausgegeben. Das ist kein allgemeiner Nachweis über sämtliche privaten
 Inhalte in einer Historie.
 
-## Aktueller Stand 0.3.2
+## Aktueller Stand 0.4.0
 
 `npm run build:pages` erzeugt `pages-dist` für **/AI-Chess-Studio/**.
 Worker, Links, Manifest, Startadresse, Icons, Lizenzen und Offline-Cache sind auf
@@ -36,7 +36,7 @@ node scripts/publish-pages.mjs --prepare-only
 ```
 
 `--prepare-only` erzeugt ausschließlich lokal einen neuen Ordner unter
-artifacts/Pages-0.3.2-… mit exakter öffentlicher Dateiliste und BUILD.json
+artifacts/Pages-0.4.0-… mit exakter öffentlicher Dateiliste und BUILD.json
 (Version, Quellcommit, SHA-256 je Datei). Keine Schlüssel, Sitzungen, Profile,
 Node-Server oder Entwicklungsdateien. Das frühere Root-ZIP 0.3.0 bleibt erhalten
 und ist nicht das neue Unterordner-Paket.
@@ -74,7 +74,7 @@ Tarif, keine neue Domain oder andere Anbieterleistung beauftragt.
 
 ## Prüfung
 
-94 Einzeltests und 52 Chromium-Browserfälle; darunter echter Stockfish,
+100 Einzeltests und 55 Chromium-Browserfälle; darunter echter Stockfish,
 Unterordner-Manifest/Scope, Offline-Reload mit pausierter Partie/Entwurf und
 Lizenznavigation ohne Root-Requests. Der Publisher ist mit echten lokalen Git-
 Repositories auf Erstveröffentlichung, fortlaufende gh-pages-Historie,
@@ -139,3 +139,16 @@ gh-pages 69149dcee15182f8199f15ee20b11405a895d5ee, GitHub-Run 42273159023 SUCCES
 https://github.com/wibem1/AI-Chess-Studio/actions/runs/42273159023
 Öffentliches BUILD.json nach Upload: Version 0.3.3, Basis /AI-Chess-Studio/ und
 exakter Quellcommit stimmen. Eigene Live-/native Android-Abnahme bleibt getrennt.
+
+
+## Tatsächliche Bereitstellung 0.4.0
+
+Quellcommit 76de2fcbad3cedda51359420e0b4089ed8fc258c, gh-pages
+441b36dc64d92c8fad11b3675a52539336974ae6. GitHub-Run 42285782065 SUCCESS:
+https://github.com/wibem1/AI-Chess-Studio/actions/runs/42285782065
+Commitgebundenes öffentliches BUILD.json bestätigt Version 0.4.0, Basis
+/AI-Chess-Studio/ und exakten Quellcommit. Branch-Alias raw/gh-pages lieferte
+zunächst gecachte 0.3.3-Metadaten; keinen Fehler des Live-Hosts daraus behaupten.
+Live-Adresse weiterhin vom Netzwerkproxy gesperrt; Nutzer-/native Abnahme offen.
+Keine neue Ablage, kein Workflow, keine weitere Sichtbarkeitsänderung oder
+kostenpflichtige Modellanfrage. Projekt-/Prüfstand mit Code auf work gesichert.

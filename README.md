@@ -1,6 +1,7 @@
 # AI-Chess-Studio
 
-Aktueller Funktionsstand: **0.4.0**. Änderungen: [CHANGELOG.md](CHANGELOG.md).
+Aktueller veröffentlichter Funktionsstand: **0.4.0**. GitHub bestätigt die
+erfolgreiche Pages-Bereitstellung; native Nutzerabnahme steht noch aus. Änderungen: [CHANGELOG.md](CHANGELOG.md).
 Ein großes gemeinsames Schachbrett und zwei Modi für dein persönliches Lernen.
 
 ## Spielen und lernen

@@ -1095,3 +1095,16 @@ Server auf endgültigen 0.4.0-Build umgestellt, über alten Updateknopf mit
 Zustimmung übernommen. Version 0.4.0, Stellung n1 und Entwurf erhalten; erneute
 Prüfung meldet aktuell. Dies ist echte Chromium-/Service-Worker-Integration,
 keine native Android-Abnahme oder bezahlte Modellprüfung.
+
+
+## Tatsächliche Bereitstellung 0.4.0
+
+Quellcommit 76de2fcbad3cedda51359420e0b4089ed8fc258c, gh-pages
+441b36dc64d92c8fad11b3675a52539336974ae6. GitHub-Run 42285782065 SUCCESS:
+https://github.com/wibem1/AI-Chess-Studio/actions/runs/42285782065
+Commitgebundenes öffentliches BUILD.json bestätigt Version 0.4.0, Basis
+/AI-Chess-Studio/ und exakten Quellcommit. Branch-Alias raw/gh-pages lieferte
+zunächst gecachte 0.3.3-Metadaten; keinen Fehler des Live-Hosts daraus behaupten.
+Live-Adresse weiterhin vom Netzwerkproxy gesperrt; Nutzer-/native Abnahme offen.
+Keine neue Ablage, kein Workflow, keine weitere Sichtbarkeitsänderung oder
+kostenpflichtige Modellanfrage. Projekt-/Prüfstand mit Code auf work gesichert.

@@ -1,7 +1,12 @@
 # Projektstand
 
-Stand: 6. November 2026 · **0.4.0 implementiert**, Veröffentlichung wird geprüft.
-Bisher 0.3.3 auf GitHub Pages; Nutzer hat das erfolgreiche Update bestätigt.
+Stand: 6. November 2026 · **0.4.0 veröffentlicht, GitHub-Erfolg bestätigt**.
+Quellcommit 76de2fc, gh-pages 441b36dc64d92c8fad11b3675a52539336974ae6,
+Run 42285782065 SUCCESS. Commitgebundenes öffentliches BUILD.json bestätigt
+0.4.0 und Quellcommit. Der rohe Branch-Alias lieferte zunächst noch gecachte
+0.3.3-Metadaten; daraus keine Live-Störung ableiten. Direkter github.io-Abruf
+bleibt hier durch Netzwerkpolitik gesperrt. Nutzer hatte das vorige Update
+auf 0.3.3 bereits bestätigt.
 Bestehendes öffentliches Repository und gh-pages verwenden, keine neue Ablage.
 
 ## Aktueller Schritt: ein Brett, zwei Modi und gespeicherte Partien
@@ -35,9 +40,10 @@ BUILD.json verifiziert; lokaler Updatewechsel auf 0.4.0 erhält Stellung/Entwurf
 Echte KI-Lernqualität, Bedienungsabnahme und native Android-Installation weiterhin
 offen. Keine bezahlten Modellaufrufe für die Entwicklung.
 
-Nächster einzelner Schritt: geprüfte 0.4.0 über den bestehenden gh-pages-Weg
-bereitstellen und den exakten GitHub-Lauf bestätigen; danach Nutzerabnahme des
-vereinfachten Spiel-/Lernablaufs. Das erfolgreiche Update auf 0.3.3 nicht erneut
+Nächster einzelner Schritt: Nutzer übernimmt 0.4.0 über die bestehende
+Web-Updatefunktion und erprobt Spiel-/Lernwechsel sowie Partien speichern/laden.
+Umsetzung, automatische Prüfungen und Veröffentlichung abgeschlossen; echte
+Bedienungs-/KI-Abnahme bleibt vom Nutzer zu bestätigen. Das erfolgreiche Update auf 0.3.3 nicht erneut
 als Problem führen. Die native Chrome-156-Installation bleibt ein separater Fehler.
 
 ## Verbindliches Ziel
