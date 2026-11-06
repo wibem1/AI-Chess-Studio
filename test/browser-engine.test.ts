@@ -99,6 +99,8 @@ test('browser asset routes deliver unchanged WASM/JS with exact allowlist, MIME,
   assert.deepEqual(Buffer.from(await js.arrayBuffer()),readFileSync('node_modules/stockfish/bin/'+ENGINE_FILES.script));
   const csp=js.headers.get('content-security-policy')!;assert.match(csp,/worker-src 'self'/);assert.match(csp,/'wasm-unsafe-eval'/);assert.ok(!csp.includes("'unsafe-eval'"));
   assert.match(await (await fetch(base+ENGINE_ASSET_BASE+ENGINE_FILES.license)).text(),/GNU GENERAL PUBLIC LICENSE/);
+  assert.match(await (await fetch(base+'/licenses.html')).text(),/chess.js 1.4.0/);
+  const chessLicense=await fetch(base+'/licenses/chess.js-LICENSE.txt');assert.match(chessLicense.headers.get('content-type')!,/text\/plain/);assert.deepEqual(Buffer.from(await chessLicense.arrayBuffer()),readFileSync('node_modules/chess.js/LICENSE'));
   assert.match(await (await fetch(base+ENGINE_ASSET_BASE+ENGINE_FILES.source)).text(),/v19\.0\.1/);
   for(const file of ['stockfish-19.js','stockfish-19.wasm','package.json','../package.json','%2e%2e/server/model.ts'])assert.equal((await fetch(base+ENGINE_ASSET_BASE+file)).status,404);
   assert.match((await fetch(base+'/api/status')).headers.get('cache-control')!,/no-store/);

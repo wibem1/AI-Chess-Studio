@@ -31,12 +31,12 @@ export function createStudioServer(options: { webRoot?: string; env?: NodeJS.Pro
       let relative: string;
       if(engine)relative=path.slice(1);
       else if (path === '/' || path === '/index.html') relative = 'index.html';
-      else if(path==='/service-worker.js' || path==='/manifest.webmanifest' || /^\/icons\/(icon-192|icon-512|apple-touch-icon)\.png$/.test(path))relative=path.slice(1);
+      else if(path==='/licenses.html' || path==='/licenses/chess.js-LICENSE.txt' || path==='/service-worker.js' || path==='/manifest.webmanifest' || /^\/icons\/(icon-192|icon-512|apple-touch-icon)\.png$/.test(path))relative=path.slice(1);
       else if (/^\/assets\/[a-zA-Z0-9_-]+\.(js|css)$/.test(path)) relative = path.slice(1);
       else {res.writeHead(404);res.end('Nicht gefunden.');return;}
       try {
         const content = await readFile(join(webRoot,relative));
-        res.setHeader('Content-Type',engine?engineContentType(engine):relative.endsWith('.webmanifest')?'application/manifest+json':relative.endsWith('.png')?'image/png':relative.endsWith('.js') ? 'text/javascript; charset=utf-8' : relative.endsWith('.css') ? 'text/css; charset=utf-8' : 'text/html; charset=utf-8');
+        res.setHeader('Content-Type',engine?engineContentType(engine):relative.endsWith('.webmanifest')?'application/manifest+json':relative.endsWith('.png')?'image/png':relative.endsWith('.txt')?'text/plain; charset=utf-8':relative.endsWith('.js') ? 'text/javascript; charset=utf-8' : relative.endsWith('.css') ? 'text/css; charset=utf-8' : 'text/html; charset=utf-8');
         res.setHeader('Cache-Control',engine?'public, max-age=31536000, immutable':'no-store');
         res.writeHead(200);res.end(req.method === 'HEAD' ? undefined : content);
       } catch {res.writeHead(404);res.end('Anwendung nicht gebaut. Zuerst npm run build ausführen.');}

@@ -22,6 +22,14 @@ Direkter zugehöriger Quellstand/Buildanleitung:
 https://github.com/nmrugg/stockfish.js/tree/v19.0.1
 Quellarchiv: https://github.com/nmrugg/stockfish.js/archive/refs/tags/v19.0.1.tar.gz
 
-Der aktuelle Integrationsschritt erstellt keine neue Downloadfreigabe und keine
-Veröffentlichung. Bei künftiger Distribution gehören Lizenz, Quellverweis und
-die unveränderte Engineversion gemeinsam zum Web-Build.
+Für die nun beauftragte Web-Distribution gehören Lizenz, Quellverweis und
+die unveränderte Engineversion gemeinsam zum Paket. Öffentliches Hosting ist
+noch nicht erfolgt.
+
+# chess.js
+
+Regelprüfung durch chess.js 1.4.0, Copyright (c) 2025 Jeff Hlywa,
+BSD-2-Clause. Die vollständige unveränderte Lizenz liegt im Web-Build unter
+licenses/chess.js-LICENSE.txt; öffentliche Zuordnung unter licenses.html.
+Die Veröffentlichung der Web-App ist nun beauftragt; das Paket enthält diese
+Hinweise und die bestehenden Stockfish-Lizenz-/Quellverweise gemeinsam.

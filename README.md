@@ -1,14 +1,18 @@
 # AI-Chess-Studio
 
-Aktuelle Entwicklungsversion: **0.2.0**. Die Nummer steht oben in der App,
+Zur Web-Bereitstellung vorbereitete Version: **0.3.0**. Die Nummer steht oben in der App,
 im Browser-Titel, beim Serverstart und in der lokalen Diagnose.
 Änderungen: [CHANGELOG.md](CHANGELOG.md).
 
+Veröffentlichung beauftragt; Hostingzugang noch offen, die App ist noch nicht
+öffentlich erreichbar. Fertiges Web-Paket und kurze Bereitstellungsschritte:
+[Web-App bereitstellen](docs/WEB_PUBLISHING.md).
+
 Auf Branch `work` zusätzlich integriert: **„Partie verstehen“ und die eigenständige Web-App
 als noch nicht freigegebener Entwicklungsstand**. Der Rückblick
-berücksichtigt Plancommit 2744e63e. Keine neue App-Version
-oder neues Downloadpaket für diesen Schritt. Code und Prüfergebnisse sind im
-Projektstand dokumentiert.
+berücksichtigt Plancommit 2744e63e. Die frühere Integration blieb zunächst
+ohne neue Version; nach dem Veröffentlichungsauftrag wird nun das Web-Paket
+0.3.0 vorbereitet. Hosting und öffentliche Adresse sind noch offen.
 
 Persönliches Schach-Lernprogramm: gegen Stockfish spielen und während oder
 nach der Partie mit einer getrennten KI über Stellungen, Strategien und

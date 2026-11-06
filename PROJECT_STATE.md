@@ -1,10 +1,12 @@
 # Projektstand
 
-Stand: 6. November 2026 · ausgelieferte Basis **0.2.0**
+Stand: 6. November 2026 · ausgelieferte Basis **0.2.0**, Web-Paket **0.3.0** vorbereitet
 
-Branch work: zusätzlich integrierter, noch nicht freigegebener Entwicklungsstand
-„Partie verstehen“ und eigenständige Web-App mit Browser-Spielengine. Gemäß neuer Anforderung keine neue
-App-Versionsnummer und kein Downloadpaket für diese Integrationsschritte.
+Neuer Auftrag nach Integration: Web-App veröffentlichen. Version 0.3.0 und
+statisches Paket werden dafür vorbereitet. **Noch nicht online:** kein Hosting-
+zugang verbunden, Zugriff auf GitHub-Website-Einstellungen via API Forbidden.
+Kein Anbieter gebucht, keine öffentliche URL oder erfolgreiche Veröffentlichung
+behauptet. Anleitung/aktueller Blocker: docs/WEB_PUBLISHING.md.
 
 ## Verbindliches Ziel
 
@@ -88,9 +90,9 @@ synthetische PGNs; die reale Partie ist damit nicht abgenommen.
   Separater statischer Python-Host ohne Node-App: echter Gegenzug bei fehlender
   /api/status und keine /api/play-Anfrage.
 
-Das ist der Spielengine-Adapter, noch keine komplette mobile PWA. KI, Schlüssel,
-zusätzlicher Faktencheck und Updates brauchen weiter den bisherigen Backendweg.
-Native Safari-/Android-/iPad-Abnahme offen.
+Dieser frühere Integrationsschritt lieferte zunächst nur den Spielengine-Adapter.
+Die danach integrierte eigenständige Web-App folgt unten. Native Safari-/
+Android-/iPad-Abnahme bleibt offen.
 
 ## Weiterhin nachgewiesene Funktionen
 
@@ -147,7 +149,8 @@ kostenpflichtiger Aufruf. Details und Prüfgrenzen: docs/VALIDATION.md.
 
 Zentrale Regeln und origin/work vor Sicherung abgeglichen. Keine parallelen
 Agenten, neue Abhängigkeiten, Releases, Deployments, Actions oder Sichtbarkeits-
-änderungen. Version bleibt gemäß Integrationsplan 0.2.0; kein neues Downloadpaket.
+änderungen beim Integrationsabschluss. Danach ausdrücklicher Auftrag zur Web-
+Veröffentlichung: Version 0.3.0 als geprüftes Web-Paket vorbereitet, Hosting offen.
 Die vorhandene Cloud-Konfiguration reicht zum Entwickeln/Testen; keine Secrets
 oder neuen Netzfreigaben nötig, kein Umgebungsentwurf geändert/veröffentlicht.
 
@@ -170,5 +173,6 @@ oder neuen Netzfreigaben nötig, kein Umgebungsentwurf geändert/veröffentlicht
 
 Reale Nutzer-PGN und gezielte Geräte-/KI-Praxisabnahme des jetzt integrierten
 Webstands. Fehlende Nachweise offen benennen; keine weitere Entwicklungs-
-Teilstufe als fertige native App ausgeben. Keine neue Version/Downloadfreigabe
-oder Veröffentlichung ohne den vereinbarten Auftrag.
+Teilstufe als fertige native App ausgeben. Der Veröffentlichungsauftrag liegt
+nun vor; als nächsten Schritt den tatsächlich verbundenen Hostingzugang nutzen
+und die öffentliche HTTPS-Adresse samt Live-Prüfung nachtragen.

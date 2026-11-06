@@ -5,7 +5,7 @@ import {readFileSync} from 'node:fs';
 export function pwaAssets():Plugin{return {
  name:'local-offline-shell',apply:'build',enforce:'post',
  generateBundle(_options,bundle){
-  const publicFiles=['manifest.webmanifest','icons/icon-192.png','icons/icon-512.png','icons/apple-touch-icon.png'];
+  const publicFiles=['licenses.html','licenses/chess.js-LICENSE.txt','manifest.webmanifest','icons/icon-192.png','icons/icon-512.png','icons/apple-touch-icon.png'];
   const artifacts=Object.keys(bundle).filter(name=>name==='index.html'||/^(assets|engine)\//.test(name));
   const hash=createHash('sha256');
   for(const name of artifacts.sort()){const entry=bundle[name]!;hash.update(name);hash.update(entry.type==='chunk'?entry.code:entry.source);}

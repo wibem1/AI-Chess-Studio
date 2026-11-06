@@ -1,5 +1,14 @@
 # Änderungen
 
+## 0.3.0 – zur Web-Bereitstellung vorbereitet, 6. November 2026
+
+- Verbindet die integrierte Web-App und „Partie verstehen“ in einem nummerierten
+  Web-Paket nach ausdrücklichem Veröffentlichungsauftrag.
+- Hosting-Header für statische Bereitstellung sowie zugängliche vollständige
+  chess.js-Lizenz und Stockfish-Lizenz-/Quelllinks ergänzt.
+- Noch keine öffentliche URL: Hostingzugang fehlt, GitHub-Website-API blockiert.
+  Lokale Prüfung und Bereitstellungsanleitung unter docs/WEB_PUBLISHING.md.
+
 ## Noch nicht freigegeben – eigenständige Web-App (6. November 2026)
 
 - Browserlokaler KI-Transport mit lokaler AES-GCM-Schlüsselverschlüsselung;

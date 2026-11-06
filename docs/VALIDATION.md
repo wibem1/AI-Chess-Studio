@@ -806,3 +806,37 @@ keine native Windows-Touch/DPAPI-/macOS-Safari-/Android-/iPadOS-Abnahme. Ein
 öffentlicher HTTPS-Startpunkt für Mobilgeräte wurde nicht veröffentlicht.
 Vollständige Nutzer-PGN 1Vh80QL2 fehlt weiterhin; synthetische legale Test-PGNs
 bleiben ausdrücklich als solche markiert und ersetzen diesen Pflichtfall nicht.
+
+## Web-Veröffentlichung beauftragt – Paket 0.3.0 vorbereitet
+
+6. November 2026: Nutzer präzisiert „WebApp veröffentlichen“. Kein Hostingkonto
+verbunden; lesender `gh api repos/wibem1/AI-Chess-Studio`-Aufruf liefert Forbidden.
+Kein Nachweis für Pages-Einrichtungsrechte; Git-Push-Rechte werden damit nicht
+verwechselt. Keine Kontoanlage, neuen Secrets, kostenpflichtigen Optionen,
+GitHub Actions oder Änderung der Repository-Sichtbarkeit. Die App ist noch nicht
+öffentlich erreichbar. Hostingfrage gestellt, unabhängige Paketarbeit erledigt.
+
+Version in package.json/package-lock.json auf 0.3.0 synchronisiert. Statische
+Header für kompatibles Hosting (_headers), vollständige unveränderte BSD-Lizenz
+von chess.js und zugängliche Lizenz-/Quellseite ergänzt. Node-Server erlaubt nur
+die beiden genau benannten zusätzlichen öffentlichen Lizenzpfade; Klartext-MIME
+und Bytegleichheit mit dem gepinnten chess.js-Paket gezielt überprüft. Öffentlicher
+App-Footer und Offline-Shell enthalten den Lizenzzugang.
+
+`npm run test:all`: Typprüfung, Build, **93 Einzeltests und 49 Browsertests grün**
+mit Version 0.3.0. Nach Ergänzung der Lizenz-Assertions Produktionsbuild und sechs
+gezielte Browserengine-/HTTP-Assettests erneut bestanden. Keine bezahlte API.
+
+Web-ZIP enthält 16 öffentliche Dateien, einschließlich BUILD.json mit Version
+und SHA-256 pro Datei; index.html direkt im ZIP-Stamm. Exakte öffentliche
+Dateiauswahl, keine Symlinks, keine Server-/Profil-/Sitzungs-/Secretdateien und
+ZIP-CRC geprüft. Paket 1.284.870 Byte, SHA-256:
+`403f030ff10afe53dc60397d7b9d9bd609038af94ecdbbb2cb57f07e93617202`.
+Die ignorierte Datei liegt unter artifacts/AI-Chess-Studio-Web-0.3.0.zip.
+Paket-/Uploadanleitung: docs/WEB_PUBLISHING.md.
+
+Dies ist ein geprüftes Bereitstellungspaket, kein erfolgreicher Onlinegang.
+Hosting-CSP und Browserfunktion an einer tatsächlichen öffentlichen HTTPS-Adresse
+müssen nach Zugang/Bereitstellung verifiziert werden. Kein öffentlicher Link
+oder kostenfreier Kontotarif wurde ohne Providerbeleg erfunden. Echte KI-Qualität,
+Geräteabnahme und die vollständige Nutzer-PGN bleiben weiterhin offen.
