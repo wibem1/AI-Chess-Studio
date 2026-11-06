@@ -1,14 +1,14 @@
 {
   "kind": "github-pages-static-site",
   "project": "AI-Chess-Studio",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "base": "/AI-Chess-Studio/",
-  "sourceCommit": "9626a023c6158db36060c584eec50c245b30ddba",
+  "sourceCommit": "cb25948790315b526b77841344dba82a781fec00",
   "files": {
     ".nojekyll": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "_headers": "41fb0af7ff2868f349ba99dd74294a07b141e9c7a30a566b26cc2a67a80a22ce",
-    "assets/index-CG8Di2Sl.css": "13543b491a2d415acbad1eb312024eb1951be898e9408b235ab81138fe181cdc",
-    "assets/index-CtAp8R87.js": "dd76d3b4e6a58656166927b9537d24407df0ddd61b5a5a4fd638a5a1e357599b",
+    "assets/index-Cdl37Skb.js": "74128fc780765c512539093ea5027d810c738fd23e7c50b4fde7a6ed2f6a5213",
+    "assets/index-DCt6W2NG.css": "bd52d925c173ad8e880f0a2cc3dd6319f21e29509f40a0c6c64a1ecf41e27b8b",
     "engine/stockfish-19.0.1/COPYING.txt": "0b383d5a63da644f628d99c33976ea6487ed89aaa59f0b3257992deac1171e6b",
     "engine/stockfish-19.0.1/SOURCE.txt": "6025a2120ce894c568dc29ae3b68e3cfe126f390ebba2adfa2670187de16351d",
     "engine/stockfish-19.0.1/stockfish-19-lite-single.js": "ccb130d7ff29408531c47d859a49f91d59d4f482d05a53eb1a3231a4f624c91a",
@@ -16,10 +16,10 @@
     "icons/apple-touch-icon.png": "2f9e9df0e5c58ad5b29049dfb41bdbce823fcde3ec8bc8bbfc7a81b5194ebb31",
     "icons/icon-192.png": "b77a807d34977ba014cb045c48da4b1042e5a5cf60e260a7e3ec1c1098d52d85",
     "icons/icon-512.png": "8371b7a98f6ba5a86361cfef65f8124a79c3a0404bf387cebdb1a9ca8ba14a8c",
-    "index.html": "9565910e5c31e8206a83116a87b4d774aa914167c3e7eb64ae1c1c9f1d89d531",
+    "index.html": "ec50afbb6fefddb8f3c40c18e59a40bb3cc5f3cf168d2c180fdfd3ec5f80a608",
     "licenses/chess.js-LICENSE.txt": "0b3a3c2b4432a26bb18f9d06f5bba4de015bcc980306b7db28b06025495e2186",
     "licenses.html": "4b22d88195c34d165cbe80b420f4f6d90c21e563497bd50616537da00c104c3e",
     "manifest.webmanifest": "d23e56f8e2a5b47841765210084aca9cd86e2b80e14c6e7d1a7aacc1f56b32fa",
-    "service-worker.js": "8b98acf6cb9a920bcb165c9ceb528cd541cae6e2b2ca6f1a05cccd8daefc538b"
+    "service-worker.js": "889a2bc8759f31a82d61d05b3e456b489df7dfd4e45a78a48d34a03d9386cf01"
   }
 }
