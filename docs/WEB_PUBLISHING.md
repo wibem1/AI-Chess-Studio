@@ -20,7 +20,7 @@ keine Treffer für verbreitete API-Key-/GitHub-Token-/Private-Key-Muster; keine
 Werte ausgegeben. Das ist kein allgemeiner Nachweis über sämtliche privaten
 Inhalte in einer Historie.
 
-## Aktueller Stand 0.4.1
+## Aktueller Stand 0.5.0
 
 `npm run build:pages` erzeugt `pages-dist` für **/AI-Chess-Studio/**.
 Worker, Links, Manifest, Startadresse, Icons, Lizenzen und Offline-Cache sind auf
@@ -36,7 +36,7 @@ node scripts/publish-pages.mjs --prepare-only
 ```
 
 `--prepare-only` erzeugt ausschließlich lokal einen neuen Ordner unter
-artifacts/Pages-0.4.1-… mit exakter öffentlicher Dateiliste und BUILD.json
+artifacts/Pages-0.5.0-… mit exakter öffentlicher Dateiliste und BUILD.json
 (Version, Quellcommit, SHA-256 je Datei). Keine Schlüssel, Sitzungen, Profile,
 Node-Server oder Entwicklungsdateien. Das frühere Root-ZIP 0.3.0 bleibt erhalten
 und ist nicht das neue Unterordner-Paket.
@@ -74,7 +74,7 @@ Tarif, keine neue Domain oder andere Anbieterleistung beauftragt.
 
 ## Prüfung
 
-100 Einzeltests und 57 Chromium-Browserfälle; darunter echter Stockfish,
+103 Einzeltests und 60 Chromium-Browserfälle; darunter echter Stockfish,
 Unterordner-Manifest/Scope, Offline-Reload mit pausierter Partie/Entwurf und
 Lizenznavigation ohne Root-Requests. Der Publisher ist mit echten lokalen Git-
 Repositories auf Erstveröffentlichung, fortlaufende gh-pages-Historie,
@@ -160,3 +160,11 @@ https://github.com/wibem1/AI-Chess-Studio/actions/runs/42290733124
 Commitgebundenes öffentliches BUILD.json mit Version/Basis/Quelle überprüft.
 Keine direkte Live-Host-/native Windows-Abnahme im netzwerkbeschränkten Runner.
 Code und Prüf-/Projektstand gemeinsam auf work; kein neuer Workflow oder API-Test.
+
+
+0.5.0 tatsächlich veröffentlicht: Quellcommit cb25948, gh-pages
+b05543e4ea5d8eef0177e953562eef021b7d9bf8, Run 42294382384 SUCCESS:
+https://github.com/wibem1/AI-Chess-Studio/actions/runs/42294382384
+Öffentliches commitgebundenes BUILD.json mit Version/Basis/Quelle verifiziert.
+Direkter Live-Host weiterhin netzwerkbedingt nicht erreichbar; kein behaupteter
+nativer Windows-/Android-Test. Keine kostenpflichtige Anfrage, keine neue Ablage.

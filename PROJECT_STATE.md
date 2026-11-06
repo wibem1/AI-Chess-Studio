@@ -1,6 +1,12 @@
 # Projektstand
 
-Stand: 6. November 2026 · **0.5.0 geprüft; Bereitstellung wird kontrolliert**.
+Stand: 6. November 2026 · **0.5.0 veröffentlicht, GitHub-Erfolg bestätigt**.
+Aktueller Quellcommit cb25948, gh-pages b05543e4ea5d8eef0177e953562eef021b7d9bf8,
+Run 42294382384 SUCCESS. Öffentliches commitgebundenes BUILD.json bestätigt
+Version/Basis/Quellcommit. Nächster Schritt: Nutzer übernimmt 0.5.0; neue Keys
+ohne Zusatzpasswort speichern, bestehende Passwortfächer bei Wunsch nach
+einmaligem Entsperren explizit umstellen. Windows-Bedienungsabnahme offen.
+
 Voriger bestätigter Stand 0.4.1:
 Aktueller Quellcommit 9626a023c6158db36060c584eec50c245b30ddba, gh-pages
 9a8785e55c760e077338b68c9a98e579a74dabfe, Run 42290733124 SUCCESS.
@@ -40,8 +46,7 @@ Gezielte Layoutprüfung bei 1066/1280/1440 und 16/24 px Schrift vor/nach Korrekt
 103/103 Einzeltests und 60/60 Browsertests einschließlich Scrollhilfe bestanden.
 Gesamtsuite und Auslieferung sind in docs/VALIDATION.md dokumentiert.
 
-Nächster Schritt: 0.5.0 auf bestehendem gh-pages-Ziel bereitstellen, exakten
-GitHub-Lauf bestätigen. Nutzer übernimmt Update und prüft Windowsdarstellung.
+Bereitstellung abgeschlossen. Nutzer übernimmt Update und prüft Windowsdarstellung.
 Native Windows-/Android-Abnahme und echte KI-Qualität bleiben offen.
 
 ## Korrektur 0.4.1 – aktueller Nutzerauftrag

@@ -1196,3 +1196,11 @@ Kompakte Hilfe über echte Klicks geöffnet, Scroll-/Diagnosefälle weiter besta
 Profil-Speicherung, alte Passwortfächer, Umstellung, Löschung über zweites Fenster,
 unveränderte Budgets und Layout bei großer Schrift enthalten. Keine tatsächliche
 Provider-/kostenpflichtige Generierung. Native Geräteprüfung durch Nutzer offen.
+
+
+0.5.0 tatsächlich veröffentlicht: Quellcommit cb25948, gh-pages
+b05543e4ea5d8eef0177e953562eef021b7d9bf8, Run 42294382384 SUCCESS:
+https://github.com/wibem1/AI-Chess-Studio/actions/runs/42294382384
+Öffentliches commitgebundenes BUILD.json mit Version/Basis/Quelle verifiziert.
+Direkter Live-Host weiterhin netzwerkbedingt nicht erreichbar; kein behaupteter
+nativer Windows-/Android-Test. Keine kostenpflichtige Anfrage, keine neue Ablage.
