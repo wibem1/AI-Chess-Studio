@@ -267,3 +267,16 @@ Regressionen; npm test 98/98, bestehender unveränderter Appstand zuvor 52/52
 Browserfälle. Keine neue App-Version, Appkennung, Löschung oder Migration.
 Android-Installation ohne tatsächlichen Geräte-/Dialogbefund nicht als behoben
 behauptet; Windows-Installation allein blockiert kein zweites Androidgerät.
+
+## Android-Diagnose: Chrome-156-Fehler plausibel identifiziert
+
+Nutzerdatei bestätigt 0.3.2 mit Android-Chrome 156. Offizieller Chromium-Fix
+2e165cdb08d714941e3573a18b719bfdad78ff66 beschreibt genau die beobachtete
+Installed-/Open-Fehlerkombination für verschiedene PWAs desselben Origins.
+Geprüfter 156.0.8078.94-Tag enthält Origin-weite Prüfung; 157.0.8103.73 enthält
+Scope-Korrektur. Nächster gezielter Schritt: Chrome im Play Store auf einen
+korrigierten Stand aktualisieren, Installation am Gerät erneut prüfen. Kein
+weiterer Reset oder Manifest-ID-Wechsel. Welche andere Same-Origin-App auf dem
+Gerät vorhanden ist, wurde nicht nachgewiesen; native Abnahme weiter offen.
+Details und Quellen: docs/ANDROID_INSTALLATION.md. Originale Nutzerdatei und
+vollständige Browserkennung nicht in das öffentliche Repository übernommen.

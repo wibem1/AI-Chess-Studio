@@ -981,3 +981,21 @@ Manifest-ID bleibt /AI-Chess-Studio/ nach relativer Auflösung. Daraus folgt kei
 Nachweis einer vorhandenen Installation auf dem Telefon. Versionsnummer und
 Ort des nativen Dialogs beim Nutzer angefragt; tatsächliche Android-Installation
 nicht mit Linux-Chromium-/Touchgrößentests gleichsetzen.
+
+## Android-Bedienungsdiagnose und Chromium-Versionsvergleich
+
+Nutzerdatei (nicht veröffentlicht) meldet App 0.3.2, Android-Chrome 156, Touch,
+CSS-Viewport 600x841, Skala 1. Die reduzierte UA enthält keinen Nachweis einer
+Windows-Installation und keine Daten über Chromes native Installationsliste.
+Neustart hatte laut Nutzer nicht geholfen; keine weiteren ungezielten Resets.
+
+Offizieller Chromium-Fix 2e165cdb08d714941e3573a18b719bfdad78ff66 vom 13.10.2026
+mit exakt beschriebenen Meldungen und Ursache gelesen. Versionierte Registry-
+Quellen aus 156.0.8078.94, 157.0.8103.73 und 158.0.8127.24 verglichen: 156 prüft
+nur Origin, die beiden neueren geprüften Stände prüfen App-Scope. Diese Fakten
+sind durch echte Quellabrufe belegt; kein Android-Installationstest daraus
+behauptet. Gezielte Empfehlung: Chrome auf einen korrigierten Stand aktualisieren,
+dann Installation erneut versuchen. Genauigkeit und offene Gerätebestätigung
+unter docs/ANDROID_INSTALLATION.md. Keine App-Code-/Manifest-/Datenänderung,
+kein neuer Build oder Deployment, keine bezahlte Anfrage. Kein vollständiger
+Nutzer-Diagnoseinhalt in Git. Vorheriger App-Prüfstand bleibt unverändert.
