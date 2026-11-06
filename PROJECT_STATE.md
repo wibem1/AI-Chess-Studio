@@ -7,7 +7,8 @@ Veröffentlichungsauftrag: öffentliche Web-App über kostenloses GitHub Pages,
 0.3.1 für /AI-Chess-Studio/ und Distributionsbranch gh-pages vorbereitet.
 Nutzer hat das bestehende Repository auf Public gestellt und bestätigt;
 öffentlicher HTTP-Abruf 200. Diese Freigabe nicht erneut anfordern. GitHub-Verwaltungs-API liefert Forbidden, Git-
-Zugriff funktioniert. Kein neuer Repository-/Pages-/Live-Erfolg behauptet.
+Zugriff funktioniert. Kein neues Repository. Web-Dateien auf gh-pages übertragen; Pages-Aktivierung
+und Live-Erreichbarkeit noch nicht bestätigt.
 Konkrete Schritte und Updatebefehl: docs/WEB_PUBLISHING.md.
 
 ## Verbindliches Ziel
@@ -189,3 +190,17 @@ der Repository-Sichtbarkeit. Echte Unterordner-/Offline-/WASM-Prüfung bestanden
 Manueller Publisher überträgt ausschließlich öffentliche Builddateien und schützt
 fremde Zielinhalte; lokal mit echten Git-Repositories geprüft. Nutzer hat Public selbst gesetzt; Pages-Aktivierung bleibt bei blockierter
 Verwaltungs-API über die GitHub-Einstellungen vorzunehmen. Kein neues Repository.
+
+## Übertragung des Web-Stands
+
+- Geprüfter App-/Codecommit auf work: 6f747c2, Version 0.3.1.
+- Tatsächlich übertragener gh-pages-Commit: 82d92273eb8a6abc40555a7ca126fc3b41db05c7.
+  Native Git-Übertragung im bestehenden Repository erfolgreich; Codebranch erhalten.
+- Öffentlicher Repository-Abruf nach Nutzerfreigabe HTTP 200.
+- Pages-Verwaltungs-API weiterhin Forbidden. Einmalige Benutzereinstellung:
+  Settings → Pages → Deploy from a branch → gh-pages → / (root) → Save.
+- Live-Prüfversuch der erwarteten Adresse scheitert bereits am Netzwerkproxy
+  mit CONNECT 403 / HTTP 000. Kein HTTP-404-/Fehlernachweis über die Website
+  selbst und keine erfolgreiche Live-Abnahme behauptet.
+- Nächster Schritt: Nutzer speichert die Pages-Quelle; angezeigte GitHub-Adresse
+  und tatsächlichen Onlinegang bestätigen. Nicht erneut Public anfordern.

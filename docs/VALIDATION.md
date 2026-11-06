@@ -884,3 +884,17 @@ auf verbreitete Token-/Schlüssel-/Private-Key-Muster, keine Treffer und keine
 Werte ausgegeben. Das ist keine allgemeine Zusicherung über alle privaten Inhalte.
 Live-Adresse und Pages-Aktivierung werden erst nach tatsächlichem Ergebnis
 bestätigt. Reale KI-Qualität, native Geräteabnahme und Nutzer-PGN bleiben offen.
+
+Übertragung nach erfolgreichem finalem Prüflauf: work-Commit 6f747c2 gespeichert,
+Publisher tatsächlich gegen das vorhandene Repository ausgeführt, neuer
+Distributionsbranch gh-pages erfolgreich übertragen. `git ls-remote` bestätigt
+82d92273eb8a6abc40555a7ca126fc3b41db05c7. BUILD.json bindet den Web-Stand 0.3.1 an
+6f747c2. Codebranch bleibt erhalten; kein neues Repository. Nutzerfreigabe Public
+ist vorhanden und durch öffentlichen Repository-Abruf HTTP 200 bestätigt.
+
+Die Pages-Verwaltungs-API bleibt Forbidden. Der direkte Website-Prüfversuch an
+https://wibem1.github.io/AI-Chess-Studio/ scheitert vor dem Zielserver am
+Netzwerkproxy: CONNECT 403, HTTP 000. Deshalb weder erfolgreiche Live-Abnahme
+noch einen Website-404 behaupten. Erforderliche einmalige GitHub-Einstellung:
+Settings → Pages → Deploy from a branch → gh-pages → / (root) → Save.
+Danach tatsächliche Pages-Aktivierung und angezeigte Adresse bestätigen.

@@ -86,3 +86,13 @@ Installation, Offline-Restore und bestätigte Updates an der echten Adresse
 prüfen. Live-Abnahme, echte KI-Qualität, native Geräte und Nutzer-PGN bleiben
 offen. Sitzungen und verschlüsselter Key bleiben im jeweiligen Browser; eine
 neue Domain hat einen eigenen Speicher, Übertragung von Partien erfolgt per JSON.
+
+## Tatsächlich ausgeführte Übertragung
+
+work: **6f747c2**. Web-Stand 0.3.1 erfolgreich als neuer Branch gh-pages im
+bestehenden Repository gesichert: **82d92273eb8a6abc40555a7ca126fc3b41db05c7**.
+`git ls-remote` bestätigt diesen Branch. Keine neue Ablage angelegt.
+Die Pages-Einstellung über die Verwaltungs-API bleibt blockiert. Der direkte
+Live-Prüfversuch wird vom Netzwerkproxy mit CONNECT 403 (HTTP 000) abgewiesen;
+daraus folgt keine Aussage über den tatsächlichen HTTP-Status der Website.
+Einmalige Pages-Quellwahl und Live-Bestätigung durch GitHub/Nutzer sind noch offen.

@@ -11,7 +11,9 @@ Nicht-Engine-Code des Upstreamprojekts ist laut dessen README MIT-lizenziert.
 - Distributionsartefakte: https://github.com/nmrugg/stockfish.js/releases/tag/v19.0.1
 - Stockfish-Ursprungsprojekt: https://github.com/official-stockfish/Stockfish
 
-Engine-Binärdateien und WASM bleiben außerhalb des Git-Repositorys. Beim
+Engine-Binärdateien und WASM bleiben außerhalb des Entwicklungsbranchs.
+Für die beauftragte GitHub-Pages-Veröffentlichung enthält der getrennte
+Distributionsbranch gh-pages die unveränderten öffentlichen Engine-Dateien. Beim
 Vite-Build werden die unveränderten Dateien stockfish-19-lite-single.js/.wasm
 unter engine/stockfish-19.0.1/ in den ignorierten Web-Build übernommen. Ebenfalls
 enthalten: COPYING.txt und SOURCE.txt mit der zugehörigen Quellversion und dem

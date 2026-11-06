@@ -7,7 +7,8 @@ im Browser-Titel, beim Serverstart und in der lokalen Diagnose.
 Öffentliche Veröffentlichung über GitHub Pages beauftragt. Der passende Build
 ist vorbereitet; wir verwenden das bestehende Repository mit einem getrennten gh-pages-Branch.
 Der Nutzer hat es bereits öffentlich gestellt; die Pages-Verwaltungs-API ist
-hier weiterhin blockiert, die einmalige Pages-Einstellung steht noch aus. Die App ist noch nicht online.
+hier weiterhin blockiert, der fertige Web-Stand liegt bereits auf gh-pages. Die einmalige Pages-Einstellung
+und die Live-Erreichbarkeit sind noch nicht bestätigt.
 Bereitstellung und spätere Updates:
 [Web-App bereitstellen](docs/WEB_PUBLISHING.md).
 
