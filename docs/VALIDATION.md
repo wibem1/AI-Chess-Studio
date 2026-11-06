@@ -1279,3 +1279,11 @@ lesbare Auswahl), außerdem 390×844 mobil. Viewports unter Linux sind keine
 native Windows-/Android-/iPad-Abnahme. Maia nur anhand offizieller Quellen
 untersucht, keine Gewichte geladen und keine Maia-Züge ausgeführt; Quellen,
 Lizenz-/Laufzeitgrenzen und nächster Browser-Prototyp in MAIA.md.
+
+Bereitstellung bestätigt: Quelle `1f73f79b6c64275fa2bd6061d0b4970ae67a0e13`,
+`gh-pages` `89f9efca91b434a4070fa64dec48abe0a9d052cd`;
+[GitHub-Lauf 42308288822](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42308288822)
+SUCCESS für genau diesen Commit. Öffentliches unveränderlich commitgebundenes
+BUILD.json geprüft: Version 0.6.0, Basis /AI-Chess-Studio/, Quellcommit identisch,
+16 Builddateien. Kein direkter github.io-Abruf wegen Netzwerkpolitik; tatsächliche
+Geräte-/Cache-Abnahme bleibt offen. Vorhandenes Repository/Pages-Verfahren benutzt.

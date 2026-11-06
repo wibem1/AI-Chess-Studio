@@ -1,6 +1,6 @@
 # AI-Chess-Studio
 
-Aktueller veröffentlichter Funktionsstand: **0.6.0 vollständig automatisiert geprüft**, Bereitstellung ausstehend; letzter bestätigter Online-Stand 0.5.1. Änderungen: [CHANGELOG.md](CHANGELOG.md).
+Aktueller veröffentlichter Funktionsstand: **0.6.0**, GitHub-Bereitstellung bestätigt; native Nutzerabnahme steht noch aus. Änderungen: [CHANGELOG.md](CHANGELOG.md).
 Ein großes gemeinsames Schachbrett und zwei Modi für dein persönliches Lernen.
 Auf dem Desktop steht das vollständige, vergrößerte Brett oben; Status und
 Werkzeuge darunter. Kleine Touchansichten behalten ihre bisherige Anordnung.

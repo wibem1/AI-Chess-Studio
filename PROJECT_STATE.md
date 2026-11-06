@@ -1,7 +1,10 @@
 # Projektstand
 
-Stand: 6. November 2026 · **0.6.0 vollständig automatisiert geprüft, Bereitstellung ausstehend**.
-Letzter bestätigter Online-Stand: 0.5.1; Nachweise unten.
+Stand: 6. November 2026 · **0.6.0 veröffentlicht, GitHub-Erfolg bestätigt**.
+Quelle 1f73f79b6c64275fa2bd6061d0b4970ae67a0e13; gh-pages
+89f9efca91b434a4070fa64dec48abe0a9d052cd; Run 42308288822 SUCCESS.
+Öffentliches commitgebundenes BUILD.json bestätigt Version, Basis und Quelle.
+Liveabruf von github.io hier netzpolitisch gesperrt; Geräteabnahme getrennt offen.
 
 Aktueller Nutzerauftrag: Schriftzoom, Rücknahme während der Partie, klare
 Gefahren und begründete Stellungsvor-/nachteile im Lerndialog; Maia als
@@ -29,9 +32,10 @@ Web-/Pages-Build, **110/110 Einzeltests und 65/65 Chromiumfälle**. Drei echte
 Browseransichten visuell kontrolliert (Desktop, 200-%-Schrift, Mobilansicht). Keine kostenpflichtigen Modellaufrufe;
 Lerndialog mit abgefangenem Providertransport, nicht als echte Modellqualität
 bewertet. Native Windows/Android/iPad-Abnahme bleibt getrennt offen.
-Nächster einzelner Schritt: autorisiertes Update im vorhandenen Repository
-bereitstellen und Erfolg für genau den ausgelieferten Commit bestätigen.
-Danach isolierter Maia-Browser-Prototyp, zuerst Modellrecht/Exportfähigkeit.
+Nächster einzelner Entwicklungsschritt: isolierter Maia-Browser-Prototyp,
+zuerst Modellrecht/Exportfähigkeit und vorhandene Browserlaufzeiten prüfen.
+Neue Schrift-/Rücknahmebedienung auf tatsächlichen Nutzergeräten noch nicht
+bestätigt; reale Lern-KI-Qualität durch die Antwortfixtures nicht belegt.
 
 ## Voriger bestätigter Stand 0.5.1
 
