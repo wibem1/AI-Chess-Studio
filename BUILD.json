@@ -3,7 +3,7 @@
   "project": "AI-Chess-Studio",
   "version": "0.3.2",
   "base": "/AI-Chess-Studio/",
-  "sourceCommit": "97cb9ecb8388e767bef02c52014c801871b2c5e5",
+  "sourceCommit": "9761cb76b16616056269f3994205fff16bfd594d",
   "files": {
     ".nojekyll": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "_headers": "41fb0af7ff2868f349ba99dd74294a07b141e9c7a30a566b26cc2a67a80a22ce",
