@@ -1236,3 +1236,11 @@ Touchfortschritt und fehlgeschlagene Speicherung auf erhaltene Eingabe geprüft.
 Endgültig npm run test:all mit Typprüfung, Root-/Pages-Builds, 104/104 Einzeltests
 und 62/62 Chromiumfällen grün (2,6 Minuten). Keine kostenpflichtige Modellanfrage.
 Kein behaupteter nativer Windows-/Android-Nachweis.
+
+
+0.5.1 tatsächlich bereitgestellt: Quelle 5cd6b45, gh-pages
+3eb4c61bc7ce5b442d28c23211e050243be890a7, Run 42303046331 SUCCESS:
+https://github.com/wibem1/AI-Chess-Studio/actions/runs/42303046331
+Öffentliches commitgebundenes BUILD.json mit Version/Basis/Quelle verifiziert.
+Direkter Live-Host-/nativer Gerätetest weiterhin offen. Keine neue Ablage,
+kein neuer Workflow und keine kostenpflichtige Modellanfrage.

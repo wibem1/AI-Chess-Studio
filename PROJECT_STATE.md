@@ -1,6 +1,11 @@
 # Projektstand
 
-Stand: 6. November 2026 · **0.5.1 geprüft; Bereitstellung folgt**.
+Stand: 6. November 2026 · **0.5.1 veröffentlicht, GitHub-Erfolg bestätigt**.
+Aktuelle Quelle 5cd6b45; gh-pages 3eb4c61bc7ce5b442d28c23211e050243be890a7;
+Run 42303046331 SUCCESS. Öffentliches commitgebundenes BUILD.json bestätigt
+Version, Basis und Quellcommit. Nächster Schritt: Nutzer übernimmt 0.5.1 und
+prüft Neu-Speichern im oberen API-Key-Formular ohne altes Passwort.
+
 Aktueller Auftrag: Nutzer meldet auf 0.5.0 „Passwort eingeben“ beim Speichern
 und lehnt die Zehn-Zeichen-Vorgabe nochmals ausdrücklich ab. Exakte Quelle
 des nativen Dialogs auf seinem Gerät nicht beobachtet; kein endgültiger
@@ -12,7 +17,7 @@ Eigene klare Formularvalidierung; Eingabe bleibt bei fehlender Freigabe oder
 Speicherfehler bestehen. Erfolg erst nach Lesen/Entschlüsseln der persistierten
 Kopie; danach Eingabe leeren. Partien/Budgets/DB-Version unverändert.
 104/104 Einzeltests, 62/62 Browserfälle bestanden. Reale Geräteabnahme offen.
-Nächster Schritt: 0.5.1 bereitstellen und exakten GitHub-Lauf bestätigen.
+Bereitstellung abgeschlossen; native Speicher-/Bedienungsabnahme durch Nutzer offen.
 
 Vorige Bereitstellung 0.5.0:
 Aktueller Quellcommit cb25948, gh-pages b05543e4ea5d8eef0177e953562eef021b7d9bf8,

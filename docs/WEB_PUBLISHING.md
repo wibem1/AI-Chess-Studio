@@ -20,7 +20,7 @@ keine Treffer für verbreitete API-Key-/GitHub-Token-/Private-Key-Muster; keine
 Werte ausgegeben. Das ist kein allgemeiner Nachweis über sämtliche privaten
 Inhalte in einer Historie.
 
-## Aktueller Stand 0.5.0
+## Aktueller Stand 0.5.1
 
 `npm run build:pages` erzeugt `pages-dist` für **/AI-Chess-Studio/**.
 Worker, Links, Manifest, Startadresse, Icons, Lizenzen und Offline-Cache sind auf
@@ -36,7 +36,7 @@ node scripts/publish-pages.mjs --prepare-only
 ```
 
 `--prepare-only` erzeugt ausschließlich lokal einen neuen Ordner unter
-artifacts/Pages-0.5.0-… mit exakter öffentlicher Dateiliste und BUILD.json
+artifacts/Pages-0.5.1-… mit exakter öffentlicher Dateiliste und BUILD.json
 (Version, Quellcommit, SHA-256 je Datei). Keine Schlüssel, Sitzungen, Profile,
 Node-Server oder Entwicklungsdateien. Das frühere Root-ZIP 0.3.0 bleibt erhalten
 und ist nicht das neue Unterordner-Paket.
@@ -74,7 +74,7 @@ Tarif, keine neue Domain oder andere Anbieterleistung beauftragt.
 
 ## Prüfung
 
-103 Einzeltests und 60 Chromium-Browserfälle; darunter echter Stockfish,
+104 Einzeltests und 62 Chromium-Browserfälle; darunter echter Stockfish,
 Unterordner-Manifest/Scope, Offline-Reload mit pausierter Partie/Entwurf und
 Lizenznavigation ohne Root-Requests. Der Publisher ist mit echten lokalen Git-
 Repositories auf Erstveröffentlichung, fortlaufende gh-pages-Historie,
@@ -168,3 +168,11 @@ https://github.com/wibem1/AI-Chess-Studio/actions/runs/42294382384
 Öffentliches commitgebundenes BUILD.json mit Version/Basis/Quelle verifiziert.
 Direkter Live-Host weiterhin netzwerkbedingt nicht erreichbar; kein behaupteter
 nativer Windows-/Android-Test. Keine kostenpflichtige Anfrage, keine neue Ablage.
+
+
+0.5.1 tatsächlich bereitgestellt: Quelle 5cd6b45, gh-pages
+3eb4c61bc7ce5b442d28c23211e050243be890a7, Run 42303046331 SUCCESS:
+https://github.com/wibem1/AI-Chess-Studio/actions/runs/42303046331
+Öffentliches commitgebundenes BUILD.json mit Version/Basis/Quelle verifiziert.
+Direkter Live-Host-/nativer Gerätetest weiterhin offen. Keine neue Ablage,
+kein neuer Workflow und keine kostenpflichtige Modellanfrage.
