@@ -5,6 +5,7 @@ import { checkTactics, ServerTacticalAdapter } from '../src/tactics.js';
 import { LearningGame, ServerPlayingEngine, pathTo } from '../src/game.js';
 import type {HintMode} from '../src/learning.js';
 import './style.css';
+import {BrowserPlayingEngine} from '../src/browser-engine.js';
 import { installReviewUI } from './review-ui.js';
 import { reviewLocked,visibleReviewNodes } from '../src/review.js';
 import { installNavigation } from './navigation.js';
@@ -17,6 +18,8 @@ document.getElementById('app-version')!.textContent = `Version ${APP_VERSION}`;
 document.title = `AI-Chess-Studio ${APP_VERSION}`;
 const studio = new Studio();
 const game=new LearningGame(()=>studio.session);
+const browserEngine=new BrowserPlayingEngine();
+const desktopEngine=new ServerPlayingEngine();
 let enginePending=false;
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 const input = (id: string) => $<HTMLInputElement>(id);
@@ -78,9 +81,11 @@ function render() {
   const allowed=visibleReviewNodes(data),locked=reviewLocked(data);
   if(live){
     const end=studio.session.status(live.cursor);
-    message('game-status',`Du spielst ${live.human==='w'?'Weiß':'Schwarz'} · Level ${live.level} · ${end.checkmate?'Partie beendet: Schachmatt':end.draw?'Partie beendet: Remis':live.paused?'Analysemodus · Partie pausiert':enginePending?'Stockfish denkt …':'Partie läuft'} · Partiestellung ${live.cursor}`);
+    message('game-status',`Du spielst ${live.human==='w'?'Weiß':'Schwarz'} · Level ${live.level} · ${live.engine==='browser'?'Browser-Engine':'Desktop-Engine'} · ${end.checkmate?'Partie beendet: Schachmatt':end.draw?'Partie beendet: Remis':live.paused?'Analysemodus · Partie pausiert':enginePending?'Stockfish denkt …':'Partie läuft'} · Partiestellung ${live.cursor}`);
   }else message('game-status',data.review?'Importierte menschliche Partie. Kein Enginegegner gestartet.':'Noch keine Enginepartie gestartet. Das Brett kann frei untersucht werden.');
   $<HTMLButtonElement>('game-pause').disabled=!live || live.paused;
+  $<HTMLSelectElement>('engine-location').disabled=enginePending;
+  if(data.game?.engine)$<HTMLSelectElement>('engine-location').value=data.game.engine;
   $<HTMLButtonElement>('game-resume').disabled=!live;
   message('game-line',live ? pathTo(data,live.cursor).filter(n=>n.san).map(n=>n.san).join(' · ') || 'Die Anfangsstellung ist bereit.' : data.review?'Importierte Originalpartie · geführter Rückblick im Tab Lernen.':'Deine Partie beginnt hier.');
   const mainIds=new Set(live?pathTo(data,live.cursor).slice(pathTo(data,live.cursor).findIndex(n=>n.id===live.start)).map(n=>n.id):[]);
@@ -340,12 +345,17 @@ function restoreSession(json:string){studio.restore(json);game.pause();}
 async function engineTurn(){
   if(enginePending || !game.needsEngine())return;
   enginePending=true;render();
-  try{const result=await game.reply(new ServerPlayingEngine());if(result==='stored')message('game-feedback','Stockfish hat gezogen. Du bist am Zug.');}
+  try{const result=await game.reply((studio.session.snapshot().game?.engine??$<HTMLSelectElement>('engine-location').value)==='browser'?browserEngine:desktopEngine);if(result==='stored')message('game-feedback','Stockfish hat gezogen. Du bist am Zug.');}
   catch(error){message('game-feedback',error instanceof Error?error.message:'Enginezug fehlgeschlagen. Partie pausiert.');}
   finally{enginePending=false;render();if(game.needsEngine())void engineTurn();}
 }
 $('game-form').addEventListener('submit',event=>{
- event.preventDefault();attempt(()=>game.start($<HTMLSelectElement>('game-color').value as 'w'|'b',Number($<HTMLSelectElement>('game-level').value)),'game-feedback','Lernpartie gestartet.');void engineTurn();
+ event.preventDefault();attempt(()=>game.start($<HTMLSelectElement>('game-color').value as 'w'|'b',Number($<HTMLSelectElement>('game-level').value),$<HTMLSelectElement>('engine-location').value as 'server'|'browser'),'game-feedback','Lernpartie gestartet.');void engineTurn();
+});
+$('engine-location').addEventListener('change',()=>{
+ const selectedEngine=$<HTMLSelectElement>('engine-location').value as 'server'|'browser';
+ game.pause();const saved=studio.session.snapshot().game;if(saved)studio.session.setGame({...saved,engine:selectedEngine,revision:saved.revision+1});render();
+ message('game-feedback','Spielengine gewählt. Eine bestehende Partie bleibt pausiert; Fortsetzen startet sie bewusst.');
 });
 $('game-pause').addEventListener('click',()=>{game.pause();render();message('game-feedback','Partie pausiert. Probiere Varianten oder bespreche deine Ideen.');});
 $('game-resume').addEventListener('click',()=>{attempt(()=>game.resume(),'game-feedback','Zur tatsächlichen Partie zurückgekehrt.');void engineTurn();});

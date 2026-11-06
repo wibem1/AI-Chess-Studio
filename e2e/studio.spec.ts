@@ -784,3 +784,72 @@ test('imported black perspective and turn controls work on phone and iPad withou
   await expect(page.locator('#review-played')).toBeHidden();await context.close();
  }
 });
+
+test('real Stockfish browser worker plays all five levels without a desktop engine API',async({page})=>{
+ let apiCalls=0;const errors:string[]=[];page.on('pageerror',error=>errors.push(error.message));
+ page.on('request',r=>{if(r.url().endsWith('/api/play'))apiCalls++;});
+ await page.route('**/api/**',route=>route.fulfill({status:503,json:{error:'Backend deliberately unavailable'}}));
+ for(const level of ['1','2','3','4','5']){
+  await page.goto('/');
+  expect(await page.evaluate(()=>crossOriginIsolated)).toBe(false);
+  await page.getByLabel('Spielengine',{exact:true}).selectOption('browser');
+  await page.getByLabel('Engine-Spielstärke',{exact:true}).selectOption(level);
+  await page.getByRole('button',{name:'Partie starten',exact:true}).click();await play(page,'e4');
+  await expect(page.locator('#game-feedback')).toContainText('Stockfish hat gezogen');
+  const data=JSON.parse(await exportData(page));expect(data.nodes).toHaveLength(3);expect(data.game.engine).toBe('browser');expect(data.game.level).toBe(Number(level));
+ }
+ expect(apiCalls).toBe(0);expect(errors).toEqual([]);
+});
+
+test('real browser engine starts as Black at phone and iPad sizes and survives session export/import',async({browser})=>{
+ for(const viewport of [{width:390,height:844},{width:820,height:1180}]){
+  const context=await browser.newContext({viewport,isMobile:true,hasTouch:true});const page=await context.newPage();
+  let calls=0;page.on('request',r=>{if(r.url().endsWith('/api/play'))calls++;});
+  await page.goto('/');await page.getByLabel('Spielengine',{exact:true}).selectOption('browser');
+  await page.getByLabel('Meine Farbe',{exact:true}).selectOption('b');
+  await page.getByRole('button',{name:'Partie starten',exact:true}).tap();
+  await expect(page.locator('#game-feedback')).toContainText('Stockfish hat gezogen');
+  await expect(page.locator('#board button').first()).toHaveAttribute('aria-label','h1: Weiß Turm');
+  const data=await exportData(page);await page.reload();await importData(page,data);
+  await expect(page.getByLabel('Spielengine',{exact:true})).toHaveValue('browser');
+  await expect(page.locator('#game-status')).toContainText('Analysemodus');expect(calls).toBe(0);
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await context.close();
+ }
+});
+
+test('pausing a loading browser worker cancels it and explicit resume creates a fresh real worker',async({page})=>{
+ let release!:()=>void;const ready=new Promise<void>(resolve=>{release=resolve;});let requests=0;
+ await page.route('**/engine/stockfish-19.0.1/stockfish-19-lite-single.js',async route=>{
+  requests++;await ready;try{await route.continue();}catch{}
+ });
+ await page.goto('/');await page.getByLabel('Spielengine',{exact:true}).selectOption('browser');
+ await page.getByLabel('Meine Farbe',{exact:true}).selectOption('b');
+ await page.getByRole('button',{name:'Partie starten',exact:true}).click();
+ await expect.poll(()=>requests).toBe(1);
+ await page.getByRole('button',{name:'Pausieren und analysieren',exact:true}).click();
+ await expect(page.locator('#game-status')).toContainText('Analysemodus');
+ expect(JSON.parse(await exportData(page)).nodes).toHaveLength(1);
+ release();await page.getByRole('button',{name:'Zur Partie zurück und fortsetzen',exact:true}).click();
+ await expect(page.locator('#game-feedback')).toContainText('Stockfish hat gezogen');
+ expect(requests).toBe(2);expect(JSON.parse(await exportData(page)).nodes).toHaveLength(2);
+});
+
+test('browser engine load failure pauses without automatic retry or server fallback',async({page})=>{
+ let apiCalls=0,wasmRequests=0;page.on('request',r=>{if(r.url().endsWith('/api/play'))apiCalls++;});
+ await page.route('**/engine/stockfish-19.0.1/*.wasm',route=>{wasmRequests++;return route.fulfill({status:503,body:'Unavailable'});});
+ await page.goto('/');await page.getByLabel('Spielengine',{exact:true}).selectOption('browser');
+ await page.getByLabel('Meine Farbe',{exact:true}).selectOption('b');
+ await page.getByRole('button',{name:'Partie starten',exact:true}).click();
+ await expect(page.locator('#game-status')).toContainText('Analysemodus',{timeout:10000});
+ await expect(page.locator('#game-feedback')).toContainText('Browser-Spielengine');
+ expect(wasmRequests).toBe(1);expect(apiCalls).toBe(0);
+ expect(JSON.parse(await exportData(page)).nodes).toHaveLength(1);
+});
+
+test('browser engine is never allocated by tab changes or guided PGN import',async({page})=>{
+ let workers=0;page.on('worker',()=>workers++);
+ await page.goto('/');await page.getByLabel('Spielengine',{exact:true}).selectOption('browser');
+ for(const name of ['Lernen','Varianten','Einstellungen','Partie'])await page.getByRole('tab',{name,exact:true}).click();
+ await openReviewImport(page);await page.getByRole('button',{name:'Partie zum Verstehen öffnen',exact:true}).click();
+ await expect(page.locator('#review-panel')).toBeVisible();expect(workers).toBe(0);
+});

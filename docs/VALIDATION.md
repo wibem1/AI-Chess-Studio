@@ -647,3 +647,57 @@ Nutzer um PGN-Text gebeten. Weder aus genannten Zügen rekonstruiert noch die
 synthetische Testpartie als Ersatz ausgegeben. Auch reale pädagogische Qualität,
 endgültige individuelle Übungsempfehlungen durch echte KI und native Geräte-
 Abnahme sind durch diese Tests nicht belegt.
+
+
+## Browser-Spielengine – nächster Plattformadapter auf work
+
+6. November 2026: nach „weiter“ work und zentrale Standards abgeglichen. Keine
+neue vollständige Nutzer-PGN vorhanden; Pflichtpartie 1Vh80QL2 bleibt offen.
+Den unabhängigen PlayingEngine-Browseradapter im selben Projekt ergänzt.
+Keine App-Version, kein Paket, Release oder Deployment.
+
+BrowserPlayingEngine startet je Zug einen Stockfish-Lite-Single-Worker. Die
+Desktopengine bleibt Standard und auswählbar. Gemeinsame preparePlayingPosition/
+playingReply prüfen Geschichte, Level, Endstellung und legale Antwort. Fünf
+Stufen, ein Thread, Hash 16 MiB, Tiefe 12, 20.000 Knoten, 200–1000 ms Suche;
+acht Sekunden einschließlich Laden und 64 KiB Ausgabe. Jeder Erfolg, Fehler,
+Timeout/Abbruch beendet Worker/Handler. Kein Retry/Serverfallback. LearningGame
+unterstützt cancel bei Spielpause/-wechsel und verwirft weiter verspätete
+Antworten. Enginewahl bleibt im validierten optionalen GameState.engine/JSON.
+
+Build übernimmt nur unverändertes stockfish-19.0.1-Lite-Single-JS/WASM
+(1.845.971 Byte WASM), COPYING und SOURCE. Kein Binary in Git. Dev-/App-Server
+liefern vier exakt benannte versionierte Dateien. WASM-MIME/nosniff, self-Worker
+und wasm-unsafe-eval ohne allgemeines unsafe-eval, kein COOP/COEP/SharedArrayBuffer.
+Nur öffentliche Engine-Dateien immutable gecached, API weiterhin no-store.
+Kein Service Worker, Schlüssel-/Sitzungscache oder CDN-Laufzeitdownload.
+
+Sechs neue Einzeltests: fünf exakte Level/Grenzen und History-UCI, ungültige und
+abgeschlossene Historien vor Workerstart, Fehler-/Ausgabe-/Zugschutz, Timeout
+und spätere explizite Nutzung, Einzelanfrage/Pause/Abbruch/JSON-Auswahl, echte
+HTTP-Assets bytegleich zum npm-Paket plus Allowlist/MIME/CSP/Lizenz/Quellverweis.
+FakeWorker sind Protokollsimulationen; echte Engine separat im Browser geprüft.
+
+Fünf neue Browserfälle: echtes WASM auf allen fünf Stufen bei vollständig
+blockierten /api/** und crossOriginIsolated=false, Schwarz bei Telefon-/iPad-
+Größen und JSON-Restore, während JS-Ladung pausieren und explizit mit neuem
+Worker fortsetzen, fehlende WASM-Datei ohne Retry/Fallback, keine Worker durch
+Tabs/PGN-Import. Der erste Fehlerfall wartete nur fünf Sekunden; Upstream kann
+bei einer Ladestörung keinen Worker-error melden. Deshalb den unveränderten
+achtsekündigen Gesamt-Timeout mit zehn Sekunden Beobachtungsfrist geprüft.
+Kein Engine-Zeitlimit erhöht und kein Retry eingeführt. Gezielter Lauf bestanden.
+
+Endgültig npm run test:all: Typprüfung/Build, **86 Einzeltests und 43 Chromium-
+Browsertests** bestanden, keine Fehler/übersprungen. Bestehende Desktopengine,
+Rückblick/Originalschutz, Sonderzüge, Dialog-, Schlüssel- und Touchabläufe intakt.
+Keine kostenpflichtige Provideranfrage.
+
+Zusätzlich web-dist auf reinem Python-http.server (127.0.0.1:5174) ohne Node-App:
+/api/status=404, echter Browser-Stockfish-Gegenzug, Schwarz unten und kein
+/api/play-Request. Messergebnis:
+{"staticPythonHost":true,"backendStatus":404,"browserStockfishReply":true,"desktopEngineRequests":0}.
+Eigenen statischen Prüfserver danach beendet; keine Netzfreigabe geändert.
+
+Dies belegt den browserlokalen Spielgegner, keine vollständige mobile/offline-
+fähige Lern-App. Modell-/Schlüssel-/Faktencheckadapter weiterhin Backend; echte
+Safari-/Android-/iPad-/Windows-Abnahme und vollständige Nutzer-PGN bleiben offen.

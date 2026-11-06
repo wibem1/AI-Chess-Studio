@@ -4,8 +4,9 @@ Aktuelle Entwicklungsversion: **0.2.0**. Die Nummer steht oben in der App,
 im Browser-Titel, beim Serverstart und in der lokalen Diagnose.
 Änderungen: [CHANGELOG.md](CHANGELOG.md).
 
-Auf Branch `work` zusätzlich integriert: **„Partie verstehen“ als noch nicht
-freigegebener Entwicklungsstand** gemäß Plancommit 2744e63e. Keine neue App-Version
+Auf Branch `work` zusätzlich integriert: **„Partie verstehen“ und die Browser-
+Spielengine als noch nicht freigegebener Entwicklungsstand**. Der Rückblick
+berücksichtigt Plancommit 2744e63e. Keine neue App-Version
 oder neues Downloadpaket für diesen Schritt. Code und Prüfergebnisse sind im
 Projektstand dokumentiert.
 
@@ -33,8 +34,9 @@ keine Engine-/Modellanfrage. Pfeiltasten/Home/End bedienen die Tabnavigation;
 Direktlinks #partie, #lernen, #varianten und #einstellungen sind möglich.
 
 Dies ist die responsive Weboberfläche mit dem bisherigen lokalen Desktop-
-Backend. Ein eigenständig auf Android/iPad laufender Engine-/Modell-/Schlüsselweg
-und Offlinebetrieb sind noch nicht umgesetzt. Details: PLATFORM_ARCHITECTURE.md.
+Backend. Der Spielgegner kann im Entwicklungsstand als Browser-Worker laufen;
+Modelltransport, Schlüsselverwaltung und vollständiger Offlinebetrieb sind noch
+nicht für einen eigenständigen Android-/iPad-Betrieb umgesetzt. Details: PLATFORM_ARCHITECTURE.md.
 
 ## Start auf deinem PC
 
@@ -90,6 +92,32 @@ Suchzeit (200 bis 1000 ms), Tiefe 12 und 20.000 Knoten. Es sind keine geeichten
 Elo-Stufen; auch Level 1 kann stark spielen. Spielzüge nutzen die Zughistorie
 für Wiederholungen, Rochade und en passant. Der zusätzliche taktische
 Faktencheck bleibt ein separater ausdrücklicher Aufruf.
+
+## Spielengine im Browser – integrierter Entwicklungsstand
+
+Unter „Partie → Neue Partie einrichten → Spielengine“ zwischen Desktop-Engine
+(bisheriger Standard) und „Browser-Engine · auf deinem Gerät“ wählen. Die zweite
+Variante berechnet Stockfish-Züge in einem eigenen Web Worker auf dem Gerät;
+sie ruft keine Spielengine-API und keinen KI-Anbieter auf. Alle fünf Spielstufen
+verwenden dieselben Grenzen: ein Thread, 16 MiB Hash, Tiefe 12, 20.000 Knoten und
+200–1000 ms Suche; acht Sekunden Gesamtfrist einschließlich Laden. Die Engine
+bekommt die vollständige verifizierte Partiehistorie bis zum aktuellen Zug.
+
+Die Auswahl bleibt mit der Partie im JSON erhalten. Ein Wechsel bei vorhandener
+Partie pausiert diese; „Fortsetzen“ ist bewusst nötig. Pause/Partiewechsel
+beenden einen laufenden Browser-Worker; illegale Ausgaben, Ladefehler und Zeitlimit
+pausieren ohne automatische Wiederholung oder stillen Desktop-Fallback.
+Tabwechsel und PGN-Import starten keinen Worker.
+
+Der Web-Build enthält unveränderte Stockfish-19.0.1-Lite-Single-Dateien (WASM
+etwa 1,85 MB), GPL-Lizenz und Quellverweis. Es gibt keinen Engine-CDN-Aufruf.
+Nur diese versionierten öffentlichen Engine-Dateien dürfen im HTTP-Cache liegen;
+keine API-Antworten, Schlüssel oder Sitzungen. Kein Service Worker wurde ergänzt.
+Die Engine läuft ohne SharedArrayBuffer/cross-origin isolation. Ein statischer
+HTTP-Host für die App-Dateien reicht für diesen Spielmodus; file:// ist kein
+unterstützter Startweg. Der komplette KI-Lerndialog und Schlüsselweg benötigen
+weiterhin das bisherige Backend. Native Safari-/Android-/iPad-Abnahme und
+vollständiger PWA-Offlinebetrieb bleiben offen.
 
 ## Partie verstehen – integrierter Entwicklungsstand
 
@@ -303,7 +331,7 @@ des Updates keine zweite Installation starten und keinen Quellcode bearbeiten.
 
 ## Nachweise und Grenzen
 
-`npm run test:all`: Typprüfung, Build, **80 Einzeltests und 38 Chromium-
+`npm run test:all`: Typprüfung, Build, **86 Einzeltests und 43 Chromium-
 Browsertests**. Der gebaute Anwendungsserver wird getestet, einschließlich
 echtem lokalem Stockfish. Schlüsseltests verwenden ausschließlich bedeutungslose
 Testwerte, Provider-/Update-Tests lokale Fixtures. Es wurde kein echtes Update

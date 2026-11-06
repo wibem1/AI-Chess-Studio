@@ -212,3 +212,7 @@ h2{font-size:1.65rem}
 }
 
 .board-actions{display:flex;align-items:center;gap:6px}#board-flip{font-size:1.15rem;padding:5px 8px;min-height:36px;min-width:36px}.guided-review{margin:20px 0;padding:18px;border:1px solid #bdcdb4;border-radius:12px;background:#f3f6ee}.guided-review h3{margin-top:0}.guided-review p{font-size:.82rem}.review-actions{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.review-actions button,.guided-review>button{font-size:.76rem;padding:10px 12px}.guided-review select{width:100%}#review-answers p,#review-summary-entries{font-size:.78rem;line-height:1.65}#review-summary-entries{padding-left:18px}#review-comment-output{white-space:pre-wrap;overflow-wrap:anywhere}#pgn-input{font-family:monospace;min-height:130px}#review-feedback:not(:empty){padding:12px;background:#f5eddb;border-radius:8px}#review-replace-hint[hidden]{display:none!important}
+
+#game-form label[for=engine-location]{grid-column:1/-1;grid-row:3;margin-top:12px}#engine-location{grid-column:1/-1;grid-row:4}
+
+#engine-location-hint{grid-column:1/-1;font-size:.72rem;line-height:1.55;margin:6px 0}

@@ -113,7 +113,7 @@ export class Session {
     const g=raw;
     if(this.data.review?.guiding&&g?.paused===false)throw new Error('Der geführte Rückblick startet keine aktive Enginepartie.');
     if(!g || typeof g.id!=='string' || !g.id || g.id.length>100 || !['w','b'].includes(g.human) ||
-       !Number.isInteger(g.level) || g.level<1 || g.level>5 || typeof g.paused!=='boolean' || !Number.isSafeInteger(g.revision) || g.revision<0 ||
+       (g.engine!==undefined&&!['server','browser'].includes(g.engine)) || !Number.isInteger(g.level) || g.level<1 || g.level>5 || typeof g.paused!=='boolean' || !Number.isSafeInteger(g.revision) || g.revision<0 ||
        !pathTo(this.data,g.cursor).some(n=>n.id===g.start))throw new Error('Ungültiger Partiestand.');
     this.data.game=structuredClone(g);
   }

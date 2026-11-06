@@ -3,8 +3,8 @@
 Stand: 6. November 2026 · ausgelieferte Basis **0.2.0**
 
 Branch work: zusätzlich integrierter, noch nicht freigegebener Entwicklungsstand
-„Partie verstehen“. Gemäß neuer Anforderung keine neue App-Versionsnummer und
-kein Downloadpaket für diesen Schritt.
+„Partie verstehen“ und Browser-Spielengine. Gemäß neuer Anforderung keine neue
+App-Versionsnummer und kein Downloadpaket für diese Integrationsschritte.
 
 ## Verbindliches Ziel
 
@@ -69,6 +69,29 @@ fehlt bisher im Repository/Chat und wurde beim Nutzer angefragt. Nicht aus den
 aufgezählten Reflexionszügen rekonstruiert. Tests verwenden klar benannte
 synthetische PGNs; die reale Partie ist damit nicht abgenommen.
 
+## Integriert: Browser-Spielengine
+
+- Zusätzlicher PlayingEngine-Adapter mit echtem Stockfish-19.0.1-Lite-Single-
+  WebAssembly-Worker; bestehender Desktopadapter bleibt Standard und auswählbar.
+- Gemeinsame Historien-/Zug-/Endzustandsvalidierung; dieselben fünf Stufen,
+  ein Thread, Hash 16 MiB, Tiefe 12, 20.000 Knoten, 200–1000 ms Suche. Worker
+  endet nach jedem Zug; acht Sekunden Gesamtfrist und 64 KiB Ausgabelimit.
+- Enginewahl im JSON erhalten. Adapterwechsel pausiert bewusst; kein Retry
+  oder stiller Fallback. Spielsteuerung bricht laufende Browser-Worker ab.
+  Kein Worker durch Tabwechsel oder PGN-Import.
+- Unveränderte lokale Engine-Dateien plus GPL-Lizenz/Quellverweis unter exakter
+  versionierter Allowlist. Kein CDN oder offenes node_modules. WASM-MIME/CSP
+  geprüft, kein allgemeines unsafe-eval/SharedArrayBuffer. Nur öffentliche
+  Engine-Dateien HTTP-gecached; keine API-/Schlüssel-/Sitzungsdaten.
+- Echte Browserengine auf fünf Stufen bei gesperrten Backend-APIs, Schwarz auf
+  Telefon-/iPad-Größen, JSON-Restore, Abbruch/Fortsetzen und WASM-Ausfall geprüft.
+  Separater statischer Python-Host ohne Node-App: echter Gegenzug bei fehlender
+  /api/status und keine /api/play-Anfrage.
+
+Das ist der Spielengine-Adapter, noch keine komplette mobile PWA. KI, Schlüssel,
+zusätzlicher Faktencheck und Updates brauchen weiter den bisherigen Backendweg.
+Native Safari-/Android-/iPad-Abnahme offen.
+
 ## Weiterhin nachgewiesene Funktionen
 
 - Stockfish 19 Lite WASM als realer Gegner auf fünf Skill-Stufen, Weiß/Schwarz,
@@ -89,7 +112,7 @@ synthetische PGNs; die reale Partie ist damit nicht abgenommen.
 
 ## Prüfstand
 
-Typprüfung/Build, **80 Einzeltests und 38 Chromium-Browsertests** bestanden.
+Typprüfung/Build, **86 Einzeltests und 43 Chromium-Browsertests** bestanden.
 Tests nutzen die tatsächliche gebaute App und echte lokale Stockfish-Prozesse;
 Provider-/Updatezugriffe sind Fixtures, keine bezahlte Anfrage.
 
@@ -109,9 +132,10 @@ präzisiert; die gezielte Browserkorrektur ist geprüft, echte Windows-Touch-
 Abnahme weiterhin offen. Native DPAPI-/Mac-/Safari-/Android-/iPad-Abnahme und
 ein realer pädagogischer Lerndialog sind nicht durch Linux-/Fixturetests ersetzt.
 
-Der Node-Server bindet weiterhin ausschließlich an Loopback. Responsive Tabs,
-Manifest und Icons liefern noch keinen eigenständigen Android-/iPad-Betrieb.
-Es gibt keinen Service-Worker-/API-/Schlüsselcache und keinen Offlinebetrieb.
+Der Node-Server bindet weiterhin ausschließlich an Loopback. Die Browser-
+Spielengine benötigt nur einen statischen HTTP-Host; Modell-/Schlüsselwege liefern
+noch keinen eigenständigen Android-/iPad-Lernbetrieb. Es gibt keinen Service-
+Worker-/API-/Schlüsselcache und keinen vollständigen Offlinebetrieb.
 Sitzungen bleiben bis zum bewussten Export im Arbeitsspeicher. Skill-Stufen sind
 keine geeichten Elo-Werte; Kostenanzeige ist kein verbindliches Anbieterlimit.
 
@@ -129,7 +153,7 @@ Keine neue Version/Downloadfreigabe ohne den vereinbarten nächsten Auftrag.
 
 ## Weiter vorgesehener Plattformschritt
 
-PlayingEngine um einen begrenzten Stockfish-WASM-Worker im Browser ergänzen und
-mit denselben Spiel-/Regeltests prüfen. Danach mobilen Modelltransport und lokale
-Schlüsselablage prüfen. Details und verbleibende Plattformadapter:
+Browser-Spielengine abgeschlossen. Als nächsten Plattformschritt mobilen
+Modelltransport und dauerhaft lokale Schlüsselablage festlegen und prüfen;
+zusätzlichen browserfähigen Faktencheck und PWA-Offlineweg danach ergänzen. Details und verbleibende Plattformadapter:
 PLATFORM_ARCHITECTURE.md. Parallel bleibt die native Nutzerabnahme offen.

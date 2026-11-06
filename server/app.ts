@@ -1,3 +1,4 @@
+import {engineAsset,engineContentType} from '../src/engine-files.js';
 import { FileCredentialsStore, credentialsPath } from './credentials.js';
 import { CostControl } from './costs.js';
 import { UpdateService } from './updates.js';
@@ -20,21 +21,23 @@ export function createStudioServer(options: { webRoot?: string; env?: NodeJS.Pro
   const api = modelMiddleware(new ModelService(readConfig(env), fetch, store,new CostControl((options.credentialsPath ?? credentialsPath(env))+'.usage.json')), raw => stockfish.check(raw),new UpdateService(fileURLToPath(new URL('../../',import.meta.url))),raw=>playingEngine.move(raw));
   return createServer((req,res) => {
     res.setHeader('X-Content-Type-Options','nosniff');
-    res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'");
+    res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'");
     const host = req.headers.host ?? '';
     if (!/^(127\.0\.0\.1|localhost|\[::1\]):\d+$/.test(host)) { res.writeHead(403);res.end('Nur lokal verfügbar.');return; }
     void api(req,res,() => { void (async () => {
       if (req.method !== 'GET' && req.method !== 'HEAD') {res.writeHead(405);res.end();return;}
       const path = (req.url ?? '').split('?')[0]!;
+      const engine=engineAsset(path);
       let relative: string;
-      if (path === '/' || path === '/index.html') relative = 'index.html';
+      if(engine)relative=path.slice(1);
+      else if (path === '/' || path === '/index.html') relative = 'index.html';
       else if(path==='/manifest.webmanifest' || /^\/icons\/(icon-192|icon-512|apple-touch-icon)\.png$/.test(path))relative=path.slice(1);
       else if (/^\/assets\/[a-zA-Z0-9_-]+\.(js|css)$/.test(path)) relative = path.slice(1);
       else {res.writeHead(404);res.end('Nicht gefunden.');return;}
       try {
         const content = await readFile(join(webRoot,relative));
-        res.setHeader('Content-Type',relative.endsWith('.webmanifest')?'application/manifest+json':relative.endsWith('.png')?'image/png':relative.endsWith('.js') ? 'text/javascript; charset=utf-8' : relative.endsWith('.css') ? 'text/css; charset=utf-8' : 'text/html; charset=utf-8');
-        res.setHeader('Cache-Control','no-store');
+        res.setHeader('Content-Type',engine?engineContentType(engine):relative.endsWith('.webmanifest')?'application/manifest+json':relative.endsWith('.png')?'image/png':relative.endsWith('.js') ? 'text/javascript; charset=utf-8' : relative.endsWith('.css') ? 'text/css; charset=utf-8' : 'text/html; charset=utf-8');
+        res.setHeader('Cache-Control',engine?'public, max-age=31536000, immutable':'no-store');
         res.writeHead(200);res.end(req.method === 'HEAD' ? undefined : content);
       } catch {res.writeHead(404);res.end('Anwendung nicht gebaut. Zuerst npm run build ausführen.');}
     })(); });

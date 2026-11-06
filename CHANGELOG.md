@@ -1,5 +1,17 @@
 # Änderungen
 
+## Noch nicht freigegeben – Browser-Spielengine (6. November 2026)
+
+- Zusätzlicher begrenzter Stockfish-WASM-Worker im Browser, bestehende
+  Desktop-Engine weiter auswählbar. Keine neue Version/Downloadfreigabe.
+- Gemeinsame Historien-/Zugvalidierung, fünf Stufen, Abbruch und saubere
+  Fehlerpause ohne automatischen Server-Fallback. Auswahl bleibt im JSON.
+- Exakte versionierte Engine-Assets mit Lizenz/Quellverweis im Web-Build,
+  restriktive Auslieferung und nur notwendige WebAssembly-/Worker-CSP.
+- 86 Einzeltests und 43 Chromium-Browsertests bestanden, darunter echter
+  Browser-Stockfish bei gesperrten Backend-APIs. Modell-/Schlüsseladapter und
+  echte mobile Geräteabnahme bleiben offen.
+
 ## Noch nicht freigegeben – Partie verstehen (6. November 2026)
 
 Anforderung aus Commit 2744e63e im bestehenden Lern-Tab umgesetzt. Keine neue
