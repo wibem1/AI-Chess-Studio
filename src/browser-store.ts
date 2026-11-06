@@ -3,6 +3,7 @@ import {CostLedger,type CostState} from './costs.js';
 export const BROWSER_DB='ai-chess-studio';
 export interface SealedVault {version:1;iterations:number;salt:Uint8Array;iv:Uint8Array;ciphertext:ArrayBuffer}
 export interface BrowserSession {json:string;question:string}
+export interface SavedGame {id:string;title:string;date:string;json:string}
 export class BrowserStore {
  private opening:Promise<IDBDatabase>|undefined;
  private database():Promise<IDBDatabase>{
@@ -29,6 +30,20 @@ export class BrowserStore {
   const db=await this.database();return new Promise((resolve,reject)=>{
    const tx=db.transaction(store,'readwrite');tx.objectStore(store).delete('current');
    tx.oncomplete=()=>resolve();tx.onerror=tx.onabort=()=>reject(new Error('Lokale Daten konnten nicht gelöscht werden.'));
+  });
+ }
+ /** Separate key in the existing store: no database upgrade or session replacement. */
+ async savedGames(add?:SavedGame):Promise<SavedGame[]>{
+  const db=await this.database();return new Promise((resolve,reject)=>{
+   const tx=db.transaction('session',add?'readwrite':'readonly'),store=tx.objectStore('session'),request=store.get('saved-games');
+   let result:SavedGame[]=[],failure:unknown;
+   request.onsuccess=()=>{try{
+    const value=request.result??[];
+    if(!Array.isArray(value)||value.some(g=>!g||typeof g.id!=='string'||typeof g.title!=='string'||typeof g.json!=='string'||typeof g.date!=='string'))throw new Error('Partienspeicher ungültig.');
+    result=value;
+    if(add){if(result.length>=100)throw new Error('100 Partien gespeichert. Weitere Partien als Datei sichern.');result=[add,...result];store.put(result,'saved-games');}
+   }catch(error){failure=error;tx.abort();}};
+   tx.oncomplete=()=>resolve(result);tx.onerror=tx.onabort=()=>reject(failure??new Error('Partien konnten nicht gespeichert werden.'));
   });
  }
  /** One read/write transaction serializes reservations across windows and tabs. */

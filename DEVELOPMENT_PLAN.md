@@ -55,7 +55,16 @@ Die bestehende Vier-Tab-Oberfläche ist damit nicht die gewünschte Zieloberflä
   den normalen Spiel-/Lernablauf nicht. PGN-Rückblick „Partie verstehen“ bleibt
   innerhalb des Lernmodus erreichbar. Keine bestehenden Sitzungen löschen.
 
-### Nächster Umsetzungsschritt und Abnahme
+### Partienablage – zusätzliche Nutzeranforderung
+
+Partien mit Kommentaren und sämtlichen Varianten speichern und laden. Umsetzung
+0.4.0: benannte lokale Sammlung und vollständige JSON-Dateien einschließlich
+Lerndialog, Namen und Vergleichen. Vor dem Laden vorhandene Arbeit separat
+sichern, ungültige Dateien zurückweisen und keine Zugangsdaten übertragen.
+PGN-Import für gespielte Partien bleibt zusätzlich im Lernmodus verfügbar;
+JSON ist das verlustfreie Studienformat, PGN-Export damit nicht behauptet.
+
+### Umsetzung und Abnahme
 
 Zuerst den zusammenhängenden Kernablauf umsetzen: großes Brett und zwei Modi,
 sicherer Wechsel zwischen echter Partie und Lernzweig, unmittelbar sichtbarer
@@ -71,8 +80,9 @@ Desktop-, Handy- und Tablet-Brett vollständig sichtbar und bedienbar prüfen.
 Kein bezahlter Provideraufruf für die Entwicklungsprüfung. Reale Qualität und
 Verständlichkeit des Lerndialogs anschließend gesondert belegen.
 
-Diese neue Oberfläche ist **beauftragt/geplant, noch nicht implementiert**.
-Die Veröffentlichung 0.3.3 enthält sie nicht. Der bestehende verifizierte Stand
+Diese Oberfläche wird mit **0.4.0 implementiert und automatisiert geprüft**.
+Der veröffentlichte Stand 0.3.3 enthält sie noch nicht; tatsächliche Bereitstellung
+und Nutzerabnahme stehen im PROJECT_STATE.md. Der bestehende verifizierte Stand
 bleibt bis zur Umsetzung erhalten; Android-Installation ist ein separater Fehler.
 
 ## Zentraler Lernablauf

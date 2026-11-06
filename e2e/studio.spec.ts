@@ -1,3 +1,4 @@
+import {openView} from './navigation-helper.js';
 import { test, expect, type Page, type Locator } from '@playwright/test';
 import { REVIEW_PGN, REPETITION_PGN } from '../test/fixtures/review-game.js';
 import { APP_VERSION } from '../src/version.js';
@@ -6,12 +7,11 @@ import { Session } from '../src/session.js';
 
 // Follow the new user navigation with real clicks; never force hidden controls open.
 async function reveal(page: Page, target: Locator): Promise<Locator> {
- const location=await target.evaluate(element=>({panel:element.closest('[role=tabpanel]')?.id,board:!!element.closest('#board-area')}));
+ const location=await target.evaluate(element=>({panel:element.closest('#panel-settings,#panel-variants,[role=tabpanel]')?.id,board:!!element.closest('#board-area')}));
  if(location.panel){
-  const tab=page.locator('[role=tab][aria-controls="'+location.panel+'"]');
-  if(await tab.getAttribute('aria-selected')!=='true')await tab.click();
+  await openView(page,location.panel.replace('panel-',''));
  }else if(location.board && !(await page.locator('#board-area').isVisible())){
-  await page.getByRole('tab',{name:'Partie',exact:true}).click();
+  await page.getByRole('tab',{name:'Spielmodus',exact:true}).click();
  }
  for(const detail of await target.locator('xpath=ancestor::details').all()){
   if(await detail.getAttribute('open')===null)await detail.locator(':scope > summary').click();
@@ -24,7 +24,7 @@ async function play(page: Page, move: string) {
   await (await reveal(page, page.getByRole('button', { name: 'Zug spielen', exact: true , includeHidden:true}))).click();
 }
 async function exportData(page: Page) {
-  const previous=await page.locator('[role=tab][aria-selected=true]').getAttribute('id');
+  const active=page.locator('[role=tab][aria-selected=true]');const previous=await active.count()?await active.getAttribute('id'):null;
   const download = page.waitForEvent('download');
   await (await reveal(page, page.getByRole('button', { name: 'Sitzung als JSON exportieren' , includeHidden:true}))).click();
   const file = await download;
@@ -37,7 +37,7 @@ async function exportData(page: Page) {
   return data;
 }
 async function importData(page: Page, data: string) {
-  const previous=await page.locator('[role=tab][aria-selected=true]').getAttribute('id');
+  const active=page.locator('[role=tab][aria-selected=true]');const previous=await active.count()?await active.getAttribute('id'):null;
   await (await reveal(page, page.getByLabel('Sitzungsdaten (JSON)'))).fill(data);
   await (await reveal(page, page.getByRole('button', { name: 'Sitzung aus JSON wiederherstellen' , includeHidden:true}))).click();
   if(previous)await page.locator('#'+previous).click();
@@ -273,7 +273,7 @@ test('real engine learning game pauses for chat, keeps analysis branches and sav
  await play(page,'e4');await expect(page.locator('#game-feedback')).toContainText('Stockfish hat gezogen');
  expect(engineCalls).toBe(1);
  const played=JSON.parse(await exportData(page)),cursor=played.game.cursor;
- await (await reveal(page, page.getByRole('button',{name:'Pausieren und analysieren',exact:true, includeHidden:true}))).click();
+ await (await reveal(page, page.getByRole('button',{name:'Zum Lernmodus',exact:true, includeHidden:true}))).click();
  await (await reveal(page, page.getByRole('button',{name:'n0 · Ausgangsstellung · Partie',exact:true, includeHidden:true}))).click();await play(page,'d4');
  await (await reveal(page, page.getByLabel('Name der ausgewählten Variante'))).fill('Mein d4-Plan');await (await reveal(page, page.getByRole('button',{name:'Variante benennen', includeHidden:true}))).click();
  await (await reveal(page, page.getByLabel('Variante A',{exact:true}))).selectOption('n1');await (await reveal(page, page.getByLabel('Variante B',{exact:true}))).selectOption('n3');
@@ -284,7 +284,7 @@ test('real engine learning game pauses for chat, keeps analysis branches and sav
  const saved=await exportData(page);expect(JSON.parse(saved).game.cursor).toBe(cursor);expect(engineCalls).toBe(1);
  await page.reload();await importData(page,saved);await expect(page.locator('#game-status')).toContainText('Analysemodus');
  await expect(page.locator('#comparison-view')).toContainText('Mein d4-Plan');
- await (await reveal(page, page.getByRole('button',{name:'Zur Partie zurück und fortsetzen', includeHidden:true}))).click();await expect(page.locator('#position-status')).toContainText(cursor);
+ await (await reveal(page, page.getByRole('button',{name:'Partie fortsetzen', includeHidden:true}))).click();await expect(page.locator('#position-status')).toContainText(cursor);
  expect(engineCalls).toBe(1);
 });
 test('black-side learning game receives the first real engine move automatically',async({page})=>{
@@ -625,63 +625,63 @@ test('page panning preserves editable selection, links, board gestures and Escap
 test('tabs keep the same board, position and learning draft without starting any model request',async({page})=>{
  let modelCalls=0;page.on('request',request=>{if(request.url().endsWith('/api/dialogue'))modelCalls++;});
  await page.goto('/');
- await expect(page.getByRole('tab')).toHaveCount(4);
- await expect(page.getByRole('tab',{name:'Partie',exact:true})).toHaveAttribute('aria-selected','true');
+ await expect(page.getByRole('tab')).toHaveCount(2);
+ await expect(page.getByRole('tab',{name:'Spielmodus',exact:true})).toHaveAttribute('aria-selected','true');
  await page.getByRole('button',{name:'e2: Weiß Bauer',exact:true}).click();
  await page.getByRole('button',{name:'e4: leer',exact:true}).click();
  const board=await page.locator('#board').elementHandle();
- await page.getByRole('tab',{name:'Lernen',exact:true}).click();
- await expect(page.getByRole('tabpanel',{name:'Lernen',exact:true})).toBeVisible();
- await expect(page.getByRole('tabpanel',{name:'Partie',exact:true})).toBeHidden();
+ await page.getByRole('tab',{name:'Lernmodus',exact:true}).click();
+ await expect(page.getByRole('tabpanel',{name:'Lernmodus',exact:true})).toBeVisible();
+ await expect(page.getByRole('tabpanel',{name:'Spielmodus',exact:true})).toBeHidden();
  await page.getByLabel('Deine Nachricht').fill('Mein eigener Zentrumsgedanke');
- await page.getByRole('tab',{name:'Varianten',exact:true}).click();
+ await openView(page,'variants');
  await expect(page.locator('#variations')).toBeVisible();
  await expect(page.locator('#position-status')).toContainText('n1');
  expect(await board!.evaluate(element=>element===document.getElementById('board'))).toBe(true);
- await page.getByRole('tab',{name:'Einstellungen',exact:true}).click();
+ await openView(page,'settings');
  await expect(page.locator('#board-area')).toBeHidden();
  await expect(page.locator('#credential-status')).toBeVisible();
- await page.getByRole('tab',{name:'Lernen',exact:true}).click();
+ await page.getByRole('tab',{name:'Lernmodus',exact:true}).click();
  await expect(page.getByLabel('Deine Nachricht')).toHaveValue('Mein eigener Zentrumsgedanke');
  await expect(page.locator('#board-area')).toBeVisible();expect(modelCalls).toBe(0);
  await page.getByRole('button',{name:'Neue Partie',exact:true}).click();
- await expect(page.getByRole('tab',{name:'Partie',exact:true})).toHaveAttribute('aria-selected','true');
+ await expect(page.getByRole('tab',{name:'Spielmodus',exact:true})).toHaveAttribute('aria-selected','true');
  await expect(page.getByLabel('Meine Farbe',{exact:true})).toBeFocused();
  expect(modelCalls).toBe(0);
 });
 
 test('tabs support keyboard navigation, direct links and browser back',async({page})=>{
  await page.goto('/#partie');
- await page.getByRole('tab',{name:'Partie',exact:true}).focus();
+ await page.getByRole('tab',{name:'Spielmodus',exact:true}).focus();
  await page.keyboard.press('ArrowRight');
- await expect(page.getByRole('tab',{name:'Lernen',exact:true})).toBeFocused();
- await expect(page.getByRole('tab',{name:'Lernen',exact:true})).toHaveAttribute('aria-selected','true');
- await page.keyboard.press('End');await expect(page.getByRole('tab',{name:'Einstellungen',exact:true})).toBeFocused();
- await page.reload();await expect(page.getByRole('tab',{name:'Einstellungen',exact:true})).toHaveAttribute('aria-selected','true');
- await page.getByRole('tab',{name:'Varianten',exact:true}).click();await page.goBack();
- await expect(page.getByRole('tab',{name:'Einstellungen',exact:true})).toHaveAttribute('aria-selected','true');
+ await expect(page.getByRole('tab',{name:'Lernmodus',exact:true})).toBeFocused();
+ await expect(page.getByRole('tab',{name:'Lernmodus',exact:true})).toHaveAttribute('aria-selected','true');
+ await page.keyboard.press('Home');await expect(page.getByRole('tab',{name:'Spielmodus',exact:true})).toBeFocused();await openView(page,'settings');
+ await page.reload();await expect(page.locator('#panel-settings')).toBeVisible();
+ await openView(page,'variants');await page.goBack();
+ await expect(page.locator('#panel-settings')).toBeVisible();
 });
 
-test('all four workspaces fit phone, iPad and desktop and touch navigation stays visible',async({browser})=>{
+test('two modes and their tools fit phone, iPad and desktop and touch navigation stays visible',async({browser})=>{
  for(const viewport of [{width:390,height:844},{width:820,height:1180},{width:1440,height:900}]){
   const context=await browser.newContext({viewport,hasTouch:true,isMobile:viewport.width<1000});
   const page=await context.newPage();await page.goto('/');
-  for(const name of ['Partie','Lernen','Varianten','Einstellungen']){
-   const tab=page.getByRole('tab',{name,exact:true});await tab.tap();await expect(tab).toBeInViewport();
-   await expect(page.getByRole('tabpanel',{name,exact:true})).toBeVisible();
+  for(const name of ['Spielmodus','Lernmodus','Varianten','Einstellungen']){
+   await openView(page,name);await expect(page.locator('#board-area')).toBeVisible({visible:name!=='Einstellungen'});
    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
   }
-  await page.getByRole('tab',{name:'Partie',exact:true}).tap();
+  await page.getByRole('tab',{name:'Spielmodus',exact:true}).tap();
   await page.getByRole('button',{name:'e2: Weiß Bauer',exact:true}).tap();
   await page.getByRole('button',{name:'e4: leer',exact:true}).tap();
   await expect(page.locator('#position-status')).toContainText('n1');
-  if(viewport.width<1000){await page.getByRole('button',{name:'↓ Runter',exact:true}).tap();await expect(page.getByRole('tab',{name:'Lernen',exact:true})).toBeInViewport();}
+  if(viewport.width<1000){await page.getByRole('button',{name:'↓ Runter',exact:true}).tap();await expect(page.getByRole('tab',{name:'Lernmodus',exact:true})).toBeInViewport();}
   await context.close();
  }
 });
 
 async function openReviewImport(page:Page,pgn=REVIEW_PGN,color='auto'){
- await page.getByRole('tab',{name:'Lernen',exact:true}).click();
+ await page.getByRole('tab',{name:'Lernmodus',exact:true}).click();
+ await reveal(page,page.locator('#review-import > summary'));
  const details=page.locator('#review-import');
  if(await details.getAttribute('open')===null)await details.locator(':scope > summary').click();
  await page.getByLabel('PGN der gespielten Partie',{exact:true}).fill(pgn);
@@ -720,7 +720,7 @@ test('guided PGN review starts black below, conceals future moves, saves own evi
  await page.getByRole('button',{name:'Brett drehen',exact:true}).click();
  await expect(page.locator('.mini-board').first().locator('span').first()).toHaveAttribute('data-square','a8');
  const saved=await exportData(page);await page.reload();await importData(page,saved);
- await page.getByRole('tab',{name:'Lernen',exact:true}).click();
+ await page.getByRole('tab',{name:'Lernmodus',exact:true}).click();
  await expect(page.locator('#review-answers')).toContainText('Zentrum kontrollieren');
  await expect(page.locator('#board button').first()).toHaveAttribute('aria-label','a8: Schwarz Turm');
  await page.getByLabel('Eigene Entscheidung auswählen',{exact:true}).selectOption('3');
@@ -773,14 +773,14 @@ test('imported black perspective and turn controls work on phone and iPad withou
   const context=await browser.newContext({viewport,isMobile:true,hasTouch:true});const page=await context.newPage();
   await page.goto('/');await openReviewImport(page);
   await page.getByRole('button',{name:'Partie zum Verstehen öffnen',exact:true}).tap();
-  for(const name of ['Partie','Lernen','Varianten']){
-   await page.getByRole('tab',{name,exact:true}).tap();
+  for(const name of ['Spielmodus','Lernmodus','Varianten']){
+   await openView(page,name);
    await expect(page.locator('#board button').first()).toHaveAttribute('aria-label','h1: Weiß Turm');
    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
   }
   await page.getByRole('button',{name:'Brett drehen',exact:true}).tap();
   await expect(page.locator('#board button').first()).toHaveAttribute('aria-label','a8: Schwarz Turm');
-  await page.getByRole('tab',{name:'Lernen',exact:true}).tap();
+  await page.getByRole('tab',{name:'Lernmodus',exact:true}).tap();
   await expect(page.locator('#review-played')).toBeHidden();await context.close();
  }
 });
@@ -794,7 +794,7 @@ test('real Stockfish browser worker plays all five levels without a desktop engi
   await page.route('**/api/**',route=>route.fulfill({status:503,json:{error:'Backend deliberately unavailable'}}));
   await page.goto('/');
   expect(await page.evaluate(()=>crossOriginIsolated)).toBe(false);
-  await page.getByLabel('Spielengine',{exact:true}).selectOption('browser');
+  await expect(page.getByLabel('Spielengine',{exact:true})).toHaveValue('browser');await expect(page.locator('#engine-options')).toBeHidden();
   await page.getByLabel('Engine-Spielstärke',{exact:true}).selectOption(level);
   await page.getByRole('button',{name:'Partie starten',exact:true}).click();await play(page,'e4');
   await expect(page.locator('#game-feedback')).toContainText('Stockfish hat gezogen');
@@ -808,14 +808,14 @@ test('real browser engine starts as Black at phone and iPad sizes and survives s
  for(const viewport of [{width:390,height:844},{width:820,height:1180}]){
   const context=await browser.newContext({viewport,isMobile:true,hasTouch:true});const page=await context.newPage();
   let calls=0;page.on('request',r=>{if(r.url().endsWith('/api/play'))calls++;});
-  await page.goto('/');await page.getByLabel('Spielengine',{exact:true}).selectOption('browser');
+  await page.goto('/');await (await reveal(page,page.getByLabel('Spielengine',{exact:true}))).selectOption('browser');
   await page.getByLabel('Meine Farbe',{exact:true}).selectOption('b');
   await page.getByRole('button',{name:'Partie starten',exact:true}).tap();
   await expect(page.locator('#game-feedback')).toContainText('Stockfish hat gezogen');
   await expect(page.locator('#board button').first()).toHaveAttribute('aria-label','h1: Weiß Turm');
   const data=await exportData(page);await page.reload();await importData(page,data);
   await expect(page.getByLabel('Spielengine',{exact:true})).toHaveValue('browser');
-  await expect(page.locator('#game-status')).toContainText('Analysemodus');expect(calls).toBe(0);
+  await expect(page.locator('#game-status')).toContainText('Partie läuft');expect(calls).toBe(0);
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await context.close();
  }
 });
@@ -825,14 +825,14 @@ test('pausing a loading browser worker cancels it and explicit resume creates a 
  await page.route('**/engine/stockfish-19.0.1/stockfish-19-lite-single.js',async route=>{
   requests++;await ready;try{await route.continue();}catch{}
  });
- await page.goto('/');await page.getByLabel('Spielengine',{exact:true}).selectOption('browser');
+ await page.goto('/');await (await reveal(page,page.getByLabel('Spielengine',{exact:true}))).selectOption('browser');
  await page.getByLabel('Meine Farbe',{exact:true}).selectOption('b');
  await page.getByRole('button',{name:'Partie starten',exact:true}).click();
  await expect.poll(()=>requests).toBe(1);
- await page.getByRole('button',{name:'Pausieren und analysieren',exact:true}).click();
+ await page.getByRole('button',{name:'Zum Lernmodus',exact:true}).click();
  await expect(page.locator('#game-status')).toContainText('Analysemodus');
  expect(JSON.parse(await exportData(page)).nodes).toHaveLength(1);
- release();await page.getByRole('button',{name:'Zur Partie zurück und fortsetzen',exact:true}).click();
+ release();await page.getByRole('tab',{name:'Spielmodus',exact:true}).click();
  await expect(page.locator('#game-feedback')).toContainText('Stockfish hat gezogen');
  expect(requests).toBe(2);expect(JSON.parse(await exportData(page)).nodes).toHaveLength(2);
 });
@@ -840,7 +840,7 @@ test('pausing a loading browser worker cancels it and explicit resume creates a 
 test('browser engine load failure pauses without automatic retry or server fallback',async({page})=>{
  let apiCalls=0,wasmRequests=0;page.on('request',r=>{if(r.url().endsWith('/api/play'))apiCalls++;});
  await page.route('**/engine/stockfish-19.0.1/*.wasm',route=>{wasmRequests++;return route.fulfill({status:503,body:'Unavailable'});});
- await page.goto('/');await page.getByLabel('Spielengine',{exact:true}).selectOption('browser');
+ await page.goto('/');await (await reveal(page,page.getByLabel('Spielengine',{exact:true}))).selectOption('browser');
  await page.getByLabel('Meine Farbe',{exact:true}).selectOption('b');
  await page.getByRole('button',{name:'Partie starten',exact:true}).click();
  await expect(page.locator('#game-status')).toContainText('Analysemodus',{timeout:10000});
@@ -851,8 +851,8 @@ test('browser engine load failure pauses without automatic retry or server fallb
 
 test('browser engine is never allocated by tab changes or guided PGN import',async({page})=>{
  let workers=0;page.on('worker',()=>workers++);
- await page.goto('/');await page.getByLabel('Spielengine',{exact:true}).selectOption('browser');
- for(const name of ['Lernen','Varianten','Einstellungen','Partie'])await page.getByRole('tab',{name,exact:true}).click();
+ await page.goto('/');await (await reveal(page,page.getByLabel('Spielengine',{exact:true}))).selectOption('browser');
+ for(const name of ['Lernmodus','Varianten','Einstellungen','Spielmodus'])await openView(page,name);
  await openReviewImport(page);await page.getByRole('button',{name:'Partie zum Verstehen öffnen',exact:true}).click();
  await expect(page.locator('#review-panel')).toBeVisible();expect(workers).toBe(0);
 });

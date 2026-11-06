@@ -1,51 +1,44 @@
 # Projektstand
 
-Stand: 6. November 2026 · Web-App **0.3.3** veröffentlicht und GitHub-Bereitstellung bestätigt
+Stand: 6. November 2026 · **0.4.0 implementiert**, Veröffentlichung wird geprüft.
+Bisher 0.3.3 auf GitHub Pages; Nutzer hat das erfolgreiche Update bestätigt.
+Bestehendes öffentliches Repository und gh-pages verwenden, keine neue Ablage.
 
-Veröffentlichungsauftrag: öffentliche Web-App über kostenloses GitHub Pages,
-**im bestehenden Repository AI-Chess-Studio**, kein neues Repository. Version
-0.3.3 für /AI-Chess-Studio/ und Distributionsbranch gh-pages geprüft.
-Nutzer hat das bestehende Repository auf Public gestellt und Pages gespeichert.
-**Aktuell 0.3.3 erfolgreich bestätigt:** Run 42273159023 für gh-pages
-69149dcee15182f8199f15ee20b11405a895d5ee, Quellcommit 63ef08f.
+## Aktueller Schritt: ein Brett, zwei Modi und gespeicherte Partien
 
-Vorige GitHub-Bereitstellung 0.3.2 erfolgreich bestätigt: Run 42253628918 für
-Commit 47427bd700213e6b22412dec23c5df9201bb664a. Der vorherige Lauf für
-73dfea1 war beim deploy-Job nach zehn Minuten mit Timeout gescheitert; der reine
-Datei-Upload war deshalb noch kein verfügbares App-Update. Einmaliger neuer Lauf
-erfolgreich, kein zusätzlicher Workflow. Eigener Live-Abruf auf github.io bleibt
-am Netzwerkproxy gesperrt; die Bestätigung stammt aus dem exakten GitHub-Lauf.
-Android-Installation: Chrome 156.0.8078.79 laut Play-Store-Screenshot; Nutzer
-bestätigt, dass kein neueres Update angeboten wird. Chromium-Fehler bei
-Same-Origin-PWAs passt zu den Meldungen; native Ursache/Behebung nicht bestätigt.
-Die Verknüpfung behebt diesen Browserfehler nicht. Kein weiterer Reset empfohlen.
-Neue Nutzermeldung: auch über die Verknüpfung funktioniere Updaten nicht.
-Nachprüfung: veröffentlichter Stand weiterhin 0.3.2, dieselbe Version wie auf
-seinem Screenshot; es gab noch keine neuere Fassung. Das belegt nicht jede
-Updatefunktion auf dem Gerät, erklärt aber das fehlende Versionsangebot.
-0.3.3 korrigiert die unklare Anzeige bei unverändertem Stand und fehlendem
-Download; bestehende Appkennung und Nutzerspeicher bleiben erhalten.
-Konkrete Schritte und Updatebefehl: docs/WEB_PUBLISHING.md.
+- Großes gemeinsames Brett; Spielmodus gegen Stockfish und Lernmodus mit Chat
+  und Varianten. Einstellungen sind eine Nebenansicht statt eines dritten Modus.
+- Moduswechsel pausiert den Gegner und verwirft ausstehende Gegenzüge. Rückkehr
+  zur unveränderten echten Partie; erneutes Lernen erhält den Lernzweig, solange
+  sich die Partiestellung nicht geändert hat. Wiederhergestellte Partien bleiben
+  bis zum ausdrücklichen Spielmodus/Fortsetzen pausiert.
+- Die Lernengine erhält Stellung und tatsächliche Zugfolge automatisch. Geprüfte
+  Kandidaten als „Zug zeigen“ im Lernzweig anwenden, Start/Ziel markieren. Eigene
+  Züge mit ausdrücklichem „Zug kommentieren“ besprechen. Keine automatische
+  kostenpflichtige Anfrage. Humanfaktor und bisherige Limits unverändert.
+- Unter dem Brett „Partien speichern und laden“: benannte lokale Kopien und
+  vollständige JSON-Dateien mit Kommentaren, Varianten, Dialog, Namen/Vergleichen.
+  Vor dem Laden aktuelle Arbeit separat sichern; ungültige Datei verwirft nichts.
+  Bestehende Sitzungsschemas 1/2 lesbar. Keine Schlüssel/Kosten in Dateien.
+- Sammlung liegt als separater Schlüssel im bestehenden IndexedDB-Sessionstore,
+  Transaktionen schützen vor überschriebenen parallelen Speicherungen. Keine
+  Datenbankversionsänderung, Cache-/Vault-Löschung oder neue Manifest-ID.
+- Erweiterte PGN-Rückblicke, Diagnose, Schlüssel, Kosten und Web-Updates bleiben
+  vorhanden. Geöffneter Rückblick bleibt nach Wiederherstellung sichtbar.
 
+Prüfgrundlage: **100/100 Einzeltests und 55/55 Chromiumfälle bestanden**, einschließlich zwei neuer
+Arbeitsablauf-/Speicherfälle. Gezielt echte Enginepausen, erhaltene Lernzweige,
+regelgeprüfte Chat-Vorführung, Kommentar-/Varianten-Dateirundlauf, lokale Sammlung,
+fehlgeschlagener Import und Wiederherstellung nach Neuladen. Desktop-/Handy-
+Screenshots visuell geprüft. Tatsächlich veröffentlichte 0.3.3-Altdateien gegen
+BUILD.json verifiziert; lokaler Updatewechsel auf 0.4.0 erhält Stellung/Entwurf. Details und endgültige Ergebnisse: docs/VALIDATION.md.
+Echte KI-Lernqualität, Bedienungsabnahme und native Android-Installation weiterhin
+offen. Keine bezahlten Modellaufrufe für die Entwicklung.
 
-## Aktueller Auftrag: Bedienkonzept grundlegend vereinfachen
-
-Nutzer bestätigt das Update auf 0.3.3, lehnt die bisherige komplizierte
-Bedienkonzeption aber ab. Verbindliches Ziel: **ein großes Brett, Spielmodus
-und Lernmodus**, Schachengine als Gegner und Lernengine als Gesprächspartner.
-Im Lernmodus Züge beider Seiten ausprobieren, Varianten speichern/vergleichen
-und direkt im Chat besprechen. Lernengine soll regelgeprüfte Züge auf demselben
-Brett zeigen und erklären können; eigene Züge sollen kommentierbar sein.
-Moduswechsel während der Partie, pausierter Gegner und unveränderte echte
-Partie; Analysearbeit beim Hin-/Herschalten erhalten. Humanfaktor bleibt zentral.
-Einstellungen und bisherige Spezialwerkzeuge werden Nebenfunktionen.
-
-Die bisherige Vier-Tab-Oberfläche erfüllt dieses Ziel nicht. Neue Anforderungen
-und konkreter nächster Umsetzungsschritt stehen am Anfang von DEVELOPMENT_PLAN.md.
-Status: Konzeption verbindlich dokumentiert; Umbau noch nicht implementiert.
-0.3.3 bleibt der veröffentlichte, getestete Appstand. Kein erneutes Deployment
-oder neue Versionsnummer für diese Dokumentationsänderung. Android-Installation
-weiterhin separat offen; bestätigtes Web-Update nicht erneut als offen führen.
+Nächster einzelner Schritt: geprüfte 0.4.0 über den bestehenden gh-pages-Weg
+bereitstellen und den exakten GitHub-Lauf bestätigen; danach Nutzerabnahme des
+vereinfachten Spiel-/Lernablaufs. Das erfolgreiche Update auf 0.3.3 nicht erneut
+als Problem führen. Die native Chrome-156-Installation bleibt ein separater Fehler.
 
 ## Verbindliches Ziel
 

@@ -11,16 +11,19 @@ export function pathTo(data:SessionData,id:string) {
 export interface PlayingEngine { move(rootFen:string,moves:string[],level:number):Promise<unknown>;cancel?():void }
 export class LearningGame {
  private inFlight:PlayingEngine|undefined;
+ private study:{session:Session;gameId:string;cursor:string;node:string}|undefined;
  constructor(private current:()=>Session){}
  start(human:'w'|'b',level:number,engine?:'server'|'browser'):void {
   const s=this.current(),d=s.snapshot();
   if(d.review?.guiding)throw new Error('Der geführte Rückblick startet keinen Enginegegner. Zum freien Spiel den Rückblick ausdrücklich verlassen.');
   this.inFlight?.cancel?.();
+  this.study=undefined;
   s.orient(human);
   s.setGame({id:crypto.randomUUID(),start:d.activeNodeId,cursor:d.activeNodeId,human,level,paused:false,revision:0,...(engine?{engine}:{})});
  }
  pause():void{this.inFlight?.cancel?.();const s=this.current(),g=s.snapshot().game;if(g && !g.paused)s.setGame({...g,paused:true,revision:g.revision+1});}
- resume():void{this.inFlight?.cancel?.();const s=this.current(),g=s.snapshot().game;if(!g)throw new Error('Keine Lernpartie gestartet.');s.select(g.cursor);s.setGame({...g,paused:false,revision:g.revision+1});}
+ resume():void{this.inFlight?.cancel?.();const s=this.current(),d=s.snapshot(),g=d.game;if(!g)throw new Error('Keine Lernpartie gestartet.');if(g.paused)this.study={session:s,gameId:g.id,cursor:g.cursor,node:d.activeNodeId};s.select(g.cursor);s.setGame({...g,paused:false,revision:g.revision+1});}
+ learn():void{const s=this.current(),g=s.snapshot().game;if(!g)return;const running=!g.paused;this.pause();if(running&&this.study?.session===s&&this.study.gameId===g.id&&this.study.cursor===g.cursor)s.select(this.study.node);}
  analyse(id:string):void{this.pause();this.current().select(id);}
  play(input:MoveInput):string {
   const s=this.current(),d=s.snapshot(),g=d.game;

@@ -1,61 +1,55 @@
 # AI-Chess-Studio
 
-Aktueller Web-Korrekturstand: **0.3.3**. Die Nummer steht oben in der App,
-im Browser-Titel, beim Serverstart und in der lokalen Diagnose.
-Änderungen: [CHANGELOG.md](CHANGELOG.md).
+Aktueller Funktionsstand: **0.4.0**. Änderungen: [CHANGELOG.md](CHANGELOG.md).
+Ein großes gemeinsames Schachbrett und zwei Modi für dein persönliches Lernen.
 
-Die Korrektur 0.3.3 unterscheidet bei der Updateprüfung zwischen aktuellem Stand,
-laufendem Download, bereitem Update und Fehler. Eine Verknüpfung nutzt denselben
-Updateweg wie der Browser; eine native Installation ist dafür nicht erforderlich.
+## Spielen und lernen
 
-Die Web-App wird über den Branch gh-pages im bestehenden öffentlichen Repository
-bereitgestellt. GitHub hat den Veröffentlichungslauf für 0.3.3 erfolgreich
-abgeschlossen. Der erste Versuch für die vorige 0.3.2 war mit Timeout gescheitert.
-Die neue Kontrolle `npm run check:pages` prüft deshalb den exakten veröffentlichten
-Commit; ein Git-Push allein gilt nicht als erfolgreiche Bereitstellung.
-Bedienung und spätere Updates: [Web-App bereitstellen](docs/WEB_PUBLISHING.md).
+1. Im **Spielmodus** Farbe und Spielstärke wählen, „Partie starten“ drücken.
+   Figuren ziehen oder Start- und Zielfeld antippen; Stockfish antwortet.
+2. Bei einer Frage auf **Lernmodus** umschalten. Der Gegner pausiert. Auf demselben
+   Brett Züge für beide Seiten ausprobieren, mit „Zug zurück“ zurückgehen oder
+   mit „Zur Partiestellung“ neu ansetzen.
+3. Direkt im Chat nach Ideen, Erklärungen und Gegenplänen fragen. Die Lernengine
+   kennt Brettstellung und Zugfolge; keine manuelle Übertragung nötig. „Zug zeigen“
+   führt einen geprüften Vorschlag im Lernzweig vor und markiert Start/Ziel.
+   „Zug kommentieren“ sendet eine Frage zum gerade ausprobierten Zug, nach dem
+   gewählten echten oder simulierten Dialogmodus und den bestehenden Kostenlimits.
+4. Zurück zum **Spielmodus**: Die echte Partie wird an ihrer unveränderten Stelle
+   fortgesetzt. Solange dort kein neuer Zug erfolgt ist, kehrt erneutes Lernen
+   zu deinem bisherigen Lernzweig zurück. Alle Varianten bleiben im Baum erhalten.
 
-Auf Branch `work` zusätzlich integriert: **„Partie verstehen“ und die eigenständige Web-App
-als noch nicht freigegebener Entwicklungsstand**. Der Rückblick
-berücksichtigt Plancommit 2744e63e. Die frühere Integration blieb zunächst
-ohne neue Version; nach dem Veröffentlichungsauftrag wird nun das Web-Paket
-0.3.3 für GitHub Pages mit vollständigem 8×8-Brett bereitgestellt.
+Der Lernmodus enthält auch „Kommentar zu dieser Stellung“, „Varianten speichern
+und vergleichen“ und weitere Lernwerkzeuge einschließlich PGN-Rückblick
+„Partie verstehen“. Einstellungen sind über die Schaltfläche oben erreichbar.
+Der Humanfaktor bleibt verbindlich: eigene Gedanken, verständliche Pläne und
+praktische Schwierigkeiten besprechen, keine bloße Enginezahlenanalyse.
 
-Persönliches Schach-Lernprogramm: gegen Stockfish spielen und während oder
-nach der Partie mit einer getrennten KI über Stellungen, Strategien und
-Varianten sprechen. Varianten ausprobieren, benennen, speichern und vergleichen.
+## Partien speichern und laden
 
-## Die neue Oberfläche
+Unter dem Brett **„Partien speichern und laden“** öffnen:
 
-Vier Tabs gliedern die App:
+- Namen eingeben und **„Partie speichern“**: benannte Kopie im Browser auf diesem
+  Gerät. Eine neue Speicherung erstellt einen weiteren Stand.
+- Gespeicherte Partie auswählen und **„Partie laden“**.
+- **„Als Datei speichern“** exportiert eine JSON-Partiedatei; **„Partiedatei laden“**
+  öffnet sie auch auf einem anderen Gerät. Das ist unser vollständiges
+  Studienformat, kein PGN-Export. Enthalten sind Kommentare, Varianten, Dialog,
+  Variantennamen und Vergleiche; keine Schlüssel, Gerätepasswörter oder Kostenkonten.
+- Vor jedem Laden wird die aktuelle Sitzung als eigene Sicherung abgelegt.
+  Importierte Enginepartien öffnen im Lernmodus pausiert. Ungültige Dateien
+  ersetzen die Sitzung nicht. Bis zu 100 lokale Stände; zusätzliche Sicherungen
+  als Datei ablegen. Die Dateisicherung ist vom Browserdatenspeicher unabhängig.
 
-| Tab | Inhalt |
-| --- | --- |
-| Partie | Brett, Farbe und Stärke, Start/Pause/Fortsetzen, Partieverlauf |
-| Lernen | Dasselbe Brett, fortlaufender Lerndialog, eigene Gedanken und Notizen |
-| Varianten | Variantenbaum, Namen und Vergleich A/B neben dem Brett |
-| Einstellungen | Lokaler Schlüssel, Budget, Sitzungsexport/-import, Diagnose und Updates |
-
-Auf großen Bildschirmen stehen Brett und Arbeitsbereich nebeneinander. Auf
-Handy-/Tabletbreiten bleibt die Navigation unten sichtbar. „Neue Partie“ am
-Brett führt direkt zur Einrichtung. „Züge & Optionen“ öffnet Texteingabe,
-Bauernumwandlung und legale Züge. Seltene Werkzeuge sind aufklappbar.
-Tabwechsel erhalten Stellung, Partie, Varianten und Gesprächsentwurf und starten
-keine Engine-/Modellanfrage. Pfeiltasten/Home/End bedienen die Tabnavigation;
-Direktlinks #partie, #lernen, #varianten und #einstellungen sind möglich.
-
-Der gebaute Web-Stand läuft auch ohne Node-Backend: Stockfish-Spiel und
-zusätzlicher Faktencheck rechnen auf dem Gerät, die Sitzung wird lokal gesichert,
-der KI-Dialog verbindet sich nach deiner Freigabe direkt mit OpenAI. Ein
-Service Worker bereitet Oberfläche und Engine für den Offline-Start vor.
-KI-Anfragen brauchen Internet. Native Geräteabnahme steht noch aus.
-Details: [PLATFORM_ARCHITECTURE.md](PLATFORM_ARCHITECTURE.md).
+Die automatische Sicherung der zuletzt verwendeten Sitzung bleibt zusätzlich
+bestehen. Alte Sitzungsdateien sind weiter lesbar. Kein Zurücksetzen des
+Schlüsselfachs oder der Kostenperiode nötig.
 
 ## Eigenständige Web-App verwenden
 
 In den Einstellungen „Eigenständige Web-App auf diesem Gerät verwenden“ öffnen.
 Ohne Desktop-Backend wird dieser Betriebsweg automatisch gewählt; eine über das
-Browsermenü installierte App startet ebenfalls so. Die vier Tabs bleiben gleich.
+Browsermenü installierte App startet ebenfalls so. Das Brett und die beiden Modi bleiben gleich.
 
 - Unter „Eigenen API-Schlüssel eingeben“ Schlüssel, Modell und ein eigenes
   Gerätepasswort mit mindestens zehn Zeichen eingeben. Nach Kostenfreigabe
@@ -261,9 +255,9 @@ Ziel: Windows, Mac, Android und iPad. Die Weboberfläche und der Lernkern sind
 gemeinsam angelegt; Touch-Bedienung wird auch bei Android-/iPad-Größen geprüft.
 Für Mac gibt es `AI-Chess-Studio-starten.command` (Node.js 24 erforderlich).
 Native Windows-/Mac-Tests und Tests auf Android/iPad sind noch offen.
-Manifest und Icons bereiten Startbildschirmdarstellung vor; eine eigenständige
-mobile oder offlinefähige App ist damit noch nicht umgesetzt. Der aktuelle
-Node-Server ist ein Desktop-Backend. Details: PLATFORM_ARCHITECTURE.md.
+Die eigenständige Web-App benötigt keinen Node-Server. Offline-Start und lokale
+Stockfish-Engine sind automatisiert im Browser geprüft; die native Android-
+Installation bleibt auf dem gemeldeten Chrome-156-Gerät offen. Details: PLATFORM_ARCHITECTURE.md.
 
 ## Menschliche Denkweise statt bloßer Enginebewertung
 
@@ -390,7 +384,7 @@ des Updates keine zweite Installation starten und keinen Quellcode bearbeiten.
 
 ## Nachweise und Grenzen
 
-`npm run test:all`: Typprüfung, Build, **98 Einzeltests und 53 Chromium-
+`npm run test:all`: Typprüfung, Build, **100 Einzeltests und 55 Chromium-
 Browsertests**. Der gebaute Anwendungsserver wird getestet, einschließlich
 echtem lokalem Stockfish. Schlüsseltests verwenden ausschließlich bedeutungslose
 Testwerte, Provider-/Update-Tests lokale Fixtures. Die bestätigte Web-Updateübernahme wurde mit einem echten Service Worker auf

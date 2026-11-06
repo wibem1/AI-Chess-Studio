@@ -1035,3 +1035,63 @@ gh-pages 69149dcee15182f8199f15ee20b11405a895d5ee, GitHub-Run 42273159023 SUCCES
 https://github.com/wibem1/AI-Chess-Studio/actions/runs/42273159023
 Öffentliches BUILD.json nach Upload: Version 0.3.3, Basis /AI-Chess-Studio/ und
 exakter Quellcommit stimmen. Eigene Live-/native Android-Abnahme bleibt getrennt.
+
+
+## 0.4.0 – großes Brett, zwei Modi und Partienspeicherung
+
+Nutzerkonzeption umgesetzt: Spielmodus/Lernmodus statt vier Hauptbereichen,
+Chat und Varianten im Lernmodus, Einstellungen separat. Ein DOM-Brett bleibt
+bestehen. LearningGame merkt den Lernkursor zur jeweiligen echten Partiestellung;
+Gegnerpause, Cancellation und Revision schützen die Partie vor verspäteten Zügen.
+Nach einem echten neuen Partiezug beginnt Lernen an dessen neuer Stellung.
+Nach Neuladen wird eine Partie erst nach ausdrücklicher Spielwahl fortgesetzt.
+
+Modellvorschläge sind optional strukturierte, positionsgebundene Annotationen.
+Schon beim Eintragen/Import müssen SAN-Züge zur jeweiligen Stellung legal sein;
+Mensch-/Faktencheck-Annotationen dürfen keine Modellvorschläge ausgeben. Vorführung
+pausiert den Gegner, öffnet den zugehörigen Lernzweig und markiert Start/Ziel.
+„Zug kommentieren“ ist eine explizite Chat-Anfrage mit bestehendem Budget, keine
+ungefragte Analyse nach jedem Brettzug. Simulierte Antworten bleiben gekennzeichnet.
+
+Partien: benannte Kopien in separatem IndexedDB-Schlüssel saved-games, gleiche
+Datenbankversion 1. Atomare Transaktionen, höchstens 100 gespeicherte Stände.
+Vollständige Sitzung als JSON mit Kommentaren, Dialog und Varianten, ohne Vault,
+Passwort oder Kostenkonto. Aktueller Stand wird vor dem Laden separat gespeichert;
+Datei erst validieren, dann ersetzen. Dateigröße maximal 8 MiB wie im bestehenden
+Sitzungsimport. Sammlung bleibt beim Löschen der automatischen Sitzung erhalten.
+
+Zwei zusätzliche Einzeltests: Lernzweig über Wechsel behalten/neue Partiestellung
+beachten; legale Vorschläge serialisieren, falsche Herkunft und illegale Vorschläge
+beim Eintragen/Import ablehnen. Zwei neue Browserfälle: echte Stockfish-Partie,
+Moduswechsel, markierte Vorführung, eigener Zugkommentar, pausierter Neustart;
+benannte Kopie über Neuladen, Datei-Rundlauf mit echten Kommentar-/Dialog- und
+Variantendaten sowie ungültige Datei ohne Zustandsverlust. Vorhandene 53 Fälle
+auf tatsächliche Modusbedienung umgestellt und beibehalten.
+
+Bei der Migration zeigten Tests: alter Testhelfer erwartete auch in Einstellungen
+einen ausgewählten Haupttab; geändert auf tatsächliche Nebenansicht. Rückblick
+war nach Neuladen hinter geschlossener Werkzeuggruppe verborgen; bei vorhandenem
+Rückblick automatisch sichtbar gemacht. Alte Fortsetzen-Tests an bewussten
+Spielmoduswechsel angepasst. Die sechs betroffenen/neu hinzugefügten Abläufe
+gezielt bestanden, anschließend Gesamtsuite auf endgültigem Quellstand.
+
+Desktop 1440x900 und Handy 390x844 visuell im realen Chromium kontrolliert.
+Brett vollständig, zwei Modi, Chat daneben/unterhalb, Dateimenü am Brett.
+Browser-/Touch-Viewport-Prüfungen ersetzen keine native Geräte- oder echte
+KI-Qualitätsabnahme. Keine bezahlte Provideranfrage; Modelltransporte über Fixtures.
+
+
+Endgültiger Prüfstand 0.4.0: npm run check bestanden; npm test 100/100;
+Root-/Pages-Builds bestanden; abschließendes npx playwright test 55/55,
+0 fehlgeschlagen (2,6 Minuten). Der Test für fünf Spielstufen bei absichtlich
+fehlendem Backend prüft jetzt die automatische Browser-Enginewahl und die
+versteckte technische Auswahl, statt eine ausgeblendete Auswahl anzuklicken.
+Keine App-Tests entfernt.
+
+Zusätzlich öffentlicher 0.3.3-Altstand aus gh-pages (Quellcommit 63ef08f,
+index.html, Worker und JS/CSS jeweils SHA-256 gegen öffentliches BUILD.json
+verifiziert) auf lokalem Pages-Unterordner. e2-e4 und Nachrichtenentwurf erzeugt,
+Server auf endgültigen 0.4.0-Build umgestellt, über alten Updateknopf mit
+Zustimmung übernommen. Version 0.4.0, Stellung n1 und Entwurf erhalten; erneute
+Prüfung meldet aktuell. Dies ist echte Chromium-/Service-Worker-Integration,
+keine native Android-Abnahme oder bezahlte Modellprüfung.

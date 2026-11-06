@@ -98,7 +98,7 @@ export class Studio {
     session.annotate({ nodeId, kind: 'dialogue', source: 'human', text: request.question,
       hypothesis: false, openQuestions: [] });
     session.annotate({ nodeId, kind: 'dialogue', source: adapter.source ?? 'simulation', text: hintMode==='question'?`Leitfrage: ${reply.openQuestions[0]}`:hintMode==='hint'?`Denkhinweis: ${reply.humanFactors?.idea??reply.playability}`:formatReply(reply),
-      hypothesis: true, openQuestions: reply.openQuestions });
+      hypothesis: true, openQuestions: reply.openQuestions,...(hintMode==='explain'?{suggestions:reply.candidates}:{}) });
     return 'stored';
   }
 }

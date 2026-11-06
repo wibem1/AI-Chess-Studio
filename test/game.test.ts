@@ -67,3 +67,19 @@ test('playing engine rejects forged history, invalid levels and completed repeti
  for(const raw of [{rootFen:fen,moves:['e5'],level:1},{rootFen:fen,moves:[],level:99},{rootFen:fen,moves:['e4\nquit'],level:1},
   {rootFen:fen,moves:['Nf3','Nf6','Ng1','Ng8','Nf3','Nf6','Ng1','Ng8'],level:1}])await assert.rejects(s.move(raw));
 });
+
+test('mode switches remember a study branch only while the actual game position stays the same',async()=>{
+ const s=new Session(),g=new LearningGame(()=>s);g.start('w',1);g.play('e4');await g.reply(fake('e5'));const cursor=s.snapshot().game!.cursor;
+ g.learn();g.play('Nf3');const study=s.snapshot().activeNodeId;g.resume();assert.equal(s.snapshot().activeNodeId,cursor);
+ g.learn();assert.equal(s.snapshot().activeNodeId,study);assert.equal(s.snapshot().game!.cursor,cursor);g.resume();g.play('Bc4');await g.reply(fake('Nc6'));
+ const later=s.snapshot().game!.cursor;g.learn();assert.equal(s.snapshot().activeNodeId,later);assert.notEqual(later,study);
+});
+
+test('stored coach suggestions must be legal at their own position and survive export',()=>{
+ const s=new Session();s.annotate({nodeId:'n0',kind:'dialogue',source:'model',text:'Entwicklung betrachten',hypothesis:true,openQuestions:[],suggestions:['Nf3']});
+ assert.deepEqual(Session.import(s.export()).snapshot().annotations[0]!.suggestions,['Nf3']);
+ const valid=s.snapshot().annotations[0]!;
+ assert.throws(()=>s.annotate({...valid,suggestions:['e5']}),/Illegale/);
+ assert.throws(()=>s.annotate({...valid,source:'human'}),/Ungültige/);
+ const raw=JSON.parse(s.export());raw.annotations[0].suggestions=['e5'];assert.throws(()=>Session.import(JSON.stringify(raw)),/Illegale/);
+});

@@ -1,5 +1,20 @@
 # Änderungen
 
+## 0.4.0 – ein Brett, Spielmodus und Lernmodus
+
+- Großes gemeinsames Brett, zwei Modi statt vier Hauptbereiche. Umschalten
+  pausiert/reaktiviert den Spielgegner; unveränderte Partie und Lernzweig bleiben
+  getrennt. Bei unveränderter Partiestellung wird der Lernzweig wieder geöffnet.
+- Lernchat und Varianten gemeinsam. Geprüfte Chat-Züge lassen sich auf dem Brett
+  vorführen, mit markiertem Start/Ziel; eigene Lernzüge gezielt kommentieren.
+- Benannte Partien lokal speichern/laden und als JSON-Datei übertragen, mit
+  Kommentaren, Varianten, Dialog, Namen und Vergleichen. Vor dem Laden wird die
+  aktuelle Sitzung separat gesichert. Ungültige Dateien ersetzen keine Sitzung.
+- 100 Einzeltests und 55 Browsertests bestanden; tatsächlichen Übergang aus
+  den veröffentlichten 0.3.3-Dateien mit erhaltenen Daten lokal geprüft.
+- Schlüsselfach, Kosten, Diagnosen und Updatefunktion bleiben erhalten. Alte
+  Sitzungsdateien weiter lesbar; kein Wechsel der Appkennung oder Datenbankversion.
+
 ## 0.3.3 – eindeutige Web-Updateanzeige, 6. November 2026
 
 - Updateprüfung meldet ausdrücklich die aktuelle Version, wenn keine neue

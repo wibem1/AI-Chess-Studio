@@ -57,6 +57,7 @@ export function installReviewUI(current:()=>Session,replace:(next:Session)=>void
  });
  return {
   render(data:SessionData){
+   if(data.review)document.querySelector<HTMLDetailsElement>('#learning-extras')!.open=true;
    const r=data.review;$('review-panel').hidden=!r;
    document.body.dataset.reviewLocked=String(reviewLocked(data));
    $('review-replace-hint').hidden=!(data.nodes.length>1||data.annotations.length||data.game);

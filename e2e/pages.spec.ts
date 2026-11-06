@@ -1,3 +1,4 @@
+import {openView} from './navigation-helper.js';
 import {test,expect} from '@playwright/test';
 import {createServer} from 'node:http';
 import {readFile} from 'node:fs/promises';
@@ -22,13 +23,13 @@ test('Pages subdirectory serves the complete app, scoped manifest, real Stockfis
   const manifestURL=await page.locator('link[rel=manifest]').evaluate((link:HTMLLinkElement)=>link.href);expect(manifestURL).toBe(origin+prefix+'manifest.webmanifest');
   const manifest=await(await page.request.get(manifestURL)).json();expect(new URL(manifest.start_url,manifestURL).pathname).toBe(prefix);expect(new URL(manifest.scope,manifestURL).pathname).toBe(prefix);for(const icon of manifest.icons)expect(new URL(icon.src,manifestURL).pathname).toMatch(/^\/AI-Chess-Studio\/icons\//);
   await page.locator('#game-color').selectOption('b');await page.locator('#game-form button').click();await expect(page.locator('#game-feedback')).toContainText('Stockfish hat gezogen',{timeout:12000});await page.locator('#game-pause').click();
-  await page.getByRole('tab',{name:'Lernen',exact:true}).click();await page.locator('#question').fill('Mein Entwurf für die Pages-Partie');await page.getByRole('tab',{name:'Einstellungen',exact:true}).click();await page.locator('#pwa-tools > summary').click();await expect(page.locator('#pwa-status')).toContainText('Offline-Start vorbereitet');
+  await page.getByRole('tab',{name:'Lernmodus',exact:true}).click();await page.locator('#question').fill('Mein Entwurf für die Pages-Partie');await openView(page,'settings');await page.locator('#pwa-tools > summary').click();await expect(page.locator('#pwa-status')).toContainText('Offline-Start vorbereitet');
   expect(await page.evaluate(async()=>{const r=await navigator.serviceWorker.ready;return new URL(r.scope).pathname;})).toBe(prefix);
   await expect.poll(()=>page.evaluate(()=>!!navigator.serviceWorker.controller)).toBe(true);
   const cached=await page.evaluate(async()=>{const result:string[]=[];for(const key of await caches.keys())for(const r of await(await caches.open(key)).keys())result.push(new URL(r.url).pathname);return result;});expect(cached.every(path=>path.startsWith(prefix))).toBe(true);expect(cached.some(path=>path.endsWith('.wasm'))).toBe(true);expect(cached.some(path=>path.includes('/api/'))).toBe(false);
-  await context.setOffline(true);await page.reload();await expect(page.locator('#workspace')).not.toHaveAttribute('inert','');await page.getByRole('tab',{name:'Partie',exact:true}).click();await expect(page.locator('#game-status')).toContainText('Analysemodus');await expect(page.locator('#position-status')).toContainText('n1 · Schwarz');
-  await page.getByRole('tab',{name:'Lernen',exact:true}).click();await expect(page.locator('#question')).toHaveValue('Mein Entwurf für die Pages-Partie');
-  await page.getByRole('tab',{name:'Einstellungen',exact:true}).click();const licenses=page.locator('footer a');await expect(licenses).toHaveAttribute('href',prefix+'licenses.html');await licenses.click();await expect(page.getByRole('heading',{name:'Lizenzen und Enginequellen'})).toBeVisible();await page.getByRole('link',{name:'BSD-2-Clause-Lizenz'}).click();await expect(page.locator('body')).toContainText('Jeff Hlywa');
+  await context.setOffline(true);await page.reload();await expect(page.locator('#workspace')).not.toHaveAttribute('inert','');await expect(page.locator('#game-status')).toContainText('Analysemodus');await page.getByRole('tab',{name:'Spielmodus',exact:true}).click();await expect(page.locator('#game-status')).toContainText('Partie läuft');await expect(page.locator('#position-status')).toContainText('n1 · Schwarz');
+  await page.getByRole('tab',{name:'Lernmodus',exact:true}).click();await expect(page.locator('#question')).toHaveValue('Mein Entwurf für die Pages-Partie');
+  await openView(page,'settings');const licenses=page.locator('footer a');await expect(licenses).toHaveAttribute('href',prefix+'licenses.html');await licenses.click();await expect(page.getByRole('heading',{name:'Lizenzen und Enginequellen'})).toBeVisible();await page.getByRole('link',{name:'BSD-2-Clause-Lizenz'}).click();await expect(page.locator('body')).toContainText('Jeff Hlywa');
   expect(outside).toEqual([]);expect(errors).toEqual([]);
  }finally{await context.setOffline(false);await page.goto('about:blank');await new Promise<void>(resolve=>server.close(()=>resolve()));}
 });

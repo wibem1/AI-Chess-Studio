@@ -16,6 +16,7 @@ import { installPagePan } from './page-pan.js';
 import { installScrollHelp } from './scroll-help.js';
 import { APP_VERSION } from '../src/version.js';
 import { installBoardDrag } from './board-drag.js';
+import {installGameLibrary} from './game-library.js';
 
 document.getElementById('app-version')!.textContent = `Version ${APP_VERSION}`;
 document.title = `AI-Chess-Studio ${APP_VERSION}`;
@@ -30,15 +31,20 @@ const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as 
 const input = (id: string) => $<HTMLInputElement>(id);
 const text = (id: string) => $<HTMLTextAreaElement>(id);
 let selected: Square | null = null;
+let shownMove:{node:string;from:string;to:string}|undefined;
 let pending = false;
 let tacticalPending = false;
 let modelAvailable = false;
+let dialogueChosen=false;
 const modelMode = () => $<HTMLSelectElement>('dialogue-mode').value === 'model';
 function updateMode() {
   const real = modelMode();
   $<HTMLButtonElement>('ask').textContent = real ? 'Nachricht senden (reale KI)' : 'Nachricht senden (Simulation)';
   $<HTMLButtonElement>('ask').disabled = pending || reviewLocked(studio.session.snapshot()) || (real && !modelAvailable);
+  $<HTMLButtonElement>('comment-move').disabled=$<HTMLButtonElement>('ask').disabled||!studio.session.snapshot().nodes.find(n=>n.id===studio.session.snapshot().activeNodeId)?.san;
+  $('comment-move').textContent=real?'Zug kommentieren':'Zug kommentieren (Simulation)';
   $('simulation-hint').hidden = real;
+  $('learn-configure').hidden=modelAvailable;
   message('mode-badge', real ? 'Eigener KI-Zugang' : 'Simulation aktiv');
 }
 async function refreshModelStatus() {
@@ -49,9 +55,10 @@ async function refreshModelStatus() {
     modelAvailable = status.available === true && status.remaining > 0;
     message('model-status', modelAvailable ? `KI-Zugang konfiguriert, noch kein Verbindungsnachweis. Verbleibende Anfragen ${isWebPlatform()?'in diesem Fenster':'im Serverprozess'}: ${status.remaining}. Keine Kostengarantie.` : 'Reale KI gesperrt oder Anfragelimit erreicht. Simulation ist verfügbar.');
   } catch { modelAvailable = false; message('model-status', 'Modellserver nicht verfügbar. Simulation ist verfügbar.'); }
+  if(modelAvailable&&!dialogueChosen)$<HTMLSelectElement>('dialogue-mode').value='model';
   updateMode();
 }
-$('dialogue-mode').addEventListener('change', updateMode);
+$('dialogue-mode').addEventListener('change',()=>{dialogueChosen=true;updateMode();});
 function message(id: string, value: string) { $(id).textContent = value; }
 function attempt(action: () => void, target: string, success: string) {
   try { action(); selected = null; render(); message(target, success); }
@@ -72,7 +79,6 @@ const cancelBoardDrag = installBoardDrag($('board'), () => {
 }, (from, to) => move({ from, to, promotion: $<HTMLSelectElement>('promotion').value }));
 installScrollHelp(cancelBoardDrag);
 installPagePan();
-installNavigation(cancelBoardDrag);
 const reviewUI=installReviewUI(()=>studio.session,next=>{game.pause();studio.session=next;selected=null;},render);
 $('board-flip').addEventListener('click',()=>{const data=studio.session.snapshot();studio.session.orient((data.orientation??data.game?.human??'w')==='w'?'b':'w');render();});
 function render() {
@@ -83,6 +89,11 @@ function render() {
   const status = studio.session.status();
   const live=data.review?.guiding?undefined:data.game;
   const allowed=visibleReviewNodes(data),locked=reviewLocked(data);
+  const learning=$('workspace').dataset.activeView==='learn';
+  $('learning-controls').hidden=!learning;
+  message('workbench-status',learning?'Lernmodus · Züge ausprobieren und mit der Lernengine besprechen. Die Partie bleibt unverändert.':live?(live.paused?'Partie pausiert · Zum Fortsetzen Spielmodus wählen.':'Spielmodus · Schachengine ist dein Gegner.'):'Spielmodus · Starte rechts eine Partie gegen die Schachengine.');
+  $<HTMLButtonElement>('learn-back').disabled=!current.parentId||locked;
+  $<HTMLButtonElement>('learn-origin').disabled=locked;
   if(live){
     const end=studio.session.status(live.cursor);
     message('game-status',`Du spielst ${live.human==='w'?'Weiß':'Schwarz'} · Level ${live.level} · ${live.engine==='browser'?'Browser-Engine':'Desktop-Engine'} · ${end.checkmate?'Partie beendet: Schachmatt':end.draw?'Partie beendet: Remis':live.paused?'Analysemodus · Partie pausiert':enginePending?'Stockfish denkt …':'Partie läuft'} · Partiestellung ${live.cursor}`);
@@ -107,6 +118,7 @@ function render() {
       const piece = rank[file];
       const button = document.createElement('button'); button.type = 'button';
       button.className = `${(rankIndex + file) % 2 ? 'dark' : ''} ${targets.includes(square) ? 'target' : ''}`;
+      if(shownMove?.node===current.id&&(square===shownMove.from||square===shownMove.to))button.classList.add('coach-move');
       button.setAttribute('aria-label', `${square}: ${piece ? `${piece.color === 'w' ? 'Weiß' : 'Schwarz'} ${names[piece.type]}` : 'leer'}`);
       button.setAttribute('aria-pressed', String(selected === square));
       button.dataset.square = square;
@@ -164,6 +176,10 @@ function render() {
       const body = document.createElement('div');
       const [answer,details]=a.text.split('\n\nAnalyse-Details:');body.textContent=answer!;
       entry.append(meta,body);
+      if(kind==='dialogue'&&!locked)for(const san of a.suggestions??[]){
+        const show=document.createElement('button');show.type='button';show.textContent=`Zug zeigen: ${san}`;
+        show.addEventListener('click',()=>attempt(()=>{game.analyse(a.nodeId);const board=new Chess(data.nodes.find(n=>n.id===a.nodeId)!.fen),shown=board.move(san);const node=game.play(san);shownMove={node,from:shown.from,to:shown.to};},'move-feedback',`${san} im Lernzweig gezeigt. Die Partie bleibt unverändert.`));entry.append(show);
+      }
       if(details){const disclosure=document.createElement('details'),summary=document.createElement('summary'),detail=document.createElement('div');summary.textContent='Denkwege und fachliche Einordnung';detail.textContent=details;disclosure.append(summary,detail);entry.append(disclosure);}
       if(kind==='dialogue' && a.nodeId!==current.id){const jump=document.createElement('button');jump.textContent=`Stellung ${a.nodeId} ansehen`;jump.addEventListener('click',()=>{game.analyse(a.nodeId);render();});entry.append(jump);}
       if (a.openQuestions.length) { const questions = document.createElement('p'); questions.textContent = `Offen: ${a.openQuestions.join(' / ')}`; entry.append(questions);if(kind==='dialogue' && a.source!=='human')for(const q of a.openQuestions.slice(0,2)){const follow=document.createElement('button');follow.textContent=`Rückfrage aufgreifen: ${q}`;follow.addEventListener('click',()=>{text('question').value=q;text('question').focus();});entry.append(follow);} }
@@ -358,14 +374,14 @@ async function engineTurn(){
   finally{enginePending=false;render();if(game.needsEngine())void engineTurn();}
 }
 $('game-form').addEventListener('submit',event=>{
- event.preventDefault();attempt(()=>game.start($<HTMLSelectElement>('game-color').value as 'w'|'b',Number($<HTMLSelectElement>('game-level').value),$<HTMLSelectElement>('engine-location').value as 'server'|'browser'),'game-feedback','Lernpartie gestartet.');void engineTurn();
+ event.preventDefault();attempt(()=>game.start($<HTMLSelectElement>('game-color').value as 'w'|'b',Number($<HTMLSelectElement>('game-level').value),$<HTMLSelectElement>('engine-location').value as 'server'|'browser'),'game-feedback','Lernpartie gestartet.');navigation.select('play');void engineTurn();
 });
 $('engine-location').addEventListener('change',()=>{
  const selectedEngine=$<HTMLSelectElement>('engine-location').value as 'server'|'browser';
  game.pause();const saved=studio.session.snapshot().game;if(saved)studio.session.setGame({...saved,engine:selectedEngine,revision:saved.revision+1});render();
  message('game-feedback','Spielengine gewählt. Eine bestehende Partie bleibt pausiert; Fortsetzen startet sie bewusst.');
 });
-$('game-pause').addEventListener('click',()=>{game.pause();render();message('game-feedback','Partie pausiert. Probiere Varianten oder bespreche deine Ideen.');});
+$('game-pause').addEventListener('click',()=>{navigation.select('learn');message('game-feedback','Partie pausiert. Probiere Varianten oder bespreche deine Ideen.');});
 $('game-resume').addEventListener('click',()=>{attempt(()=>game.resume(),'game-feedback','Zur tatsächlichen Partie zurückgekehrt.');void engineTurn();});
 text('question').addEventListener('focus',()=>{if(studio.session.snapshot().game){game.pause();render();}});
 $('label-form').addEventListener('submit',event=>{event.preventDefault();attempt(()=>studio.session.label(studio.session.snapshot().activeNodeId,input('variant-label').value),'compare-feedback','Variantenname gespeichert.');});
@@ -425,6 +441,16 @@ $('session-clear').addEventListener('click',async()=>{
  try{game.pause();await autosave.clear();initialized=false;input('session-clear-consent').checked=false;message('autosave-status','Automatische Sitzung gelöscht. Sie wird nach dem nächsten Neuladen wieder aktiviert. Die aktuelle Sitzung kannst du weiterhin exportieren.');}
  catch{message('autosave-status','Löschen fehlgeschlagen.');}
 });
+const navigation=installNavigation(cancelBoardDrag,view=>{
+ if(view==='learn')game.learn();
+ else if(view==='settings')game.pause();
+ else if(studio.session.snapshot().game?.paused&&!studio.session.snapshot().review?.guiding)game.resume();
+ selected=null;render();if(view==='play')void engineTurn();
+});
+$('learn-back').addEventListener('click',()=>attempt(()=>{const d=studio.session.snapshot(),node=d.nodes.find(n=>n.id===d.activeNodeId)!;if(node.parentId)game.analyse(node.parentId);},'move-feedback','Einen Lernzug zurück.'));
+$('learn-origin').addEventListener('click',()=>attempt(()=>{const d=studio.session.snapshot();game.analyse(d.game?.cursor??d.nodes[0]!.id);},'move-feedback','Zur Ausgangsstellung der Analyse zurück.'));
+$('comment-move').addEventListener('click',()=>{text('question').value='Bitte besprich meinen gerade ausprobierten Zug. Welche Idee steckt dahinter, welche gegnerischen Antworten sollte ich beachten und wie könnte mein Plan weitergehen?';$<HTMLSelectElement>('dialogue-topic').value='position';$<HTMLFormElement>('dialogue-form').requestSubmit();});
+installGameLibrary(browserRuntime.store,()=>studio.session.export(),json=>{restoreSession(json);navigation.select('learn');render();});
 void(async()=>{
  let loaded=false;
  try{
@@ -436,6 +462,7 @@ void(async()=>{
    message('key-storage-explanation','Dein Schlüssel wird verschlüsselt auf diesem Gerät gespeichert. Nach einem Neustart entsperrst du ihn mit deinem Gerätepasswort. Nur von dir gestartete KI-Anfragen oder Zugangsprüfungen verbinden sich mit OpenAI. Der Schlüssel gehört nicht zum Sitzungsexport.');
    message('session-storage-explanation','Sitzung und Nachrichtenentwurf werden automatisch in diesem Browser gespeichert, ohne Schlüssel oder Gerätepasswort. Pro Browseradresse gilt die zuletzt gespeicherte Sitzung; zum unabhängigen Sichern oder Übertragen JSON exportieren.');
    $<HTMLSelectElement>('engine-location').value='browser';$<HTMLSelectElement>('engine-location').options[0]!.disabled=true;
+   $('engine-options').hidden=true;
    const saved=await browserRuntime.store.get<import('../src/browser-store.js').BrowserSession>('session');
    if(saved){restoreSession(saved.json);text('question').value=typeof saved.question==='string'?saved.question.slice(0,16000):'';message('storage-feedback','Letzte Sitzung auf diesem Gerät wiederhergestellt. Eine Enginepartie bleibt zunächst pausiert.');}
   }

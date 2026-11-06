@@ -1,3 +1,4 @@
+import {openView} from './navigation-helper.js';
 import {test,expect,type Locator} from '@playwright/test';
 import {Session} from '../src/session.js';
 
@@ -38,7 +39,7 @@ test('all eight files and ranks stay fully visible in small desktop boards, zoom
 
 test('both comparison boards retain 64 square cells and fitting pieces in narrow columns',async({page})=>{
  const session=new Session();session.play('e4');const a=session.snapshot().activeNodeId;session.select('n0');session.play('d4');session.compare(a,session.snapshot().activeNodeId);
- await page.goto('/');await page.getByRole('tab',{name:'Einstellungen',exact:true}).click();await page.getByText('Sitzung speichern oder laden',{exact:true}).click();await page.locator('#session-json').fill(session.export());await page.locator('#import').click();await page.getByRole('tab',{name:'Varianten',exact:true}).click();
+ await page.goto('/');await openView(page,'settings');await page.getByText('Sitzung speichern oder laden',{exact:true}).click();await page.locator('#session-json').fill(session.export());await page.locator('#import').click();await openView(page,'variants');
  for(const size of [{width:980,height:560},{width:1280,height:600},{width:390,height:844},{width:820,height:1180}]){
   await page.setViewportSize(size);await expect(page.locator('.mini-board')).toHaveCount(2);
   for(const board of await page.locator('.mini-board').all())await completeBoard(board,'span');

@@ -222,3 +222,22 @@ h2{font-size:1.65rem}
  #board button{font-size:min(3.6rem,10cqw)}
  .mini-board span{font-size:min(1.3rem,10cqw)}
 }
+
+/* Board-first workbench: two modes, chat and variations in one learning area. */
+.app-header{padding:10px 20px;max-width:1600px}.brand small{display:none}.brand-icon{width:36px;height:36px;font-size:28px}.brand strong{font-size:1.35rem}
+.app-navigation [role=tablist]{justify-content:center;padding:6px 12px;gap:8px}.app-navigation button{min-width:170px;padding:10px 20px}
+.workspace{max-width:1600px;grid-template-columns:minmax(0,1.6fr) minmax(300px,.9fr);padding:16px 20px;gap:20px}
+.position{max-width:850px;top:76px;padding:14px}.board-heading h2{font:600 1rem system-ui;margin:0}.board-heading{margin-bottom:8px}
+#board{width:min(100%,760px,calc(100dvh - 300px));min-width:min(280px,100%);margin:10px auto}
+#workbench-status{font-size:.75rem;margin:4px 0;color:var(--muted)}#position-status{margin:4px 0}.position>.hint{display:none}
+.learning-controls{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}.learning-controls button{font-size:.78rem;padding:8px 12px}
+.games-menu{border-top:1px solid var(--line);padding-top:4px}.games-menu button{margin:10px 6px 0 0}.games-menu select{width:100%}
+#open-settings{font-size:.75rem;padding:8px 12px}.game-panel{padding:20px}.game-panel h2,.discussion h2{font:600 1.2rem system-ui;letter-spacing:0}
+.game-panel>.hint{font-size:.7rem}.game-panel .game-history{margin-top:12px}.discussion{padding:20px}.discussion>.section-intro{margin-bottom:8px}
+#dialogue{max-height:40dvh;overflow-y:auto;touch-action:pan-y;user-select:text;-webkit-user-select:text}#dialogue .entry{font-size:.85rem;margin:8px 0;padding:10px 12px}#question{min-height:80px}#dialogue-mode{font-size:.8rem}
+#learning-extras{border-top:1px solid var(--line)}#panel-variants>section{border:0;padding:8px;box-shadow:none}#panel-variants .panel{background:transparent}
+#model-status,#dialogue-anchor{font-size:.7rem}.scroll-help{opacity:.65}.scroll-help:hover,.scroll-help:focus-within{opacity:1}
+@media(max-width:900px){.workspace{grid-template-columns:1fr;max-width:760px;padding:12px;gap:12px}.position{position:static}.app-navigation{position:sticky;top:0;bottom:auto}.app-navigation [role=tablist]{padding:6px 12px}.app-navigation button{flex-direction:row;justify-content:center;min-height:44px;font-size:.85rem;min-width:0}.app-header{padding:8px 12px}.header-status{gap:5px}.header-status .badge{display:none}.header-status{flex-direction:row;align-items:center}.brand strong{font-size:1.1rem}.version-pill{font-size:.6rem}#board{width:min(100%,650px,calc(100dvh - 230px));min-width:0}#open-settings{font-size:.65rem;padding:8px}.scroll-help{bottom:10px}.scroll-report{bottom:64px}.panel{padding:16px}footer{padding:16px 20px 70px}}
+@media(max-width:520px){.brand-icon{display:none}.app-header{gap:4px}.header-status{gap:6px}.board-heading h2{font-size:.9rem}.workspace{padding:8px}.position{padding:10px}#board{width:100%}.learning-controls button{font-size:.7rem;padding:8px}#dialogue{max-height:50dvh}}
+#board button.coach-move{box-shadow:inset 0 0 0 4px #b87720;background:#d8c889}
+#engine-options{grid-column:1/-1}#engine-options select{width:100%}

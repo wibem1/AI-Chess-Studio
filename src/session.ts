@@ -14,6 +14,7 @@ export interface Annotation {
   hypothesis: boolean;
   openQuestions: string[];
   engine?: TacticalReport;
+  suggestions?: string[];
 }
 export interface SessionData {
   schemaVersion: 1 | 2;
@@ -103,6 +104,7 @@ export class Session {
   annotate(annotation: Annotation): void {
     const node = this.node(annotation.nodeId);
     validateAnnotation(annotation);
+    if(annotation.suggestions?.some(san=>!new Chess(node.fen).moves().includes(san)))throw new Error('Illegale Zugvorführung.');
     if (annotation.kind === 'factcheck') {
       validateTacticalReport(annotation.engine, node.fen);
       if(this.data.review){const path=pathTo(this.data,node.id),expected={rootFen:path[0]!.fen,moves:path.slice(1).map(n=>n.san!)};if(JSON.stringify(annotation.engine!.history)!==JSON.stringify(expected))throw new Error('Befund ohne passende vollständige Partievergangenheit.');}
@@ -171,4 +173,5 @@ function validateAnnotation(value: unknown): asserts value is Annotation {
       typeof a.hypothesis !== 'boolean' || !Array.isArray(a.openQuestions) ||
       !a.openQuestions.every(q => typeof q === 'string')) throw new Error('Ungültige Annotation');
   if (a.kind === 'factcheck' ? a.source !== 'stockfish' || a.hypothesis !== false || !a.engine : a.source === 'stockfish' || a.engine !== undefined) throw new Error('Ungültige Befundherkunft');
+  if(a.suggestions!==undefined && (a.kind!=='dialogue'||!['model','simulation'].includes(a.source as string)||!Array.isArray(a.suggestions)||a.suggestions.length>8||!a.suggestions.every(s=>typeof s==='string')))throw new Error('Ungültige Zugvorführung.');
 }
