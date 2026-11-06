@@ -1,8 +1,12 @@
 # AI-Chess-Studio
 
-Aktueller Web-Korrekturstand: **0.3.2**. Die Nummer steht oben in der App,
+Aktueller Web-Korrekturstand: **0.3.3**. Die Nummer steht oben in der App,
 im Browser-Titel, beim Serverstart und in der lokalen Diagnose.
 Änderungen: [CHANGELOG.md](CHANGELOG.md).
+
+Die Korrektur 0.3.3 unterscheidet bei der Updateprüfung zwischen aktuellem Stand,
+laufendem Download, bereitem Update und Fehler. Eine Verknüpfung nutzt denselben
+Updateweg wie der Browser; eine native Installation ist dafür nicht erforderlich.
 
 Die Web-App wird über den Branch gh-pages im bestehenden öffentlichen Repository
 bereitgestellt. GitHub hat den erneuten Veröffentlichungslauf für 0.3.2 erfolgreich
@@ -386,7 +390,7 @@ des Updates keine zweite Installation starten und keinen Quellcode bearbeiten.
 
 ## Nachweise und Grenzen
 
-`npm run test:all`: Typprüfung, Build, **98 Einzeltests und 52 Chromium-
+`npm run test:all`: Typprüfung, Build, **98 Einzeltests und 53 Chromium-
 Browsertests**. Der gebaute Anwendungsserver wird getestet, einschließlich
 echtem lokalem Stockfish. Schlüsseltests verwenden ausschließlich bedeutungslose
 Testwerte, Provider-/Update-Tests lokale Fixtures. Die bestätigte Web-Updateübernahme wurde mit einem echten Service Worker auf

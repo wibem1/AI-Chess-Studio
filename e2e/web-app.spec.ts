@@ -4,6 +4,7 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {test,expect,type Page} from '@playwright/test';
 import {REVIEW_PGN} from '../test/fixtures/review-game.js';
+import {APP_VERSION} from '../src/version.js';
 const secret='fixture-web-local-api-secret',password='fixture-device-password';
 const reply={message:'Lass uns zuerst deinen Plan verstehen.',plan:'Zentrum prüfen',opponent:'Möglicher Gegenplan',risks:'Antwort beachten',playability:'Verständlich spielen',humanFactors:{idea:'Idee prüfen',calculation:'Rechnen',pitfalls:'Antwort beachten',continuation:'Plan fortsetzen'},candidates:[],openQuestions:['Was möchtest du erreichen?']};
 async function start(page:Page){await page.goto('/?platform=web');await expect(page.locator('#workspace')).not.toHaveAttribute('inert','');await expect(page.locator('#platform-status')).toContainText('Eigenständige Web-App');}
@@ -71,12 +72,31 @@ test.describe('offline shell',()=>{
    await page.goto(`http://127.0.0.1:${address.port}/?platform=web`);await expect(page.locator('#workspace')).not.toHaveAttribute('inert','');
    await page.getByRole('tab',{name:'Lernen',exact:true}).click();await page.locator('#question').fill('Mein noch ungesendeter Plan');
    await settings(page);await page.locator('#pwa-tools > summary').click();await expect(page.locator('#pwa-status')).toContainText('Offline-Start vorbereitet');await expect.poll(()=>page.evaluate(()=>!!navigator.serviceWorker.controller)).toBe(true);
-   const sw=join(folder,'web','service-worker.js'),html=join(folder,'web','index.html');writeFileSync(sw,readFileSync(sw,'utf8').replace('chess-studio-shell-','chess-studio-shell-update-fixture-'));writeFileSync(html,readFileSync(html,'utf8').replace('</head>','<meta name="test-build" content="2"></head>'));
-   await page.locator('#pwa-check').click();await expect(page.locator('#pwa-apply')).toBeEnabled({timeout:10000});await expect(page.locator('meta[name=test-build]')).toHaveCount(0);
+   await page.locator('#pwa-check').click();await expect(page.locator('#pwa-status')).toContainText(`Version ${APP_VERSION} ist aktuell`);await expect(page.locator('#pwa-apply')).toBeDisabled();
+   const sw=join(folder,'web','service-worker.js'),html=join(folder,'web','index.html');writeFileSync(sw,readFileSync(sw,'utf8').replace('chess-studio-shell-','chess-studio-shell-update-fixture-')+"\nself.addEventListener('install',event=>event.waitUntil(new Promise(resolve=>setTimeout(resolve,1500))));");writeFileSync(html,readFileSync(html,'utf8').replace('</head>','<meta name="test-build" content="2"></head>'));
+   await page.locator('#pwa-check').click();await expect(page.locator('#pwa-status')).toContainText('Web-Update wird heruntergeladen');await expect(page.locator('#pwa-apply')).toBeEnabled({timeout:10000});await expect(page.locator('meta[name=test-build]')).toHaveCount(0);
    await page.locator('#pwa-apply').click();await expect(page.locator('#pwa-status')).toContainText('Neuladen bestätigen');await expect(page.locator('meta[name=test-build]')).toHaveCount(0);
    await page.locator('#pwa-update-consent').check();await Promise.all([page.waitForEvent('load'),page.locator('#pwa-apply').click()]);await expect(page.locator('meta[name=test-build]')).toHaveAttribute('content','2');
    await page.getByRole('tab',{name:'Lernen',exact:true}).click();await expect(page.locator('#question')).toHaveValue('Mein noch ungesendeter Plan');
   }finally{await page.goto('about:blank');await new Promise<void>(resolve=>server.close(()=>resolve()));rmSync(folder,{recursive:true,force:true});}
+ });
+
+ test('failed update download keeps the existing app and allows a later successful check',async({page,context})=>{
+  const folder=mkdtempSync(join(tmpdir(),'chess-pwa-failure-'));cpSync('web-dist',join(folder,'web'),{recursive:true});
+  const server=createStudioServer({webRoot:join(folder,'web'),credentialsPath:join(folder,'credentials.json'),env:{CHESS_ENABLE_PAID_API:'0'}});
+  let rejectWorker=false;const serve=server.listeners('request')[0]!;server.removeAllListeners('request');server.on('request',(req,res)=>{if(rejectWorker&&req.url==='/service-worker.js'){res.writeHead(503);res.end();}else serve.call(server,req,res);});
+  await new Promise<void>(resolve=>server.listen(0,'127.0.0.1',resolve));const address=server.address();if(!address||typeof address==='string')throw new Error('Testserver fehlt.');
+  try{
+   await page.goto(`http://127.0.0.1:${address.port}/?platform=web`);await expect(page.locator('#workspace')).not.toHaveAttribute('inert','');
+   await page.getByRole('tab',{name:'Lernen',exact:true}).click();await page.locator('#question').fill('Mein Plan bleibt erhalten');
+   await settings(page);await page.locator('#pwa-tools > summary').click();await expect(page.locator('#pwa-status')).toContainText('Offline-Start vorbereitet');await expect.poll(()=>page.evaluate(()=>!!navigator.serviceWorker.controller)).toBe(true);
+   const sw=join(folder,'web','service-worker.js'),original=readFileSync(sw,'utf8');
+   writeFileSync(sw,original+"\nself.addEventListener('install',event=>event.waitUntil(Promise.reject(new Error('fixture install failure'))));");
+   await page.locator('#pwa-check').click();await expect(page.locator('#pwa-status')).toContainText('Herunterladen fehlgeschlagen');await expect(page.locator('#pwa-apply')).toBeDisabled();
+   rejectWorker=true;await page.locator('#pwa-check').click();await expect(page.locator('#pwa-status')).toContainText('Updateprüfung fehlgeschlagen');await expect(page.locator('#pwa-check')).toBeEnabled();
+   rejectWorker=false;writeFileSync(sw,original);await page.locator('#pwa-check').click();await expect(page.locator('#pwa-status')).toContainText(`Version ${APP_VERSION} ist aktuell`);
+   await page.reload();await page.getByRole('tab',{name:'Lernen',exact:true}).click();await expect(page.locator('#question')).toHaveValue('Mein Plan bleibt erhalten');
+  }finally{await context.setOffline(false);await page.goto('about:blank');await new Promise<void>(resolve=>server.close(()=>resolve()));rmSync(folder,{recursive:true,force:true});}
  });
 
 });

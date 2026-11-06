@@ -121,3 +121,14 @@ Projektpfades auf /AI-Chess-Studio/ auf und bleibt stabil. Eine Installation auf
 Windows ist kein Nachweis einer Androidinstallation. Die native Chrome-Meldung
 muss am konkreten Dialog/Browser geprüft werden; nicht durch wechselnde IDs,
 Datenlöschung oder einen behaupteten erfolgreichen Androidtest überdecken.
+
+
+## Updateanzeige 0.3.3
+
+Die App-Version auf dem letzten Android-Screenshot war bereits 0.3.2, die zu
+diesem Zeitpunkt neueste veröffentlichte Fassung. Eine Verknüpfung ändert den
+Updateweg nicht. Ab 0.3.3 meldet die Prüfung ausdrücklich „Version … ist aktuell“,
+wenn der Server keinen neuen Worker liefert; Download/Fehler/bereit sind getrennt.
+Übernahme weiterhin unter Einstellungen → App auf diesem Gerät → Web-App auf
+Updates prüfen → Zustimmung zum Sichern/Neuladen → Bereites Web-Update übernehmen.
+Eine native Installation ist für diesen Ablauf nicht erforderlich.

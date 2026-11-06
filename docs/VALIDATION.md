@@ -999,3 +999,32 @@ dann Installation erneut versuchen. Genauigkeit und offene Gerätebestätigung
 unter docs/ANDROID_INSTALLATION.md. Keine App-Code-/Manifest-/Datenänderung,
 kein neuer Build oder Deployment, keine bezahlte Anfrage. Kein vollständiger
 Nutzer-Diagnoseinhalt in Git. Vorheriger App-Prüfstand bleibt unverändert.
+
+
+## Web-Updateanzeige 0.3.3 – 6. November 2026
+
+Befund: Nutzer-Screenshot bereits 0.3.2; erneuter Abruf des öffentlichen
+BUILD.json bestätigt dieselbe neueste Version. GitHub-Lauf 42253628918 für
+47427bd erneut SUCCESS. Kein neuer Stand zum Zeitpunkt der Meldung vorhanden;
+daraus keine native Android-Updateabnahme ableiten.
+
+Korrektur: eindeutige Meldung mit laufender Version bei unverändertem Worker,
+Downloadphase, bereites Update, abgebrochene Worker-Installation und fehlgeschlagene
+Prüfung. Bereits laufender Installer wird beim Start beobachtet; Prüfung erst
+nach Registrierung freigegeben. Keine Speicherlöschung/Manifeständerung.
+
+Prüfung: npm run test:all mit Typprüfung, beiden Builds, 98/98 Einzeltests und
+53/53 Chromiumfällen bestanden. Neue Fehlerregression: echte Worker-Installation
+absichtlich abgelehnt, anschließend Worker-HTTP-Abruf 503; Update bleibt gesperrt,
+Prüfung erneut möglich, Rückkehr zur unveränderten Fassung und Entwurf erhalten.
+Bestehender Übernahmetest erweitert: unverändert, absichtlich langsamer Download,
+Bestätigung und erhaltene Sitzung. Nach Bereinigung abgeschlossener State-Listener
+beide Builds und die vier relevanten Pages-/Offlinefälle nochmals bestanden.
+
+Zusätzlicher realer Versionswechsel auf lokalem Pages-Unterordner: unveränderte
+0.3.2-Dateien aus dem bisherigen pages-dist (JS-SHA-256 identisch mit öffentlichem
+BUILD.json) geladen, Server auf neuen pages-dist umgestellt. Alter Updateknopf
+findet 0.3.3, übernimmt erst nach Zustimmung und erhält Nachrichtenentwurf;
+anschließende Prüfung meldet Version 0.3.3 aktuell. Keine Provideranfrage.
+Dies prüft echten Service Worker/Chromium, keine native Android-Installation
+und keine direkte Live-Abnahme der vom Proxy gesperrten github.io-Adresse.

@@ -1,5 +1,14 @@
 # Änderungen
 
+## 0.3.3 – eindeutige Web-Updateanzeige, 6. November 2026
+
+- Updateprüfung meldet ausdrücklich die aktuelle Version, wenn keine neue
+  Fassung gefunden wird, statt einen Download anzudeuten.
+- Laufender Download, bereites Update und fehlgeschlagene Installation werden
+  getrennt angezeigt. Bereits laufende Installation beim Start wird beobachtet.
+- Übernahme bleibt von Zustimmung und erfolgreicher Sitzungssicherung abhängig.
+  Keine Änderung an Appkennung, Schlüsselfach oder Sitzungsspeicher.
+
 ## Veröffentlichungskontrolle – 6. November 2026, App bleibt 0.3.2
 
 - Ausgebliebenes Update auf GitHub-deploy-Timeout eingegrenzt. Einmaliger neuer

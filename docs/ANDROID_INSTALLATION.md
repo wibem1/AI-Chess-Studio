@@ -41,19 +41,26 @@ AppInstallMenuHandler.doUniversalInstall liefert dessen Installed-Bool.
 Chrome://web-app-internals wurde nicht empfohlen: die Konfiguration ist im
 geprüften Quellstand nur außerhalb Android registriert.
 
-## Nächster gezielter Schritt
+## Aktueller Gerätebefund und nächster Schritt
 
-Chrome über den Google Play Store auf eine Version mit dem Fix aktualisieren;
-belegt ist 157.0.8103.73. Danach Installation erneut versuchen. Keine Daten-
-löschung und keine zufällige Änderung unserer Manifest-ID als Ersatz.
-Ob ein passendes Update für das konkrete Gerät bereits angeboten wird und die
-Installation danach gelingt, muss der Nutzer am Gerät bestätigen. Chrome-
-Ursache ist aufgrund des Versions-/Symptomvergleichs sehr plausibel, nicht durch
-einen nativen Gerätetest des Agenten endgültig bewiesen.
+Der Nutzer bestätigt mit Play-Store-Screenshot Chrome 156.0.8078.79 und dass
+kein neueres Update angeboten wird. Ein Chrome-Update ist deshalb derzeit kein
+verfügbarer Lösungsschritt. Die Scope-Korrektur ist im oben geprüften
+157.0.8103.73-Stand vorhanden; dessen Verfügbarkeit auf diesem Gerät ist nicht
+gegeben. Keine Datenlöschung und keine Änderung unserer Manifest-ID.
+
+Auch eine Verknüpfung meldet laut Nutzer kein erfolgreiches App-Update. Das ist
+von der nativen Installation getrennt zu prüfen: 0.3.2 war bei erneuter Prüfung
+noch die neueste veröffentlichte Version und ist im Nutzer-Screenshot bereits
+sichtbar. Eine Verknüpfung nutzt denselben Service-Worker-Updateweg. Sie repariert
+keine native Installationsdatenbank. Die Updateanzeige wird in 0.3.3 eindeutig
+zwischen unverändert, Download, bereit und fehlgeschlagen unterscheiden.
+Native Installation und Updateabnahme auf dem Gerät bleiben offen.
 
 Die Datei-Meldung „Server nicht erreichbar“ stammt vom Aufruf des Desktop-
 Diagnoseendpunkts. Bei statischem GitHub Pages ist dieser nicht vorhanden; die
 Meldung belegt keinen Installationsfehler. Die bestehende Bedienungsdiagnose
 enthält keine native Chrome-Installationsdatenbank. Deren Grenzen offen benennen.
-Keine App-Codeänderung, neue Veröffentlichung oder bezahlte Anfrage für diese
-Untersuchung. Keine Behauptung einer bereits behobenen Androidinstallation.
+Die ursprüngliche Ursachenuntersuchung veränderte keinen App-Code. Die separate
+Updateanzeige-Korrektur 0.3.3 ist in CHANGELOG und VALIDATION dokumentiert. Keine
+bezahlte Anfrage. Keine Behauptung einer bereits behobenen Androidinstallation.

@@ -1,6 +1,6 @@
 # Projektstand
 
-Stand: 6. November 2026 · ausgelieferte Basis **0.2.0**, Pages-Korrektur **0.3.2**
+Stand: 6. November 2026 · Web-App **0.3.3** vorbereitet, bisher veröffentlicht **0.3.2**
 
 Veröffentlichungsauftrag: öffentliche Web-App über kostenloses GitHub Pages,
 **im bestehenden Repository AI-Chess-Studio**, kein neues Repository. Version
@@ -12,9 +12,16 @@ Commit 47427bd700213e6b22412dec23c5df9201bb664a. Der vorherige Lauf für
 Datei-Upload war deshalb noch kein verfügbares App-Update. Einmaliger neuer Lauf
 erfolgreich, kein zusätzlicher Workflow. Eigener Live-Abruf auf github.io bleibt
 am Netzwerkproxy gesperrt; die Bestätigung stammt aus dem exakten GitHub-Lauf.
-Android meldet laut Nutzer „bereits installiert“, obwohl nur Windows installiert
-wurde. Ursache auf Android noch offen; keine geräteübergreifende App-Installation
-angenommen. Rückfrage nach Versionsnummer und Ort der Meldung gestellt.
+Android-Installation: Chrome 156.0.8078.79 laut Play-Store-Screenshot; Nutzer
+bestätigt, dass kein neueres Update angeboten wird. Chromium-Fehler bei
+Same-Origin-PWAs passt zu den Meldungen; native Ursache/Behebung nicht bestätigt.
+Die Verknüpfung behebt diesen Browserfehler nicht. Kein weiterer Reset empfohlen.
+Neue Nutzermeldung: auch über die Verknüpfung funktioniere Updaten nicht.
+Nachprüfung: veröffentlichter Stand weiterhin 0.3.2, dieselbe Version wie auf
+seinem Screenshot; es gab noch keine neuere Fassung. Das belegt nicht jede
+Updatefunktion auf dem Gerät, erklärt aber das fehlende Versionsangebot.
+0.3.3 korrigiert die unklare Anzeige bei unverändertem Stand und fehlendem
+Download; bestehende Appkennung und Nutzerspeicher bleiben erhalten.
 Konkrete Schritte und Updatebefehl: docs/WEB_PUBLISHING.md.
 
 ## Verbindliches Ziel
@@ -280,3 +287,15 @@ weiterer Reset oder Manifest-ID-Wechsel. Welche andere Same-Origin-App auf dem
 Gerät vorhanden ist, wurde nicht nachgewiesen; native Abnahme weiter offen.
 Details und Quellen: docs/ANDROID_INSTALLATION.md. Originale Nutzerdatei und
 vollständige Browserkennung nicht in das öffentliche Repository übernommen.
+
+
+## Updateanzeige 0.3.3 geprüft
+
+Unverändert/Download/bereit/fehlgeschlagen ausdrücklich getrennt; keine Änderung
+an Appkennung oder Datenspeicher. npm run test:all: 98/98 Einzeltests, 53/53
+Chromiumfälle. Abschließende Root-/Pages-Builds und vier PWA-/Pages-Fälle nach
+Listenerbereinigung erneut bestanden. Echter lokaler Übergang aus veröffentlichtem
+0.3.2-Build zu 0.3.3 mit Zustimmung, erhaltenem Entwurf und anschließender
+Aktuell-Meldung bestanden. Native Android-Abnahme weiterhin offen.
+Nächster Schritt: 0.3.3 über denselben gh-pages-Branch bereitstellen und den
+exakten GitHub-Lauf kontrollieren, danach kurze Geräteprüfung durch Nutzer.
