@@ -1,6 +1,6 @@
 # Projektstand
 
-## Vorbereitet: 0.13.0 – Varianten blättern, Stellungen übergeben, ruhiges Brett
+## Aktuell veröffentlicht: 0.13.0 – Varianten blättern, Stellungen übergeben, ruhiges Brett
 
 Nutzerwunsch nach Praxisabnahme von 0.12.0: Vor/Zurück an der aktuellen
 Lernstellung, jede Stellung in den anderen Modus übergeben und kein springendes
@@ -39,10 +39,18 @@ geprüft. Keine bezahlte KI-Anfrage oder native Geräteabnahme.
 Kein neuer vollständiger Lauf aller älteren Browserfälle; Prüfgrenzen aus
 0.12.0 bleiben ausdrücklich bestehen.
 
-Auf work gesichert, noch nicht veröffentlicht. Live bleibt 0.12.0.
-Nächster Schritt: Veröffentlichung auf ausdrücklichen Auftrag, danach Praxisabnahme.
+Am 7. November 2026 nach ausdrücklichem Auftrag veröffentlicht.
+Quelle 7bce4c01d21bb8af26c1585f49aebd0a7c56edb5; gh-pages
+2333a9f4fcd3fb6e40a00a4c63c2b04bf5fc4c16. Pages-Run 42407105406 SUCCESS:
+https://github.com/wibem1/AI-Chess-Studio/actions/runs/42407105406
+Direktes Live-BUILD.json vollständig mit vorbereitetem Manifest identisch.
+Version/Quelle sowie Live-SHA-256 von index.html, service-worker.js,
+assets/index-BJesWPVd.js und assets/index-umAiEBsq.css bestätigt.
+Keine kostenpflichtigen KI-Aufrufe oder neue native Abnahme.
+Nächster Schritt: Nutzer übernimmt das verfügbare Web-Update und prüft
+Vor/Zurück, Stellungsübergabe und ruhiges Brett in seiner Geräteumgebung.
 
-## Aktuell veröffentlicht: 0.12.0 – kompakter Arbeitsbereich und KI-Lehrdiagramme
+## Zuvor veröffentlicht: 0.12.0 – kompakter Arbeitsbereich und KI-Lehrdiagramme
 
 Nutzerauftrag nach Praxisabnahme von 0.11.2: mehr Platz für Brett/Chat, weniger
 Erklärtexte und Optionen, Technik aus dem Blickfeld, Modell oben; KI soll

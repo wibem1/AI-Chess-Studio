@@ -1,6 +1,6 @@
 # Änderungen
 
-## 0.13.0 – Stellungen zwischen Modi übernehmen (vorbereitet)
+## 0.13.0 – Stellungen zwischen Modi übernehmen (veröffentlicht am 7. November 2026)
 
 - Vor-/Zurück-Buttons unmittelbar am Brett; Vor folgt der aktuellen Lernvariante.
 - Stellung spielen und Stellung lernen übergeben die sichtbare Position gezielt

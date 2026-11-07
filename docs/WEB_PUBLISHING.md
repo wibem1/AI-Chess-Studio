@@ -191,3 +191,17 @@ SHA-256 von index.html, service-worker.js, assets/index-BxlHw25U.js und
 assets/index-BL6wUJ7P.css bestätigt. Native Nutzer-/Anbieterabnahme getrennt.
 Prüfgrundlage 156 Einzeltests und 14 gezielte Browserfälle; kein neu behaupteter
 vollständiger Browsergesamtlauf. Keine kostenpflichtige KI-Anfrage.
+
+
+## Veröffentlichung 0.13.0 am 7. November 2026
+
+Gesicherte Quelle 7bce4c01d21bb8af26c1585f49aebd0a7c56edb5 unverändert
+für /AI-Chess-Studio/ gebaut. gh-pages 2333a9f4fcd3fb6e40a00a4c63c2b04bf5fc4c16;
+23 öffentliche Dateien, fortlaufender Commit über verbundenen GitHub-Zugang.
+Run 42407105406 SUCCESS:
+https://github.com/wibem1/AI-Chess-Studio/actions/runs/42407105406
+Direktes Live-BUILD.json vollständig mit vorbereitetem Manifest identisch;
+SHA-256 von HTML, Service Worker, assets/index-BJesWPVd.js und
+assets/index-umAiEBsq.css bestätigt. Prüfgrundlage 160 Einzeltests und
+18 gezielte Browserfälle; kein neuer vollständiger Browsergesamtlauf oder
+native Geräte-/echte Anbieterabnahme behauptet. Keine bezahlten KI-Anfragen.
