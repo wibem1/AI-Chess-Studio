@@ -1,3 +1,27 @@
+# Nicht integrierter Korrekturstand: iPad-PGN-Import (8. November 2026)
+
+Branch `fix/ipad-pgn-import-20261108` – **implementiert, nicht gebaut oder getestet, nicht veröffentlicht**.
+Ausgangspunkt: Branch `work`, Stand 0.15.0. Bezug: Issue #1.
+
+- Datei-Input ohne starren HTML-`accept`-Filter; auf iPadOS/Safari soll eine
+  PGN-Datei auch bei abweichender UTType-/MIME-Erkennung auswählbar sein.
+  Nach Auswahl kontrolliert weiterhin der Importer den Inhalt; Bilddateien
+  werden ausdrücklich abgewiesen.
+- Der Dateilader gibt den konkreten Parser-/Sicherungsfehler gekürzt als
+  Status aus, statt sämtliche Fehler mit „ungültig oder nicht lesbar“ zu verdecken.
+- PGN-Textnormalisierung für Unicode-Zeilentrenner U+2028/U+2029/U+0085;
+  strenger Parser zuerst, kompatibler Modus als Fallback. Original-Zugfolge
+  und Rohtext bleiben für den erfolgreichen Import erhalten, soweit
+  Eingangsnormalisierung nicht erforderlich ist.
+- Neue Einzeltests für Unicode-Trenner, PGN-Inhalt mit `.pgn`, `.txt` und
+  unbekannter Endung sowie Ablehnung ungeeigneter Inhalte.
+- **Noch offen:** Typprüfung, Build, sämtliche Tests, echte iPad-Safari-
+  Dateiauswahl, Import der Original-Lichess-Datei, eventuell PGN-Text-
+  Eingabefallback. Diese Prüfungen sind nicht erfolgt; keine Freigabe.
+- Aktuell gesicherter, veröffentlichter Stand bleibt 0.15.0 auf `work`.
+  Integration erst nach Prüfungen und Konfliktabgleich mit Codex, keine
+  unkoordinierte parallele Bearbeitung von `work`.
+
 # Projektstand
 
 ## Aktuell veröffentlicht: 0.15.0 – Fremde PGN-Partien direkt laden
