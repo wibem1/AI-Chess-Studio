@@ -35,3 +35,9 @@ test('well-shaped responses with illegal candidates are rejected', async () => {
   await assert.rejects(studio.ask('Plan?', adapter), /Zugvorschläge/);
   assert.equal(studio.session.snapshot().annotations.length, 0);
 });
+
+test('demo provides no arbitrary legal-move tips or generic opening strategy',async()=>{
+ const studio=new Studio();await studio.ask('Analysiere die Stellung',new SimulationAdapter());
+ const answer=studio.session.snapshot().annotations.at(-1)!;
+ assert.deepEqual(answer.suggestions,[]);assert.match(answer.text,/Hier antwortet keine KI/);assert.doesNotMatch(answer.text,/Zentrumskontrolle|Keine legalen Züge/);
+});

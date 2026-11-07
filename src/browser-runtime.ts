@@ -21,7 +21,7 @@ export class BrowserRuntime {
  private channel=typeof window!=='undefined'&&typeof BroadcastChannel!=='undefined'?new BroadcastChannel('chess-studio-vault'):null;
  constructor(readonly store=new BrowserStore(),private transport:typeof fetch=(input,init)=>fetch(input,init)){if(this.channel)this.channel.onmessage=event=>{this.vaultEpoch++;this.config=null;this.restoring=event.data==='changed'?undefined:Promise.resolve();window.dispatchEvent(new Event('chess-vault-change'));};}
  private restoreDevice(){return this.restoring??= (async()=>{const epoch=this.vaultEpoch,record=await this.store.get<StoredVault>('vault');if(record?.version===2){try{const config=await openDeviceConfig(record);if(epoch===this.vaultEpoch)this.config=config;}catch{if(epoch===this.vaultEpoch)this.config=null;}}})();}
- async status(){await this.restoreDevice();const c=(await this.store.budget(ledger=>ledger.snapshot())).state;return {available:!!this.config,remaining:Math.max(0,Math.min(3-this.attempts,3-c.requests))};}
+ async status(){await this.restoreDevice();const c=(await this.store.budget(ledger=>ledger.snapshot())).state,record=await this.store.get<StoredVault>('vault');return {available:!!this.config,saved:!!record,locked:!!record&&!this.config,limit:this.attempts>=3?'window':c.requests>=3?'period':c.estimatedUsd>=c.budgetUsd?'budget':null,remaining:Math.max(0,Math.min(3-this.attempts,3-c.requests))};}
  async handle(path:string,method:string,raw?:any):Promise<any>{
   await this.restoreDevice();
   if(path==='/api/status'&&method==='GET')return this.status();
@@ -77,7 +77,7 @@ export class BrowserRuntime {
   const request=parseRequest(raw);
   if(this.busy||this.attempts>=3)throw new ApiError(429,'Anfragelimit erreicht oder Anfrage läuft.');
   const {turns=[],...current}=request;
-  const body=JSON.stringify({model:config.model,max_completion_tokens:800,response_format:{type:'json_object'},messages:[{role:'system',content:SYSTEM_PROMPT},...turns.map(t=>({role:t.role,content:`[Stellung ${t.nodeId}] ${t.text}`})),{role:'user',content:JSON.stringify(current)}]});
+  const body=JSON.stringify({model:config.model,max_completion_tokens:800,response_format:{type:'json_object'},messages:[{role:'system',content:SYSTEM_PROMPT},...turns.map(t=>({role:t.role,content:`[Stellung ${t.nodeId}${t.fen?`, FEN ${t.fen}`:''}] ${t.text}`})),{role:'user',content:JSON.stringify(current)}]});
   if(new TextEncoder().encode(body).length>24000)throw new ApiError(400,'Modellkontext ist zu groß.');
   this.busy=true;let reserved=0,started=false;
   try{

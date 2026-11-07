@@ -1,9 +1,10 @@
 # AI-Chess-Studio
 
-Aktueller veröffentlichter Funktionsstand: **0.7.0**, GitHub-Bereitstellung bestätigt; native Nutzerabnahme steht noch aus. Änderungen: [CHANGELOG.md](CHANGELOG.md).
+**0.8.0 vollständig geprüft, Bereitstellung ausstehend**; letzter bestätigter Webstand 0.7.0. Änderungen: [CHANGELOG.md](CHANGELOG.md).
 Ein großes gemeinsames Schachbrett und zwei Modi für dein persönliches Lernen.
 Auf dem Desktop steht das vollständige, vergrößerte Brett oben; Status und
-Werkzeuge darunter. Kleine Touchansichten behalten ihre bisherige Anordnung.
+Werkzeuge darunter. Im Lernmodus stehen Zugnavigation und Brett vor dem Chat;
+technische Einstellungen und weitere Werkzeuge folgen darunter.
 
 ## Spielen und lernen
 
@@ -16,8 +17,13 @@ Werkzeuge darunter. Kleine Touchansichten behalten ihre bisherige Anordnung.
    Das funktioniert auch, während der Gegner noch rechnet.
 2. Bei einer Frage auf **Lernmodus** umschalten. Der Gegner pausiert. Auf demselben
    Brett Züge für beide Seiten ausprobieren, mit „Zug zurück“ zurückgehen oder
-   mit „Zur Partiestellung“ neu ansetzen.
-3. Direkt im Chat nach Ideen, Erklärungen und Gegenplänen fragen. Die Lernengine
+   mit „Zur Partiestellung“ neu ansetzen. Auch abgeschlossene Partien lassen
+   sich über den anklickbaren Zugverlauf, „Anfang“ und „Zug vor“ durchgehen.
+3. Direkt unter dem Brett **„Stellung besprechen“** oder **„Partie besprechen“**
+   wählen oder eine eigene Nachricht schreiben. Diese Analyseknöpfe liefern
+   eine Erklärung auch dann, wenn früher nur Leitfragen gewählt wurden.
+   Eine eigene Nachricht bezieht sich auf die gerade ausgewählte Stellung.
+   Direkt im Chat nach Ideen, Erklärungen und Gegenplänen fragen. Die Lernengine
    kennt Brettstellung und Zugfolge; keine manuelle Übertragung nötig. „Zug zeigen“
    führt einen geprüften Vorschlag im Lernzweig vor und markiert Start/Ziel.
    „Zug kommentieren“ sendet eine Frage zum gerade ausprobierten Zug, nach dem
@@ -37,7 +43,8 @@ Stellungsbeurteilung (Vorteil Weiß/Schwarz, ausgeglichen oder unklar) und
 konkrete Gefahren. Material, Zugrecht, Schach/Matt und Mattzüge in einem werden
 separat aus dem Brett regelgeprüft. KI-Einschätzungen bleiben fehlbar; sie sind
 keine nachgewiesene Engineanalyse. Leitfragen und kleine Hinweise bleiben
-bewusst zurückhaltend. Im Demo-Modus antwortet keine echte Lernengine.
+bewusst zurückhaltend. Im Demo-Modus antwortet keine echte Lernengine; er gibt daher keine erfundenen
+Strategien oder beliebigen Zugempfehlungen aus.
 
 **Maia-2 als Alternative:** Beim Spielgegner Maia wählen und eines der Profile
 1100–1900 einstellen. Sie berechnet menschliche Zugwahrscheinlichkeiten lokal
@@ -48,6 +55,20 @@ Eröffnungszüge sind eine Modellschwäche. [Details und Quellen](docs/MAIA.md).
 
 Der Humanfaktor bleibt verbindlich: eigene Gedanken, verständliche Pläne und
 praktische Schwierigkeiten besprechen, keine bloße Enginezahlenanalyse.
+
+## Gespeicherter Schlüssel und Demo-Anzeige
+
+„Schlüssel lokal speichern und KI aktivieren“ wählt ausdrücklich den eigenen
+KI-Zugang; zum nächsten Start bleibt diese Moduswahl erhalten. Vorhandene
+Schlüssel werden weiterhin lokal geladen, ohne zusätzliche Eingabe und ohne
+Testanfrage beim Anbieter. Eine ausdrücklich gewählte Demo lässt sich am Chat
+über „Gespeicherten KI-Zugang verwenden“ verlassen.
+
+Ein gesperrtes Schlüsselfach oder ausgeschöpftes Limit bedeutet **„KI gesperrt“**,
+nicht Demo. Der Chat nennt den Grund und führt direkt zum Zugang oder zur
+Kostenkontrolle. Das bestehende Limit von drei Versuchen pro Fenster/Serverstart
+und Budgetperiode bleibt bestehen; es wird weder beim Speichern noch durch
+ein Update zurückgesetzt. Keine automatische neue Kostenfreigabe.
 
 ## Partien speichern und laden
 

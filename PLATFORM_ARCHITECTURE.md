@@ -109,3 +109,16 @@ nicht Teil des verpflichtenden Offline-Shell-Downloads, keine Zugangsdaten.
 Modellfehler pausieren das Spiel; kein stiller Ersatz durch Stockfish.
 Die optionale `game.opponent`-Angabe bleibt in JSON-Partien erhalten; vorhandene
 Partien ohne Angabe bedeuten weiterhin Stockfish. Details in docs/MAIA.md.
+
+## Lernoberfläche und Zugang ab 0.8.0
+
+Gemeinsames Brett im Lernmodus mit Zugnavigation und anschließendem Chat;
+weitere Werkzeuge liegen darunter. Der Partiecursor bleibt bei Analyseauswahl
+unverändert. Dialoganfragen tragen aktuelle FEN, Figurenliste und bei einer
+Gesamtbesprechung begrenzte replay-geprüfte Ereignisse; ältere Gesprächsturns
+tragen ihren eigenen FEN-Bezug. Vorhandene Engineberichte werden mit Wert,
+Variante und Suchgrenzen übergeben, ohne zusätzliche Engineanalyse auszulösen.
+Browserstatus unterscheidet gespeichertes Fach, gesperrten Zugang und verbleibende
+Anfragen. Eine Kostensperre ist kein Demo-Modus; Profile und Budgets werden
+beim Wechsel oder Update nicht gelöscht. Die explizite Moduspräferenz enthält
+keine Geheimnisse und liegt separat in localStorage.

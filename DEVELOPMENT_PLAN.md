@@ -4,6 +4,21 @@ Verbindliche Zielkorrektur aus den Nutzerklarstellungen vom 5. und 6. November 2
 Die folgende Zwei-Modi-Konzeption ersetzt die bisherige Aufteilung in vier
 gleichrangige Arbeitsbereiche.
 
+## Korrektur vom 7. November: Analyse bedienen und KI-Zugang erkennen
+
+0.8.0: Chat direkt unter dem Brett, Technik nach unten. Sichtbarer Zugverlauf
+zum Durchgehen laufender und abgeschlossener Partien; Analysezweige bleiben vom
+Partiecursor getrennt. Explizite Analyseknöpfe statt versteckter Themen-/Hilfestufen.
+Eigene Rückfragen bleiben an der gewählten Brettstellung. KI-Zugangserkennung
+richtet sich nach dem gespeicherten Fach, nicht nach einem freien Anfrageplatz:
+vorhandener, aber blockierter Zugang bleibt eigene KI mit genanntem Sperrgrund.
+Keine ungefragte Budgetfreigabe oder Anbieteranfrage durch Speichern/Neustarten.
+
+Lernqualität: keine künstlichen Demo-Strategien, direkte Erklärungen zuerst,
+Fakten und Suchbefunde an ihre FEN binden. Belegte Verlaufsereignisse sind keine
+Blunderwertung. Reale Modellqualität benötigt weiterhin konkrete Anwendungs-
+belege; Antwortfixtures allein belegen nur den Vertrag und die Darstellung.
+
 ## Ergänzung vom 6. November: Schrift, Rücknahme, klare Beurteilung, Maia
 
 - Schriftgröße im Kopfbereich dauerhaft lokal einstellbar (80–200 %).

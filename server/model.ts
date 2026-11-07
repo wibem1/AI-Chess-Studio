@@ -74,7 +74,7 @@ export class ModelService {
     if (this.busy || this.attempts >= 3) throw new ApiError(429, 'Anfragelimit erreicht.');
     const {turns=[],...currentRequest}=request;
     const body=JSON.stringify({model:this.config.model,max_completion_tokens:800,response_format:{type:'json_object'},
-      messages:[{role:'system',content:SYSTEM_PROMPT},...turns.map(t=>({role:t.role,content:`[Stellung ${t.nodeId}] ${t.text}`})),{role:'user',content:JSON.stringify(currentRequest)}]});
+      messages:[{role:'system',content:SYSTEM_PROMPT},...turns.map(t=>({role:t.role,content:`[Stellung ${t.nodeId}${t.fen?`, FEN ${t.fen}`:''}] ${t.text}`})),{role:'user',content:JSON.stringify(currentRequest)}]});
     let reservation:number;
     try {reservation=this.costs.reserve(Buffer.byteLength(body),800);}catch{throw new ApiError(402,'Lokales Anfrage- oder Kostenbudget erreicht.');}
     this.attempts++; this.busy = true;

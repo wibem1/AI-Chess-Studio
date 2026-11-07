@@ -8,7 +8,7 @@ import { Session } from '../src/session.js';
 // Follow the new user navigation with real clicks; never force hidden controls open.
 async function reveal(page: Page, target: Locator): Promise<Locator> {
  if(await target.evaluate(e=>!!e.closest('#scroll-help-actions'))&&!(await page.locator('#scroll-help-actions').isVisible()))await page.locator('#scroll-help-toggle').click();
- const location=await target.evaluate(element=>({panel:element.closest('#panel-settings,#panel-variants,[role=tabpanel]')?.id,board:!!element.closest('#board-area')}));
+ const location=await target.evaluate(element=>({panel:element.closest('#learning-chat,#learning-controls')?'panel-learn':element.closest('#panel-settings,#panel-variants,[role=tabpanel]')?.id,board:!!element.closest('#board-area')}));
  if(location.panel){
   await openView(page,location.panel.replace('panel-',''));
  }else if(location.board && !(await page.locator('#board-area').isVisible())){
@@ -60,7 +60,7 @@ test('board input, illegal moves, branches, memory and JSON restoration', async 
   await expect(page.locator('#position-status')).toContainText('n1 · Schwarz');
   await (await reveal(page, page.getByLabel('Deine Nachricht'))).fill('Wie kontrolliere ich das Zentrum?');
   await (await reveal(page, page.getByRole('button', { name: 'Nachricht senden (Simulation)' , includeHidden:true}))).click();
-  await expect(page.locator('#dialogue')).toContainText('Kandidaten (ungeordnet)');
+  await expect(page.locator('#dialogue')).toContainText('Hier antwortet keine KI');await expect(page.locator('#dialogue').getByRole('button',{name:/^Zug zeigen:/})).toHaveCount(0);
   await expect(page.locator('#dialogue')).toContainText('Simulation · Keine reale KI');
   await (await reveal(page, page.getByLabel('Eigene Notiz zur Stellung'))).fill('Zentrum beobachten');
   await (await reveal(page, page.getByLabel('Offene Frage (optional)'))).fill('Wann d4?');
@@ -115,7 +115,7 @@ test('invalid replies and failures show errors, permit retry and never mutate di
   await expect(page.locator('#dialogue')).toBeEmpty();
   await (await reveal(page, page.getByLabel('Testverhalten'))).selectOption('normal');
   await (await reveal(page, page.getByRole('button', { name: 'Nachricht senden (Simulation)' , includeHidden:true}))).click();
-  await expect(page.locator('#dialogue')).toContainText('Gegenplan:');
+  await expect(page.locator('#dialogue')).toContainText('Hier antwortet keine KI');
 });
 
 test('special moves operate through the browser board', async ({ page }) => {
@@ -149,7 +149,7 @@ test('imported text is displayed literally and mobile layout fits', async ({ pag
 
 test('real model is locked by default while simulation remains usable', async ({ page }) => {
   await page.goto('/');
-  await expect(page.locator('#model-status')).toContainText('Reale KI gesperrt');
+  await expect(page.locator('#model-status')).toContainText('Kein aktiver KI-Zugang');
   await (await reveal(page, page.getByLabel('Dialogmodus'))).selectOption('model');
   await expect(page.getByRole('button', { name:'Nachricht senden (reale KI)' , includeHidden:true})).toBeDisabled();
   await (await reveal(page, page.getByLabel('Dialogmodus'))).selectOption('simulation');
@@ -235,7 +235,7 @@ test('API key can be saved locally, stays out of browser storage/export and is r
   await (await reveal(page, page.getByText('Eigenen API-Schlüssel eingeben',{exact:true}))).click();
   await (await reveal(page, page.getByRole('button',{name:'Gespeicherten Schlüssel löschen', includeHidden:true}))).click();
   await expect(page.locator('#api-feedback')).toContainText('Gespeicherter Schlüssel gelöscht');
-  await expect(page.locator('#model-status')).toContainText('Reale KI gesperrt');
+  await expect(page.locator('#model-status')).toContainText('Kein aktiver KI-Zugang');
   expect(modelCalls).toBe(0);
 });
 
@@ -348,7 +348,7 @@ test('learning dialogue integrates engine game, actual model-service transport a
  await (await reveal(page, page.getByRole('button',{name:'Rückfrage aufgreifen: Was möchtest du mit deinem Plan verhindern?', includeHidden:true}))).click();expect(calls).toBe(1);
  await (await reveal(page, page.getByRole('button',{name:'Nachricht senden (reale KI)', includeHidden:true}))).click();await expect(page.locator('#dialogue')).toContainText('zweite Testantwort');expect(calls).toBe(2);
  await (await reveal(page, page.getByRole('button',{name:'n0 · Ausgangsstellung · Partie',exact:true, includeHidden:true}))).click();await play(page,'d4');
- await (await reveal(page, page.getByLabel('Worüber sprechen wir?'))).selectOption('review');await (await reveal(page, page.getByLabel('Deine Nachricht'))).fill('Besprechen wir die wirkliche Partie.');await (await reveal(page, page.getByRole('button',{name:'Nachricht senden (reale KI)', includeHidden:true}))).click();
+ await (await reveal(page, page.getByRole('button',{name:'Partie besprechen',exact:true,includeHidden:true}))).click();
  await expect(page.locator('#position-status')).toContainText(cursor);await expect(page.locator('#dialogue-feedback')).toContainText('Modellantwort');expect(calls).toBe(3);
  const saved=JSON.parse(await exportData(page));expect(saved.game.cursor).toBe(cursor);expect(saved.annotations.filter((a:{source:string})=>a.source==='model')).toHaveLength(3);
 });

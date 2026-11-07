@@ -1,3 +1,4 @@
+import {renderLearningReplay,learningLine} from './learning-replay.js';
 import {MaiaPlayingEngine} from './maia-engine.js';
 import {MAIA_PROFILES} from '../src/maia-files.js';
 import {platformFetch,platformReady,isWebPlatform,browserRuntime} from './platform.js';
@@ -47,32 +48,50 @@ const text = (id: string) => $<HTMLTextAreaElement>(id);
 let selected: Square | null = null;
 let shownMove:{node:string;from:string;to:string}|undefined;
 let pending = false;
+let directAnalysisHint:'explain'|undefined;
 let tacticalPending = false;
 let modelAvailable = false;
-let dialogueChosen=false;
+let modelConfigured=false,modelSaved=false,modelBlocked='Kein KI-Zugang eingerichtet.';
+let dialogueChosen=false,accessRevision=0,accessReady=false,accessReadError=false;
 const modelMode = () => $<HTMLSelectElement>('dialogue-mode').value === 'model';
+try{const choice=localStorage.getItem('chess-studio-dialogue-mode');if(choice==='model'||choice==='simulation'){$<HTMLSelectElement>('dialogue-mode').value=choice;dialogueChosen=true;}}catch{}
+function chooseModelMode(value:'model'|'simulation'){
+ $<HTMLSelectElement>('dialogue-mode').value=value;dialogueChosen=true;
+ try{localStorage.setItem('chess-studio-dialogue-mode',value);}catch{}
+ updateMode();
+}
 function updateMode() {
-  const real = modelMode();
-  $<HTMLButtonElement>('ask').textContent = real ? 'Nachricht senden (reale KI)' : 'Nachricht senden (Simulation)';
-  $<HTMLButtonElement>('ask').disabled = pending || reviewLocked(studio.session.snapshot()) || (real && !modelAvailable);
-  $<HTMLButtonElement>('comment-move').disabled=$<HTMLButtonElement>('ask').disabled||!studio.session.snapshot().nodes.find(n=>n.id===studio.session.snapshot().activeNodeId)?.san;
-  $('comment-move').textContent=real?'Zug kommentieren':'Zug kommentieren (Simulation)';
-  $('simulation-hint').hidden = real;
-  $('learn-configure').hidden=modelAvailable;
-  message('mode-badge', real ? 'Lernchat: Eigene KI' : 'Lernchat: Demo');
+ const real=modelMode(),locked=reviewLocked(studio.session.snapshot()),blocked=real&&!modelAvailable||!accessReady||accessReadError;
+ $<HTMLButtonElement>('ask').textContent=real?'Nachricht senden (reale KI)':'Nachricht senden (Simulation)';
+ $<HTMLButtonElement>('ask').disabled=pending||locked||blocked;
+ for(const id of ['analyse-position','analyse-game'])$<HTMLButtonElement>(id).disabled=pending||locked||blocked;
+ $<HTMLButtonElement>('comment-move').disabled=$<HTMLButtonElement>('ask').disabled||!studio.session.snapshot().nodes.find(n=>n.id===studio.session.snapshot().activeNodeId)?.san;
+ $('comment-move').textContent=real?'Zug kommentieren':'Zug kommentieren (Simulation)';
+ $('simulation-hint').hidden=real||!accessReady||accessReadError;
+ $('learn-configure').hidden=modelAvailable;
+ message('mode-badge',!accessReady?'Lernchat: Zugang wird geprüft':accessReadError?'Lernchat: Status unklar':real?(modelAvailable?'Lernchat: Eigene KI':'Lernchat: KI gesperrt'):'Lernchat: Demo');
+ message('chat-access',!accessReady?'Gespeicherter KI-Zugang wird lokal geprüft …':accessReadError?modelBlocked:real?(modelAvailable?'Eigener KI-Zugang aktiv. Eine Nachricht startet eine kostenpflichtige Anfrage.':modelBlocked):modelSaved||modelConfigured?'Demo ist ausdrücklich gewählt. Dein gespeicherter KI-Zugang bleibt erhalten.':'Demo: nur lokale Brettfakten, keine KI-Analyse.');
+ $('chat-use-model').hidden=real||!(modelSaved||modelConfigured);
+ $('chat-open-access').hidden=!real||modelAvailable;
+ $('chat-open-access').textContent=modelConfigured?'Kostenkontrolle öffnen':'KI-Zugang prüfen';
 }
 async function refreshModelStatus() {
-  try {
-    const response = await platformFetch('/api/status',{signal:AbortSignal.timeout(10000)});
-    if (!response.ok) throw new Error();
-    const status = await response.json();
-    modelAvailable = status.available === true && status.remaining > 0;
-    message('model-status', modelAvailable ? `KI-Zugang konfiguriert, noch kein Verbindungsnachweis. Verbleibende Anfragen ${isWebPlatform()?'in diesem Fenster':'im Serverprozess'}: ${status.remaining}. Keine Kostengarantie.` : 'Reale KI gesperrt oder Anfragelimit erreicht. Simulation ist verfügbar.');
-  } catch { modelAvailable = false; message('model-status', 'Modellserver nicht verfügbar. Simulation ist verfügbar.'); }
-  if(modelAvailable&&!dialogueChosen)$<HTMLSelectElement>('dialogue-mode').value='model';
-  updateMode();
+ const revision=++accessRevision;
+ try{
+  const response=await platformFetch('/api/status',{signal:AbortSignal.timeout(10000)});if(!response.ok)throw new Error();
+  const status=await response.json();if(revision!==accessRevision)return;
+  accessReady=true;accessReadError=false;
+  modelConfigured=status.available===true;modelSaved=status.saved===true||modelConfigured;
+  modelAvailable=modelConfigured&&status.remaining>0&&status.limit!=='budget';
+  modelBlocked=status.limit==='window'?'Schlüssel vorhanden. Das Anfragelimit dieses Fensters ist erreicht. Kostenkontrolle prüfen; keine Demo-Umschaltung.':status.limit==='period'?'Schlüssel vorhanden. Das Anfragelimit der Budgetperiode ist erreicht. In den Einstellungen die Kostenkontrolle prüfen.':status.remaining===0?'Schlüssel vorhanden. Das lokale Anfragelimit ist erreicht. Kostenkontrolle prüfen.':status.limit==='budget'?'Schlüssel vorhanden. Das lokale Kostenbudget ist erreicht. Kostenkontrolle prüfen.':status.locked?'Schlüssel gespeichert, aber gesperrt. In den Einstellungen entsperren.':'Kein aktiver KI-Zugang. In den Einstellungen den gespeicherten Schlüssel prüfen.';
+  if(status.locked)modelBlocked='Schlüssel gespeichert, aber gesperrt. In den Einstellungen entsperren.'+(status.remaining===0?' Zusätzlich ist das Anfragelimit erreicht.':'');
+  message('model-status',modelAvailable?`KI-Zugang konfiguriert, noch kein Verbindungsnachweis. Verbleibende Anfragen: ${status.remaining}. Keine Kostengarantie.`:modelBlocked);
+  if((modelConfigured||modelSaved)&&!dialogueChosen)$<HTMLSelectElement>('dialogue-mode').value='model';
+ }catch{if(revision!==accessRevision)return;accessReady=true;accessReadError=true;modelAvailable=false;modelBlocked='KI-Status konnte nicht gelesen werden. Zugang und Diagnose prüfen.';message('model-status',modelBlocked);}
+ updateMode();
 }
-$('dialogue-mode').addEventListener('change',()=>{dialogueChosen=true;updateMode();});
+$('dialogue-mode').addEventListener('change',()=>chooseModelMode(modelMode()?'model':'simulation'));
+$('chat-use-model').addEventListener('click',()=>{chooseModelMode('model');void refreshModelStatus();});
 function message(id: string, value: string) { $(id).textContent = value; }
 function attempt(action: () => void, target: string, success: string) {
   try { action(); selected = null; render(); message(target, success); }
@@ -106,7 +125,8 @@ function render() {
   $('game-undo').hidden=$('workspace').dataset.activeView!=='play';
   $<HTMLButtonElement>('game-undo').disabled=!game.canTakeBack();
   const learning=$('workspace').dataset.activeView==='learn';
-  $('learning-controls').hidden=!learning;
+  $('learning-controls').hidden=!learning;$('learning-chat').hidden=!learning;
+  renderLearningReplay(data,game,()=>{selected=null;render();});
   message('workbench-status',learning?'Lernmodus · Züge ausprobieren und mit der Lernengine besprechen. Die Partie bleibt unverändert.':live?(live.paused?'Partie pausiert · Zum Fortsetzen Spielmodus wählen.':'Spielmodus · Schachengine ist dein Gegner.'):'Spielmodus · Starte rechts eine Partie gegen die Schachengine.');
   $<HTMLButtonElement>('learn-back').disabled=!current.parentId||locked;
   $<HTMLButtonElement>('learn-origin').disabled=locked;
@@ -188,14 +208,14 @@ function render() {
   message('dialogue-anchor',`Gespräch zur Stellung ${current.id}${data.labels?.[current.id]?' · '+data.labels[current.id]:''}. Beiträge früherer Stellungen dieses Zweigs bleiben sichtbar.`);
   for (const [kind, id] of [['dialogue', 'dialogue'], ['memory', 'memories']] as const) {
     const container = $(id); container.replaceChildren();
-    for (const a of data.annotations.filter(a => a.kind===kind && (kind==='dialogue'?dialoguePath.has(a.nodeId):a.nodeId===current.id))) {
+    for (const a of data.annotations.filter(a => a.kind===kind && (kind==='dialogue'?(dialoguePath.has(a.nodeId)||!!data.game&&!data.review&&learningLine(data).some(n=>n.id===a.nodeId)):a.nodeId===current.id))) {
       const entry = document.createElement('article'); entry.className = 'entry';
       const meta = document.createElement('small');
       meta.textContent = `${a.nodeId} · ${a.source === 'human' ? 'Mensch' : a.source === 'simulation' ? 'Simulation · Keine reale KI' : 'Modell'} · ${a.hypothesis ? 'Hypothese' : 'Eigene Eingabe'}`;
       const body = document.createElement('div');
       const [answer,details]=a.text.split('\n\nAnalyse-Details:');body.textContent=answer!;
       entry.append(meta,body);
-      if(kind==='dialogue'&&!locked)for(const san of a.suggestions??[]){
+      if(kind==='dialogue'&&a.source==='model'&&!locked)for(const san of a.suggestions??[]){
         const show=document.createElement('button');show.type='button';show.textContent=`Zug zeigen: ${san}`;
         show.addEventListener('click',()=>attempt(()=>{game.analyse(a.nodeId);const board=new Chess(data.nodes.find(n=>n.id===a.nodeId)!.fen),shown=board.move(san);const node=game.play(san);shownMove={node,from:shown.from,to:shown.to};},'move-feedback',`${san} im Lernzweig gezeigt. Die Partie bleibt unverändert.`));entry.append(show);
       }
@@ -223,13 +243,13 @@ $('memory-form').addEventListener('submit', event => {
 $('dialogue-form').addEventListener('submit', async event => {
   event.preventDefault(); if (pending || (modelMode() && !modelAvailable)) return;
   const real = modelMode();
-  if($<HTMLSelectElement>('dialogue-topic').value==='review'){game.pause();const g=studio.session.snapshot().game;if(g)studio.session.select(g.cursor);render();}
-  const question = text('question').value;
+  game.pause();
+  const question = text('question').value,hintOverride=directAnalysisHint;directAnalysisHint=undefined;
   const session = studio.session;
   pending = true; $<HTMLButtonElement>('ask').disabled = true;
   message('dialogue-feedback', `${real ? 'Modellanfrage' : 'Simulation'} läuft … Stellungswechsel ist weiterhin möglich.`);
   try {
-    const result = await studio.ask(question, real ? new ServerModelAdapter(platformFetch) : new SimulationAdapter($<HTMLSelectElement>('simulation-mode').value as SimulationMode),$<HTMLSelectElement>('dialogue-topic').value as DialogueTopic);
+    const result = await studio.ask(question, real ? new ServerModelAdapter(platformFetch) : new SimulationAdapter($<HTMLSelectElement>('simulation-mode').value as SimulationMode),$<HTMLSelectElement>('dialogue-topic').value as DialogueTopic,hintOverride);
     message('dialogue-feedback', result === 'stored' ? `${real ? 'Modellantwort' : 'Beispielantwort'} an der angefragten Stellung gespeichert.` : 'Veraltete Antwort nach Sitzungswechsel verworfen.');
     render();
   } catch (error) {
@@ -286,6 +306,7 @@ $('api-form').addEventListener('submit', async event => {
   if (button.disabled) return;
   button.disabled = true;
   $('api-form').setAttribute('aria-busy', 'true');
+  accessRevision++;
   const payload = {action:'connect',apiKey,model,allowPaid:true,...(isWebPlatform()?{password}:{})};
   input('api-key').blur(); // Dismiss the touch keyboard before waiting for the local store.
   message('api-feedback','Schlüssel wird lokal gespeichert und die Speicherung geprüft … Du kannst die Seite weiterhin scrollen.');
@@ -303,7 +324,7 @@ $('api-form').addEventListener('submit', async event => {
     if (status.available !== true) throw new Error('Die Speicherung ist nicht bestätigt. Bitte die lokale Diagnose öffnen.');
     input('api-key').value='';input('vault-password').value='';input('api-cost-consent').checked=false;
     modelAvailable = status.remaining > 0;
-    $<HTMLSelectElement>('dialogue-mode').value = 'model'; updateMode();
+    accessReady=true;accessReadError=false;modelConfigured=true;modelSaved=true;chooseModelMode('model');
     message('credential-status',isWebPlatform()?'✓ Schlüsselfach verschlüsselt auf diesem Gerät gespeichert und entsperrt.':'✓ API-Schlüssel lokal gespeichert. Er wird beim nächsten App-Start wieder geladen.');
     message('api-feedback',isWebPlatform()?`Schlüssel verschlüsselt auf diesem Gerät gespeichert. ${payload.password?'Nach Neustart mit deinem zusätzlichen Passwort entsperren.':'Kein zusätzliches App-Passwort nötig. In diesem Browserprofil wird er beim nächsten Start wieder geladen.'} Keine Modellanfrage ausgeführt.`:'Schlüssel lokal gespeichert und für den nächsten Start hinterlegt. Das leere Feld ist beabsichtigt; du musst den Schlüssel nicht erneut eingeben. Noch keine Modellanfrage ausgeführt.');
     void refreshModelStatus();void refreshCosts();
@@ -322,7 +343,7 @@ $('api-disconnect').addEventListener('click', async () => {
     const response = await platformFetch('/api/model-config', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'disconnect'}),signal:AbortSignal.timeout(5000)});
     if (!response.ok) throw new Error();
     input('api-key').value = ''; input('api-cost-consent').checked = false;
-    $<HTMLSelectElement>('dialogue-mode').value = 'simulation';
+    modelConfigured=false;modelSaved=false;chooseModelMode('simulation');
     await refreshModelStatus();
     message('api-feedback','Gespeicherter Schlüssel gelöscht. Reale KI ist gesperrt.');
     message('credential-status','Kein API-Schlüssel lokal gespeichert.');await refreshCosts();
@@ -502,6 +523,17 @@ const navigation=installNavigation(cancelBoardDrag,view=>{
  else if(studio.session.snapshot().game?.paused&&!studio.session.snapshot().review?.guiding)game.resume();
  selected=null;render();if(view==='play')void engineTurn();
 });
+function beginAnalysis(wholeGame:boolean){
+ const data=studio.session.snapshot();
+ if(reviewLocked(data)){message('dialogue-feedback','Zuerst den aktuellen Rückblick-Schritt beantworten oder aufdecken.');return;}
+ game.learn();if(wholeGame){const end=learningLine(studio.session.snapshot()).at(-1);if(end)game.analyse(end.id);}
+ $<HTMLSelectElement>('dialogue-topic').value=wholeGame?'review':'position';
+ text('question').value=wholeGame?'Bitte besprich die bisherige Partie: Welche konkreten Wendepunkte, Gefahren und gelungenen Ideen sind aus dem Verlauf belegbar? Erkläre verständlich, was ich daraus lernen kann. Behaupte keine ungeprüften Fehler oder besten Züge.':'Bitte analysiere die aktuelle Brettstellung: Wer steht besser und warum? Welche konkreten Gefahren gibt es, welche verständlichen Pläne und möglichen Antworten sollte ich prüfen?';
+ render();directAnalysisHint='explain';$<HTMLFormElement>('dialogue-form').requestSubmit();
+}
+$('analyse-position').addEventListener('click',()=>beginAnalysis(false));
+$('analyse-game').addEventListener('click',()=>beginAnalysis(true));
+$('chat-open-access').addEventListener('click',()=>{navigation.select('settings');const section=modelConfigured?$('cost-form').closest('details')!:$('api-settings');(section as HTMLDetailsElement).open=true;section.scrollIntoView({block:'start'});});
 $('learn-back').addEventListener('click',()=>attempt(()=>{const d=studio.session.snapshot(),node=d.nodes.find(n=>n.id===d.activeNodeId)!;if(node.parentId)game.analyse(node.parentId);},'move-feedback','Einen Lernzug zurück.'));
 $('learn-origin').addEventListener('click',()=>attempt(()=>{const d=studio.session.snapshot();game.analyse(d.game?.cursor??d.nodes[0]!.id);},'move-feedback','Zur Ausgangsstellung der Analyse zurück.'));
 $('comment-move').addEventListener('click',()=>{text('question').value='Bitte besprich meinen gerade ausprobierten Zug. Welche Idee steckt dahinter, welche gegnerischen Antworten sollte ich beachten und wie könnte mein Plan weitergehen?';$<HTMLSelectElement>('dialogue-topic').value='position';$<HTMLFormElement>('dialogue-form').requestSubmit();});

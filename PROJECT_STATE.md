@@ -1,5 +1,45 @@
 # Projektstand
 
+Stand: 7. November 2026 · **0.8.0 vollständig geprüft, Bereitstellung ausstehend**.
+Letzter bestätigter Online-Stand 0.7.0; Nachweis unten.
+
+Aktuelle Nutzerfehler: Spiel nicht analysierbar, Chat zu weit von Brett entfernt,
+technische Einstellungen zu prominent, merkwürdige Antworten, Demo trotz
+Schlüssel-Speicherung. Konkreter Geräte-/Antwortbefund fehlt; keine pauschale
+Ursachenbehauptung über die echte Modellqualität.
+
+Identifizierte und implementierte Korrekturen:
+
+- Gespeicherter Zugang wurde bei verbrauchtem Anfragekontingent nach Neustart
+  nicht automatisch ausgewählt. Schlüssel, Freigabe und verbleibende Anfragen
+  jetzt trennen; echte KI bleibt bei Limits als gesperrt ausgewählt. Lokale
+  Prüfung beim Start, persistente explizite Moduswahl, Speichern aktiviert KI.
+  Kein Provider-Testaufruf, keine Freigabe-/Budgetrücksetzung oder Key-Migration.
+- Lernmodus einspaltig: Navigation und Brett, direkt darunter Chat; weitere
+  Werkzeuge und zugeklappte Technik folgen. Auch mobil keine Formulare dazwischen.
+- Laufende/abgeschlossene Partie am anklickbaren Zugverlauf durchgehen und
+  Varianten abzweigen. Verstecktes Thema „review“ versetzt eigene Nachrichten
+  nicht mehr ans Partieende. Ganze Partie nur über ausdrücklichen Analyseknopf.
+  Analyseknöpfe übersteuern Leitfragen nur für diese Anfrage, nicht die Präferenz.
+- Demo ohne erfundene Eröffnungspläne oder beliebige erste legale Züge. Alte
+  Beiträge erhalten; Demo-Zugtipps nicht mehr als KI-Vorführung anbieten.
+- Direkte Antwort zuerst; Brettfiguren, begrenzte geprüfte Verlaufsereignisse
+  sowie tatsächliche vorhandene Stockfish-Zahlen/Varianten mit FEN/Suchgrenzen
+  im Kontext. Unterschiedliche Dialogstellungen explizit zugeordnet. Harte
+  Matt-Widersprüche verworfen; keine automatische Stockfish-Analyse gestartet.
+
+Prüfung: `npm run test:all` bestanden – strikte Typprüfung, Web-/Pages-Build,
+**119/119 Einzeltests und 72/72 Chromiumfälle**. Nach dem abschließenden
+Starttext erneut beide Builds und zwei Zugangsregressionen bestanden. Desktop-
+und Mobilansichten mit gespeichertem Testzugang visuell geprüft; KI-Antwort
+dafür abgefangen, keine reale Modellqualität behauptet. Echte
+KI-Qualität weiterhin nicht durch bezahlte Modellaufrufe geprüft; keine solchen
+Aufrufe autorisiert/ausgeführt. Native Windows-/Android-/iPad-Abnahme bleibt offen.
+Nächster Schritt: autorisiertes Update bereitstellen und GitHub-Erfolg für
+den genauen Commit samt öffentlichem Buildmanifest bestätigen.
+
+## Voriger bestätigter Stand 0.7.0
+
 Stand: 6. November 2026 · **0.7.0 veröffentlicht, GitHub-Erfolg bestätigt**.
 Quelle 5c5e9e298286b56498ad4edbfab979ecf58d8c78; gh-pages
 25527617b61573a816c3ee620acd76b68b6d0f4d; Run 42312123694 SUCCESS.

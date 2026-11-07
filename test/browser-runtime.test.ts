@@ -118,3 +118,11 @@ test('storage success requires decrypting the persisted copy, not only the in-me
  const corrupt=new BrowserRuntime(new CorruptingStore());await assert.rejects(corrupt.handle('/api/model-config','POST',{action:'connect',...config,allowPaid:true}),/nicht gelesen/);
  assert.equal((await corrupt.status()).available,false);
 });
+
+test('saved access remains distinguishable from demo when period or password blocks requests',async()=>{
+ const store=new MemoryStore();let calls=0;const runtime=new BrowserRuntime(store,async()=>{calls++;throw new Error('No network expected');});
+ await runtime.handle('/api/model-config','POST',{action:'connect',...config,allowPaid:true});
+ await store.budget(l=>{for(let i=0;i<3;i++)l.reserve(100,800);});
+ const next=new BrowserRuntime(store),status=await next.status();assert.equal(status.saved,true);assert.equal(status.available,true);assert.equal(status.remaining,0);assert.equal(status.limit,'period');
+ await next.handle('/api/vault','POST',{action:'lock'});const locked=await next.status();assert.equal(locked.saved,true);assert.equal(locked.locked,true);assert.equal(locked.available,false);assert.equal(calls,0);
+});

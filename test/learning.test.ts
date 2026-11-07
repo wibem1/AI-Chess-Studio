@@ -26,3 +26,9 @@ test('invalid human analysis or unwanted candidate in question mode is not store
  }
  const sim=await new SimulationAdapter().respond({nodeId:'n0',fen:'',question:'Warum?',legalMoves:['e4'],hintMode:'question'}) as {candidates:string[]};assert.deepEqual(sim.candidates,[]);
 });
+
+test('explicit analysis overrides a hidden question-only preference for one request without changing it',async()=>{
+ const studio=new Studio();studio.session.reflect('n0',{idea:'',reasoning:'',uncertainty:'',goal:'',hintMode:'question'});
+ await studio.ask('Bitte analysieren',{source:'model',respond:async r=>{assert.equal(r.hintMode,'explain');return reply;}},'position','explain');
+ assert.equal(studio.session.snapshot().reflections!.n0!.hintMode,'question');assert.doesNotMatch(studio.session.snapshot().annotations.at(-1)!.text,/^Leitfrage:/);
+});

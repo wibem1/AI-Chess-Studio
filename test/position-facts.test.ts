@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {Chess} from 'chess.js';
-import {positionFacts,describeFacts} from '../src/position-facts.js';
+import {positionFacts,describeFacts,historyFacts} from '../src/position-facts.js';
 import {parseRequest} from '../src/model-contract.js';
 import {Studio,SimulationAdapter,validateReply} from '../src/dialogue.js';
 
@@ -23,5 +23,17 @@ test('full real coach explanation must contain a bounded assessment and displays
  for(const m of ['f3','e5','g4'])studio.session.play(m);
  await studio.ask('Gefahr?',{source:'model',respond:async r=>{assert.deepEqual(r.positionFacts!.mateInOne,['Qh4#']);return {...base,assessment:{verdict:'black_advantage',reason:'Weiß hat seinen König durch f3 und g4 geöffnet.',dangers:['Schwarz droht Qh4# auf der Diagonale h4–e1.']}};}});
  const visible=studio.session.snapshot().annotations.at(-1)!.text.split('\n\nAnalyse-Details:')[0]!;
- assert.match(visible,/Vorteil Schwarz/);assert.match(visible,/Konkrete Gefahren: Schwarz droht Qh4#/);assert.match(visible,/Brettfakten/);
+ assert.match(visible,/Vorteil Schwarz/);assert.match(visible,/Konkrete Gefahren: Schwarz droht Qh4#/);assert.doesNotMatch(visible,/Material Weiß/);assert.match(studio.session.snapshot().annotations.at(-1)!.text,/Brettfakten/);
+});
+
+test('a demonstrably contradictory mate assessment is rejected instead of storing a strange answer',async()=>{
+ const studio=new Studio();for(const san of ['f3','e5','g4'])studio.session.play(san);
+ const base=await new SimulationAdapter().respond({nodeId:'n3',fen:studio.session.snapshot().nodes.at(-1)!.fen,question:'Wer steht besser?',legalMoves:[]}) as Record<string,unknown>;
+ await assert.rejects(studio.ask('Wer steht besser?',{source:'model',respond:async()=>({...base,assessment:{verdict:'white_advantage',reason:'Falsche Aussage',dangers:[]}})}),/widerspricht.*Mattsituation/);assert.equal(studio.session.snapshot().annotations.length,0);
+});
+
+test('whole-game highlights are recomputed from the legal history instead of trusting client claims',()=>{
+ const c=new Chess(),moves=['f3','e5','g4','Qh4#'];for(const m of moves)c.move(m);
+ const request=parseRequest({nodeId:'n4',fen:c.fen(),question:'Partie besprechen',legalMoves:[],context:[],topic:'review',history:{rootFen:new Chess().fen(),moves,truncated:false},historyFacts:[{san:'Erfundener Zug'}]});
+ assert.equal(request.historyFacts!.at(-1)!.san,'Qh4#');assert.equal(request.historyFacts!.at(-1)!.check,true);assert.equal(request.historyFacts!.at(-1)!.whiteMinusBlack,0);assert.equal(request.positionFacts!.pieces.length,32);assert.equal(historyFacts({rootFen:new Chess().fen(),moves:['e4','d5','exd5']}).at(-1)!.whiteMinusBlack,1);
 });

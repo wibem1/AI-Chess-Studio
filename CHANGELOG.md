@@ -1,5 +1,25 @@
 # Änderungen
 
+## 0.8.0 – Lernchat am Brett, Partienanalyse und eindeutiger KI-Zugang
+
+- Lernmodus als durchgehender Ablauf: Zugnavigation, Brett, Chat, danach weitere
+  Werkzeuge und zugeklappte technische Einstellungen – auf Desktop und Mobil.
+- Partien inklusive abgeschlossener Spiele am Zugverlauf durchgehen; Anfang,
+  zurück, vor und zur tatsächlichen Partie. Lernzweige verändern diese nicht.
+- „Stellung besprechen“ und „Partie besprechen“ direkt erreichbar. Eine versteckte
+  Gesprächsauswahl setzt das Brett nicht mehr automatisch ans Partieende zurück.
+  Explizite Analyse liefert eine Erklärung trotz früherer Leitfragen-Präferenz.
+- Gespeicherter Schlüssel, gesperrtes Fach und Anfrage-/Kostenlimit getrennt
+  anzeigen. Kein stiller Demo-Rückfall bei vorhandenem Zugang; Speichern aktiviert
+  die eigene KI ausdrücklich, Moduswahl bleibt beim Neustart erhalten.
+- Demo gibt keine erfundenen Pläne oder beliebigen Zugtipps. Frühere Demo-Beiträge
+  bleiben erhalten, werden aber nicht mehr als vorführbare KI-Züge angeboten.
+- Direkterer Antwortauftrag; tatsächliche Figurenfelder, geprüfte Verlaufsereignisse
+  und vorhandene Suchbefunde mit FEN/Suchgrenzen im Kontext. Frühere Dialogstellungen
+  bleiben unterscheidbar; eindeutig falsche Matt-Beurteilungen werden verworfen.
+- Keine automatische Kostenfreigabe, Schlüsseländerung, Budgetrücksetzung oder
+  ungefragte zusätzliche Engineanalyse.
+
 ## 0.7.0 – Maia als echter lokaler Spielgegner
 
 - Maia-2 Blitz neben Stockfish auswählbar, fünf Trainingsprofile 1100–1900.

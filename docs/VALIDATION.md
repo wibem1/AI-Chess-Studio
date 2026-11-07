@@ -1332,3 +1332,46 @@ SUCCESS für genau diesen Commit. Commitgebundenes öffentliches BUILD.json
 verifiziert: 0.7.0, Basis /AI-Chess-Studio/, identische Quelle, 22 Dateien,
 Maia-Modell-SHA256 `fdfa2a8d52d88b73373074cd9124f1c1e244e6d8ff4175f2400ca532ecca9e13`.
 Keine weitere Veröffentlichung nach dem bestätigten Erfolg ausgelöst.
+
+
+## 0.8.0 – Analyseablauf, Chat unter dem Brett, gespeicherter KI-Zugang
+
+7. November 2026. `npm run test:all` am finalen Funktionsstand bestanden:
+Typprüfung, Web-/Pages-Build, **119/119 Einzeltests, 72/72 Chromiumfälle**,
+keine Fehler oder übersprungenen Tests. Abschließend nach dem reinen Starttext
+erneut Typprüfung, beide Builds und zwei Zugangsregressionen bestanden.
+
+Neue und erweiterte Nachweise:
+
+- Profil-Key speichern trotz vorher bewusst gewählter Demo: eigene KI sofort
+  und nach Neustart gewählt, ohne Anbieteraufruf. Gespeicherter Key bei
+  verbrauchter Budgetperiode bleibt als eigene, gesperrte KI ausgewählt statt
+  als Demo. Grund sichtbar, Kostenkontrolle erreichbar, keine automatische
+  Rücksetzung/Freigabe. Sperren, vorhandene Passwortfächer und Löschen erhalten.
+- Tatsächlich beendete legale Partie importieren, Gesamtbesprechung starten,
+  frühere Züge auswählen, eigene Nachricht bleibt an dieser Stellung, vorgehen,
+  Lernzweig aufbauen; Rückkehr erhält den echten mattgesetzten Partiecursor.
+- Expliziter Analyseknopf übersteuert eine gespeicherte Leitfragen-Präferenz
+  nur für diese Anfrage; persistierte Reflexion unverändert.
+- Desktop- und Telefongeometrie: Chat folgt direkt dem Brett, technische
+  Einstellungen darunter und geschlossen, kein horizontaler Überlauf. Eine
+  zuerst gefundene mobile Werkzeug-Reihenfolge wurde anhand der tatsächlichen
+  DOM-Geometrie eingegrenzt und vor Freigabe korrigiert.
+- Demo ohne zufällig ausgewählte legale Zugtipps oder generische Eröffnungspläne;
+  Coach-Zugvorführung mit echter Modellservice-/Browsertransport-Fixture geprüft.
+  Ältere Demo-Vorschläge werden nicht mehr als KI-Zugbuttons angeboten.
+- Frühere Dialogstellungen mit eigenem FEN-Bezug, auch bei Rückfragen zu
+  früheren Partiezügen. Tatsächliche vorhandene Stockfish-Scores/Varianten und
+  Suchgrenzen im Anfragekontext; keine zusätzliche ungefragte Engineanalyse.
+- Figurenfelder aus aktueller FEN, begrenzte Verlaufstatsachen durch legales
+  Replay berechnet. Clientbehauptungen über Verlauf ignoriert; Materialdelta
+  ausdrücklich Weiß minus Schwarz. Gegen bekannte Mattfakten widersprechende
+  Modellbeurteilung nicht gespeichert.
+- Bestehende reale Maia- und Stockfish-WASM-/Serverprüfungen, geführter PGN-
+  Rückblick ohne Zukunftslecks, Kosten/Schlüssel, Scrollen, Schriftzoom,
+  Varianten, Partienablage, Pages-Unterverzeichnis, Offline und Updates grün.
+
+Desktop- und Mobilansichten im tatsächlichen Browser angesehen, mit lokalem
+Testzugang und abgefangener Antwortfixture. Keine bezahlte Modellanfrage,
+keine native Windows-/Android-/iPad-Abnahme und kein Nachweis der Qualität
+einer echten generativen Antwort. Keine DB-/Key-Migration oder Budgetlöschung.

@@ -1,13 +1,13 @@
 import {MAIA_PROFILES} from './maia-files.js';
-import {positionFacts,describeFacts,type PositionFacts} from './position-facts.js';
+import {positionFacts,describeFacts,historyFacts,type PositionFacts} from './position-facts.js';
 import {reviewLocked,visibleReviewNodes,REVIEW_QUESTIONS} from './review.js';
 import {validateHumanFactors,type HumanFactors,type HintMode} from './learning.js';
 import { pathTo } from './game.js';
 import { Session } from './session.js';
 
 export type DialogueTopic='position'|'comparison'|'review';
-export interface DialogueTurn {role:'user'|'assistant';nodeId:string;text:string}
-export interface DialogueRequest { nodeId: string; fen: string; question: string; legalMoves: string[]; positionFacts?:PositionFacts;context?: string[];hintMode?:HintMode;topic?:DialogueTopic;turns?:DialogueTurn[];history?:{rootFen:string;moves:string[];truncated:boolean} }
+export interface DialogueTurn {role:'user'|'assistant';nodeId:string;text:string;fen?:string}
+export interface DialogueRequest { nodeId: string; fen: string; question: string; legalMoves: string[]; positionFacts?:PositionFacts;historyFacts?:ReturnType<typeof historyFacts>;context?: string[];hintMode?:HintMode;topic?:DialogueTopic;turns?:DialogueTurn[];history?:{rootFen:string;moves:string[];truncated:boolean} }
 export interface StrategicReply {
   message?:string;
   assessment?:{verdict:'white_advantage'|'black_advantage'|'balanced'|'unclear';reason:string;dangers:string[]};
@@ -25,15 +25,12 @@ export class SimulationAdapter implements DialogueAdapter {
     if (this.mode === 'failure') throw new Error('Simulierter Anfragefehler. Bitte erneut versuchen.');
     if (this.mode === 'invalid') return { plan: 'Ungültige Testantwort', candidates: ['illegal'] };
     return {
-      message:`Simulation: Wir können deine Frage „${request.question.slice(0,200)}“ gemeinsam als Lernbeispiel betrachten. Das ist eine Testantwort, keine echte Stellungsanalyse.`,
-      assessment:{verdict:'unclear',reason:'Demo-Modus: keine echte Stellungsbeurteilung.',dangers:[]},
-      plan: 'Simulation: Prüfe Entwicklung und Zentrumskontrolle als möglichen Plan.',
-      opponent: 'Hypothese: Die Gegenseite könnte das Zentrum angreifen; ihre Absicht ist unbekannt.',
-      candidates: request.hintMode==='question'?[]:request.legalMoves.slice(0, 2),
-      risks: 'Simulation: Vor jedem Zug auf ungedeckte Figuren und gegnerische Drohungen achten.',
-      playability: 'Simulation: Bevorzuge einen Plan, dessen nächste Schritte du erklären kannst. Keine Rangfolge der Züge.',
-      humanFactors:{idea:'Simulation: Welche Figuren und Felder sind für deine Idee wichtig?',calculation:'Simulation: Welche zwingenden Antworten würdest du zuerst prüfen?',pitfalls:'Simulation: Welche gegnerische Drohung könnte leicht übersehen werden?',continuation:'Simulation: Wie möchtest du nach einer Abweichung weiterspielen?'},
-      openQuestions: ['Welche gegnerische Antwort würde deinen Plan verändern?']
+      message:'Demo-Modus: Hier antwortet keine KI. Ich kann nur die regelgeprüften Brettfakten anzeigen. Für eine Erklärung deiner Ideen und der Partie den eigenen KI-Zugang aktivieren.',
+      assessment:{verdict:'unclear',reason:'Ohne Lern-KI keine strategische Stellungseinschätzung.',dangers:[]},
+      plan:'Keine KI-Analyse im Demo-Modus.',opponent:'Keine gegnerische Absicht bekannt.',candidates:[],
+      risks:'Nur die separat aufgeführten Brettfakten sind geprüft.',playability:'Keine ungeprüften Zugtipps.',
+      humanFactors:{idea:'Keine KI-Analyse.',calculation:'Keine Variantenberechnung.',pitfalls:'Keine unbelegten Gefahrenbehauptungen.',continuation:'Eigenen KI-Zugang verwenden.'},
+      openQuestions:request.hintMode==='question'?['Welche konkrete Stellung möchtest du mit deiner KI besprechen?']:[]
     } satisfies StrategicReply;
   }
 }
@@ -42,7 +39,7 @@ export class Studio {
   constructor(public session = new Session()) {}
   restore(json: string): void { const next = Session.import(json); this.session = next; }
 
-  async ask(question: string, adapter: DialogueAdapter, topic:DialogueTopic='position'): Promise<'stored' | 'discarded'> {
+  async ask(question: string, adapter: DialogueAdapter, topic:DialogueTopic='position',hintOverride?:HintMode): Promise<'stored' | 'discarded'> {
     if (!question.trim()) throw new Error('Bitte eine Planfrage eingeben.');
     const session = this.session;
     const snapshot = session.snapshot();
@@ -56,7 +53,7 @@ export class Studio {
     if (question.length > 1000) throw new Error('Die Planfrage darf höchstens 1000 Zeichen enthalten.');
     const ancestors=new Set(pathTo(snapshot,nodeId).map(n=>n.id));
     const context = snapshot.annotations.filter(a => ancestors.has(a.nodeId) && a.kind!=='dialogue').slice(-6)
-      .map(a => `${a.nodeId}/${a.source}/${a.kind}/${a.hypothesis ? 'Hypothese' : 'Eingabe'}: ${a.text}\nOffen: ${a.openQuestions.join(' / ')}`.slice(0, 800));
+      .map(a => `${a.nodeId}/${a.source}/${a.kind}/${a.hypothesis ? 'Hypothese' : 'Eingabe'}: ${a.engine?JSON.stringify({fen:a.engine.fen,score:a.engine.score,line:a.engine.line.slice(0,10),depth:a.engine.depth,nodes:a.engine.nodes,limits:a.engine.limits,meaning:'Begrenzter Suchbefund nur an dieser FEN, keine strategische Wahrheit'}):a.text}\nOffen: ${a.openQuestions.join(' / ')}`.slice(0, 800));
     if(snapshot.comparison){
       const describe=(id:string)=>{const p=pathTo(snapshot,id);const notes=snapshot.annotations.filter(a=>a.nodeId===id && a.kind==='memory').slice(-1).map(a=>`${a.source}/${a.hypothesis?'Hypothese':'Eingabe'}: ${a.text.slice(0,100)}`).join('');return `${(snapshot.labels?.[id]??id).slice(0,40)}: FEN ${p.at(-1)!.fen}; Notiz ${notes}; Züge ${p.slice(1).map(n=>n.san).join(' ').slice(-60)}`.slice(0,360);};
       context.push(`Ausdrücklich ausgewählter Variantenvergleich: A ${describe(snapshot.comparison.a)} / B ${describe(snapshot.comparison.b)}`.slice(0,800));
@@ -73,21 +70,24 @@ export class Studio {
         context.push(`Belegte Selbstangaben zur Entscheidung ${node}: ${REVIEW_QUESTIONS.filter(q=>values[q.key]).map(q=>q.text+' '+values[q.key]).join(' / ')}`.slice(0,800));
       }
     }
-    const hintMode=reflection?.hintMode??'explain';
+    const hintMode=hintOverride??reflection?.hintMode??'explain';
+    if(hintOverride)context.push('Ausdrücklicher Analyseaufruf: aktuelle hintMode-Vorgabe hat Vorrang vor einer gespeicherten Lernpräferenz.');
     while(context.length>6)context.shift();
-    const dialogue=snapshot.annotations.filter(a=>ancestors.has(a.nodeId) && a.kind==='dialogue');
+    const conversationNodes=new Set(ancestors);
+    if(snapshot.game&&!snapshot.review)for(const node of pathTo(snapshot,snapshot.game.cursor))conversationNodes.add(node.id);
+    const dialogue=snapshot.annotations.filter(a=>conversationNodes.has(a.nodeId) && a.kind==='dialogue');
     const turns:DialogueTurn[]=[];
     for(let i=1;i<dialogue.length;i++){
       const human=dialogue[i-1]!,answer=dialogue[i]!;
       if(human.source==='human' && answer.source==='model' && human.nodeId===answer.nodeId){
-        turns.push({role:'user',nodeId:human.nodeId,text:human.text.slice(0,700)},
-          {role:'assistant',nodeId:answer.nodeId,text:answer.text.split('\n\nAnalyse-Details:')[0]!.slice(0,700)});
+        turns.push({role:'user',nodeId:human.nodeId,fen:snapshot.nodes.find(n=>n.id===human.nodeId)!.fen,text:human.text.slice(0,700)},
+          {role:'assistant',nodeId:answer.nodeId,fen:snapshot.nodes.find(n=>n.id===answer.nodeId)!.fen,text:answer.text.split('\n\nAnalyse-Details:')[0]!.slice(0,700)});
       }
     }
     while(turns.length>4)turns.splice(0,2);
     const path=pathTo(snapshot,nodeId),start=Math.max(0,path.length-501);
     const history={rootFen:path[start]!.fen,moves:path.slice(start+1).map(n=>n.san!),truncated:start>0};
-    const request = { nodeId, fen, question: question.trim(), legalMoves: session.legalMoves(), positionFacts:positionFacts(fen), context,hintMode,topic,turns,history };
+    const request = { nodeId, fen, question: question.trim(), legalMoves: session.legalMoves(), positionFacts:positionFacts(fen), context,hintMode,topic,turns,history,...(topic==='review'?{historyFacts:historyFacts(history)}:{}) };
     while(new TextEncoder().encode(JSON.stringify(request)).byteLength>16000 && (turns.length || context.length)){
       if(turns.length)turns.splice(0,2);else context.shift();
     }
@@ -98,11 +98,15 @@ export class Studio {
     if(adapter.source==='model' && !reply.message?.trim())throw new Error('Dialogantwort fehlt.');
     if(adapter.source==='model' && !reply.humanFactors)throw new Error('Menschliche Lernanalyse fehlt in der Modellantwort.');
     if(adapter.source==='model' && hintMode==='explain' && !reply.assessment)throw new Error('Begründete Stellungsbeurteilung fehlt.');
+    if(adapter.source==='model' && hintMode==='explain' && reply.assessment){
+      const f=request.positionFacts,winner=f.checkmate?(f.sideToMove==='w'?'black_advantage':'white_advantage'):f.mateInOne.length?(f.sideToMove==='w'?'white_advantage':'black_advantage'):undefined;
+      if(winner&&reply.assessment.verdict!==winner)throw new Error('KI-Beurteilung widerspricht der regelgeprüften Mattsituation. Antwort nicht gespeichert.');
+    }
     if(hintMode==='question' && !reply.openQuestions.length)throw new Error('Leitfrage fehlt.');
     if(hintMode==='question' && reply.candidates.length)throw new Error('Leitfragenmodus: direkte Zugvorschläge verworfen.');
     session.annotate({ nodeId, kind: 'dialogue', source: 'human', text: request.question,
       hypothesis: false, openQuestions: [] });
-    session.annotate({ nodeId, kind: 'dialogue', source: adapter.source ?? 'simulation', text: hintMode==='question'?`Leitfrage: ${reply.openQuestions[0]}`:hintMode==='hint'?`Denkhinweis: ${reply.humanFactors?.idea??reply.playability}`:`${describeFacts(request.positionFacts)}\n\n${formatReply(reply)}`,
+    session.annotate({ nodeId, kind: 'dialogue', source: adapter.source ?? 'simulation', text: hintMode==='question'?`Leitfrage: ${reply.openQuestions[0]}`:hintMode==='hint'?`Denkhinweis: ${reply.humanFactors?.idea??reply.playability}`:adapter instanceof SimulationAdapter?`${reply.message}\n\nAnalyse-Details:\n${describeFacts(request.positionFacts)}`:`${formatReply(reply)}\n${describeFacts(request.positionFacts)}`,
       hypothesis: true, openQuestions: reply.openQuestions,...(hintMode==='explain'?{suggestions:reply.candidates}:{}) });
     return 'stored';
   }
@@ -128,5 +132,5 @@ export function validateReply(raw: unknown, legalMoves: string[]): StrategicRepl
 function formatReply(r: StrategicReply): string {
   const labels={white_advantage:'Vorteil Weiß',black_advantage:'Vorteil Schwarz',balanced:'Ausgeglichen',unclear:'Unklar'};
   const assessment=r.assessment?`\n\nStellungsbeurteilung (KI-Einschätzung): ${labels[r.assessment.verdict]}. ${r.assessment.reason}\nKonkrete Gefahren: ${r.assessment.dangers.join(' / ') || 'Keine benannt; keine Sicherheitsgarantie.'}`:'';
-  return `${r.message?`${r.message}${assessment}\n\nAnalyse-Details:\n`:''}Plan: ${r.plan}\nGegenplan: ${r.opponent}\nKandidaten (ungeordnet): ${r.candidates.join(', ') || 'Keine legalen Züge'}\nRisiken: ${r.risks}\nSpielbarkeit: ${r.playability}${r.humanFactors?`\nEigene Idee verstehen: ${r.humanFactors.idea}\nRechenarbeit und Genauigkeit: ${r.humanFactors.calculation}\nLeicht übersehbar: ${r.humanFactors.pitfalls}\nPlan weiterführen: ${r.humanFactors.continuation}`:''}`;
+  return `${r.message?`${r.message}${assessment}\n\nAnalyse-Details:\n`:''}Plan: ${r.plan}\nGegenplan: ${r.opponent}\nKandidaten (ungeordnet): ${r.candidates.join(', ') || 'Keine Zugvorschläge angefordert oder geliefert'}\nRisiken: ${r.risks}\nSpielbarkeit: ${r.playability}${r.humanFactors?`\nEigene Idee verstehen: ${r.humanFactors.idea}\nRechenarbeit und Genauigkeit: ${r.humanFactors.calculation}\nLeicht übersehbar: ${r.humanFactors.pitfalls}\nPlan weiterführen: ${r.humanFactors.continuation}`:''}`;
 }

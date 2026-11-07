@@ -30,3 +30,15 @@ test('long Unicode conversations remain within HTTP request byte budget',async()
 test('comparison without chosen variants is blocked before any model call',async()=>{
  const studio=new Studio();let calls=0;await assert.rejects(studio.ask('Vergleichen',{respond:async()=>{calls++;return response;}},'comparison'));assert.equal(calls,0);
 });
+
+test('game conversations retain the explicit FEN when discussing an earlier move',async()=>{
+ const {LearningGame}=await import('../src/game.js');const studio=new Studio(),game=new LearningGame(()=>studio.session);game.start('w',1);game.play('e4');await game.reply({move:async()=>({san:'e5',level:1,engine:'Stockfish fixture'})});game.learn();
+ await studio.ask('Besprich den Verlauf',{source:'model',respond:async()=>response},'review');const endFen=studio.session.snapshot().nodes.at(-1)!.fen;
+ game.analyse('n1');await studio.ask('Warum dieser erste Zug?',{source:'model',respond:async request=>{assert.equal(request.nodeId,'n1');assert.equal(request.turns!.length,2);assert.equal(request.turns![1]!.fen,endFen);return response;}});
+});
+
+test('existing bounded tactical findings reach the coach with actual score and line',async()=>{
+ const {TACTICAL_LIMITS}=await import('../src/tactics.js');const studio=new Studio(),fen=studio.session.snapshot().nodes[0]!.fen;
+ studio.session.annotate({nodeId:'n0',kind:'factcheck',source:'stockfish',text:'Generischer Hinweis',hypothesis:false,openQuestions:[],engine:{fen,engine:'Stockfish fixture',depth:8,nodes:1500,elapsedMs:10,score:{unit:'cp',value:42,perspective:'white'},line:['e4','e5'],candidate:null,limits:TACTICAL_LIMITS}});
+ await studio.ask('Was bedeutet der Suchbefund?',{source:'model',respond:async r=>{assert.ok(r.context!.some(c=>c.includes('"value":42')&&c.includes('"e4","e5"')&&c.includes(fen)));return response;}});
+});
