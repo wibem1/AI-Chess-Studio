@@ -1,6 +1,6 @@
 # Projektstand
 
-## Vorbereitet: 0.11.1 – Gleiches Lernbrett und Teststart oben
+## Aktuell veröffentlicht: 0.11.1 – Gleiches Lernbrett und Teststart oben
 
 Die Mindestgrößenkorrektur in 0.11.0 genügte dem Nutzer nicht. Jetzt gleiche
 Brettgröße in Spiel- und Lernmodus; kein Reservieren von Chathöhe durch
@@ -15,9 +15,13 @@ Zusatzformular oder Kostencheckbox. Start gilt als Nutzerauftrag für den
 bezahlten Test: aktuelles Modell, sichtbare Stellung, am Zug befindliche Farbe,
 Gegner/Stufe der vorhandenen Partie (sonst Spielmoduseinstellung). Interne
 Obergrenze 100 Modellzüge, Stop/Regelende/Fehler beenden vorher. Separater Test mit d4/d5-Ausgangslage bestanden (5/5 Match-Einzeltests).
-Nicht veröffentlicht. Nächster Schritt: Korrektur veröffentlichen.
+Mit ausdrücklichem Nutzerauftrag am 7. November veröffentlicht. Quellcommit
+e0fead85321f90b14c9d1dc2f67f617b7ab4328c; gh-pages
+8e725c82071ee1ef6e5dfa797b0c34301bada410; Pages-Run 42387905227 SUCCESS.
+Öffentliches BUILD.json bestätigt Version und Quelle. Nächster Schritt:
+Windows-Abnahme durch den Nutzer und echte Modelltests mit Diagnose.
 
-## Aktuell veröffentlicht: 0.11.0 – OpenRouter, KI-Diagnose und Testpartie
+## Zuvor veröffentlicht: 0.11.0 – OpenRouter, KI-Diagnose und Testpartie
 
 Nutzeraufträge vom 7. November: frei wählbare Modelle über OpenRouter,
 Anfrageberichte zur fachlichen Qualitätsprüfung und Lernengine gegen

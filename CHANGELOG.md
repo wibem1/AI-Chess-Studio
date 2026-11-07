@@ -1,6 +1,6 @@
 # Änderungen
 
-## 0.11.1 – Gleich großes Lernbrett und Teststart oben (vorbereitet)
+## 0.11.1 – Gleich großes Lernbrett und Teststart oben (veröffentlicht am 7. November 2026)
 
 - „Lernengine gegen Schachengine“ ganz oben mit ausschließlich Start/Stop.
   Start ab sichtbarer Stellung mit aktuellem Modell und eingestellter Spielengine.
