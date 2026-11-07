@@ -1,6 +1,6 @@
 # Änderungen
 
-## 0.11.0 – OpenRouter, KI-Diagnose und Testpartien (vorbereitet)
+## 0.11.0 – OpenRouter, KI-Diagnose und Testpartien (veröffentlicht am 7. November 2026)
 
 - Windows-Lernbrett: lesbare Mindestgröße statt Schrumpfen bis auf 140 CSS-Pixel;
   bei niedrigen Desktopfenstern mindestens 280, sonst 360 CSS-Pixel. Beim

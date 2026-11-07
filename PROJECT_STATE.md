@@ -1,6 +1,6 @@
 # Projektstand
 
-## Aktuell vorbereitet: 0.11.0 – OpenRouter, KI-Diagnose und Testpartie
+## Aktuell veröffentlicht: 0.11.0 – OpenRouter, KI-Diagnose und Testpartie
 
 Nutzeraufträge vom 7. November: frei wählbare Modelle über OpenRouter,
 Anfrageberichte zur fachlichen Qualitätsprüfung und Lernengine gegen
@@ -50,11 +50,15 @@ Providerantworten ausschließlich Fixtures; echte Stockfish-WASM-/Maia-ONNX-
 Inferenz. KEINE bezahlte KI-Partie oder schachliche Modelleignung nachgewiesen.
 Mobile Lernansicht/Diagnoseseite visuell geprüft. Native Geräteabnahme offen.
 
-Noch nicht veröffentlicht, öffentliche App weiterhin 0.10.1. Nächster Schritt:
-Veröffentlichungsfreigabe für 0.11.0; anschließend echte Modellvergleiche anhand
-exportierter Diagnosen. Bedienung und Prüfgrenzen: docs/AI_EVALUATION.md.
+Am 7. November mit ausdrücklichem Nutzerauftrag veröffentlicht. Quellcommit
+c95e934f2b8e7eb0d20d49077603e0addb4484d3; gh-pages
+aa92eee6040bd5973a4ad38ea04c2f65eeb695ed; Pages-Run 42386684454 SUCCESS.
+Öffentliches BUILD.json bestätigt 0.11.0 und den Quellcommit; HTML, Service Worker,
+Haupt-JavaScript und CSS stimmen per SHA-256 mit dem geprüften Build überein.
+Nächster Schritt: echte Modellvergleiche anhand exportierter Diagnosen.
+Bedienung und Prüfgrenzen: docs/AI_EVALUATION.md.
 
-## Aktuell veröffentlicht: 0.10.1 – Kostenanzeige und vertikaler Lerndialog
+## Zuvor veröffentlicht: 0.10.1 – Kostenanzeige und vertikaler Lerndialog
 
 Veröffentlicht nach ausdrücklicher Nutzerfreigabe am 7. November 2026. Quelle
 `5150905144dcc99211ed7e8e662d12971d09954e`; gh-pages
