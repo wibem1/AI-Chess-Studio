@@ -1,5 +1,14 @@
 # Änderungen
 
+## 0.11.1 – Gleich großes Lernbrett und Teststart oben (vorbereitet)
+
+- „Lernengine gegen Schachengine“ ganz oben; Testoptionen öffnen dort und
+  starten von der aktuell auf dem Brett gezeigten Stellung.
+- Lernbrett verwendet dieselbe Größe wie das Spielbrett, einschließlich schmaler
+  Desktopfenster und mobiler Ansichten. Kein Schrumpfen zugunsten des Chats.
+- Automatisches Zurückscrollen beim Schreiben/Antworten entfernt. Eingabe und
+  aktuelle Antwort bleiben unter dem Brett; bei wenig Fensterhöhe wird gescrollt.
+
 ## 0.11.0 – OpenRouter, KI-Diagnose und Testpartien (veröffentlicht am 7. November 2026)
 
 - Windows-Lernbrett: lesbare Mindestgröße statt Schrumpfen bis auf 140 CSS-Pixel;

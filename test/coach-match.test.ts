@@ -18,3 +18,11 @@ test('stop and selection changes discard late model responses',async()=>{
 test('when the model plays Black the engine opens first',async()=>{
  const s=new Session(),match=new CoachMatch(()=>s,()=>{},0);await match.start({color:'b',opponent:'stockfish',level:1,maxTurns:1},{respond:async r=>{assert.equal(r.fen.split(' ')[1],'b');return reply('e5');}},{move:async(_fen,moves)=>({san:moves.length===0?'e4':'Nf3',level:1,engine:'Stockfish fixture'})});assert.deepEqual(match.report!.moves.map(m=>m.source),['engine','model','engine']);
 });
+
+
+test('match begins at the currently displayed noninitial position',async()=>{
+ const s=new Session();s.play('d4');s.play('d5');const origin=s.snapshot().activeNodeId,fen=s.snapshot().nodes.find(n=>n.id===origin)!.fen;
+ const match=new CoachMatch(()=>s,()=>{},0);
+ await match.start({color:'w',opponent:'stockfish',level:1,maxTurns:1},{respond:async r=>{assert.equal(r.fen,fen);return reply('e4');}},{move:async()=>({san:'dxe4',level:1,engine:'Stockfish fixture'})});
+ assert.equal(match.report!.origin,origin);assert.deepEqual(match.report!.moves.map(m=>m.san),['e4','dxe4']);assert.equal(match.report!.status,'limit');
+});

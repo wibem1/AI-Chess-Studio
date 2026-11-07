@@ -1785,3 +1785,17 @@ aktuelle Antwort gleichzeitig sichtbar, keine horizontale Überbreite.
 Screenshot visuell geprüft. Chromium-Reproduktion, keine native Windows-Abnahme.
 Erster Browserlauf fehlte wegen nicht vorhandenem Browser; nach Installation
 und zwei Layout-/Testkorrekturen obige Prüfungen erfolgreich. Nicht veröffentlicht.
+
+
+## Gleiches Lern-/Spielbrett, vorbereitete 0.11.1
+
+5/5 Chromiumfälle für Brettgrößengleichheit (8 Desktop-/Mobilgrößen),
+Brett-/Vergleichsgeometrie und vertikalen Lerndialog bestanden.
+Testdatei e2e/windows-learning.spec.ts ersetzt die überholte Forderung, den
+ganzen Chat durch Verkleinern des Brettes im ersten Fenster zu halten.
+Root-Build/Typprüfung bestanden. Keine native Windows-Abnahme.
+
+Teststart ganz oben: 3/3 Lernlayout-/Größenfälle, danach 3/3 OpenRouter-/
+Diagnose-/Testpartiefälle mit echten Stockfish- und Maia-Antworten bestanden.
+5/5 Match-Einzeltests inklusive Start nach d4/d5 bestanden. Providerantworten
+weiterhin Fixtures, keine bezahlte Modellabnahme. Root-/Pages-Build bestanden.

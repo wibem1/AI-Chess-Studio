@@ -128,7 +128,6 @@ installScrollHelp(cancelBoardDrag);
 installPagePan();
 const reviewUI=installReviewUI(()=>studio.session,next=>{game.pause();studio.session=next;selected=null;},render);
 $('board-flip').addEventListener('click',()=>{const data=studio.session.snapshot();studio.session.orient((data.orientation??data.game?.human??'w')==='w'?'b':'w');render();});
-function showDiscussion(){if($('workspace').dataset.activeView==='learn'&&matchMedia('(min-width:901px) and (any-pointer:fine)').matches)requestAnimationFrame(()=>$('board').scrollIntoView({block:'start',behavior:'instant'}));}
 function render() {
   match.checkSelection();
   if(coachBoard.checkSelection()){studio.cancelAsk();activeAdapter?.cancel();}
@@ -263,6 +262,9 @@ function render() {
   updateMode();
   if(initialized&&isWebPlatform())void autosave.save().catch(()=>{});
 }
+$('board-area').insertBefore($('coach-match'),$('coach-plan-bar').nextSibling);
+$('open-coach-match').onclick=()=>{$<HTMLDetailsElement>('coach-match').open=!$<HTMLDetailsElement>('coach-match').open;};
+$('coach-match').addEventListener('toggle',()=>$('open-coach-match').setAttribute('aria-expanded',String($<HTMLDetailsElement>('coach-match').open)));
 const match=new CoachMatch(()=>studio.session,()=>{render();$('match-status').textContent=match.report?.message??'';if(match.report)message('dialogue-feedback','Testpartie: '+match.report.message);$<HTMLButtonElement>('match-start').disabled=!!match.running;$<HTMLButtonElement>('match-stop').disabled=!match.running;});
 $('match-start').addEventListener('click',async()=>{
  if(pending||!modelAvailable||!modelMode()){message('match-status','Aktiven eigenen KI-Zugang wählen; keine Simulation.');return;}
@@ -310,7 +312,7 @@ $('dialogue-form').addEventListener('submit', async event => {
     activeAdapter=real?new ServerModelAdapter(platformFetch):undefined;let toolStarted=false;
     const result = await studio.ask(question, activeAdapter??new SimulationAdapter($<HTMLSelectElement>('simulation-mode').value as SimulationMode),'chat',hintOverride,real?async(call,node)=>{if(!toolStarted){pendingCoachAnchor={session,node};toolStarted=true;}message('dialogue-feedback',call.function.name==='play_engine'?'Vorführung läuft; die Spielengine antwortet …':'Zugfolge wird am Brett vorgeführt …');const result=await coachBoard.execute(call,node);boardActions.push({at:new Date().toISOString(),call,result});if(boardActions.length>20)boardActions.shift();if(!chatStopped)message('dialogue-feedback','Brettergebnis liegt vor; die Lernengine erläutert es …');return result;}:undefined);
     message('dialogue-feedback', result === 'stored' ? `${real ? 'Modellantwort' : 'Beispielantwort'} an der angefragten Stellung gespeichert.` : chatStopped?'Angehalten. Gezeigte Züge bleiben als Lernvariante erhalten.':'Veraltete Antwort nach Sitzungs- oder Chatwechsel verworfen.');
-    render();showDiscussion();
+    render();
   } catch (error) {
     message('dialogue-feedback', chatStopped?'Angehalten. Gezeigte Züge bleiben als Lernvariante erhalten.':studio.session !== session ? 'Veraltete Anfrage nach Sitzungswechsel verworfen.' : session.dialogueRevision()!==chatRevision ? 'Chatverlauf gelöscht; die frühere Anfrage wurde nicht übernommen.' : (error instanceof Error ? error.message : 'Anfrage fehlgeschlagen.')+' Die bisherigen Chatbeiträge stammen von früheren Anfragen.');
   } finally { pending = false;activeAdapter=undefined; updateMode(); if (real) {void refreshModelStatus();void refreshCosts();} }
@@ -515,7 +517,7 @@ $('engine-location').addEventListener('change',()=>{
 });
 $('game-pause').addEventListener('click',()=>{navigation.select('learn');message('game-feedback','Partie pausiert. Probiere Varianten oder bespreche deine Ideen.');});
 $('game-resume').addEventListener('click',()=>{attempt(()=>game.resume(),'game-feedback','Zur tatsächlichen Partie zurückgekehrt.');void engineTurn();});
-text('question').addEventListener('focus',()=>{if(studio.session.snapshot().game){game.pause();render();}showDiscussion();});
+text('question').addEventListener('focus',()=>{if(studio.session.snapshot().game){game.pause();render();}});
 $('label-form').addEventListener('submit',event=>{event.preventDefault();attempt(()=>studio.session.label(studio.session.snapshot().activeNodeId,input('variant-label').value),'compare-feedback','Variantenname gespeichert.');});
 $('compare-form').addEventListener('submit',event=>{event.preventDefault();attempt(()=>studio.session.compare($<HTMLSelectElement>('compare-a').value,$<HTMLSelectElement>('compare-b').value),'compare-feedback','Vergleich gespeichert und im Dialogkontext verfügbar.');});
 function renderComparison(){

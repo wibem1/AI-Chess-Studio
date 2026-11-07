@@ -386,3 +386,27 @@ h2{font-size:1.65rem}
  .workspace[data-active-view=learn] #board{width:min(100%,480px,max(280px,50dvh))}
  #current-answer-body{max-height:64px}
 }
+
+/* Learning uses the same board size as play; conversation never shrinks it. */
+@media(min-width:901px){
+ .workspace[data-active-view=learn]{max-width:1760px;padding:12px 28px 32px}
+ .workspace[data-active-view=learn] .position{max-width:1080px;padding:16px}
+ .workspace[data-active-view=learn] #board{width:min(100%,960px,calc(100dvh - var(--studio-chrome-height,116px) - 38px),calc((100cqw - 24px)*.6923076923 - 34px),calc(100cqw - 378px))}
+ @container(max-width:850px){.workspace[data-active-view=learn] #board{width:min(100%,960px,calc(100dvh - var(--studio-chrome-height,116px) - 38px))}}
+}
+@media(max-width:900px){
+ .workspace[data-active-view=learn]{max-width:760px;padding:12px}
+ .workspace[data-active-view=learn] .position{max-width:1080px;padding:16px}
+ .workspace[data-active-view=learn] #board{width:min(100%,650px,calc(100dvh - 230px))}
+}
+@media(max-width:900px) and (any-hover:hover) and (any-pointer:fine){.workspace[data-active-view=learn] #board{width:min(100%,650px)}}
+@media(max-width:520px){
+ .workspace[data-active-view=learn]{padding:8px}
+ .workspace[data-active-view=learn] .position{padding:10px}
+ .workspace[data-active-view=learn] #board{width:100%}
+}
+
+.workspace[data-active-view=learn] #coach-plan-bar{order:-4}
+.workspace[data-active-view=learn] #coach-match{order:-3;width:100%;margin:0 0 10px;padding:0;border:0;box-shadow:none;background:transparent}
+#coach-match:not([open]){display:none}
+.workspace:not([data-active-view=learn]) #coach-match{display:none}

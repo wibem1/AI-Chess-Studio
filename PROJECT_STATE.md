@@ -1,5 +1,20 @@
 # Projektstand
 
+## Vorbereitet: 0.11.1 – Gleiches Lernbrett und Teststart oben
+
+Die Mindestgrößenkorrektur in 0.11.0 genügte dem Nutzer nicht. Jetzt gleiche
+Brettgröße in Spiel- und Lernmodus; kein Reservieren von Chathöhe durch
+Brettverkleinerung und kein erzwungenes Scrollen nach Eingabe/Antwort.
+Vertikale Reihenfolge bleibt bestehen; bei knapper Höhe muss gescrollt werden.
+5/5 Chromiumfälle bestanden: exakter Größenvergleich bei 1920×1080,1600×900,
+1280×900,1032×552,980×900,901×900,810×1080,390×844 (Toleranz 1 CSS-Pixel),
+64 quadratische Felder, Chat unter dem Brett, Vergleichsbretter und Partieanalyse.
+Root-Build/Typprüfung bestanden. Screenshot geprüft, keine native Windows-Abnahme.
+Startknopf „Lernengine gegen Schachengine“ jetzt ganz oben über dem Brett;
+öffnet dort die Testoptionen. Ausdrücklich Start von der aktuell gezeigten
+Stellung. Separater Test mit d4/d5-Ausgangslage bestanden (5/5 Match-Einzeltests).
+Nicht veröffentlicht. Nächster Schritt: Korrektur veröffentlichen.
+
 ## Aktuell veröffentlicht: 0.11.0 – OpenRouter, KI-Diagnose und Testpartie
 
 Nutzeraufträge vom 7. November: frei wählbare Modelle über OpenRouter,
