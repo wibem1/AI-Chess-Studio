@@ -1,6 +1,6 @@
 # Änderungen
 
-## 0.15.0 – Fremde PGN-Partien laden (vorbereitet, nicht veröffentlicht)
+## 0.15.0 – Fremde PGN-Partien laden (veröffentlicht am 7. November 2026)
 
 - PGN-Dateien direkt über „Partiedatei laden“ öffnen, ohne eigene Spielerseite
   oder Pflichtfragen. Frei nachspielen, Varianten untersuchen und analysieren.

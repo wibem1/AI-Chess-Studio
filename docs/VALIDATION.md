@@ -1914,3 +1914,9 @@ Browser zunächst nicht installiert; Standard-Playwright-Download lieferte
 „Site Unavailable“ statt ZIP. Chromium 153 aus separatem Testwerkzeug-Paket
 verwendet; keine Projektabhängigkeit hinzugefügt. Modellantworten Fixtures,
 kein bezahlter Aufruf, keine native Abnahme. Gesamte alte E2E-Suite nicht gelaufen.
+
+
+Veröffentlichung 0.15.0: erneuter Root-/Pages-Build und 1/1 Pages-Browserfall
+mit echtem Stockfish/Offline-Restore bestanden. Pages-Run 42422394121 SUCCESS
+für cd6895b85317bc8bd66c1dfb6bb6d02781f136ff; Live-Manifest bytegleich und vier
+App-Kerndateien per SHA-256 geprüft. Kein erneuter Gesamtlauf aller Browserfälle.

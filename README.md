@@ -1,11 +1,11 @@
 # AI-Chess-Studio
 
-Aktueller veröffentlichter Funktionsstand: **0.14.1**.
+Aktueller veröffentlichter Funktionsstand: **0.15.0**.
 [Web-App öffnen](https://wibem1.github.io/AI-Chess-Studio/).
 GitHub-Pages-Bereitstellung und Live-Dateiprüfsummen bestätigt.
 Änderungen: [CHANGELOG.md](CHANGELOG.md).
 
-Vorbereitet, noch nicht veröffentlicht: **0.15.0**. Fremde Einzelpartien im
+**0.15.0** ist veröffentlicht und live geprüft. Fremde Einzelpartien im
 **PGN-Format (.pgn)** über **Partien speichern und laden → Partiedatei laden**
 öffnen. Vor/Zurück zum Nachspielen; freie KI-Analyse ohne Zuordnung deiner
 Spielerseite. Die vorherige Sitzung wird gesichert. Spielernamen, Ergebnis

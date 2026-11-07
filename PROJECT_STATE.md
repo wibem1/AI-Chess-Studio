@@ -1,6 +1,6 @@
 # Projektstand
 
-## Vorbereitet: 0.15.0 – Fremde PGN-Partien direkt laden
+## Aktuell veröffentlicht: 0.15.0 – Fremde PGN-Partien direkt laden
 
 Nutzer bestätigt PGN (.pgn) als gewünschtes Fremdformat. Normaler Dateilader
 unter „Partien speichern und laden → Partiedatei laden“ akzeptiert jetzt PGN,
@@ -34,10 +34,18 @@ separate editierbare Zweige importiert. Neue Analysen im nativen JSON sichern,
 kein neuer PGN-Export. KI-Antworten Fixtures, kein bezahlter Aufruf und keine
 native Geräteabnahme. Kein vollständiger Lauf aller älteren Browsertests.
 
-Noch nicht veröffentlicht; live bleibt 0.14.1. Nächster Schritt bei Auftrag:
-0.15.0 auf bestehendem gh-pages veröffentlichen und Live-Dateien prüfen.
+Am 7. November 2026 (Europe/Berlin) nach ausdrücklichem Auftrag veröffentlicht.
+Quelle 409d4a83e12ccd28d049362de5102d6ff1a35f86; gh-pages
+cd6895b85317bc8bd66c1dfb6bb6d02781f136ff. Pages-Run 42422394121 SUCCESS:
+https://github.com/wibem1/AI-Chess-Studio/actions/runs/42422394121
+Live-BUILD.json vollständig mit vorbereitetem Manifest identisch; SHA-256 von
+index.html, service-worker.js, assets/index-BC7uNfVY.css und
+assets/index-DFG6tH8M.js bestätigt. Zusätzlich 1/1 Pages-Unterordner-Browserfall
+mit echtem Stockfish und Offline-Restore bestanden. Kein bezahlter KI-Aufruf.
+Nächster Schritt: Nutzer übernimmt Web-Update und lädt eine fremde Einzel-PGN
+über Partien speichern und laden → Partiedatei laden.
 
-## Aktuell veröffentlicht: 0.14.1 – Schlüsselstellungen als Analyseauftrag erkennen
+## Zuvor veröffentlicht: 0.14.1 – Schlüsselstellungen als Analyseauftrag erkennen
 
 Nutzer fragt anhand Screenshot nach fehlenden Schlüsselstellen-Buttons. Im
 Eingabefeld steht „Zeige die Schlüsselstellungen des Spiels“, Ansicht zeigt

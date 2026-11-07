@@ -232,3 +232,20 @@ index.html, service-worker.js, assets/index-qIRQUTWd.js und
 assets/index-DZAWGkdv.css bestätigt. 162 Einzeltests und 3 betroffene
 Browserfälle als Prüfgrundlage; kein neuer vollständiger Browserlauf,
 keine native Abnahme oder bezahlte KI-Anfrage behauptet.
+
+
+## Veröffentlichung 0.15.0 am 7. November 2026 (Europe/Berlin)
+
+Auf ausdrücklichen Nutzerauftrag den gesicherten und geprüften Quellcommit
+409d4a83e12ccd28d049362de5102d6ff1a35f86 gebaut und ausschließlich 23 öffentliche
+Dateien als cd6895b85317bc8bd66c1dfb6bb6d02781f136ff auf gh-pages übertragen.
+Fortlaufende Historie, Ref-Lease gegen 0bda85c; keine neuen Workflows/Provider.
+Pages-Run 42422394121 SUCCESS für genau diesen Commit:
+https://github.com/wibem1/AI-Chess-Studio/actions/runs/42422394121
+Live-BUILD.json bytegleich zum vorbereiteten Manifest; Version 0.15.0 und
+Quellcommit bestätigt. SHA-256 von index.html, service-worker.js,
+assets/index-BC7uNfVY.css und assets/index-DFG6tH8M.js identisch zum Build.
+Root-/Pages-Build bestanden; zusätzlich 1/1 Pages-Browserfall mit echtem
+Stockfish, Unterordner und Offline-Restore bestanden. Bereits gesicherte
+165 Einzeltests und 8 gezielte Funktionsfälle bleiben separat dokumentiert.
+Kein bezahlter Modellaufruf oder neue native Geräteabnahme.
