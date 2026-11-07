@@ -1,6 +1,6 @@
 # Projektstand
 
-## Vorbereitet: 0.14.0 – Antwortgröße, Schlüsselstellen und gespeicherte Analyse
+## Aktuell veröffentlicht: 0.14.0 – Antwortgröße, Schlüsselstellen und gespeicherte Analyse
 
 Nutzerauftrag nach Praxisabnahme von 0.13.0: KI-Antwortfeld wie Eingabe
 vergrößerbar; bei erfragten Schlüsselstellen per Pfeilen zwischen Stellungen
@@ -38,10 +38,18 @@ Providerantworten Fixtures, bestehende Stockfish-/Maia-Regressionen real. Kein
 bezahlter Modellaufruf und keine native Geräteabnahme. Kein neuer vollständiger
 Gesamtlauf aller älteren Browserfälle; bekannte frühere Prüfgrenzen bleiben.
 
-Auf work gesichert, noch nicht veröffentlicht. Live bleibt 0.13.0.
-Nächster Schritt: Veröffentlichung nach ausdrücklichem Auftrag, dann Nutzerabnahme.
+Am 7. November 2026 nach ausdrücklichem Auftrag veröffentlicht.
+Quelle 95ce1e8554f9cd82744582df660ec57fba802846; gh-pages
+1d8c2ac6cafbf20c2cfa3c3ca97222d75cfc8502. Pages-Run 42413364798 SUCCESS:
+https://github.com/wibem1/AI-Chess-Studio/actions/runs/42413364798
+Direktes Live-BUILD.json vollständig mit dem vorbereiteten Manifest identisch.
+Version/Quelle und Live-SHA-256 von index.html, service-worker.js,
+assets/index-DlVXQxnY.js und assets/index-DZAWGkdv.css bestätigt.
+Keine kostenpflichtige KI-Anfrage oder neue native Geräteabnahme.
+Nächster Schritt: Nutzer übernimmt das Web-Update und prüft Antwortgröße,
+Schlüsselstellen-Navigation und Speichern/Laden in seiner Geräteumgebung.
 
-## Aktuell veröffentlicht: 0.13.0 – Varianten blättern, Stellungen übergeben, ruhiges Brett
+## Zuvor veröffentlicht: 0.13.0 – Varianten blättern, Stellungen übergeben, ruhiges Brett
 
 Nutzerwunsch nach Praxisabnahme von 0.12.0: Vor/Zurück an der aktuellen
 Lernstellung, jede Stellung in den anderen Modus übergeben und kein springendes

@@ -1,6 +1,6 @@
 # Änderungen
 
-## 0.14.0 – Vergrößerbare Antwort und gespeicherte Schlüsselstellen (vorbereitet)
+## 0.14.0 – Vergrößerbare Antwort und gespeicherte Schlüsselstellen (veröffentlicht am 7. November 2026)
 
 - KI-Antwort vertikal vergrößerbar, mit Griff und Tastaturbedienung; gewählte Höhe
   bleibt beim Blättern und Neuladen erhalten.

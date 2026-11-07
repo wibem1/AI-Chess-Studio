@@ -1,13 +1,13 @@
 # AI-Chess-Studio
 
-Aktueller veröffentlichter Funktionsstand: **0.13.0**.
+Aktueller veröffentlichter Funktionsstand: **0.14.0**.
 [Web-App öffnen](https://wibem1.github.io/AI-Chess-Studio/).
 GitHub-Pages-Bereitstellung und Live-Dateiprüfsummen bestätigt.
 Änderungen: [CHANGELOG.md](CHANGELOG.md).
 
-Vorbereitet **0.14.0**: vergrößerbare KI-Antwort, Pfeilnavigation durch erfragte
-Schlüsselstellen sowie Analyse/Zugbezüge in gespeicherten Partien und Dateien.
-Noch nicht veröffentlicht; Prüfstand in PROJECT_STATE.md.
+**0.14.0**: vergrößerbare KI-Antwort, Pfeilnavigation durch erfragte Schlüsselstellen
+sowie Analyse/Zugbezüge in gespeicherten Partien und Dateien. Veröffentlicht und
+Live-Dateien geprüft; Prüfstand in PROJECT_STATE.md.
 
 **0.13.0**: Vor/Zurück direkt am Lernbrett, gezielte Übergabe jeder sichtbaren
 Stellung in den anderen Modus mit Sicherung sowie stabile KI-Engine-Statusanzeige.
@@ -23,7 +23,7 @@ Ansichten und überschreiben keine Partie; Zur Lernstellung kehrt zurück.
 OpenRouter, KI-Diagnose und kontrollierte Testpartien gegen Stockfish/Maia
 bleiben enthalten. [KI-Ergebnisse auswerten](docs/AI_EVALUATION.md).
 
-Prüfstand: 160/160 Einzeltests und 18/18 gezielte Browserfälle bestanden;
+Prüfstand: 162/162 Einzeltests und 21/21 gezielte Browserfälle bestanden;
 kein neuer vollständiger Browsergesamtlauf, echte Modellqualität und native
 Geräteabnahme weiterhin offen. Details: [PROJECT_STATE.md](PROJECT_STATE.md).
 
