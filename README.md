@@ -1,23 +1,23 @@
 # AI-Chess-Studio
 
-Aktueller veröffentlichter Funktionsstand: **0.11.2**.
+Aktueller veröffentlichter Funktionsstand: **0.12.0**.
 [Web-App öffnen](https://wibem1.github.io/AI-Chess-Studio/).
 GitHub-Pages-Bereitstellung und Live-Dateiprüfsummen bestätigt.
 Änderungen: [CHANGELOG.md](CHANGELOG.md).
 
-Vorbereitet **0.12.0**: kompakter Arbeitsbereich mit Modell im Kopf und Technik
-in Einstellungen, Zum Anfang springen, keine Spiel-Zielfeldvorschau sowie
-KI-Lehrstellungen/Pfeile/Linien. Noch nicht veröffentlicht. Prüfstand und
-Funktionsgrenzen: [PROJECT_STATE.md](PROJECT_STATE.md).
+Kompakte Modellanzeige oben; Zugang, Verbindungstest und Modellwechsel in
+Einstellungen. Weniger Erklärtexte und Zusatzoptionen, direkter Sprung zum
+Anfang. Im Spielmodus keine Vorschau möglicher Zielfelder.
 
-Anbieter, Modell, Denktiefe und Betriebszustand stehen sichtbar im Lernmodus.
-Verbindung dort prüfen und Modell ohne erneute Schlüsseleingabe wechseln.
-Bearbeitete Anbieterauswahl bleibt bei Hintergrundaktualisierungen erhalten.
-OpenRouter, exportierbare KI-Diagnose und Testpartien gegen Stockfish/Maia sind
-enthalten. Anleitung: [KI-Ergebnisse auswerten](docs/AI_EVALUATION.md).
-Prüfstand: 154/154 Einzeltests und 80/86 Browserfälle bestanden; sechs bekannte
-Prüffehler sowie echte Anbieter-/Geräteabnahme bleiben offen.
-Details: [PROJECT_STATE.md](PROJECT_STATE.md).
+Die Lernengine kann auf Wunsch legale Varianten vorführen sowie separate
+Lehrstellungen und Pfeile/Linien darstellen. Lehrdiagramme sind vorübergehende
+Ansichten und überschreiben keine Partie; Zur Lernstellung kehrt zurück.
+OpenRouter, KI-Diagnose und kontrollierte Testpartien gegen Stockfish/Maia
+bleiben enthalten. [KI-Ergebnisse auswerten](docs/AI_EVALUATION.md).
+
+Prüfstand: 156/156 Einzeltests und 14/14 gezielte Browserfälle bestanden;
+kein neuer vollständiger Browsergesamtlauf, echte Modellqualität und native
+Geräteabnahme weiterhin offen. Details: [PROJECT_STATE.md](PROJECT_STATE.md).
 
 **0.10.1**: Kostenanzeige ohne Budgetperiode oder Drei-Anfragen-Grenze;
 Verbrauch bleibt erhalten. Neues Lernlayout: Brett, direkt darunter Eingabe und

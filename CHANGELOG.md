@@ -1,6 +1,6 @@
 # Änderungen
 
-## 0.12.0 – Kompakter Lernbereich und Lehrdiagramme (vorbereitet)
+## 0.12.0 – Kompakter Lernbereich und Lehrdiagramme (veröffentlicht am 7. November 2026)
 
 - Oben kompakte KI-Modellanzeige; Zugang und Verbindungstest in Einstellungen.
 - Weniger dauernde Erklärtexte und Zusatzknöpfe, kompakte Werkzeugleiste am Brett.

@@ -1,10 +1,10 @@
 # Projektstand
 
-## Vorbereitet: 0.12.0 – kompakter Arbeitsbereich und KI-Lehrdiagramme
+## Aktuell veröffentlicht: 0.12.0 – kompakter Arbeitsbereich und KI-Lehrdiagramme
 
 Nutzerauftrag nach Praxisabnahme von 0.11.2: mehr Platz für Brett/Chat, weniger
 Erklärtexte und Optionen, Technik aus dem Blickfeld, Modell oben; KI soll
-Stellungen sowie Pfeile/Linien zeigen können. Keine Veröffentlichung beauftragt.
+Stellungen sowie Pfeile/Linien zeigen können. Anschließend ausdrücklich zur Veröffentlichung beauftragt.
 
 Umgesetzt:
 - Kompakte Modellanzeige im Kopf, Demo/gesperrt/laufend weiterhin erkennbar.
@@ -40,11 +40,18 @@ Kein vollständiger neuer Gesamtlauf aller älteren Browserfälle; alte Tests mi
 entfernten Kommentar-/Analyseoptionen benötigen Anpassung an den neuen Ablauf.
 Die frühere Sechser-Fehlerliste ist damit nicht pauschal als behoben freigegeben.
 
-Version 0.12.0 nur vorbereitet und auf work gesichert. Live bleibt 0.11.2.
-Nächster Schritt: Veröffentlichung nach ausdrücklichem Auftrag; echte KI auf
-Wunsch im Chat z.B. „Baue ein Königsendspiel auf und zeichne den Königsweg“ prüfen.
+Version 0.12.0 am 7. November 2026 veröffentlicht. Quellcommit
+89a7961924297291ad04519209feaf5a38f76533; gh-pages
+3e7b58b69fcbdedf9d1ef8f9c05e5150cbf153e1. Pages-Run 42404462432 SUCCESS:
+https://github.com/wibem1/AI-Chess-Studio/actions/runs/42404462432
+Direktes Live-BUILD.json vollständig mit dem vorbereiteten Manifest identisch;
+Version, Quelle und Dateihashes bestätigt. Live-HTML, Service Worker, Haupt-JS
+assets/index-BxlHw25U.js und CSS assets/index-BL6wUJ7P.css per SHA-256 geprüft.
+Kein neuer Gesamttest oder echte Anbieter-/Geräteabnahme damit behauptet.
+Nächster Schritt: Nutzer übernimmt das Web-Update; echte KI im Chat z.B.
+„Baue ein Königsendspiel auf und zeichne den Königsweg“ prüfen.
 
-## Aktuell veröffentlicht: 0.11.2 – Bereitstellung und Live-Dateien bestätigt
+## Zuvor veröffentlicht: 0.11.2 – Bereitstellung und Live-Dateien bestätigt
 
 Am 7. November 2026 nach erneuter ausdrücklicher Veröffentlichungsanweisung
 abgeschlossen. Unveränderter App-Quellcommit:

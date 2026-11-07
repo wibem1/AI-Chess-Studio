@@ -176,3 +176,18 @@ https://github.com/wibem1/AI-Chess-Studio/actions/runs/42303046331
 Öffentliches commitgebundenes BUILD.json mit Version/Basis/Quelle verifiziert.
 Direkter Live-Host-/nativer Gerätetest weiterhin offen. Keine neue Ablage,
 kein neuer Workflow und keine kostenpflichtige Modellanfrage.
+
+
+## Veröffentlichung 0.12.0 am 7. November 2026
+
+Quelle 89a7961924297291ad04519209feaf5a38f76533; gh-pages
+3e7b58b69fcbdedf9d1ef8f9c05e5150cbf153e1. Unveränderter gesicherter Stand
+für /AI-Chess-Studio/ gebaut, öffentliche Dateiliste über bestehenden
+GitHub-Zugang als fortlaufender Commit übertragen. Kein neuer Workflow.
+Pages-Run 42404462432 SUCCESS:
+https://github.com/wibem1/AI-Chess-Studio/actions/runs/42404462432
+Live-BUILD.json vollständig identisch mit vorbereitetem Manifest;
+SHA-256 von index.html, service-worker.js, assets/index-BxlHw25U.js und
+assets/index-BL6wUJ7P.css bestätigt. Native Nutzer-/Anbieterabnahme getrennt.
+Prüfgrundlage 156 Einzeltests und 14 gezielte Browserfälle; kein neu behaupteter
+vollständiger Browsergesamtlauf. Keine kostenpflichtige KI-Anfrage.
