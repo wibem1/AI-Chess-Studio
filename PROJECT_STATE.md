@@ -1,5 +1,39 @@
 # Projektstand
 
+## Veröffentlichung 0.11.2 am 7. November 2026: übertragen, GitHub Pages noch ausstehend
+
+Nach Mitteilung der sechs Browserprüffehler hat der Nutzer ausdrücklich erneut
+„veröffentlichen“ beauftragt. Daher unveränderten gesicherten Appstand
+df70c52281c457ee9ebbc6a17474657149dd862f übertragen; keine Appkorrektur oder
+Versionsänderung und keine Behauptung eines vollständig grünen Prüflaufs.
+
+gh-pages: b2acd65bd8a07349ee272d6961edfd0f6c7e377c.
+BUILD.json auf genau diesem Commit bestätigt 0.11.2 und die Quelle.
+Das öffentliche Dateiset entspricht dem vorbereiteten Pages-Build: 23 Dateien,
+unveränderte Binärdateien über vorhandene Git-Blobs erhalten, alte gehashte
+Assets entfernt. Nativer Publisher scheiterte an fehlender Git-Push-Anmeldung
+dieses Runners; deshalb denselben Dateibaum über verbundenen GitHub-Zugang als
+neuen Commit mit bisherigem gh-pages-Commit als Eltern und Ref-Lease übertragen.
+Keine neue Ablage, kein neuer Workflow, kein Force-Push, keine bezahlte KI-Anfrage.
+
+Pages-Lauf: https://github.com/wibem1/AI-Chess-Studio/actions/runs/42397507785
+Build und report-build-status SUCCESS. Deploy lief von 17:41 bis 17:51 UTC
+dauerhaft mit syncing_files und scheiterte an „Timeout reached, aborting!“.
+Fehler aus den echten Deploy-Joblogs (128478011930) bestätigt.
+Einmal gezielt nur fehlgeschlagene Jobs erneut gestartet, von GitHub angenommen.
+Letzter geprüfter öffentlicher Laufstatus: **Queued / Re-run triggered**;
+API latest-attempt/jobs noch leer. Keine weiteren Wiederholungen gestartet.
+
+Direktes Live-BUILD.json zuletzt weiterhin 0.11.1. **Kein bestätigter Onlinegang
+von 0.11.2.** Ursache des aktuellen Veröffentlichungsstillstands ist GitHubs
+Pages-Auslieferung, nicht mehr eine fehlende Nutzerfreigabe. Die nachfolgend
+dokumentierten sechs Browserprüffehler und die echte Anbieter-/Geräteabnahme
+bleiben offen. Nächster Schritt: den bereits beauftragten Wiederholungslauf
+prüfen und nach Erfolg Live-BUILD.json plus HTML/JS/CSS/Service-Worker-Hashes
+gegen artifacts/Pages-0.11.2-DtSXXu beziehungsweise dessen BUILD.json prüfen;
+anschließend Changelog/README als veröffentlicht kennzeichnen.
+Nicht ohne neuen Befund erneut hochladen.
+
 ## Veröffentlichungsprüfung 0.11.2 am 7. November 2026: blockiert
 
 Auftrag: ausschließlich gesicherten Appstand df70c52281c457ee9ebbc6a17474657149dd862f
