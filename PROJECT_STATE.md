@@ -10,9 +10,11 @@ Vertikale Reihenfolge bleibt bestehen; bei knapper Höhe muss gescrollt werden.
 1280×900,1032×552,980×900,901×900,810×1080,390×844 (Toleranz 1 CSS-Pixel),
 64 quadratische Felder, Chat unter dem Brett, Vergleichsbretter und Partieanalyse.
 Root-Build/Typprüfung bestanden. Screenshot geprüft, keine native Windows-Abnahme.
-Startknopf „Lernengine gegen Schachengine“ jetzt ganz oben über dem Brett;
-öffnet dort die Testoptionen. Ausdrücklich Start von der aktuell gezeigten
-Stellung. Separater Test mit d4/d5-Ausgangslage bestanden (5/5 Match-Einzeltests).
+„Lernengine gegen Schachengine“ ganz oben mit nur Start/Stop, ohne
+Zusatzformular oder Kostencheckbox. Start gilt als Nutzerauftrag für den
+bezahlten Test: aktuelles Modell, sichtbare Stellung, am Zug befindliche Farbe,
+Gegner/Stufe der vorhandenen Partie (sonst Spielmoduseinstellung). Interne
+Obergrenze 100 Modellzüge, Stop/Regelende/Fehler beenden vorher. Separater Test mit d4/d5-Ausgangslage bestanden (5/5 Match-Einzeltests).
 Nicht veröffentlicht. Nächster Schritt: Korrektur veröffentlichen.
 
 ## Aktuell veröffentlicht: 0.11.0 – OpenRouter, KI-Diagnose und Testpartie

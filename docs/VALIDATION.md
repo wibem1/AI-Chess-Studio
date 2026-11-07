@@ -1799,3 +1799,7 @@ Teststart ganz oben: 3/3 Lernlayout-/Größenfälle, danach 3/3 OpenRouter-/
 Diagnose-/Testpartiefälle mit echten Stockfish- und Maia-Antworten bestanden.
 5/5 Match-Einzeltests inklusive Start nach d4/d5 bestanden. Providerantworten
 weiterhin Fixtures, keine bezahlte Modellabnahme. Root-/Pages-Build bestanden.
+
+Nach Vereinfachung auf nur Start/Stop: Root-Build/Typprüfung und 4/4
+Chromiumfälle für Modellwahl/Diagnose, echte Stockfish-/Maia-Testpartien und
+Brettgrößengleichheit mit genau zwei Testbuttons bestanden.

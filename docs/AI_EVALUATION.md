@@ -54,9 +54,12 @@ angegebene Zusatzbeobachtungen sind darin enthalten.
 
 ## Testpartie gegen Stockfish oder Maia
 
-Im Lernmodus eine Ausgangsstellung wählen, „Testpartie: Lernengine gegen
-Schachengine“ öffnen. Farbe der Lernengine, Gegner, dessen Stufe und höchstens
-5/10/30/100 Modellzüge wählen. Nach Kostenfreigabe „KI-Test starten“ drücken.
+Im Lernmodus stehen ganz oben unter „Lernengine gegen Schachengine“ nur
+„Start“ und „Stop“. Start beginnt den kostenpflichtigen Test von der aktuell
+sichtbaren Stellung. Das aktuelle KI-Modell übernimmt die dort am Zug befindliche
+Farbe. Gegner und Stufe stammen aus der bestehenden Partie, sonst aus den
+Spielmoduseinstellungen. Keine zusätzliche Auswahl oder Bestätigungscheckbox.
+Interne Obergrenze: 100 Modellzüge pro Start.
 Der Test läuft im Lernzweig; der Cursor der tatsächlichen Partie bleibt erhalten.
 Er startet KEINE neue Partie beim Anbieter und erzeugt keine FIDE-/Online-Elo.
 
@@ -67,10 +70,9 @@ Werkzeug beendet den Test, ohne automatische Korrektur oder Wiederholung.
 Ein Regelende, die Zuggrenze oder ein Fehler beendet den Lauf. Eine erreichte
 Zuggrenze bedeutet keinen Sieg. Die Stufen sind App-Profile, keine gemessene Elo.
 
-„Testpartie anhalten“ bzw. die Stopptaste am Brett unterbricht; Stellungs-/Sitzungs-
+„Stop“ unterbricht; Stellungs-/Sitzungs-
 wechsel oder Verlassen des Lernmodus stoppt ebenfalls. Bereits gestartete
-Anbieterarbeit kann Kosten verursacht haben. Rückkehr zur Test-Ausgangsstellung
-lässt die gezeigte Linie als Variante erhalten. Modellwechsel wird während des
+Anbieterarbeit kann Kosten verursacht haben. Die gezeigte Linie bleibt als Lernvariante erhalten. Modellwechsel wird während des
 Laufs nicht still übernommen. Für Vergleichspartien gleiche Ausgangsstellung,
 Gegnerstufe, Farbe und Zugzahl verwenden und Diagnosen jeweils herunterladen.
 

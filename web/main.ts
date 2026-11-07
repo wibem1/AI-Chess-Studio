@@ -262,18 +262,14 @@ function render() {
   updateMode();
   if(initialized&&isWebPlatform())void autosave.save().catch(()=>{});
 }
-$('board-area').insertBefore($('coach-match'),$('coach-plan-bar').nextSibling);
-$('open-coach-match').onclick=()=>{$<HTMLDetailsElement>('coach-match').open=!$<HTMLDetailsElement>('coach-match').open;};
-$('coach-match').addEventListener('toggle',()=>$('open-coach-match').setAttribute('aria-expanded',String($<HTMLDetailsElement>('coach-match').open)));
+$('board-area').insertBefore($('coach-match'),$('coach-plan-bar'));
 const match=new CoachMatch(()=>studio.session,()=>{render();$('match-status').textContent=match.report?.message??'';if(match.report)message('dialogue-feedback','Testpartie: '+match.report.message);$<HTMLButtonElement>('match-start').disabled=!!match.running;$<HTMLButtonElement>('match-stop').disabled=!match.running;});
 $('match-start').addEventListener('click',async()=>{
  if(pending||!modelAvailable||!modelMode()){message('match-status','Aktiven eigenen KI-Zugang wählen; keine Simulation.');return;}
- if(!input('match-consent').checked){message('match-status','Kostenpflichtigen Testlauf ausdrücklich freigeben.');return;}
- game.pause();const adapter=new ServerModelAdapter(platformFetch),opponent=$<HTMLSelectElement>('match-opponent').value as 'stockfish'|'maia';
- try{const identity=await diagnosticData();window.scrollTo({top:0,behavior:'instant'});await match.start({model:identity.model.model,color:$<HTMLSelectElement>('match-color').value as 'w'|'b',opponent,level:Number($<HTMLSelectElement>('match-level').value),maxTurns:Number($<HTMLSelectElement>('match-turns').value)},adapter,opponent==='maia'?new MaiaPlayingEngine(value=>message('match-status',value)):new BrowserPlayingEngine());}catch(error){message('match-status',error instanceof Error?error.message:'Teststart fehlgeschlagen.');}finally{for(const id of ['model-apply','api-connect','api-disconnect'])$<HTMLButtonElement>(id).disabled=false;input('match-consent').checked=false;await refreshCosts();}
+ game.pause();const snapshot=studio.session.snapshot(),saved=snapshot.game,fen=snapshot.nodes.find(n=>n.id===snapshot.activeNodeId)!.fen;const adapter=new ServerModelAdapter(platformFetch),opponent=saved?.opponent??$<HTMLSelectElement>('game-opponent').value as 'stockfish'|'maia';
+ try{const identity=await diagnosticData();window.scrollTo({top:0,behavior:'instant'});await match.start({model:identity.model.model,color:new Chess(fen).turn(),opponent,level:saved?.level??Number($<HTMLSelectElement>('game-level').value),maxTurns:100},adapter,opponent==='maia'?new MaiaPlayingEngine(value=>message('match-status',value)):new BrowserPlayingEngine());}catch(error){message('match-status',error instanceof Error?error.message:'Teststart fehlgeschlagen.');}finally{for(const id of ['model-apply','api-connect','api-disconnect'])$<HTMLButtonElement>(id).disabled=false;await refreshCosts();}
 });
 $('match-stop').onclick=()=>{match.stop();render();message('match-status',match.report?.message??'Angehalten.');};
-$('match-origin').onclick=()=>{if(!match.report||!match.canReturn){message('match-status','Test-Ausgangspunkt gehört zu einer anderen Sitzung.');return;}match.stop();game.analyse(match.report.origin);render();};
 const modelControls=installModelControls(localPost,async()=>{await refreshModelStatus();await refreshCosts();},()=>({nodeId:studio.session.snapshot().activeNodeId,fen:studio.session.snapshot().nodes.find(n=>n.id===studio.session.snapshot().activeNodeId)!.fen,testMatch:match.report,boardActions,environment:{userAgent:navigator.userAgent,viewport:{width:innerWidth,height:innerHeight},fontScale:$<HTMLSelectElement>('font-scale').value},feedback:$('dialogue-feedback').textContent}));
 $('move-form').addEventListener('submit', event => { event.preventDefault(); move(input('move').value.trim()); });
 $('memory-form').addEventListener('submit', event => {

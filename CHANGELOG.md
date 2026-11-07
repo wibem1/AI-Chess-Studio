@@ -2,8 +2,8 @@
 
 ## 0.11.1 – Gleich großes Lernbrett und Teststart oben (vorbereitet)
 
-- „Lernengine gegen Schachengine“ ganz oben; Testoptionen öffnen dort und
-  starten von der aktuell auf dem Brett gezeigten Stellung.
+- „Lernengine gegen Schachengine“ ganz oben mit ausschließlich Start/Stop.
+  Start ab sichtbarer Stellung mit aktuellem Modell und eingestellter Spielengine.
 - Lernbrett verwendet dieselbe Größe wie das Spielbrett, einschließlich schmaler
   Desktopfenster und mobiler Ansichten. Kein Schrumpfen zugunsten des Chats.
 - Automatisches Zurückscrollen beim Schreiben/Antworten entfernt. Eingabe und
