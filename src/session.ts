@@ -82,17 +82,17 @@ export class Session {
     this.data.activeNodeId=id;return id;
   }
   orient(color:PlayerColor):void{if(!['w','b'].includes(color))throw new Error('Ungültige Brettorientierung.');this.data.orientation=color;}
-  static fromPgn(pgn:string,choice:PlayerColor|'auto'='auto',name=''):Session {
+  static fromPgn(pgn:string,choice:PlayerColor|'auto'='auto',name='',mode:'guided'|'study'='guided'):Session {
     const parsed=parsePgn(pgn),human=identifyPlayer(parsed,choice,name),session=new Session(parsed.rootFen);
     for(const [index,move] of parsed.moves.entries())session.data.nodes.push({id:`n${index+1}`,parentId:`n${index}`,san:move.san,fen:move.after});
-    const review:ReviewState={pgn,original:session.data.nodes.map(n=>n.id),human,decision:0,revealed:[],responses:{},guiding:true,completed:false};
+    const review:ReviewState={...(mode==='study'?{browsing:true}:{}),pgn,original:session.data.nodes.map(n=>n.id),human,decision:0,revealed:[],responses:{},guiding:mode==='guided',completed:false};
     const decisions=reviewDecisions(review,session.data);
-    if(!decisions.length)throw new Error('Die PGN enthält keinen Zug deiner gewählten Seite.');
-    review.decision=decisions[0]!;session.data.schemaVersion=2;session.data.review=review;session.orient(human);
+    if(mode==='guided'&&!decisions.length)throw new Error('Die PGN enthält keinen Zug deiner gewählten Seite.');
+    review.decision=mode==='study'?0:decisions[0]!;session.data.schemaVersion=2;session.data.review=review;session.orient(human);
     session.select(review.original[review.decision]!);return session;
   }
   reviewDecision(index:number):void {
-    const r=this.data.review;if(!r||!reviewDecisions(r,this.data).includes(index))throw new Error('Keine eigene Entscheidung an dieser Stelle.');
+    const r=this.data.review;if(!r||r.browsing||!reviewDecisions(r,this.data).includes(index))throw new Error('Keine eigene Entscheidung an dieser Stelle.');
     if(this.data.game&&!this.data.game.paused)this.data.game={...this.data.game,paused:true,revision:this.data.game.revision+1};
     r.decision=index;r.guiding=true;this.select(r.original[index]!);
   }
@@ -101,7 +101,7 @@ export class Session {
     const id=r.original[r.decision]!;r.responses[id]??={};r.responses[id][field]=value.trim();this.revealReview();
   }
   revealReview():void{const r=this.data.review;if(!r)throw new Error('Keine importierte Partie.');if(!r.revealed.includes(r.decision))r.revealed.push(r.decision);}
-  guideReview(active:boolean):void{const r=this.data.review;if(!r)throw new Error('Keine importierte Partie.');r.guiding=active;if(active)this.reviewDecision(r.decision);}
+  guideReview(active:boolean):void{const r=this.data.review;if(!r||active&&r.browsing)throw new Error('Kein geführter Rückblick verfügbar.');r.guiding=active;if(active)this.reviewDecision(r.decision);}
   finishReview():void{if(!this.data.review)throw new Error('Keine importierte Partie.');this.data.review.completed=true;}
   /** Caller captures the request's node ID; delayed replies never follow the current selection. */
   annotate(annotation: Annotation): void {

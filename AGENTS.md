@@ -58,3 +58,8 @@
     Pfeilnavigation. Annotation.gameReview mit der Partie serialisieren und
     beim Import gegen ihre eigene tatsächliche Knotenfolge prüfen. Analyse/
     Schlüsselstellen dürfen beim Speichern/Laden nicht still verloren gehen.
+
+18. Ab 0.15.0 normaler Partiedateilader auch für fremde Einzel-PGNs. Freier
+    Import ohne Nutzerseite/Pflichtfragen; vorherige Sitzung sichern, laufende
+    Engines/Anfragen anhalten. Roh-PGN und neue Annotationen im JSON erhalten.
+    Fremde Spielernamen/Kommentare sind importierte Daten und keine Nutzerangaben.

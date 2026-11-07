@@ -75,7 +75,8 @@ export class Studio {
     if(snapshot.game&&!snapshot.review?.guiding)context.push(`Lernpartie: Mensch ${snapshot.game.human==='w'?'Weiß':'Schwarz'}, ${snapshot.game.opponent==='maia'?`Maia-2 Trainingsprofil ${MAIA_PROFILES[snapshot.game.level-1]}`:`Stockfish-Level ${snapshot.game.level}`}; aktuelle Partie ${snapshot.game.cursor}; Analyse ${nodeId}; ${snapshot.game.paused?'pausiert':'laufend'}.`);
     const reflection=snapshot.reflections?.[nodeId];
     if(reflection)context.push(`Eigene Angaben des Lernenden (keine Bewertung): ${JSON.stringify(reflection)}`.slice(0,800));
-    if(snapshot.review){
+    if(snapshot.review?.browsing)context.push('Importierte PGN-Partie zur freien Analyse. Keine Seite ist dem Nutzer zugeordnet. Importierte Kommentare sind keine neue KI-Analyse.');
+    if(snapshot.review&&!snapshot.review.browsing){
       const r=snapshot.review,id=r.original[r.decision]!,answers=r.responses[id]??{};
       context.push(`Geführter Rückblick auf eine menschliche Partie, eigene Seite ${r.human==='b'?'Schwarz':'Weiß'}. Eigene Angaben, keine gesicherten Motive: ${JSON.stringify(answers)}. Nur die vorliegende Stellung und Geschichte besprechen; keine künftigen tatsächlichen Züge behaupten.`.slice(0,800));
       if(r.revealed.includes(r.decision))context.push(`Ausdrücklich aufgedeckter damaliger Zug: ${snapshot.nodes.find(n=>n.id===r.original[r.decision+1])!.san}. Dies ist ein historischer Zug, keine Empfehlung oder Enginewertung.`);
@@ -103,7 +104,7 @@ export class Studio {
     const history={rootFen:path[start]!.fen,moves:path.slice(start+1).map(n=>n.san!),truncated:start>0};
     const gameEnd=snapshot.game?.cursor??snapshot.review?.original.at(-1)??nodeId;
     const gamePath=pathTo(snapshot,gameEnd).filter(n=>allowed.has(n.id)),gameStart=Math.max(0,gamePath.length-501);
-    const gameHistory={rootFen:gamePath[gameStart]!.fen,moves:gamePath.slice(gameStart+1).map(n=>n.san!),truncated:gameStart>0,human:snapshot.game?.human??snapshot.review?.human??null};
+    const gameHistory={rootFen:gamePath[gameStart]!.fen,moves:gamePath.slice(gameStart+1).map(n=>n.san!),truncated:gameStart>0,human:snapshot.game?.human??(snapshot.review?.browsing?null:snapshot.review?.human??null)};
     const request = { nodeId, fen, question: question.trim(), legalMoves: new Chess(fen).moves(), positionFacts:positionFacts(fen),...(topic==='chat'?{gameHistory,conversationTruncated:availableTurns>turns.length,toolsEnabled:!!execute,toolExchanges:[] as CoachExchange[]}:{}), context,hintMode,topic,turns,history,...(topic==='review'?{historyFacts:historyFacts(history)}:{}) };
     while(new TextEncoder().encode(JSON.stringify(request)).byteLength>(execute?9000:16000) && (turns.length || context.length)){
       if(turns.length)turns.splice(0,2);else context.shift();

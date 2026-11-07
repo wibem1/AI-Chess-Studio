@@ -482,3 +482,6 @@ footer span{display:none}
 #key-moment-nav button{min-width:36px}
 .entry button[aria-current=true]{background:var(--green);color:white}
 #key-moment-nav:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#board-area #pgn-game-info{order:-6;font-size:.76rem;color:var(--muted);margin:0 0 5px}
+#board-area #pgn-game-comments{order:3;width:100%;font-size:.8rem}
+#pgn-game-comment{white-space:pre-wrap}

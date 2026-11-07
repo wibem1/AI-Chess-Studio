@@ -1,5 +1,15 @@
 # Änderungen
 
+## 0.15.0 – Fremde PGN-Partien laden (vorbereitet, nicht veröffentlicht)
+
+- PGN-Dateien direkt über „Partiedatei laden“ öffnen, ohne eigene Spielerseite
+  oder Pflichtfragen. Frei nachspielen, Varianten untersuchen und analysieren.
+- Spielernamen/Ergebnis und aufklappbare Originalkommentare; Kommentare als Text.
+- Vor Wechsel Sitzung sichern und laufende Engines/Anfragen anhalten. Ungültige
+  Dateien ersetzen die aktuelle Partie nicht.
+- PGN samt neuer Analyse, Schlüsselstellen und Lernchat im nativen JSON erhalten.
+- 165 Einzeltests und 8 gezielte Browserfälle bestanden; Details in PROJECT_STATE.md.
+
 ## 0.14.1 – Schlüsselstellungen erkennen (veröffentlicht am 7. November 2026)
 
 - „Zeige die Schlüsselstellungen des Spiels“ wie Schlüsselstellen als geprüften

@@ -1,5 +1,42 @@
 # Projektstand
 
+## Vorbereitet: 0.15.0 – Fremde PGN-Partien direkt laden
+
+Nutzer bestätigt PGN (.pgn) als gewünschtes Fremdformat. Normaler Dateilader
+unter „Partien speichern und laden → Partiedatei laden“ akzeptiert jetzt PGN,
+Text-PGN und bisherige JSON-Sitzungen. Fremde Einzelpartien öffnen im Lernmodus
+an der Ausgangsstellung, ohne Spielernamen-/Farbzuordnung oder Pflichtfragen.
+Vor/Zurück, Varianten, freie Analyse und Schlüsselstellen nutzen die tatsächliche
+importierte Hauptzugfolge. Vorherige Sitzung vor Wechsel lokal sichern; bei
+fehlgeschlagener Sicherung oder geänderter Quelle nicht ersetzen. Laufende
+Anfragen/Engines vor Sicherung anhalten. Kein automatischer KI-/Engineaufruf.
+
+Spielernamen/Ergebnis kompakt anzeigen, Kommentare zur aktuellen Originalstellung
+unter dem Brett aufklappbar und als Text ausgeben. Roh-PGN mit Kommentaren,
+Kopfdaten und Ergebnis bleibt erhalten; native JSON-Speicherung enthält daneben
+neue Analyse/Schlüsselstellen, Chat und Varianten. Freier Import wird als solcher
+serialisiert/validiert, vorhandener geführter eigener Rückblick bleibt kompatibel.
+KI-Kontext ordnet bei fremden Partien keine Seite dem Nutzer zu.
+
+Prüfung: Typprüfung, Root-/Pages-Build, 165/165 Einzeltests und 8/8 gezielte
+Chromiumfälle bestanden (pgn-file, analysis-navigation, game-review,
+position-transfer). PGN-Import ohne Nutzeridentität, einseitige Kurzpartie,
+BOM, ungültige Dateien, vollständiger Chat-/Analyserverlauf, JSON-Rundreise,
+Kommentar als Literaltext, Quellsicherung/Rückladen und 390px-Ansicht geprüft.
+PGN-Browserfall auf schmaler Ansicht visuell geprüft. Bestehenden Speichertest
+entkoppelt von alter Lade-Statusmeldung: auf tatsächlich abgeschlossenen
+Speichervorgang warten, bevor die neue Speicher-ID gelesen wird.
+
+Grenzen: Eine Einzelpartie/Hauptvariante bis 256 KiB und 1000 Halbzüge; keine
+PGN-Datenbanksammlung oder grafische Erkennung von PNG-Bildern. Roh-PGN bleibt
+inklusive vorhandener Nebenvarianten erhalten; Nebenvarianten werden nicht als
+separate editierbare Zweige importiert. Neue Analysen im nativen JSON sichern,
+kein neuer PGN-Export. KI-Antworten Fixtures, kein bezahlter Aufruf und keine
+native Geräteabnahme. Kein vollständiger Lauf aller älteren Browsertests.
+
+Noch nicht veröffentlicht; live bleibt 0.14.1. Nächster Schritt bei Auftrag:
+0.15.0 auf bestehendem gh-pages veröffentlichen und Live-Dateien prüfen.
+
 ## Aktuell veröffentlicht: 0.14.1 – Schlüsselstellungen als Analyseauftrag erkennen
 
 Nutzer fragt anhand Screenshot nach fehlenden Schlüsselstellen-Buttons. Im

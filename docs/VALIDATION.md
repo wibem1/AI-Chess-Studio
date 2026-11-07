@@ -1895,3 +1895,22 @@ Partie verwenden, Pfeile liefern und mit Metadaten speichern/laden. Zusätzliche
 Wortformen in bestehendem Erkennungstest geprüft. Providerfixtures, keine
 bezahlten Aufrufe, keine neue native Geräteabnahme. Kein neuer vollständiger
 21er-/Browsergesamtlauf behauptet.
+
+
+## 0.15.0 – Direkter Fremd-PGN-Import
+
+Typprüfung, Root-/Pages-Build und 165/165 Einzeltests bestanden. 8/8 gezielte
+Chromiumfälle: pgn-file, analysis-navigation, game-review, position-transfer.
+Neuer Browserfall lädt fremde PGN über normalen Dateilader, blättert am Brett,
+prüft literal ausgegebenen HTML-artigen Kommentar, exportiert/importiert JSON,
+weist ungültige PGN ohne Wechsel ab und lädt vorher gesicherte Sitzung zurück.
+390px ohne horizontalen Überlauf, Screenshot visuell geprüft. Einzeltests
+prüfen BOM, 1-Halbzug-Partie mit schwarzer Orientierung ohne eigene Züge,
+Validierung des freien Modus und vollständigen KI-Verlauf ohne Nutzerseite.
+Bestehender Speichertest wartet jetzt auf expliziten Speicherabschluss, statt
+eine noch passende Statusmeldung des vorherigen Ladevorgangs zu akzeptieren.
+
+Browser zunächst nicht installiert; Standard-Playwright-Download lieferte
+„Site Unavailable“ statt ZIP. Chromium 153 aus separatem Testwerkzeug-Paket
+verwendet; keine Projektabhängigkeit hinzugefügt. Modellantworten Fixtures,
+kein bezahlter Aufruf, keine native Abnahme. Gesamte alte E2E-Suite nicht gelaufen.

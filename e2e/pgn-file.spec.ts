@@ -1,0 +1,15 @@
+import {test,expect} from '@playwright/test';
+import {REVIEW_PGN} from '../test/fixtures/review-game.js';
+import {Session} from '../src/session.js';
+test('normal file loader imports a foreign PGN, browses comments safely, exports and restores the backup',async({page})=>{
+ await page.goto('/?platform=web');await expect(page.locator('#workspace')).not.toHaveAttribute('inert','');await page.getByRole('tab',{name:'Lernmodus',exact:true}).click();await page.locator('#games-menu > summary').click();
+ const original=new Session();original.play('d4');
+ await page.locator('#game-file').setInputFiles({name:'source.json',mimeType:'application/json',buffer:Buffer.from(original.export())});await expect(page.locator('#games-status')).toContainText('Partie geladen');
+ await page.locator('#game-file').setInputFiles({name:'foreign.pgn',mimeType:'application/x-chess-pgn',buffer:Buffer.from(REVIEW_PGN)});await expect(page.locator('#games-status')).toContainText('PGN-Partie geladen');await expect(page.locator('#pgn-game-info')).toContainText('Ada – wibem');await expect(page.locator('#position-status')).toContainText('n0');await expect(page.locator('#review-panel')).toBeHidden();const backup=await page.locator('#saved-games option').first().getAttribute('value');
+ await page.locator('#learn-next').click();await page.locator('#learn-next').click();await expect(page.locator('#position-status')).toContainText('n2');await page.locator('#pgn-game-comments > summary').click();await expect(page.locator('#pgn-game-comment')).toContainText('<img');await expect(page.locator('#pgn-game-comment img')).toHaveCount(0);
+ const pending=page.waitForEvent('download');await page.locator('#download-game').click();const download=await pending,fs=await import('node:fs/promises'),saved=JSON.parse(await fs.readFile((await download.path())!,'utf8'));expect(saved.review.browsing).toBe(true);expect(saved.review.pgn).toBe(REVIEW_PGN);
+ await page.locator('#game-file').setInputFiles({name:'saved.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(saved))});await expect(page.locator('#games-status')).toContainText('Partie geladen');await expect(page.locator('#pgn-game-info')).toContainText('Ada – wibem');await expect(page.locator('#position-status')).toContainText('n2');
+ await page.setViewportSize({width:390,height:844});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:'/tmp/chess-pgn-import.png',fullPage:true});
+ await page.locator('#game-file').setInputFiles({name:'broken.pgn',mimeType:'text/plain',buffer:Buffer.from('not chess')});await expect(page.locator('#games-status')).toContainText('ungültig');await expect(page.locator('#position-status')).toContainText('n2');
+ await page.locator('#saved-games').selectOption(backup!);await page.locator('#load-game').click();await expect(page.locator('#games-status')).toContainText('Partie geladen');await expect(page.locator('#position-status')).toContainText('n1');await expect(page.locator('#pgn-game-info')).toBeHidden();
+});

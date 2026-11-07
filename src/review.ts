@@ -11,6 +11,7 @@ export const REVIEW_QUESTIONS = [
 export type ReviewQuestion = typeof REVIEW_QUESTIONS[number]['key'];
 export type DecisionAnswers = Partial<Record<ReviewQuestion,string>>;
 export interface ReviewState {
+  browsing?:boolean;
   pgn:string; original:string[]; human:PlayerColor; decision:number;
   revealed:number[]; responses:Record<string,DecisionAnswers>; guiding:boolean; completed:boolean;
 }
@@ -87,7 +88,8 @@ export function validateReview(raw:unknown,data:SessionData):ReviewState {
   if(!node || node.fen!==(i===0?game.rootFen:game.moves[i-1]!.after)||node.san!==(i===0?null:game.moves[i-1]!.san)||node.parentId!==(i===0?null:r.original[i-1]))throw new Error('PGN und Originalpartie widersprechen sich.');
  }
  const decisions=reviewDecisions(r,data);
- if(!decisions.includes(r.decision)||!Array.isArray(r.revealed)||r.revealed.some(i=>!decisions.includes(i))||new Set(r.revealed).size!==r.revealed.length)throw new Error('Ungültige Rückblickposition.');
+ if((r.browsing?r.decision!==0:!decisions.includes(r.decision))||!Array.isArray(r.revealed)||r.revealed.some(i=>!decisions.includes(i))||new Set(r.revealed).size!==r.revealed.length)throw new Error('Ungültige Rückblickposition.');
+ if(r.browsing!==undefined&&(r.browsing!==true||r.guiding||r.decision!==0||r.revealed.length||Object.keys(r.responses).length))throw new Error('Ungültige freie PGN-Ansicht.');
  const responses:Record<string,DecisionAnswers>={};
  for(const [id,answers] of Object.entries(r.responses)){
   if(!decisions.some(i=>r.original[i]===id)||!answers||typeof answers!=='object'||Array.isArray(answers))throw new Error('Ungültige eigene Angaben.');
@@ -99,7 +101,7 @@ export function validateReview(raw:unknown,data:SessionData):ReviewState {
   if(Object.keys(answers).some(k=>!REVIEW_QUESTIONS.some(q=>q.key===k)))throw new Error('Unbekannte Rückblickfrage.');
   responses[id]=clean;
  }
- return {pgn:r.pgn,original:[...r.original],human:r.human,decision:r.decision,revealed:[...r.revealed],responses,guiding:r.guiding,completed:r.completed};
+ return {...(r.browsing?{browsing:true}:{}),pgn:r.pgn,original:[...r.original],human:r.human,decision:r.decision,revealed:[...r.revealed],responses,guiding:r.guiding,completed:r.completed};
 }
 export function repetitionCount(data:SessionData,id:string):number {
  const node=data.nodes.find(n=>n.id===id);if(!node)throw new Error('Unbekannte Stellung.');

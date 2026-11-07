@@ -5,6 +5,14 @@ Aktueller veröffentlichter Funktionsstand: **0.14.1**.
 GitHub-Pages-Bereitstellung und Live-Dateiprüfsummen bestätigt.
 Änderungen: [CHANGELOG.md](CHANGELOG.md).
 
+Vorbereitet, noch nicht veröffentlicht: **0.15.0**. Fremde Einzelpartien im
+**PGN-Format (.pgn)** über **Partien speichern und laden → Partiedatei laden**
+öffnen. Vor/Zurück zum Nachspielen; freie KI-Analyse ohne Zuordnung deiner
+Spielerseite. Die vorherige Sitzung wird gesichert. Spielernamen, Ergebnis
+und Originalkommentare bleiben erhalten. Neue Analysen zusammen mit der PGN
+über „Als Datei speichern“ im nativen JSON sichern. PGN-Datenbanksammlungen
+und PNG-Bilder werden nicht als Schachpartien importiert.
+
 **0.14.1** erkennt auch „Zeige die Schlüsselstellungen des Spiels“ als Auftrag
 für einen verknüpften Partierückblick mit Pfeilnavigation. Nach dem Update die
 Frage erneut senden; vorhandene freie Antworten werden nicht automatisch neu analysiert.

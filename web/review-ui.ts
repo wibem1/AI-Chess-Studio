@@ -57,12 +57,18 @@ export function installReviewUI(current:()=>Session,replace:(next:Session)=>void
  });
  return {
   render(data:SessionData){
-   if(data.review)document.querySelector<HTMLDetailsElement>('#learning-extras')!.open=true;
-   const r=data.review;$('review-panel').hidden=!r;
+   if(data.review&&!data.review.browsing)document.querySelector<HTMLDetailsElement>('#learning-extras')!.open=true;
+   const r=data.review;$('review-panel').hidden=!r||!!r.browsing;
+   $('pgn-game-info').hidden=true;$('pgn-game-comments').hidden=true;
    document.body.dataset.reviewLocked=String(reviewLocked(data));
    $('review-replace-hint').hidden=!(data.nodes.length>1||data.annotations.length||data.game);
    if(!r)return;
    if(cachedPgn!==r.pgn){parsed=parsePgn(r.pgn);cachedPgn=r.pgn;}
+   if(r.browsing){
+    $('pgn-game-info').hidden=false;$('pgn-game-info').textContent=`${parsed!.headers.White??'Weiß'} – ${parsed!.headers.Black??'Schwarz'} · ${parsed!.headers.Result??'*'}`;
+    const index=r.original.indexOf(data.activeNodeId),comment=index===0?parsed!.rootComment:index>0?parsed!.moves[index-1]!.comment:'';
+    $('pgn-game-comment').textContent=comment;$('pgn-game-comments').hidden=!comment;return;
+   }
    const game=parsed!,ply=game.moves[r.decision]!,decisions=reviewDecisions(r,data);
    $('review-meta').textContent=`${game.headers.White??'Weiß'} – ${game.headers.Black??'Schwarz'} · Ergebnis ${game.headers.Result??'*'} · Zeitkontrolle ${game.headers.TimeControl??'unbekannt'} · Deine Seite: ${r.human==='b'?'Schwarz':'Weiß'}`;
    const select=$<HTMLSelectElement>('review-decision');select.replaceChildren();

@@ -653,7 +653,7 @@ $('transfer-position').addEventListener('click',async()=>{
 });
 $('learn-origin').addEventListener('click',()=>attempt(()=>{const d=studio.session.snapshot();game.analyse(d.game?.cursor??d.nodes[0]!.id);},'move-feedback','Zur Ausgangsstellung der Analyse zurück.'));
 $('comment-move').addEventListener('click',()=>{text('question').value='Bitte besprich meinen gerade ausprobierten Zug. Welche Idee steckt dahinter, welche gegnerischen Antworten sollte ich beachten und wie könnte mein Plan weitergehen?';$<HTMLSelectElement>('dialogue-topic').value='position';$<HTMLFormElement>('dialogue-form').requestSubmit();});
-installGameLibrary(browserRuntime.store,()=>studio.session.export(),json=>{restoreSession(json);navigation.select('learn');render();});
+installGameLibrary(browserRuntime.store,()=>studio.session.export(),json=>{restoreSession(json);navigation.select('learn');render();},()=>{match.stop('Partie laden.');studio.cancelAsk();coachBoard.cancel();activeAdapter?.cancel();game.pause();});
 void(async()=>{
  let loaded=false;
  try{
