@@ -1,6 +1,37 @@
 # Projektstand
 
-## Veröffentlichung 0.11.2 am 7. November 2026: übertragen, GitHub Pages noch ausstehend
+## Aktuell veröffentlicht: 0.11.2 – Bereitstellung und Live-Dateien bestätigt
+
+Am 7. November 2026 nach erneuter ausdrücklicher Veröffentlichungsanweisung
+abgeschlossen. Unveränderter App-Quellcommit:
+df70c52281c457ee9ebbc6a17474657149dd862f.
+Veröffentlichter gh-pages-Commit: 9393887a57409cab225e2a170585f1ca23aee37e.
+Exakt derselbe Dateibaum ad15c3d3049520d9b30f309007627e424220b163 wie der
+vorige Upload b2acd65; keine App-, Versions- oder Assetänderung beim Neustart.
+
+GitHub-Run **42401490401: SUCCESS**, alle drei Jobs einschließlich Deploy:
+https://github.com/wibem1/AI-Chess-Studio/actions/runs/42401490401
+Live: https://wibem1.github.io/AI-Chess-Studio/
+Direktes Live-BUILD.json stimmt vollständig mit dem vorbereiteten Manifest
+überein: Version 0.11.2, Basis /AI-Chess-Studio/, Quellcommit und Dateihashes.
+Live-SHA-256 von index.html, service-worker.js, Haupt-JavaScript
+assets/index-BjupTJ3F.js und CSS assets/index-BMXFL-Rw.css stimmen mit dem
+geprüften Build überein. Keine erfolgreiche native Geräte-/Anbieterkontoabnahme
+behauptet. Kein bezahlter KI-Test.
+
+Erster Deploy 42397507785 scheiterte an syncing_files/Timeout; dessen gezielte
+Wiederholung blieb über 30 Minuten Queued ohne Jobs. Nach Nutzerauftrag
+„weiter“ einmal neuer Commit mit identischem Dateibaum und bestehendem
+gh-pages-Elterncommit: Bereitstellung erfolgreich. Keine weiteren Versuche nötig.
+
+Prüfgrenzen bleiben ausdrücklich bestehen: 154/154 Einzeltests, 80/86
+Browserfälle bestanden; sechs Fehler im vollständigen Lauf nachfolgend
+dokumentiert. Nutzer hatte Veröffentlichung nach Bekanntgabe erneut beauftragt.
+Nächster Schritt: Nutzer übernimmt das verfügbare Web-Update und prüft seinen
+tatsächlichen Anbieterzugang; Browserprüffehler sind separat zu klären.
+Keine neue Einrichtung oder Datenlöschung erforderlich.
+
+## Vorheriger Zwischenstand: Übertragung und ausstehendes Pages-Deployment
 
 Nach Mitteilung der sechs Browserprüffehler hat der Nutzer ausdrücklich erneut
 „veröffentlichen“ beauftragt. Daher unveränderten gesicherten Appstand
@@ -71,7 +102,7 @@ bestätigte Nutzer-/Anbieterfehler auszugeben. Appänderungen würden den Auftra
 „ausschließlich bereits gesicherter Entwicklungsstand 0.11.2“ überschreiten;
 dieser Dokumentationsnachtrag ändert keine App-Datei.
 
-## Vorbereitet: 0.11.2 – KI-Zugang nachvollziehbar
+## Implementiert und inzwischen veröffentlicht: 0.11.2 – KI-Zugang nachvollziehbar
 
 Nutzer meldet unklaren aktiven Zugang und ausbleibende Funktion. Lokal belegte
 Probleme: aktive Identität nur im Untermenü; Kostenaktualisierung schrieb
@@ -88,7 +119,7 @@ HTTP-401-Anzeige und tatsächlicher OpenAI-Modell-ID im abgefangenen Request.
 Echte Stockfish/Maia-Inferenz mit Modellfixtures weiterhin bestanden.
 Native Windows-/Anbieterkonto-Abnahme offen. Noch nicht veröffentlicht.
 
-## Aktuell veröffentlicht: 0.11.1 – Gleiches Lernbrett und Teststart oben
+## Zuvor veröffentlicht: 0.11.1 – Gleiches Lernbrett und Teststart oben
 
 Die Mindestgrößenkorrektur in 0.11.0 genügte dem Nutzer nicht. Jetzt gleiche
 Brettgröße in Spiel- und Lernmodus; kein Reservieren von Chathöhe durch
