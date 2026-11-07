@@ -1,5 +1,42 @@
 # Projektstand
 
+## Veröffentlichungsprüfung 0.11.2 am 7. November 2026: blockiert
+
+Auftrag: ausschließlich gesicherten Appstand df70c52281c457ee9ebbc6a17474657149dd862f
+über bestehenden gh-pages-Branch veröffentlichen. Globale Standards, AGENTS.md,
+Projektstand, Changelog und docs/WEB_PUBLISHING.md gelesen. App-Code unverändert.
+
+Erneute Prüfung im aktuellen Linux-Runner (Node 24.22.1, Headless Chromium
+153.0.8010.0 aus @sparticuz/chromium; Standard-Playwright-Download unbrauchbar):
+npm ci erfolgreich; npm run test:all: Typprüfung, Root-/Pages-Build und
+154/154 Einzeltests bestanden. Vollständiger Browserlauf: **80/86 bestanden,
+6 fehlgeschlagen**, keine vollständige Freigabe. Fünf gezielte
+model-diagnostics-Fälle auch separat bestanden, echte Stockfish-/Maia-Inferenz,
+Providerantworten ausschließlich Fixtures, keine bezahlten Anfragen.
+
+Fehlgeschlagene Fälle:
+- e2e/coach-tools.spec.ts:19: alte Erwartung Brett/Antwort innerhalb 900 px;
+  Brettunterkante 1220.109375. Erwartung widerspricht dem dokumentierten
+  gleichen Lernbrett mit Scrollen seit 0.11.1.
+- e2e/desktop-restart.spec.ts:13, e2e/studio.spec.ts:51 und
+  e2e/workbench.spec.ts:22: Klick-Timeout; Trace zeigt
+  „Partien speichern und laden“ als abfangendes Element aus #board-area.
+  Ursache/Abhängigkeit von Headless-Browser und Fontmetriken noch ungeklärt.
+- e2e/studio.spec.ts:161: Fixture fängt nur /api/status ab; neue aktive
+  Identität kommt aus Diagnose. Erwartet „KI-Zugang konfiguriert“, erhalten
+  „Kein aktiver KI-Zugang“. Testfixture/Vertrag gezielt prüfen.
+- e2e/studio.spec.ts:332: Timeout beim integrierten Desktop-Lerndialog;
+  noch kein nachgewiesener Defekt des echten Anbieterzugangs.
+
+**Nicht veröffentlicht.** Vorgesehener Publisher setzt erfolgreichen
+Gesamtprüflauf voraus. Kein gh-pages-Push, kein Release, kein neuer Workflow.
+Live-BUILD.json direkt gelesen: weiterhin 0.11.1, Quelle
+e0fead85321f90b14c9d1dc2f67f617b7ab4328c.
+Nächster Schritt: diese sechs Prüffehler gezielt klären, ohne sie als
+bestätigte Nutzer-/Anbieterfehler auszugeben. Appänderungen würden den Auftrag
+„ausschließlich bereits gesicherter Entwicklungsstand 0.11.2“ überschreiten;
+dieser Dokumentationsnachtrag ändert keine App-Datei.
+
 ## Vorbereitet: 0.11.2 – KI-Zugang nachvollziehbar
 
 Nutzer meldet unklaren aktiven Zugang und ausbleibende Funktion. Lokal belegte
