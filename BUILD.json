@@ -1,14 +1,14 @@
 {
   "kind": "github-pages-static-site",
   "project": "AI-Chess-Studio",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "base": "/AI-Chess-Studio/",
-  "sourceCommit": "5c5e9e298286b56498ad4edbfab979ecf58d8c78",
+  "sourceCommit": "cf672f2e28026cec25e0a98f46f4a52bf61f2835",
   "files": {
     ".nojekyll": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "_headers": "41fb0af7ff2868f349ba99dd74294a07b141e9c7a30a566b26cc2a67a80a22ce",
-    "assets/index-CurGmAUz.css": "75f43bf633e681478a38394155abfcc16f5e80bb8a9ff16b5f7704059b9491c6",
-    "assets/index-rDKgKK42.js": "b962a00ee8bf535897abecaf871e823d5a8cdb2da5b7322b7e34385d33e72062",
+    "assets/index-Cw2WxSn4.css": "de80411a8eb23569cca807aed3942bf558785f5867afcd8a342f9fb38ff79c7e",
+    "assets/index-DVMWR-NQ.js": "b91f095cc868201ab72dda0b0a1ee35e95da900c8bd031107d2ef6596e38547e",
     "assets/maia-worker-fm3NxF6E.js": "8a1f7e2307303635ee0f691c7a47fc0b2f10c791cf5e235ebaf8ec4cfc88ce8e",
     "engine/maia2-blitz-ort1.31.1/LICENSES.txt": "7afe8181443f89ea89e57757aa1d27d105d0641eab569f91c02ff90ab83b7cf2",
     "engine/maia2-blitz-ort1.31.1/SOURCE.txt": "c2d6dc6e7938f5706275da6e0904dbbbc01388c18a6d8e068b9ff67e1785ce81",
@@ -22,10 +22,10 @@
     "icons/apple-touch-icon.png": "2f9e9df0e5c58ad5b29049dfb41bdbce823fcde3ec8bc8bbfc7a81b5194ebb31",
     "icons/icon-192.png": "b77a807d34977ba014cb045c48da4b1042e5a5cf60e260a7e3ec1c1098d52d85",
     "icons/icon-512.png": "8371b7a98f6ba5a86361cfef65f8124a79c3a0404bf387cebdb1a9ca8ba14a8c",
-    "index.html": "8d81e5d1a30522c48e2c301c7b0c09deb68d06a0382f050950005dec0d5ddac9",
+    "index.html": "a57808b0f55e4971de3184348d6e47cc3742d2ccffd5d9bfa10f4a9912a02ffb",
     "licenses/chess.js-LICENSE.txt": "0b3a3c2b4432a26bb18f9d06f5bba4de015bcc980306b7db28b06025495e2186",
     "licenses.html": "3b1f1198910aa3d7ee518633ab3f5d12796361decbc7bb6930dab38aa3a0dd6e",
     "manifest.webmanifest": "d23e56f8e2a5b47841765210084aca9cd86e2b80e14c6e7d1a7aacc1f56b32fa",
-    "service-worker.js": "830c96837786f20ab6c4d39aaef7a5be466f33d5de13ae6619bd64c1e822b93e"
+    "service-worker.js": "171308027ca46911efb61127dbb67fa1a5b78ea57cdee5eedb807d713e95ed42"
   }
 }
