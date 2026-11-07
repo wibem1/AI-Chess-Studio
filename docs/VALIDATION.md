@@ -1433,3 +1433,26 @@ Modellanfrage, kein Zugriff auf Nutzerschlüssel und keine Behauptung verbessert
 realer KI-Qualität. Die neue Struktur verhindert bestimmte nachweisbare Fehler;
 Begründungen/Planqualität bleiben fehlbare Modellurteile. Der konkrete Screenshot
 wird nicht als bestandene Abnahme geführt. Keine Veröffentlichung ausgeführt.
+
+
+## Veröffentlichung 0.8.1 bestätigt
+
+
+Veröffentlichung nach ausdrücklicher Nutzerfreigabe abgeschlossen: Quelle
+`d4f21d18bd179fe56f26e66b9a680ad0ef5936cc`, gh-pages
+`cf999e7a5f08a0d0bc16ea5e0da4373e6a37633d`, Lauf
+[42350153155](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42350153155)
+**completed / success** für genau diesen Commit. Öffentliche App am 7. November
+2026 direkt geprüft: BUILD.json stimmt vollständig mit 0.8.1/Quelle überein;
+SHA-256 von index.html, service-worker.js und neuem JS-Bundle stimmen mit dem
+vorbereiteten Build überein. Keine native Geräte- oder echte Modellabnahme daraus
+ableiten. Adresse: https://wibem1.github.io/AI-Chess-Studio/ .
+
+Erneuter sauberer Pages-Build aus dem gesicherten Quellcommit mit eingefrorenen
+Abhängigkeiten erstellt und über scripts/publish-pages.mjs --prepare-only
+vorbereitet. 23 Dateien des GitHub-Zielbaums anhand ihrer Git-Blob-Hashes gegen
+den lokalen Build geprüft. Unveränderte Engine-/Modell-/Icon-Blobs wiederverwendet;
+Übertragung über den vorhandenen GitHub-Zugang in den bisherigen gh-pages-Branch,
+mit Prüfung des erwarteten vorherigen Branchstands. Keine neue Appkennung,
+Speichermigration, kostenpflichtige Anfrage, Sichtbarkeitsänderung oder neuer
+Actions-Workflow. Der vorhandene Pages-Lauf wurde automatisch ausgelöst.

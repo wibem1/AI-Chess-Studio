@@ -1,6 +1,6 @@
 # Änderungen
 
-## 0.8.1 – Partierückblick mit konkreten Lernmomenten (noch nicht veröffentlicht)
+## 0.8.1 – Partierückblick mit konkreten Lernmomenten
 
 - Eine ausdrückliche Nachricht wie „Analysiere das Spiel“ wählt den Partierückblick
   samt Erklärung; auch von einem früheren Lernzweig aus die tatsächliche Partie.

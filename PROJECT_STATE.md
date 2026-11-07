@@ -1,6 +1,17 @@
 # Projektstand
 
-## Aktuelle Korrektur: 0.8.1 implementiert, noch nicht veröffentlicht
+## Aktuelle Korrektur: 0.8.1 veröffentlicht
+
+Veröffentlichung nach ausdrücklicher Nutzerfreigabe abgeschlossen: Quelle
+`d4f21d18bd179fe56f26e66b9a680ad0ef5936cc`, gh-pages
+`cf999e7a5f08a0d0bc16ea5e0da4373e6a37633d`, Lauf
+[42350153155](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42350153155)
+**completed / success** für genau diesen Commit. Öffentliche App am 7. November
+2026 direkt geprüft: BUILD.json stimmt vollständig mit 0.8.1/Quelle überein;
+SHA-256 von index.html, service-worker.js und neuem JS-Bundle stimmen mit dem
+vorbereiteten Build überein. Keine native Geräte- oder echte Modellabnahme daraus
+ableiten. Adresse: https://wibem1.github.io/AI-Chess-Studio/ .
+
 
 7. November 2026. Ausgangspunkt: work 85fa26aa, veröffentlichte App 0.8.0.
 Nutzerbeleg: „Analysiere das Spiel“ führte nur zu wiederholter Beschreibung
@@ -24,12 +35,12 @@ bisherige Limits bleiben. Keine automatischen Faktenchecks oder Retries.
 
 Prüfungen und Grenzen: siehe neuen Abschnitt in docs/VALIDATION.md. Implementierung
 und automatisierter Ablauf sind belegt; echte Modellqualität ist weiterhin offen.
-Keine bezahlten Modellaufrufe, keine Veröffentlichung. Die konkrete Nutzerpartie
+Keine bezahlten Modellaufrufe. Veröffentlichung nach ausdrücklicher Nutzerfreigabe. Die konkrete Nutzerpartie
 aus dem Screenshot liegt nicht als vollständige Datei vor; synthetische Tests
 ersetzen deren Prüfung nicht.
 
-Nächster einzelner Schritt: ausdrückliche Veröffentlichungsfreigabe für 0.8.1,
-dann bestehenden Pages-Veröffentlichungsweg samt Erfolgskontrolle verwenden.
+Nächster einzelner Schritt: vorhandene Web-App über ihre Updatefunktion auf
+0.8.1 übernehmen. Echte schachliche Erklärqualität bleibt gesondert zu beurteilen.
 Nicht erneut Zugang einrichten oder Daten löschen. Bei bereitgestellter echter
 Partiedatei kann deren tatsächlicher Kontext separat geprüft werden.
 
