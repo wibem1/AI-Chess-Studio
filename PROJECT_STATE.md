@@ -1,6 +1,16 @@
 # Projektstand
 
-## Aktuell: 0.9.0 Chatverlauf löschen vorbereitet, nicht veröffentlicht
+## Aktuell: 0.9.0 veröffentlicht – Chatverlauf löschen und Fehlerauskunft
+
+Veröffentlicht nach ausdrücklicher Nutzerfreigabe am 7. November 2026. Quelle
+`7c40cb77afa27e240efc0becbae97d58f132d465`; gh-pages
+`148d2beabe0ec69e6acffd8ed84b69cf6b1610d2`. GitHub-Lauf
+[42351623420](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42351623420)
+für genau diesen Commit: **completed / success**. Direkter öffentlicher Abruf
+bestätigt 0.9.0 und Quellcommit; BUILD.json vollständig sowie SHA-256 von HTML,
+Service Worker und neuem JS-Bundle stimmen mit dem vorbereiteten Build überein.
+Native Geräte- und echte Modellabnahme bleiben davon getrennt.
+
 
 Nutzerauftrag: Möglichkeit zum Löschen des bisherigen Chatverlaufs. Schaltfläche
 „Chatverlauf löschen“ direkt im Lernchat, mit kurzer Bestätigung. Löscht alle
@@ -16,8 +26,7 @@ am Kostenkonto durch das Löschen. Die zuvor vorbereitete Diagnosekorrektur aus
 0.8.2 ist enthalten; die unbekannte Ursache des echten KI-Fehlers bleibt offen.
 
 Prüfungen: 128/128 Einzeltests; Browserablauf mit Bestätigung/Abbrechen und
-Neuladen geprüft. Abschließende Ergebnisse siehe docs/VALIDATION.md. Noch nicht
-veröffentlicht. Nächster Schritt: Freigabe und bestehender Veröffentlichungsweg.
+Neuladen geprüft. Abschließende Ergebnisse siehe docs/VALIDATION.md. Veröffentlichung bestätigt. Nächster Schritt: vorhandene App über ihre Updatefunktion übernehmen.
 
 ## Enthaltene vorbereitete Diagnosekorrektur aus 0.8.2
 
@@ -43,8 +52,8 @@ Prüfungen siehe docs/VALIDATION.md. Dies ist eine Diagnosekorrektur, kein
 Nachweis, dass die tatsächliche Modellanfrage nun gelingt. Keine Nutzerdatei
 oder deren private Originalinhalte ins öffentliche Repository übernommen.
 
-Nächster Schritt: Freigabe für die Veröffentlichung der Diagnosekorrektur,
-dann die konkrete Fehlerkategorie des echten Aufrufs beurteilen. Keine
+Die Diagnosekorrektur ist mit 0.9.0 veröffentlicht. Nächster Schritt: die
+konkrete Fehlerkategorie des echten Aufrufs beurteilen. Keine
 weiteren kostenpflichtigen Wiederholungen ohne neue Diagnose empfehlen.
 
 ## Aktuelle Korrektur: 0.8.1 veröffentlicht

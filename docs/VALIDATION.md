@@ -1516,3 +1516,25 @@ die vorhandene UI. Export enthält alle drei Stellungsknoten samt verstecktem
 Geschwisterzweig und eigene Notiz, aber keine Chatannotation. Bestehende
 Diagnose-/Partierückblick-/Versionsfälle ebenfalls bestanden. Keine nativen
 iPad-Tests und keine echten Modellaufrufe; keine Veröffentlichung ausgeführt.
+
+
+## Veröffentlichung 0.9.0 bestätigt
+
+
+Veröffentlicht nach ausdrücklicher Nutzerfreigabe am 7. November 2026. Quelle
+`7c40cb77afa27e240efc0becbae97d58f132d465`; gh-pages
+`148d2beabe0ec69e6acffd8ed84b69cf6b1610d2`. GitHub-Lauf
+[42351623420](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42351623420)
+für genau diesen Commit: **completed / success**. Direkter öffentlicher Abruf
+bestätigt 0.9.0 und Quellcommit; BUILD.json vollständig sowie SHA-256 von HTML,
+Service Worker und neuem JS-Bundle stimmen mit dem vorbereiteten Build überein.
+Native Geräte- und echte Modellabnahme bleiben davon getrennt.
+
+Pages-Build erneut aus dem tatsächlich auf GitHub gesicherten Quellcommit
+7c40cb7 erstellt und über den bestehenden Publisher vorbereitet. Alle 23
+veröffentlichten Datei-Blobs gegen den lokalen Build geprüft. Unveränderte
+Engine-/Modell-/Icon-Blobs wiederverwendet; bestehender gh-pages-Branch mit
+Prüfung seines vorherigen Stands fortgeschrieben. Keine neue Appkennung,
+Speichermigration, kostenpflichtigen Aufrufe oder neuen Actions-Workflows.
+Diese Veröffentlichung enthält Löschfunktion und Diagnosekorrektur zusammen.
+Die Ursache des konkreten fehlgeschlagenen Nutzeraufrufs bleibt unbewiesen.

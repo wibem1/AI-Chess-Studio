@@ -1,6 +1,6 @@
 # Änderungen
 
-## 0.9.0 – Chatverlauf löschen (noch nicht veröffentlicht)
+## 0.9.0 – Chatverlauf löschen und verbesserte Fehlerauskunft
 
 - Schaltfläche direkt am Lernchat; vor dem Löschen kurze Bestätigung.
 - Entfernt den Chat der aktuellen Partie einschließlich aller Varianten.
@@ -11,7 +11,7 @@
   bereits behobenen echten Modellstörung. Keine automatische Anfrage oder
   Budgetrücksetzung durch die Löschfunktion.
 
-## 0.8.2 – Aussagekräftige Fehler beim Lerndialog (noch nicht veröffentlicht)
+## 0.8.2 – Aussagekräftige Fehler beim Lerndialog (in 0.9.0 veröffentlicht)
 
 - Anbieterablehnung, Anbieterlimit, Netzwerk, abgeschnittene Antworten und
   ungültige Modell-/Rückblickformate anhand fester sicherer Meldungen unterscheiden.
