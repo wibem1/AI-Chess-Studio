@@ -1,6 +1,6 @@
 # Änderungen
 
-## 0.10.1 – Kostenanzeige und sichtbares Brett beim Lerndialog (vorbereitet)
+## 0.10.1 – Kostenanzeige und sichtbares Brett beim Lerndialog (veröffentlicht am 7. November 2026)
 
 - Budgetperiode, lokale Geldsperre und Drei-Anfragen-Grenze im Browser und
   Desktop entfernt. Kosten/Anfragen werden weiter geschätzt und gespeichert.

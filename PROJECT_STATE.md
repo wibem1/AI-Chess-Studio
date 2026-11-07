@@ -1,6 +1,15 @@
 # Projektstand
 
-## Aktuell vorbereitet: 0.10.1 – Kostenanzeige und vertikaler Lerndialog
+## Aktuell veröffentlicht: 0.10.1 – Kostenanzeige und vertikaler Lerndialog
+
+Veröffentlicht nach ausdrücklicher Nutzerfreigabe am 7. November 2026. Quelle
+`5150905144dcc99211ed7e8e662d12971d09954e`; gh-pages
+`49c852db20d4d1d490c433e53510a73a265b3d23`. GitHub-Lauf
+[42378369092](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42378369092)
+für genau diesen Commit: **completed / success**. Öffentliches BUILD.json
+stimmt vollständig mit Version und Quellcommit überein. SHA-256 von index.html,
+Service Worker, Haupt-JavaScript und CSS entsprechen dem vorbereiteten Build.
+
 
 Nutzerentscheidung vom 7. November: Budgetperiode und Drei-Anfragen-Grenze
 entfernen. In Browser und Desktop keine Sperre anhand lokaler Verbrauchswerte,
@@ -43,8 +52,9 @@ Schrift geprüft; Brett, Eingabe und aktuelle Antwort gleichzeitig sichtbar.
 Desktop-, vergrößerte und Telefonansicht visuell geprüft. Native Geräte-
 und echte KI-Modellqualität dadurch nicht abgenommen. Keine bezahlten Aufrufe.
 
-Noch nicht veröffentlicht; öffentliche App weiterhin 0.10.0. Nächster Schritt:
-Freigabe zur Veröffentlichung über den bestehenden Pages-Weg.
+Öffentliche App auf 0.10.1. Nächster Schritt: Nutzerabnahme des vertikalen
+Lernlayouts und des Planbuttons mit dem eigenen Modell. Keine neue Einrichtung
+oder Datenlöschung nötig.
 
 ## Aktuell: 0.10.0 veröffentlicht – freier Lernchat, Brettwerkzeuge und Desktoplayout
 

@@ -1,10 +1,10 @@
 # AI-Chess-Studio
 
-Aktueller veröffentlichter Funktionsstand: **0.10.0**, GitHub-Bereitstellung bestätigt; native Nutzerabnahme steht noch aus. Änderungen: [CHANGELOG.md](CHANGELOG.md).
-Vorbereitet **0.10.1**: Kostenanzeige ohne Budgetperiode oder Drei-Anfragen-Grenze;
+Aktueller veröffentlichter Funktionsstand: **0.10.1**, GitHub-Bereitstellung bestätigt; native Nutzerabnahme steht noch aus. Änderungen: [CHANGELOG.md](CHANGELOG.md).
+**0.10.1**: Kostenanzeige ohne Budgetperiode oder Drei-Anfragen-Grenze;
 Verbrauch bleibt erhalten. Neues Lernlayout: Brett, direkt darunter Eingabe und
 aktuelle Antwort, danach Chatverlauf. Oben „Zeige deinen Plan auf dem Brett“.
-Noch nicht veröffentlicht.
+Veröffentlicht; GitHub-Erfolg und ausgelieferte Dateien direkt geprüft.
 **0.8.1** enthält einen eigenen Partierückblick mit überprüften Zugbezügen
 und anklickbaren Lernmomenten. Veröffentlichung durch GitHub und direkte
 Live-Prüfung bestätigt; echte pädagogische Modellqualität weiterhin offen.

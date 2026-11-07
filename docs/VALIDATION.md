@@ -1724,3 +1724,15 @@ Abschließend 3/3 mit Planbutton, Kosten und Layout nach letzter CSS-Korrektur
 bestanden. Alle 51 betroffenen Fälle damit einzeln erfolgreich, kein kompletter
 51/51-Lauf behauptet. Abschließend npm test: 141/141, Root-/Pages-Build und
 strikte Typprüfung bestanden. Native Windows-/iPad-Bedienung bleibt offen.
+
+## Veröffentlichungsnachweis 0.10.1
+
+Veröffentlicht nach ausdrücklicher Nutzerfreigabe am 7. November 2026. Quelle
+`5150905144dcc99211ed7e8e662d12971d09954e`; gh-pages
+`49c852db20d4d1d490c433e53510a73a265b3d23`. GitHub-Lauf
+[42378369092](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42378369092)
+für genau diesen Commit: **completed / success**. Öffentliches BUILD.json
+stimmt vollständig mit Version und Quellcommit überein. SHA-256 von index.html,
+Service Worker, Haupt-JavaScript und CSS entsprechen dem vorbereiteten Build.
+
+Native Geräteabnahme und tatsächliche KI-Werkzeugwahl weiterhin gesondert offen.
