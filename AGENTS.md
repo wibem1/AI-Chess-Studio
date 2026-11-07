@@ -19,3 +19,9 @@
     ZIP-Dateiname und Paketmanifest müssen zur selben Version gehören. Alte
     nummerierte Downloads bleiben über ihre Git-Commits erhalten. Versionsnummern
     sind keine Zusage nativer Abnahme oder Erlaubnis für Releases/Deployments.
+
+12. Nutzerziel vom 7. November: freier Lernchat ohne vorgeschriebenes Frage-/Antwortschema.
+    Aktuelle Stellung, tatsächliche Partie und Gesprächskontext bereitstellen;
+    ausführbare Brett-/Enginebefehle separat regelprüfen. Werkzeugschleife für
+    Vorführung/Weiterspielen ist noch offen, nicht durch Prompttext als umgesetzt
+    ausgeben. DEVELOPMENT_PLAN.md beachten.

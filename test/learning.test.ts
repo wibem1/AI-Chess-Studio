@@ -19,9 +19,9 @@ test('hint and explanation expose different amounts of help',async()=>{
  for(const mode of ['hint','explain'] as const){const studio=new Studio();studio.session.reflect('n0',{...reflection,hintMode:mode});await studio.ask('Warum?',{source:'model',respond:async()=>reply});const answer=studio.session.snapshot().annotations.at(-1)!.text;
   assert.equal(answer.includes('LÖSUNG'),mode==='explain');assert.equal(answer.includes('Rechenarbeit'),mode==='explain');}
 });
-test('invalid human analysis or unwanted candidate in question mode is not stored',async()=>{
+test('unwanted direct candidates or missing guiding question are not stored',async()=>{
  const studio=new Studio();studio.session.reflect('n0',reflection);
- for(const raw of [{...reply,assessment:{verdict:'unclear' as const,reason:'Testeinschätzung: keine geprüfte Gesamtbewertung.',dangers:[]},humanFactors:{idea:5}},{...reply,candidates:['e4']},{...reply,humanFactors:undefined}]){
+ for(const raw of [{...reply,candidates:['e4']},{...reply,openQuestions:[]}]){
   await assert.rejects(studio.ask('Warum?',{source:'model',respond:async()=>raw}));assert.equal(studio.session.snapshot().annotations.length,0);
  }
  const sim=await new SimulationAdapter().respond({nodeId:'n0',fen:'',question:'Warum?',legalMoves:['e4'],hintMode:'question'}) as {candidates:string[]};assert.deepEqual(sim.candidates,[]);

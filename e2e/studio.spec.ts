@@ -302,7 +302,7 @@ test('engine error pauses the learning game without an automatic retry loop',asy
  expect(calls).toBe(1);expect(JSON.parse(await exportData(page)).nodes).toHaveLength(2);
 });
 
-test('learner can save their thoughts and choose guiding questions without spoilers',async({page})=>{
+test('learner thoughts remain optional context while free chat avoids forced guiding-question templates',async({page})=>{
  await page.goto('/');await (await reveal(page, page.getByText('Meine Gedanken und Lernwünsche (optional)',{exact:true}))).click();
  await (await reveal(page, page.getByLabel('Meine eigene Planidee',{exact:true}))).fill('Zentrum kontrollieren');
  await (await reveal(page, page.getByLabel('Warum halte ich das für sinnvoll?',{exact:true}))).fill('Aktivere Figuren');
@@ -310,7 +310,7 @@ test('learner can save their thoughts and choose guiding questions without spoil
  await (await reveal(page, page.getByLabel('Wie viel Hilfe möchte ich?',{exact:true}))).selectOption('question');
  await (await reveal(page, page.getByRole('button',{name:'Gedankengang an dieser Stellung speichern', includeHidden:true}))).click();
  await (await reveal(page, page.getByLabel('Deine Nachricht'))).fill('Wo soll ich anfangen?');await (await reveal(page, page.getByRole('button',{name:'Nachricht senden (Simulation)', includeHidden:true}))).click();
- await expect(page.locator('#dialogue')).toContainText('Leitfrage:');await expect(page.locator('#dialogue')).not.toContainText('Kandidaten (ungeordnet)');
+ await expect(page.locator('#dialogue')).toContainText('Demo-Modus:');await expect(page.locator('#dialogue')).not.toContainText('Kandidaten (ungeordnet)');
  const data=await exportData(page);expect(JSON.parse(data).reflections.n0.idea).toBe('Zentrum kontrollieren');
  await page.reload();await importData(page,data);await (await reveal(page, page.getByText('Meine Gedanken und Lernwünsche (optional)',{exact:true}))).click();
  await expect(page.getByLabel('Meine eigene Planidee',{exact:true})).toHaveValue('Zentrum kontrollieren');await expect(page.getByLabel('Wie viel Hilfe möchte ich?',{exact:true})).toHaveValue('question');
@@ -335,7 +335,7 @@ test('learning dialogue integrates engine game, actual model-service transport a
  const fixture={message:'Als Lernbeispiel greifen wir deine Zentrumsidee auf.',plan:'Zentrum',opponent:'Möglicher Gegenstoß',candidates:[],risks:'Ungedeckte Figuren',playability:'Klare nächste Schritte',assessment:{verdict:'unclear' as const,reason:'Testeinschätzung: keine geprüfte Gesamtbewertung.',dangers:[]},humanFactors:{idea:'Deine Begründung prüfen',calculation:'Zwingende Antworten',pitfalls:'Gegenstoß',continuation:'Figuren verbessern'},openQuestions:['Was möchtest du mit deinem Plan verhindern?']};
  const service=new ModelService({enabled:true,apiKey:'local-integration-test-key',model:'fixture'},(async(_url,init)=>{
   calls++;const body=JSON.parse(init!.body as string);if(calls===2){expect(body.messages.map((m:{role:string})=>m.role)).toEqual(['system','user','assistant','user']);expect(body.messages[2].content).toContain('Zentrumsidee');}
-  if(calls===3){const current=JSON.parse(body.messages.at(-1).content);expect(current.topic).toBe('review');expect(current.history.moves).toHaveLength(2);}
+  if(calls===3){const current=JSON.parse(body.messages.at(-1).content);expect(current.topic).toBe('chat');expect(current.gameHistory.moves).toHaveLength(2);}
   const current=JSON.parse(body.messages.at(-1).content);
   const retrospective=calls===3?{gameReview:{summary:'Test-Rückblick auf die beiden tatsächlichen Züge.',moments:current.history.moves.map((played:string,index:number)=>({ply:index+1,played,explanation:'Testbeleg zur tatsächlichen Zentrumsbesetzung.',alternative:'',reason:'Keine Alternative in dieser Transportfixture berechnet.'})),lesson:'Zentrumsbesetzung und Entwicklung gemeinsam betrachten.'}}:{};
   return new Response(JSON.stringify({usage:{prompt_tokens:200,completion_tokens:100},choices:[{finish_reason:'stop',message:{content:JSON.stringify({...fixture,...retrospective,message:calls===1?fixture.message:'Als zweite Testantwort betrachten wir deinen Gegenplan.'})}}]}));

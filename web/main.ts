@@ -263,7 +263,7 @@ $('dialogue-form').addEventListener('submit', async event => {
   pending = true;updateMode();
   message('dialogue-feedback', `${real ? 'Modellanfrage' : 'Simulation'} läuft … Stellungswechsel ist weiterhin möglich.`);
   try {
-    const result = await studio.ask(question, real ? new ServerModelAdapter(platformFetch) : new SimulationAdapter($<HTMLSelectElement>('simulation-mode').value as SimulationMode),$<HTMLSelectElement>('dialogue-topic').value as DialogueTopic,hintOverride);
+    const result = await studio.ask(question, real ? new ServerModelAdapter(platformFetch) : new SimulationAdapter($<HTMLSelectElement>('simulation-mode').value as SimulationMode),'chat',hintOverride);
     message('dialogue-feedback', result === 'stored' ? `${real ? 'Modellantwort' : 'Beispielantwort'} an der angefragten Stellung gespeichert.` : 'Veraltete Antwort nach Sitzungs- oder Chatwechsel verworfen.');
     render();
   } catch (error) {

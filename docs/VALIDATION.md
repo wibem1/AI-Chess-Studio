@@ -1538,3 +1538,60 @@ Prüfung seines vorherigen Stands fortgeschrieben. Keine neue Appkennung,
 Speichermigration, kostenpflichtigen Aufrufe oder neuen Actions-Workflows.
 Diese Veröffentlichung enthält Löschfunktion und Diagnosekorrektur zusammen.
 Die Ursache des konkreten fehlgeschlagenen Nutzeraufrufs bleibt unbewiesen.
+
+## 0.10.0: freier Lernchat und Antwortverarbeitung
+
+Nutzerziel vom 7. November ausdrücklich auf freie Fragen/Antworten korrigiert.
+Der normale UI-Chat verwendet topic chat mit eigenem Gesprächsauftrag und ohne
+response_format-Vorgabe. Die Datenanfrage bleibt technisch strukturiert; die
+Antwort muss weder JSON noch Plan-/Bewertungs-/Lernfelder liefern. Freitext wird
+angezeigt, alte JSON-/fenced-JSON-Antworten bleiben kompatibel. Fehlende optionale
+Blöcke werden nicht erfunden, ungültige Kandidaten nicht als Brettaktion angeboten.
+Die unveränderte strikte Regelprüfung ausführbarer Züge bleibt bestehen.
+
+Aktuelle Stellung samt eigener Historie und tatsächliche Partie getrennt
+bereitgestellt und validiert, einschließlich eigener Farbe. Bis zu 40 passende
+Gesprächsbeiträge (je höchstens 4000 Zeichen) unter dem vorhandenen 16-kB-
+Anfragebudget. Ältere Paare nach Bedarf entfernt, conversationTruncated gesetzt;
+kein vollständiges unbegrenztes Modellgedächtnis behauptet. Die gespeicherte
+Session bleibt vollständig. Freier Chat reserviert 1800 Ausgabe-Tokens mit
+unveränderten Preisannahmen, Anfragelimits und fehlenden automatischen Retries.
+
+Nachweise am vorbereiteten Stand:
+
+- `npm test`: 133/133 bestanden, einschließlich strikter Typprüfung und Root-Build.
+- `npm run build:pages`: erfolgreich.
+- Breiter Durchlauf mit 76 Chromiumfällen: 72 bestanden, vier alte Fixture-
+  Erwartungen passten nicht mehr zum ausdrücklich geänderten Vertrag. Ein
+  Demo-Fall verlangte die bisher erzwungene „Leitfrage:“-Schablone; drei Web-
+  Fälle verlangten 800 statt nun 1800 Ausgabe-Tokens im Request. Erwartungen
+  auf freie Demoantwort sowie tatsächliche Reservierung und fehlende
+  response_format-Vorgabe angepasst.
+- Abschließend acht betroffene/neue Fälle gemeinsam auf 0.10.0 ausgeführt:
+  `CHROMIUM_PATH=/tmp/chromium npx playwright test --grep 'learner thoughts remain|web vault confirms|web budget is shared|a saved key with exhausted|ordinary position explanations|free chat gets|learning dialogue integrates|visible UI version'`
+  **8/8 bestanden**. Zusammen wurden alle 76 Fälle erfolgreich ausgeführt;
+  kein erfolgreicher kompletter Einzellauf mit 76/76 behauptet.
+- Neuer Browserfall sendet die konkrete Nutzerfrage frei und erhält nacheinander
+  message-only JSON, fenced JSON mit einem illegalen Vorschlag und vollständigen
+  Freitext. Alle vorhandenen Erklärungen sichtbar; nur e4 ausführbar, illegal
+  nicht angeboten; drei ausdrücklich gestartete Anfragen, keine Wiederholung.
+- Neuer Kontextfall betrachtet die Anfangsstellung einer abgeschlossenen Partie:
+  history leer, gameHistory enthält die vollständigen vier tatsächlichen Halbzüge;
+  Antwort wird ohne Schema gespeichert, Brett bleibt an der angefragten Stellung.
+- Kernfälle prüfen fehlende optionale Angaben, keine erfundene Beurteilung,
+  blockweise Normalisierung, ungültige Zugvorschläge, abgeschnittenes JSON im
+  Legacyformat, echten Freitext einschließlich führender Klammern und mehr als
+  zwei frühere Gesprächsrunden. Bestehende Matt-Widerspruchsprüfung bleibt für
+  vorliegende strukturierte Beurteilungen aktiv; freie Prosa ist keine geprüfte
+  schachliche Wahrheit.
+- Die bereitgestellte Nutzersitzung lokal ohne Providerzugriff erneut geladen:
+  aktuelle/echte Geschichte jeweils 141 Halbzüge, vier bisherige Beiträge,
+  rekonstruierte Anfrage 4243 Byte. Reine technische Textfixture gespeichert.
+  Keine Originaldatei oder private Originalinhalte ins Repository übernommen.
+
+Keine bezahlten Modellaufrufe, keine echte pädagogische Modellabnahme und keine
+native Geräteabnahme. Keine Veröffentlichung. Die Fehlerklasse des Screenshots
+ist belegt; die konkrete rohe abgelehnte Modellantwort weiterhin nicht vorhanden.
+Die vereinfachte Textverarbeitung belegt keine fertige Werkzeugschleife zwischen
+Lernengine, Brett und Spielengine. Diese bleibt als nächster Schritt offen und
+ist mit Abnahmekriterien in DEVELOPMENT_PLAN.md dokumentiert.

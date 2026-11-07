@@ -1,5 +1,17 @@
 # Änderungen
 
+## 0.10.0 – Freier Lernchat vorbereitet (noch nicht veröffentlicht)
+
+- Normale Chatnachrichten erhalten natürliche Textantworten ohne vorgeschriebenes
+  Antwortschema; der Anbieter wird nicht mehr zu JSON-Antworten gezwungen.
+- Tatsächliche Partie und aktuelle ausgewählte Stellung getrennt übergeben.
+  Mehr Gesprächsbeiträge nach Kontextbudget, erkennbare Kürzung.
+- Alte strukturierte Antworten kompatibel lesen. Fehlende Zusatzfelder oder
+  einzelne ungültige Kandidaten zerstören keine vorhandene Erklärung.
+- Keine erfundenen Beurteilungen; ausführbare Vorschläge bleiben regelgeprüft.
+- Enthält noch keine vollständige KI-Werkzeugschleife zur Brettvorführung und
+  zum selbstständigen Weiterspielen gegen die Spielengine. Ziel dokumentiert.
+
 ## 0.9.0 – Chatverlauf löschen und verbesserte Fehlerauskunft
 
 - Schaltfläche direkt am Lernchat; vor dem Löschen kurze Bestätigung.

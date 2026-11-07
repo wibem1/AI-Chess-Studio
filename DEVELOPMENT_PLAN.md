@@ -4,6 +4,62 @@ Verbindliche Zielkorrektur aus den Nutzerklarstellungen vom 5. und 6. November 2
 Die folgende Zwei-Modi-Konzeption ersetzt die bisherige Aufteilung in vier
 gleichrangige Arbeitsbereiche.
 
+## Verbindliche Zielkorrektur vom 7. November: freier Lernchat mit Werkzeugen
+
+Der Nutzer beschreibt einen freien Gesprächspartner, der die aktuelle Stellung,
+den tatsächlichen bisherigen Partieverlauf und das bisherige Gespräch kennt.
+Fragen und Antworten brauchen keine vorbereiteten Formulare, Antwortfelder oder
+Analysearten. Optionale Bedienabkürzungen dürfen das freie Gespräch nicht steuern.
+Die Lernengine kann auf Wunsch Züge/Varianten auf dem Brett vorführen und gegen
+die getrennte Schachengine weiterspielen, um Ideen gemeinsam zu untersuchen.
+
+### Rollen und gemeinsame Informationen
+
+- Der Nutzer formuliert sein Anliegen frei. Die Lernengine erklärt und diskutiert
+  natürlich, erinnert sich an die bereitgestellten eigenen Gedanken und den Chat.
+- Aktuelle ausgewählte Stellung, zugehörige Analysevariante und tatsächliche
+  Partie werden getrennt bereitgestellt. Eine Frage zur früheren Stellung darf
+  nicht still ans Partieende springen. Ein Partierückblick benötigt die echte
+  Partiefolge. Kontextgrenzen/Kürzungen dürfen nicht als vollständiges Gedächtnis
+  ausgegeben werden; gespeicherte Gespräche bleiben erhalten und löschbar.
+- Die Schachengine ist Spielgegner bzw. ausdrücklich verwendetes Rechenwerkzeug.
+  Ihre tatsächlichen Züge/Befunde werden der Lernengine wieder zugeführt, sodass
+  sie über das Geschehene sprechen kann. Ein Prompt ersetzt diesen Rückkanal nicht.
+
+### Brett- und Enginewerkzeuge: nächster noch offener Entwicklungsschritt
+
+Werkzeuge für Stellung/Verlauf lesen, Variante am Brett zeigen, Zug ausführen,
+Schachengine antworten lassen, zurücknehmen und laufende Vorführung stoppen.
+Die Lernengine verwendet sie bei Bedarf; technische Zugbefehle werden separat
+regelgeprüft. Der sichtbare Erklärungstext ist frei und braucht dafür kein
+festes Antwortschema. Ohne bestätigte Ausführung darf die KI nicht behaupten,
+dass Figuren bereits bewegt oder Engineberechnungen ausgeführt wurden.
+
+Vorführungen arbeiten standardmäßig in einem eigenen Lernzweig. Die tatsächliche
+Partie bleibt erhalten. Weiteres Spielen gegen die Engine ist eine ausdrückliche,
+begrenzt ausgeführte Nutzeranweisung, z.B. eine gewünschte Zahl an Fortsetzungszügen;
+keine ungebremste Modell-/Engine-Schleife. Kostenlimits bleiben wirksam.
+
+Abnahme: freie Rückfrage bezieht sich auf bisheriges Gespräch und gezeigte
+Stellung; Variantenauftrag wird am Brett vorgeführt; tatsächliche Engineantwort
+wird legal übernommen und anschließend in freier Sprache erklärt. Abbruch,
+Rücknahme und Rückkehr zur echten Partie erhalten den ursprünglichen Verlauf.
+
+### Gegenwärtiger Stand der Korrektur
+
+Vorbereitet: der normale Lernchat verwendet freie Textantworten ohne angefordertes
+JSON-Antwortformat, keine Pflichtfelder für Plan/Beurteilung/Lernanalyse und keine
+sprachliche Zwangsroutung in das frühere Partierückblickschema. Mehr Gesprächsrunden
+werden nach Kontextbudget übertragen. Tatsächliche Partie und aktuelle Stellung
+sind getrennt im Modellkontext. Optionale alte strukturierte Antworten bleiben
+lesbar; unzulässige Vorschläge werden nicht als ausführbare Züge angeboten.
+
+Noch nicht implementiert: vollständige Werkzeugschleife zwischen Lernengine,
+Brett und Spielengine samt Rückkanal und selbstständiger begrenzter Vorführung.
+Die bisherige Schaltfläche für einzelne geprüfte Vorschläge belegt diese Fähigkeit
+nicht. Die vorbereitete Textkorrektur darf nicht als vollständige Umsetzung der
+hier beschriebenen Lernengine veröffentlicht oder bezeichnet werden.
+
 ## Korrektur vom 7. November: Analyse bedienen und KI-Zugang erkennen
 
 0.8.0: Chat direkt unter dem Brett, Technik nach unten. Sichtbarer Zugverlauf

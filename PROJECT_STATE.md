@@ -1,5 +1,43 @@
 # Projektstand
 
+## Aktuell: 0.10.0 freier Lernchat vorbereitet, nicht veröffentlicht
+
+Nutzerkorrektur: freier Chat ohne feste Frage-/Antwortschemata. Lernengine kennt
+Partieverlauf, ausgewählte Stellung und Gespräch und soll künftig Brett- und
+Enginewerkzeuge einsetzen können. Ziel verbindlich in DEVELOPMENT_PLAN.md
+präzisiert; AGENTS.md ergänzt. Das ist eine grundlegende Zielkorrektur, keine
+weitere Reparatur eines vorgeschriebenen Antwortformulars.
+
+Belegter Fehlerbefund des Nutzers: Kategorie reply_format auf einfache freie
+Stellungsfrage. Die konkrete rohe Modellantwort liegt nicht vor. Im Code waren
+zahlreiche Zusatzfelder und exakte Kandidaten für die ganze Antwort verpflichtend.
+
+Implementiert: alle normalen UI-Chatnachrichten verwenden den freien Modus,
+einen eigenen Gesprächsauftrag und keine response_format-/JSON-Pflicht. Keine
+automatische sprachliche Zwangsroutung in das bisherige Review-Antwortschema.
+Aktuelle Stellung mit eigener Vorgeschichte und tatsächliche Partie separat
+regelgeprüft im Kontext. Bis zu 40 Gesprächsbeiträge unter dem bestehenden
+16-kB-Anfragebudget, Kürzung gekennzeichnet. Gespeicherter Verlauf bleibt erhalten.
+Optional vorhandene strukturierte Antworten werden kompatibel gelesen; fehlende
+Zusatzfelder/ungültige Vorschläge verwerfen nicht mehr die ganze Erklärung.
+Keine erfundenen Ersatzbeurteilungen. Nur legale Vorschläge als Brettaktion.
+Freie vollständige Textantworten werden akzeptiert, auch bei führenden Klammern.
+Eigene Kontextnotizen und gewünschter Hilfestil bleiben als Angaben verfügbar.
+
+Freier Chat reserviert wie der vorherige Partierückblick bis 1800 Ausgabe-Tokens;
+bisherige Preisannahmen, Geld-/Anfragelimits und fehlende automatische Retries
+bleiben. Kein neuer kostenpflichtiger Test. Technische Prüfungen siehe
+docs/VALIDATION.md; echte pädagogische Modellqualität noch nicht abgenommen.
+
+Noch nicht umgesetzt: vollständige Werkzeugschleife Lernengine → Brett/Schachengine
+→ bestätigtes Ergebnis zurück an die Lernengine, insbesondere selbstständiges
+begrenztes Weiterspielen gegen die Engine. Bisherige Einzelzug-Vorführung ist
+kein Nachweis dafür. Diese Vorbereitung nicht als fertige Umsetzung aller
+vom Nutzer beschriebenen Fähigkeiten ausgeben. Nächster Entwicklungsgegenstand:
+separat regelgeprüfte Brett-/Enginewerkzeuge mit Rückkanal.
+
+0.10.0 noch nicht veröffentlicht; öffentliche App weiterhin 0.9.0.
+
 ## Aktuell: 0.9.0 veröffentlicht – Chatverlauf löschen und Fehlerauskunft
 
 Veröffentlicht nach ausdrücklicher Nutzerfreigabe am 7. November 2026. Quelle

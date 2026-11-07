@@ -6,6 +6,10 @@ und anklickbaren Lernmomenten. Veröffentlichung durch GitHub und direkte
 Live-Prüfung bestätigt; echte pädagogische Modellqualität weiterhin offen.
 **0.9.0**: „Chatverlauf löschen“ direkt beim Lernchat, einschließlich der
 verbesserten Fehlerauskunft. Veröffentlichung und ausgelieferte Dateien geprüft.
+Vorbereitet **0.10.0**: freier Lernchat ohne Pflicht-Antwortschema, tatsächliche
+Partie und ausgewählte Stellung getrennt im Kontext. Noch nicht veröffentlicht.
+Die vollständige Werkzeugschleife für KI-gesteuerte Varianten/Enginefortsetzung
+ist ein offener Entwicklungsschritt; siehe DEVELOPMENT_PLAN.md.
 Ein großes gemeinsames Schachbrett und zwei Modi für dein persönliches Lernen.
 Auf dem Desktop steht das vollständige, vergrößerte Brett oben; Status und
 Werkzeuge darunter. Im Lernmodus stehen Zugnavigation und Brett vor dem Chat;

@@ -1,8 +1,9 @@
+import {decodeModelContent,normalizeModelReply} from '../src/model-reply.js';
 import {COACH_ERRORS,CoachFailure,providerFailure,type CoachFailureCode} from '../src/model-errors.js';
 import {validateGameReview} from '../src/game-review.js';
 import { CostControl } from './costs.js';
 import type { CredentialsStore } from './credentials.js';
-import {ApiError,SYSTEM_PROMPT,parseRequest} from '../src/model-contract.js';
+import {ApiError,SYSTEM_PROMPT,FREE_CHAT_PROMPT,parseRequest} from '../src/model-contract.js';
 export {ApiError,SYSTEM_PROMPT,parseRequest} from '../src/model-contract.js';
 import { validateReply, type DialogueRequest, type StrategicReply } from '../src/dialogue.js';
 
@@ -75,9 +76,9 @@ export class ModelService {
     const request = parseRequest(raw);
     if (this.busy || this.attempts >= 3) throw new ApiError(429, 'Anfragelimit erreicht.');
     const {turns=[],...currentRequest}=request;
-    const retrospective=request.topic==='review'&&(request.hintMode??'explain')==='explain',outputTokens=retrospective?1800:800;
-    const body=JSON.stringify({model:this.config.model,max_completion_tokens:outputTokens,response_format:{type:'json_object'},
-      messages:[{role:'system',content:SYSTEM_PROMPT},...turns.map(t=>({role:t.role,content:`[Stellung ${t.nodeId}${t.fen?`, FEN ${t.fen}`:''}] ${t.text}`})),{role:'user',content:JSON.stringify(currentRequest)}]});
+    const retrospective=request.topic==='review'&&(request.hintMode??'explain')==='explain',outputTokens=retrospective||request.topic==='chat'?1800:800;
+    const body=JSON.stringify({model:this.config.model,max_completion_tokens:outputTokens,...(request.topic==='chat'?{}:{response_format:{type:'json_object'}}),
+      messages:[{role:'system',content:request.topic==='chat'?FREE_CHAT_PROMPT:SYSTEM_PROMPT},...turns.map(t=>({role:t.role,content:`[Stellung ${t.nodeId}${t.fen?`, FEN ${t.fen}`:''}] ${t.text}`})),{role:'user',content:JSON.stringify(currentRequest)}]});
     let reservation:number;
     try {reservation=this.costs.reserve(Buffer.byteLength(body),outputTokens);}catch{throw new ApiError(402,'Lokales Anfrage- oder Kostenbudget erreicht.');}
     this.attempts++; this.busy = true;let failureCode:CoachFailureCode='network';
@@ -95,10 +96,8 @@ export class ModelService {
       if(envelope.choices?.[0]?.finish_reason==='length')throw new CoachFailure('output_limit');
       if (envelope.choices?.[0]?.finish_reason !== 'stop') throw new Error('Incomplete response');
       failureCode='reply_format';
-      const reply=validateReply(JSON.parse(envelope.choices[0].message.content), request.legalMoves);
-      if((request.hintMode??'explain')==='explain' && !retrospective && !reply.assessment)throw new Error('Missing assessment');
+      const reply=normalizeModelReply(decodeModelContent(envelope.choices[0].message.content,request.topic!=='chat'), request.legalMoves);
       if(request.topic && !reply.message?.trim())throw new Error('Missing dialogue');
-      if(request.hintMode && !reply.humanFactors)throw new Error('Missing human analysis');
       if(request.hintMode==='question' && (!reply.openQuestions.length || reply.candidates.length))throw new Error('Unwanted solution');
       failureCode='review_format';if(retrospective)validateGameReview(reply.gameReview,request.history);
       return reply;

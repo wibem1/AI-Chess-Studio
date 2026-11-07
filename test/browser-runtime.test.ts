@@ -48,7 +48,7 @@ test('browser provider contract, response validation and persisted request cap a
  assert.equal((await store.budget(l=>l.snapshot())).state.uncertainRequests,0);
 });
 test('browser invalid requests do not spend, failed or oversized replies reserve cost and never leak secrets',async()=>{
- for(const result of [()=>{throw new Error(config.apiKey);},()=>new Response('x'.repeat(65537)),()=>new Response(JSON.stringify({choices:[{finish_reason:'stop',message:{content:JSON.stringify({...reply,candidates:['illegal']})}}]}))]){
+ for(const result of [()=>{throw new Error(config.apiKey);},()=>new Response('x'.repeat(65537))]){
   const store=new MemoryStore();let calls=0;const r=new BrowserRuntime(store,(async()=>{calls++;return result();}) as typeof fetch);await connect(r);
   await assert.rejects(r.handle('/api/dialogue','POST',{...request(),legalMoves:['e5']}));assert.equal(calls,0);
   await assert.rejects(r.handle('/api/dialogue','POST',request()),error=>error instanceof Error&&!error.message.includes(config.apiKey));assert.equal(calls,1);

@@ -50,8 +50,8 @@ test('failures consume the three-attempt limit and never leak provider content o
   await assert.rejects(service.reply(request()), (e: unknown) => e instanceof ApiError && e.status === 429);
   assert.equal(calls, 3); assert.equal(service.status().remaining, 0);
 });
-test('rejects illegal candidates, refusals, truncated and oversized responses', async () => {
-  for (const result of [response({ ...reply, candidates: ['e5'] }), response(reply, 'length'), new Response('x'.repeat(70000)),
+test('rejects refusals, truncated and oversized responses', async () => {
+  for (const result of [response(reply, 'length'), new Response('x'.repeat(70000)),
     new Response(JSON.stringify({ choices: [{ finish_reason: 'stop', message: { refusal: 'no' } }] })), new Response('secret failure', { status: 401 })]) {
     const service = new ModelService(config, fake(async () => result));
     await assert.rejects(service.reply(request()), (e: unknown) => e instanceof ApiError && e.status === 502);

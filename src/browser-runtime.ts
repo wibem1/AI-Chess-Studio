@@ -1,8 +1,9 @@
+import {decodeModelContent,normalizeModelReply} from './model-reply.js';
 import {COACH_ERRORS,CoachFailure,providerFailure,type CoachFailureCode} from './model-errors.js';
 import {validateGameReview} from './game-review.js';
 import {BrowserStore,type StoredVault} from './browser-store.js';
 import {sealConfig,openConfig,sealDeviceConfig,openDeviceConfig,type LocalModelConfig} from './browser-vault.js';
-import {ApiError,parseRequest,SYSTEM_PROMPT} from './model-contract.js';
+import {ApiError,parseRequest,SYSTEM_PROMPT,FREE_CHAT_PROMPT} from './model-contract.js';
 import {validateReply} from './dialogue.js';
 import {APP_VERSION} from './version.js';
 import {BrowserTacticalAdapter} from './browser-tactics.js';
@@ -79,8 +80,8 @@ export class BrowserRuntime {
   const request=parseRequest(raw);
   if(this.busy||this.attempts>=3)throw new ApiError(429,'Anfragelimit erreicht oder Anfrage läuft.');
   const {turns=[],...current}=request;
-  const retrospective=request.topic==='review'&&(request.hintMode??'explain')==='explain',outputTokens=retrospective?1800:800;
-  const body=JSON.stringify({model:config.model,max_completion_tokens:outputTokens,response_format:{type:'json_object'},messages:[{role:'system',content:SYSTEM_PROMPT},...turns.map(t=>({role:t.role,content:`[Stellung ${t.nodeId}${t.fen?`, FEN ${t.fen}`:''}] ${t.text}`})),{role:'user',content:JSON.stringify(current)}]});
+  const retrospective=request.topic==='review'&&(request.hintMode??'explain')==='explain',outputTokens=retrospective||request.topic==='chat'?1800:800;
+  const body=JSON.stringify({model:config.model,max_completion_tokens:outputTokens,...(request.topic==='chat'?{}:{response_format:{type:'json_object'}}),messages:[{role:'system',content:request.topic==='chat'?FREE_CHAT_PROMPT:SYSTEM_PROMPT},...turns.map(t=>({role:t.role,content:`[Stellung ${t.nodeId}${t.fen?`, FEN ${t.fen}`:''}] ${t.text}`})),{role:'user',content:JSON.stringify(current)}]});
   if(new TextEncoder().encode(body).length>24000)throw new ApiError(400,'Modellkontext ist zu groß.');
   this.busy=true;let reserved=0,started=false;let failureCode:CoachFailureCode='network';
   try{
@@ -94,8 +95,8 @@ export class BrowserRuntime {
    if(envelope.choices?.[0]?.finish_reason==='length')throw new CoachFailure('output_limit');
    if(envelope.choices?.[0]?.finish_reason!=='stop')throw new Error();
    failureCode='reply_format';
-   const reply=validateReply(JSON.parse(envelope.choices[0].message.content),request.legalMoves);
-   if(!reply.message?.trim()||!reply.humanFactors||((request.hintMode??'explain')==='explain'&&!retrospective&&!reply.assessment)||request.hintMode==='question'&&(!reply.openQuestions.length||reply.candidates.length))throw new Error();
+   const reply=normalizeModelReply(decodeModelContent(envelope.choices[0].message.content,request.topic!=='chat'),request.legalMoves);
+   if(!reply.message?.trim()||request.hintMode==='question'&&(!reply.openQuestions.length||reply.candidates.length))throw new Error();
    failureCode='review_format';if(retrospective)validateGameReview(reply.gameReview,request.history);
    return reply;
   }catch(error){
