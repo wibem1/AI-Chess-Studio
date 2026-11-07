@@ -2,7 +2,7 @@ import {positionFacts,historyFacts} from './position-facts.js';
 import {Chess} from 'chess.js';
 import type {DialogueRequest} from './dialogue.js';
 export class ApiError extends Error {
-  constructor(public status:number,message:string){super(message);}
+  constructor(public status:number,message:string,public code:string=''){super(message);}
 }
 export const SYSTEM_PROMPT = `Du bist ein deutschsprachiger Schach-Lernbegleiter. Der Mensch spielt gegen eine separate Engine und bespricht mit dir während oder nach der Partie Pläne und Varianten. Du bist nicht der Spielgegner.
 Berücksichtige Stellung, bisherigen Lernkontext und ausdrücklich ausgewählte Varianten A/B. Erkläre Unterschiede und stelle hilfreiche Lernfragen.

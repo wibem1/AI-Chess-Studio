@@ -1456,3 +1456,39 @@ den lokalen Build geprüft. Unveränderte Engine-/Modell-/Icon-Blobs wiederverwe
 mit Prüfung des erwarteten vorherigen Branchstands. Keine neue Appkennung,
 Speichermigration, kostenpflichtige Anfrage, Sichtbarkeitsänderung oder neuer
 Actions-Workflow. Der vorhandene Pages-Lauf wurde automatisch ausgelöst.
+
+## 0.8.2: Fehlerauskunft nach realem Nutzerfehler
+
+7. November 2026. Original-Sitzungsdatei lokal mit Session.import eingelesen,
+Anfrage durch Studio.ask und parseRequest rekonstruiert, ohne Anbieterzugriff.
+153 Knoten einschließlich Varianten, tatsächlicher Partiepfad 141 Halbzüge.
+Rekonstruierter Test-Providerpayload etwa 13 kB, unter dem 24-kB-Weblimit;
+Modellkennung im Test ist ein Platzhalter, keine aus der Sitzung ermittelte
+Nutzerkonfiguration. Datei enthält vier bisherige Chatbeiträge, keine neue
+Antwort und keine Fehlerdiagnose des fehlgeschlagenen Aufrufs. Daraus lässt
+sich dessen tatsächliche Ursache nicht bestimmen. Keine Dateikorruption oder
+Kontextüberschreitung im lokalen Nachbau. Originaldatei/Inhalte nicht publiziert.
+
+Nachgewiesen: providerseitige und Validierungsfehler wurden pauschal zu 502;
+der gemeinsame Client zeigte auch deren lokale Meldung nicht. Korrektur gibt
+feste sichere Kategorien durch beide Transportwege weiter und erklärt, dass
+bisherige Chatbeiträge aus früheren Anfragen stammen. Keine Anbieterrohtexte,
+Schlüssel oder ungeprüfte Ausnahmeinhalte anzeigen.
+
+Prüfungen am vorbereiteten 0.8.2-Stand:
+
+- `npm test`: 126/126 bestanden, einschließlich strikter Typprüfung/Root-Build.
+- `npm run build:pages`: erfolgreich.
+- `CHROMIUM_PATH=/tmp/chromium npx playwright test --grep 'failed model request shows|typed retrospective|learning dialogue integrates|visible UI version'`:
+  4/4 bestanden, Chromium 153.0.8010.0.
+- Tests unterscheiden HTTP-Zugangs-/Kontingentfehler, Antwort-Abbruch durch
+  Ausgabelimit, unlesbare Antwort, allgemeines Antwortformat und ungültigen
+  Rückblick. Client akzeptiert nur feste bekannte Kategorien; rohe fremde
+  Fehlermeldungen werden nicht angezeigt. Kein automatischer Retry.
+- Neuer Web-Browserfall zeigt Outputlimit, anschließend HTTP-Zugangsablehnung,
+  erhält alte Beiträge und kennzeichnet deren Herkunft aus früheren Anfragen.
+- Bestehende sichere Kostenreservierung und Anfragezählung bleiben erhalten.
+
+Keine bezahlten Modellaufrufe. Das behebt die fehlende Diagnose, belegt keine
+Behebung der unbekannten Ursache des konkreten Modellaufrufs. 0.8.2 noch nicht
+veröffentlicht; tatsächliche Fehlerkategorie des Nutzers bleibt offen.

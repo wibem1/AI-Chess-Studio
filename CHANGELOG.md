@@ -1,5 +1,16 @@
 # Änderungen
 
+## 0.8.2 – Aussagekräftige Fehler beim Lerndialog (noch nicht veröffentlicht)
+
+- Anbieterablehnung, Anbieterlimit, Netzwerk, abgeschnittene Antworten und
+  ungültige Modell-/Rückblickformate anhand fester sicherer Meldungen unterscheiden.
+- Web- und Desktoptransport erhalten diese Kategorien bis zur sichtbaren Meldung.
+- Bei Fehlschlag ausdrücklich erklären, dass sichtbare Chatbeiträge von früheren
+  Anfragen stammen. Keine Rohantworten oder Schlüssel ausgeben.
+- Keine automatischen Wiederholungen, zusätzlichen Modellaufrufe, Änderungen an
+  Budget oder gespeicherten Partien. Ursache des konkreten Nutzerfehlers noch
+  nicht nachgewiesen; keine erfolgreiche echte Analyse behauptet.
+
 ## 0.8.1 – Partierückblick mit konkreten Lernmomenten
 
 - Eine ausdrückliche Nachricht wie „Analysiere das Spiel“ wählt den Partierückblick

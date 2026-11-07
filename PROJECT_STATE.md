@@ -1,5 +1,33 @@
 # Projektstand
 
+## Aktuell: 0.8.2 Fehlerauskunft vorbereitet, nicht veröffentlicht
+
+Nutzer meldet nach 0.8.1 „Modellanfrage fehlgeschlagen“, darüber weiterhin die
+alte Mattbeschreibung. Nun eine echte Sitzungsdatei und Screenshot vorhanden.
+Datei lokal erfolgreich mit Session.import geladen; für die tatsächliche Partie
+141 Halbzüge rekonstruiert. parseRequest akzeptiert die Anfrage; rekonstruierter
+Test-Providerpayload rund 13 kB, unter dem 24-kB-Weblimit. Kein bezahlter Aufruf.
+Keine nachgewiesene Ursache aus Dateikorruption oder Kontextgröße. Die Sitzung
+enthält keine neue Modellantwort und keine Fehlerdetails des fehlgeschlagenen
+Aufrufs. Anbieterablehnung, Abbruch oder Formatprüfung bleiben mögliche Ursachen.
+
+Nachgewiesener Appfehler: Web-/Desktopanbieter fassen unterschiedliche Fehler
+zu HTTP 502 zusammen; der gemeinsame Client verschluckt auch diesen Fehlertext.
+Implementiert: feste sichere Kategorien für Netzwerk, HTTP-Ablehnung, Anbieterlimit,
+Antwortformat, Ausgabelimit und ungültigen Rückblick; Kategorien im Web- und
+Desktoptransport erhalten. UI zeigt sichere Kategorie und kennzeichnet die
+bisherigen Chatbeiträge als frühere Antworten. Keine Anbieterrohtexte oder
+Schlüssel anzeigen; keine automatischen Versuche oder Budgetrücksetzung.
+
+Prüfungen: 126/126 Einzeltests, neuer Browserfall bestanden; abschließende
+Prüfungen siehe docs/VALIDATION.md. Dies ist eine Diagnosekorrektur, kein
+Nachweis, dass die tatsächliche Modellanfrage nun gelingt. Keine Nutzerdatei
+oder deren private Originalinhalte ins öffentliche Repository übernommen.
+
+Nächster Schritt: Freigabe für die Veröffentlichung der Diagnosekorrektur,
+dann die konkrete Fehlerkategorie des echten Aufrufs beurteilen. Keine
+weiteren kostenpflichtigen Wiederholungen ohne neue Diagnose empfehlen.
+
 ## Aktuelle Korrektur: 0.8.1 veröffentlicht
 
 Veröffentlichung nach ausdrücklicher Nutzerfreigabe abgeschlossen: Quelle

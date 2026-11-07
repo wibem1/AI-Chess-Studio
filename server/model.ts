@@ -1,3 +1,4 @@
+import {COACH_ERRORS,CoachFailure,providerFailure,type CoachFailureCode} from '../src/model-errors.js';
 import {validateGameReview} from '../src/game-review.js';
 import { CostControl } from './costs.js';
 import type { CredentialsStore } from './credentials.js';
@@ -79,7 +80,7 @@ export class ModelService {
       messages:[{role:'system',content:SYSTEM_PROMPT},...turns.map(t=>({role:t.role,content:`[Stellung ${t.nodeId}${t.fen?`, FEN ${t.fen}`:''}] ${t.text}`})),{role:'user',content:JSON.stringify(currentRequest)}]});
     let reservation:number;
     try {reservation=this.costs.reserve(Buffer.byteLength(body),outputTokens);}catch{throw new ApiError(402,'Lokales Anfrage- oder Kostenbudget erreicht.');}
-    this.attempts++; this.busy = true;
+    this.attempts++; this.busy = true;let failureCode:CoachFailureCode='network';
     try {
       const response = await this.transport('https://api.openai.com/v1/chat/completions', {
         method: 'POST', redirect: 'error',
@@ -87,18 +88,21 @@ export class ModelService {
         signal: AbortSignal.timeout(15_000),
         body
       });
-      if (!response.ok) { await response.body?.cancel(); throw new Error('Provider rejected request'); }
+      if (!response.ok) { await response.body?.cancel(); throw new CoachFailure(providerFailure(response.status)); }
+      failureCode='provider_format';
       const envelope = JSON.parse(await readLimited(response));
       this.costs.settle(reservation,envelope.usage);
+      if(envelope.choices?.[0]?.finish_reason==='length')throw new CoachFailure('output_limit');
       if (envelope.choices?.[0]?.finish_reason !== 'stop') throw new Error('Incomplete response');
+      failureCode='reply_format';
       const reply=validateReply(JSON.parse(envelope.choices[0].message.content), request.legalMoves);
       if((request.hintMode??'explain')==='explain' && !retrospective && !reply.assessment)throw new Error('Missing assessment');
       if(request.topic && !reply.message?.trim())throw new Error('Missing dialogue');
       if(request.hintMode && !reply.humanFactors)throw new Error('Missing human analysis');
       if(request.hintMode==='question' && (!reply.openQuestions.length || reply.candidates.length))throw new Error('Unwanted solution');
-      if(retrospective)validateGameReview(reply.gameReview,request.history);
+      failureCode='review_format';if(retrospective)validateGameReview(reply.gameReview,request.history);
       return reply;
-    } catch { throw new ApiError(502, 'Modellanfrage fehlgeschlagen oder Antwort ungültig.'); }
+    } catch(error) { const code=error instanceof CoachFailure?error.code:failureCode;throw new ApiError(502,COACH_ERRORS[code]+' Keine neue Antwort gespeichert.',code); }
     finally { this.busy = false; }
   }
 }

@@ -126,3 +126,12 @@ test('saved access remains distinguishable from demo when period or password blo
  const next=new BrowserRuntime(store),status=await next.status();assert.equal(status.saved,true);assert.equal(status.available,true);assert.equal(status.remaining,0);assert.equal(status.limit,'period');
  await next.handle('/api/vault','POST',{action:'lock'});const locked=await next.status();assert.equal(locked.saved,true);assert.equal(locked.locked,true);assert.equal(locked.available,false);assert.equal(calls,0);
 });
+
+test('browser coach distinguishes provider rejection, output limit and invalid review without leaking provider bodies',async()=>{
+ const session=new Session();session.play('e4');session.play('e5');
+ const req={...request(),nodeId:'n2',fen:session.snapshot().nodes[2]!.fen,legalMoves:session.legalMoves(),topic:'review',hintMode:'explain',history:{rootFen:session.snapshot().nodes[0]!.fen,moves:['e4','e5'],truncated:false}};
+ for(const [code,result] of [['provider_auth',()=>new Response(config.apiKey,{status:401})],['output_limit',()=>new Response(JSON.stringify({choices:[{finish_reason:'length'}]}))],['review_format',()=>new Response(JSON.stringify({choices:[{finish_reason:'stop',message:{content:JSON.stringify(reply)}}],usage:{prompt_tokens:20,completion_tokens:20}}))]] as const){
+  const store=new MemoryStore();let calls=0;const runtime=new BrowserRuntime(store,(async()=>{calls++;return result();}) as typeof fetch);await connect(runtime);
+  await assert.rejects(runtime.handle('/api/dialogue','POST',req),e=>e instanceof Error&&(e as {code?:string}).code===code&&!e.message.includes(config.apiKey));assert.equal(calls,1);assert.equal((await store.budget(l=>l.snapshot())).state.requests,1);
+ }
+});

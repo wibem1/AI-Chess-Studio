@@ -48,7 +48,7 @@ export function modelMiddleware(service: ModelService, tactics?: (raw: unknown) 
       } else send(200, await service.reply(raw));
     } catch (error) {
       send(error instanceof ApiError ? error.status : 500,
-        { error: error instanceof ApiError ? error.message : 'Interner Fehler.' });
+        { error: error instanceof ApiError ? error.message : 'Interner Fehler.',code:error instanceof ApiError?error.code:'' });
     }
   };
 }
