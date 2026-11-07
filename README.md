@@ -5,6 +5,11 @@ Aktueller veröffentlichter Funktionsstand: **0.11.2**.
 GitHub-Pages-Bereitstellung und Live-Dateiprüfsummen bestätigt.
 Änderungen: [CHANGELOG.md](CHANGELOG.md).
 
+Vorbereitet **0.12.0**: kompakter Arbeitsbereich mit Modell im Kopf und Technik
+in Einstellungen, Zum Anfang springen, keine Spiel-Zielfeldvorschau sowie
+KI-Lehrstellungen/Pfeile/Linien. Noch nicht veröffentlicht. Prüfstand und
+Funktionsgrenzen: [PROJECT_STATE.md](PROJECT_STATE.md).
+
 Anbieter, Modell, Denktiefe und Betriebszustand stehen sichtbar im Lernmodus.
 Verbindung dort prüfen und Modell ohne erneute Schlüsseleingabe wechseln.
 Bearbeitete Anbieterauswahl bleibt bei Hintergrundaktualisierungen erhalten.

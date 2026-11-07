@@ -420,3 +420,47 @@ h2{font-size:1.65rem}
 
 .workspace[data-active-view=learn] #coach-match{order:-6}
 @media(min-width:901px) and (any-pointer:fine){.workspace[data-active-view=learn] .board-heading{position:static;align-self:flex-end;margin-bottom:6px}}
+
+/* Compact primary workspace; connection and legacy tools live in settings. */
+.model-summary{font-size:.8rem;max-width:min(34vw,390px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--green)}
+.header-status{min-width:0;flex-wrap:wrap;justify-content:flex-end}
+#mode-badge,#workbench-status,#chat-access,#dialogue-anchor{display:none}
+#panel-settings #ai-access-card{display:block;margin:0 0 12px}
+#panel-settings #learning-settings{display:block}
+.game-panel>.hint,.game-panel>.eyebrow,.game-panel>p:not([role=status]),.game-panel details>.hint{display:none}
+#board-area,.workspace[data-active-view=learn] #board-area{position:static;display:flex;flex-direction:column;min-width:0}
+#board-area .board-heading,.workspace[data-active-view=learn] #board-area .board-heading{order:-10;align-self:stretch;position:static;margin:0 0 6px;flex-wrap:wrap}
+.board-actions{flex-wrap:wrap;gap:5px}
+#board-area .board-actions button{padding:6px 9px;min-height:34px;font-size:.74rem}
+#board-area #coach-match{order:-9;margin:0 0 5px;gap:6px}
+#coach-match strong{font-size:.75rem}#coach-match button{padding:5px 10px;min-height:30px;font-size:.75rem}
+#board-area #coach-plan-bar{order:-8;justify-content:flex-start;margin:0 0 5px}
+#board-area #position-status{order:-7;margin:0 0 5px;font-size:.73rem}
+#board-area #diagram-toolbar{order:-1;display:flex;align-items:center;gap:10px;margin-bottom:5px;font-size:.8rem}
+#diagram-toolbar button{min-height:30px;padding:4px 9px;font-size:.75rem}
+#board-area #board{order:0;position:relative;flex-shrink:0}
+#board-area #learning-chat{order:1}
+#board-area #learning-controls{order:2}
+#board-area .games-menu{order:6}
+#board-area .board-tools{order:5}
+.board-marks{position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none;opacity:.85}
+#board[data-readonly=true] button{cursor:default}
+.workspace[data-active-view=play] #board button.drag-target,.workspace[data-active-view=play] #board button.target{box-shadow:none}
+#simulation-hint{margin:5px 0}
+#learning-chat .chat-actions{justify-content:flex-end}
+#learning-chat #clear-dialogue{padding:4px 8px;min-height:28px;font-size:.7rem}
+#learning-chat #dialogue-form label{display:none}
+footer span{display:none}
+@media(max-width:520px){.app-header{align-items:flex-start}.header-status{gap:4px}.model-summary{max-width:44vw;font-size:.7rem}.board-heading h2{display:none}.board-actions{width:100%}#board-area .board-actions button{font-size:.68rem;padding:5px 7px}.version-pill{display:none}#coach-match strong{font-size:.7rem}}
+/* One compact toolbar rather than separate rows above the board. */
+#board-area .board-heading h2{display:none}
+#board-area .board-actions{width:100%;justify-content:flex-end;align-items:center}
+#board-area .board-actions #coach-match{width:auto;order:-2;margin:0 auto 0 0}
+#board-area .board-actions #coach-plan-bar{order:-1;margin:0}
+#board-area .board-actions #coach-plan-bar button{min-height:32px;padding:5px 9px;font-size:.75rem}
+#match-status:not(:empty){max-width:320px;font-size:.72rem}
+#panel-learn{max-width:1080px;margin:0 auto}
+#study-tools{width:100%;margin-top:0}
+#study-tools>details{margin:8px 0}
+#learning-chat #ask{min-width:85px;max-width:140px}
+@media(max-width:520px){#board-area .board-actions #coach-match{flex:1 1 auto}#board-area .board-actions{justify-content:flex-start}#board-area .board-actions #coach-plan-bar{margin-right:auto}}

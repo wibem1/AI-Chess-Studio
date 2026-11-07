@@ -1,5 +1,49 @@
 # Projektstand
 
+## Vorbereitet: 0.12.0 – kompakter Arbeitsbereich und KI-Lehrdiagramme
+
+Nutzerauftrag nach Praxisabnahme von 0.11.2: mehr Platz für Brett/Chat, weniger
+Erklärtexte und Optionen, Technik aus dem Blickfeld, Modell oben; KI soll
+Stellungen sowie Pfeile/Linien zeigen können. Keine Veröffentlichung beauftragt.
+
+Umgesetzt:
+- Kompakte Modellanzeige im Kopf, Demo/gesperrt/laufend weiterhin erkennbar.
+  Zugangskarte, Verbindungstest und Modellwechsel ausschließlich in Einstellungen.
+- Gemeinsame kleine Werkzeugleiste am Brett. Start/Stop des KI-Engine-Tests bleibt
+  oben. Weniger dauernde Texte; kurze Senden-/Plan-Schaltflächen. Separate
+  Analyseknöpfe und Stellungs-/Zugkommentare aus der normalen Ansicht entfernt;
+  bestehende Notizen/Sitzungen nicht gelöscht. Weitere Werkzeuge zugeklappt.
+- Zum Anfang springen direkt am Brett, aus beiden Modi. Analyse pausiert die
+  tatsächliche Partie; ihre Zugfolge bleibt erhalten. Auch freie Lernzweige ohne
+  Enginepartie können danach wieder vorwärts durchgegangen werden.
+- Keine möglichen Zielfelder beim Antippen oder Ziehen im Spielmodus.
+  Lernmodus darf weiterhin legale Ziele anzeigen. Brettgröße in beiden Modi gleich.
+- Neue geprüfte Modellwerkzeuge show_position (FEN-Lehrstellung) und draw_board
+  (bis zwölf grüne/rote/blaue Pfeile oder Linien). SVG-Koordinaten folgen der
+  Brettdrehung und Größe; nur feste Typen/Farben/Felder, kein Modell-SVG/Code.
+  show_line/play_engine bleiben für echte legale Varianten der Partie zuständig.
+- Lehrstellungen sind gesonderte, vorübergehende, nicht direkt spielbare Ansichten
+  desselben Bretts. Tatsächliche Partie/Analysezugfolge unverändert; Zur Lernstellung
+  stellt die Ansicht wieder her. Markierungen auf Lehrstellung nachträglich änderbar.
+  Ein Stellungs-/Sitzungs-/Moduswechsel entfernt die Ansicht; Chatlöschung ebenfalls.
+  Zeichnungen sind Erklärungen, keine regelgeprüften Zugausführungen. Diagramme werden
+  in Anfrageberichten/Chat protokolliert, aber nicht als aktive Ansicht wiederhergestellt.
+
+Prüfung: Typprüfung, Root-/Pages-Build und 156/156 Einzeltests bestanden;
+14/14 gezielte Chromiumfälle (compact-board, coach-tools, model-diagnostics,
+access-layout, windows-learning, pages) bestanden. Neue Grenzen-/Manipulations-
+und Nichtveränderungstests; ganze Modellwerkzeugschleife mit abgefangenen
+Providerantworten, echter Stockfish-WASM-/Maia-ONNX-Inferenz und Pages-Offlineweg.
+Desktop und 390-px-Ansicht sowie Lehrdiagramm visuell geprüft. Keine bezahlten
+KI-Anfragen, kein Nachweis echter Modellentscheidungen, keine native Geräteabnahme.
+Kein vollständiger neuer Gesamtlauf aller älteren Browserfälle; alte Tests mit
+entfernten Kommentar-/Analyseoptionen benötigen Anpassung an den neuen Ablauf.
+Die frühere Sechser-Fehlerliste ist damit nicht pauschal als behoben freigegeben.
+
+Version 0.12.0 nur vorbereitet und auf work gesichert. Live bleibt 0.11.2.
+Nächster Schritt: Veröffentlichung nach ausdrücklichem Auftrag; echte KI auf
+Wunsch im Chat z.B. „Baue ein Königsendspiel auf und zeichne den Königsweg“ prüfen.
+
 ## Aktuell veröffentlicht: 0.11.2 – Bereitstellung und Live-Dateien bestätigt
 
 Am 7. November 2026 nach erneuter ausdrücklicher Veröffentlichungsanweisung

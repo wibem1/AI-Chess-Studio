@@ -4,6 +4,22 @@ Verbindliche Zielkorrektur aus den Nutzerklarstellungen vom 5. und 6. November 2
 Die folgende Zwei-Modi-Konzeption ersetzt die bisherige Aufteilung in vier
 gleichrangige Arbeitsbereiche.
 
+## Nutzerkorrektur 7. November nach 0.11.2: kompakte Oberfläche und Lehrdiagramme
+
+Brett und freier Chat haben Vorrang. Modell kompakt oben; Zugang, Anbieterprüfung
+und technische Konfiguration in Einstellungen. Keine dauernden Erklärungskarten
+oder vorgegebenen Analyse-/Kommentaroptionen im Hauptablauf. Gleiche Brettgröße
+für Spielen/Lernen, Start/Stop oben, direkter Sprung zum Anfang. Im Spielmodus
+keine Vorschau legaler Zielfelder. Bestehende Daten bleiben erhalten.
+
+Die Lernengine kann auf ausdrücklichen Wunsch neben legalen Zugfolgen auch
+Lehrstellungen aufbauen und Pfeile/Linien zeichnen. Implementiert in 0.12.0 als
+getrennte Diagrammansicht auf dem gemeinsamen Brett; echte Partie/Verlauf bleibt
+unverändert. show_position nutzt validierte FEN, draw_board begrenzte Feldpaare
+und feste Farben/Formen. Kein beliebiger SVG-/Skriptcode des Modells. Ansicht
+folgt der Orientierung; Rückkehr zur Lernstellung jederzeit möglich. Freies
+Weiterspielen aus beliebiger Lehrstellung ist noch kein eigener Sitzungsmodus.
+
 ## Verbindliche Zielkorrektur vom 7. November: freier Lernchat mit Werkzeugen
 
 Der Nutzer beschreibt einen freien Gesprächspartner, der die aktuelle Stellung,

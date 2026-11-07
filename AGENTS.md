@@ -26,14 +26,21 @@
     Vorführung/Weiterspielen ist implementiert, auf zwei Werkzeugrunden begrenzt
     und mit echten Spielengines geprüft; reale KI-Werkzeugauswahl separat belegen. DEVELOPMENT_PLAN.md beachten.
 
-13. Nutzerkorrektur zum Lernlayout vom 7. November: Brett, Eingabefeld, aktuelle
-    Antwort und älterer Chat stehen in dieser Reihenfolge untereinander. Brett
-    beim Besprechen sichtbar halten; lange Antworten separat scrollbar. Oben
-    „Zeige deinen Plan auf dem Brett“. Keine Rückkehr zur Desktop-Spaltenansicht
-    ohne neuen Nutzerauftrag. Siehe DEVELOPMENT_PLAN.md und PROJECT_STATE.md.
+13. Aktuelle Nutzerkorrektur vom 7. November nach 0.11.2: kompakte Oberfläche.
+    Modell oben, Zugangskarte und technische Steuerung in Einstellungen.
+    Hauptablauf Brett → freie Eingabe/aktuelle Antwort → Chatverlauf; keine
+    vorgegebenen Analyse-/Kommentaroptionen. Start/Stop am Brett oben, gleiche
+    Brettgröße in beiden Modi, Zum Anfang springen direkt erreichbar. Keine
+    möglichen Zielfelder im Spielmodus. Weitere Werkzeuge zugeklappt.
 
 14. Ab 0.11.0 OpenRouter, Anfrage-Diagnose und kontrollierte KI-Testpartien.
     Dokumentation: docs/AI_EVALUATION.md. Technische Fixture-Prüfungen belegen
     keine Schachkompetenz eines Modells. Private Provider-Denkblöcke gehören
     nicht in Diagnose, Chat oder Sitzung; zur Werkzeugfortsetzung nur im RAM.
     Kein automatisches Modell-Fallback oder kostenpflichtiger Teststart.
+
+15. Ab vorbereitetem Stand 0.12.0 separate KI-Lehrdiagramme: show_position und
+    draw_board. Nur validierte FEN und begrenzte feste Zeichenparameter; keine
+    beliebigen Modell-Skripte/SVGs. Echte Partie/Analysezugfolge niemals durch
+    ein Lehrdiagramm überschreiben. Die temporäre Ansicht bleibt klar benannt
+    und rückkehrbar; Zugvorführung bleibt separat legalitätsgeprüft.

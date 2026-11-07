@@ -2,7 +2,8 @@ import {validModel} from '../src/model-provider.js';
 import {CoachMatch} from '../src/coach-match.js';
 import {installModelControls} from './model-controls.js';
 import {CoachBoard} from '../src/coach-board.js';
-import {TOOL_RECORD} from '../src/coach-tools.js';
+import {drawBoardMarks} from './board-diagram.js';
+import {type BoardDiagram,TOOL_RECORD} from '../src/coach-tools.js';
 import {renderLearningReplay,learningLine} from './learning-replay.js';
 import {MaiaPlayingEngine} from './maia-engine.js';
 import {MAIA_PROFILES} from '../src/maia-files.js';
@@ -51,12 +52,19 @@ const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as 
 const input = (id: string) => $<HTMLInputElement>(id);
 const text = (id: string) => $<HTMLTextAreaElement>(id);
 let selected: Square | null = null;
+let replayTip:{session:typeof studio.session;node:string}|undefined;
+let illustration:{diagram:BoardDiagram;session:typeof studio.session;node:string}|undefined;
 let shownMove:{node:string;from:string;to:string}|undefined;
 let coachAnchor:{session:typeof studio.session;node:string}|undefined,pendingCoachAnchor:typeof coachAnchor;
 const boardActions:unknown[]=[];
 let pending = false,chatStopped=false;let activeAdapter:ServerModelAdapter|undefined;
 const coachBrowserEngine=new BrowserPlayingEngine(),coachMaiaEngine=new MaiaPlayingEngine(value=>{if(pending&&!chatStopped)message('dialogue-feedback',value);});
-const coachBoard=new CoachBoard(()=>studio.session,()=>studio.session.snapshot().game?.opponent==='maia'?coachMaiaEngine:(studio.session.snapshot().game?.engine??$<HTMLSelectElement>('engine-location').value)==='browser'?coachBrowserEngine:desktopEngine,node=>{if(pendingCoachAnchor){coachAnchor=pendingCoachAnchor;pendingCoachAnchor=undefined;}const d=studio.session.snapshot(),n=d.nodes.find(n=>n.id===node)!,parent=d.nodes.find(p=>p.id===n.parentId)!;const move=new Chess(parent.fen).move(n.san!);shownMove={node,from:move.from,to:move.to};render();});
+const coachBoard=new CoachBoard(()=>studio.session,()=>studio.session.snapshot().game?.opponent==='maia'?coachMaiaEngine:(studio.session.snapshot().game?.engine??$<HTMLSelectElement>('engine-location').value)==='browser'?coachBrowserEngine:desktopEngine,node=>{if(pendingCoachAnchor){coachAnchor=pendingCoachAnchor;pendingCoachAnchor=undefined;}const d=studio.session.snapshot(),n=d.nodes.find(n=>n.id===node)!,parent=d.nodes.find(p=>p.id===n.parentId)!;const move=new Chess(parent.fen).move(n.san!);shownMove={node,from:move.from,to:move.to};render();},150,(diagram,node)=>{
+ const previousFen=illustration?.session===studio.session&&illustration.node===node?illustration.diagram.fen:undefined;
+ const view={...diagram,...(!diagram.fen&&previousFen?{fen:previousFen}:{})};
+ illustration=view.fen||view.marks.length?{diagram:view,session:studio.session,node}:undefined;
+ selected=null;render();
+});
 let directAnalysisHint:'explain'|undefined;
 let tacticalPending = false;
 let modelAvailable = false;
@@ -75,7 +83,8 @@ function updateMode() {
  $('coach-origin').hidden=!coachAnchor||coachAnchor.session!==studio.session||coachAnchor.node===studio.session.snapshot().activeNodeId;
  $<HTMLButtonElement>('clear-dialogue').disabled=!pending&&!studio.session.snapshot().annotations.some(a=>a.kind==='dialogue');
  const real=modelMode(),locked=reviewLocked(studio.session.snapshot()),blocked=real&&!modelAvailable||!accessReady||accessReadError;
- $<HTMLButtonElement>('ask').textContent=real?'Nachricht senden (reale KI)':'Nachricht senden (Simulation)';
+ $<HTMLButtonElement>('ask').textContent=real?'Senden':'Senden (Demo)';
+ $('ask').setAttribute('aria-label',real?'Nachricht senden (reale KI)':'Nachricht senden (Simulation)');
  $<HTMLButtonElement>('ask').disabled=pending||match.running||locked||blocked;
  $<HTMLButtonElement>('coach-show-plan').disabled=!real||pending||match.running||locked||blocked;
  for(const id of ['analyse-position','analyse-game'])$<HTMLButtonElement>(id).disabled=pending||match.running||locked||blocked;
@@ -88,6 +97,8 @@ function updateMode() {
  $('learn-configure').hidden=modelAvailable;
  message('mode-badge',!accessReady?'Lernchat: Zugang wird geprüft':accessReadError?'Lernchat: Status unklar':real?(modelAvailable?'Lernchat: Eigene KI':'Lernchat: KI gesperrt'):'Lernchat: Demo');
  message('active-ai',activeModelId?`${activeProviderName} · ${activeModelId}${activeReasoning?' · Denktiefe '+activeReasoning:''}`:'Keine KI ausgewählt');
+ message('active-model-summary',!accessReady?'KI wird geprüft …':!real?'Demo'+(activeModelId?' · '+activeModelId:''):activeModelId+(pending?' · arbeitet':!modelAvailable?' · gesperrt':''));
+ $('active-model-summary').title=$('active-ai').textContent??'';
  message('active-ai-state',!accessReady?'Zugang wird lokal geprüft …':accessReadError?modelBlocked:!real?'Demo aktiv – es antwortet keine KI.':modelAvailable?(pending?'KI-Anfrage läuft …':match.running?'KI-Testpartie läuft …':'Bereit · Verbindung noch nicht geprüft.'):modelBlocked);
  message('chat-access',!accessReady?'Gespeicherter KI-Zugang wird lokal geprüft …':accessReadError?modelBlocked:real?(modelAvailable?'Eigener KI-Zugang aktiv · bis zu 3 kostenpflichtige Anfragen je Nachricht · Kosten werden geschätzt.':modelBlocked):modelSaved||modelConfigured?'Demo ist ausdrücklich gewählt. Dein gespeicherter KI-Zugang bleibt erhalten.':'Demo: nur lokale Brettfakten, keine KI-Analyse.');
  $('chat-use-model').hidden=real||!(modelSaved||modelConfigured);
@@ -116,6 +127,7 @@ function attempt(action: () => void, target: string, success: string) {
   catch (error) { message(target, error instanceof Error ? error.message : 'Vorgang fehlgeschlagen.'); }
 }
 function move(value: string | { from: string; to: string; promotion: string }) {
+  if(illustration?.diagram.fen)return;
   attempt(() => {
     if(reviewLocked(studio.session.snapshot()))throw new Error('Zuerst deine Gedanken festhalten oder den Originalzug ausdrücklich aufdecken.');
     if (studio.session.status().gameOver) throw new Error('Partie beendet. Wähle eine frühere Stellung für eine neue Variante.');
@@ -138,7 +150,12 @@ function render() {
   cancelBoardDrag();
   const data = studio.session.snapshot();
   const current = data.nodes.find(n => n.id === data.activeNodeId)!;
-  const chess = new Chess(current.fen);
+  const learningView=$('workspace').dataset.activeView==='learn';
+  if(illustration&&(illustration.session!==studio.session||illustration.node!==current.id||!learningView))illustration=undefined;
+  const chess = new Chess(illustration?.diagram.fen??current.fen);
+  $('diagram-toolbar').hidden=!illustration;
+  message('diagram-label',illustration?.diagram.fen?'Lehrstellung':'Brettmarkierungen');
+  $('board').dataset.readonly=String(!!illustration?.diagram.fen);
   const status = studio.session.status();
   const live=data.review?.guiding?undefined:data.game;
   const allowed=visibleReviewNodes(data),locked=reviewLocked(data);
@@ -146,7 +163,8 @@ function render() {
   $<HTMLButtonElement>('game-undo').disabled=!game.canTakeBack();
   const learning=$('workspace').dataset.activeView==='learn';
   $('learning-controls').hidden=!learning;$('learning-chat').hidden=!learning;
-  renderLearningReplay(data,game,()=>{selected=null;render();});
+  if(!replayTip||replayTip.session!==studio.session||!data.nodes.some(n=>n.id===replayTip!.node)||!pathTo(data,replayTip.node).some(n=>n.id===current.id))replayTip={session:studio.session,node:current.id};
+  renderLearningReplay(data,game,()=>{selected=null;illustration=undefined;navigation.select('learn');render();},replayTip.node);
   message('workbench-status',learning?'Lernmodus · Züge ausprobieren und mit der Lernengine besprechen. Die Partie bleibt unverändert.':live?(live.paused?'Partie pausiert · Zum Fortsetzen Spielmodus wählen.':'Spielmodus · Schachengine ist dein Gegner.'):'Spielmodus · Starte rechts eine Partie gegen die Schachengine.');
   $<HTMLButtonElement>('learn-back').disabled=!current.parentId||locked;
   $<HTMLButtonElement>('learn-origin').disabled=locked;
@@ -166,7 +184,7 @@ function render() {
   message('position-status', `${current.id} · ${chess.turn() === 'w' ? 'Weiß' : 'Schwarz'} am Zug${status.checkmate ? ' · Schachmatt' : status.draw ? ' · Remis' : status.check ? ' · Schach' : ''}`);
   const pieces: Record<string, string> = { wk:'♔',wq:'♕',wr:'♖',wb:'♗',wn:'♘',wp:'♙',bk:'♚',bq:'♛',br:'♜',bb:'♝',bn:'♞',bp:'♟' };
   const names: Record<string, string> = { k:'König',q:'Dame',r:'Turm',b:'Läufer',n:'Springer',p:'Bauer' };
-  const targets = selected && !status.gameOver ? chess.moves({ square: selected, verbose: true }).map(m => m.to) : [];
+  const targets = learning && selected && !illustration?.diagram.fen && !status.gameOver ? chess.moves({ square: selected, verbose: true }).map(m => m.to) : [];
   const board = $('board'); board.replaceChildren();
   const flipped=(data.orientation??live?.human)==='b';
   message('position-status',$('position-status').textContent+` · ${flipped?'Schwarz':'Weiß'} unten${data.review&&status.repetition?' · '+status.repetitionCount+'-fache Wiederholung'+(status.fivefold?' · automatisches Remis':' · Remisanspruch möglich'):''}`);
@@ -184,6 +202,7 @@ function render() {
       button.textContent = piece ? pieces[piece.color + piece.type]! + '\uFE0E' : '';
       const coordinate = document.createElement('small'); coordinate.textContent = square; button.append(coordinate);
       button.addEventListener('click', () => {
+        if(illustration?.diagram.fen)return;
         if (selected === square) { selected = null; render(); }
         else if (selected && piece?.color !== chess.turn()) {
           move({ from: selected, to: square, promotion: $<HTMLSelectElement>('promotion').value });
@@ -192,6 +211,7 @@ function render() {
       board.append(button);
     }
   }
+  if(illustration){drawBoardMarks(board,illustration.diagram.marks,flipped);if(illustration.diagram.fen)message('position-status',`Lehrstellung · ${chess.turn()==='w'?'Weiß':'Schwarz'} am Zug`);}
   message('legal-moves', status.gameOver ? 'Partie beendet.' : studio.session.legalMoves().join(', '));
   $<HTMLButtonElement>('tactical-check').disabled = tacticalPending || status.gameOver || locked || !!data.review&&status.repetition;
   message('tactical-limits-hint',data.review?'Stockfish 19 Lite · begrenzter Faktencheck auf Aufruf mit vollständiger Zuggeschichte. Wiederholungen werden historisch geprüft; bei Remisanspruch keine isolierte Endspielbewertung.':'Stockfish 19 Lite · 1 Thread · 16 MiB Hash · höchstens Tiefe 12, 20.000 Knoten oder 1 Sekunde Suchzeit. Aktuelle FEN, ohne Wiederholungshistorie.');
@@ -266,7 +286,9 @@ function render() {
   updateMode();
   if(initialized&&isWebPlatform())void autosave.save().catch(()=>{});
 }
-$('board-area').insertBefore($('coach-match'),$('coach-plan-bar'));
+const boardActionsBar=document.querySelector<HTMLElement>('.board-actions')!;
+boardActionsBar.append($('coach-match'),$('coach-plan-bar'));
+const studyTools=document.createElement('details');studyTools.id='study-tools';studyTools.className='tool-section';const studySummary=document.createElement('summary');studySummary.textContent='Weitere Werkzeuge';studyTools.append(studySummary);$('panel-learn').append(studyTools);studyTools.append($('tactical-form').closest('details')!,$('panel-variants'));
 const match=new CoachMatch(()=>studio.session,()=>{render();$('match-status').textContent=match.report?.message??'';if(match.report)message('dialogue-feedback','Testpartie: '+match.report.message);$<HTMLButtonElement>('match-start').disabled=!!match.running;$<HTMLButtonElement>('match-stop').disabled=!match.running;});
 $('match-start').addEventListener('click',async()=>{
  if(pending||!modelAvailable||!modelMode()){message('match-status','Aktiven eigenen KI-Zugang wählen; keine Simulation.');return;}
@@ -275,6 +297,9 @@ $('match-start').addEventListener('click',async()=>{
 });
 $('match-stop').onclick=()=>{match.stop();render();message('match-status',match.report?.message??'Angehalten.');};
 $('ai-access-card').append($('chat-use-model'),$('chat-model-controls'));
+$('api-settings').prepend($('ai-access-card'));
+$('panel-settings').append($('learning-settings'));
+$('diagram-close').onclick=()=>{chatStopped=true;studio.cancelAsk();coachBoard.cancel();activeAdapter?.cancel();illustration=undefined;render();};
 const modelControls=installModelControls(localPost,async()=>{chooseModelMode('model');await refreshModelStatus();await refreshCosts();},()=>({nodeId:studio.session.snapshot().activeNodeId,fen:studio.session.snapshot().nodes.find(n=>n.id===studio.session.snapshot().activeNodeId)!.fen,testMatch:match.report,boardActions,environment:{userAgent:navigator.userAgent,viewport:{width:innerWidth,height:innerHeight},fontScale:$<HTMLSelectElement>('font-scale').value},feedback:$('dialogue-feedback').textContent}));
 $('move-form').addEventListener('submit', event => { event.preventDefault(); move(input('move').value.trim()); });
 $('memory-form').addEventListener('submit', event => {
@@ -297,7 +322,7 @@ $('coach-origin').addEventListener('click',()=>{if(!coachAnchor||coachAnchor.ses
 $('coach-stop').addEventListener('click',()=>{match.stop();chatStopped=true;studio.cancelAsk();coachBoard.cancel();activeAdapter?.cancel();message('dialogue-feedback','Angehalten. Bereits gezeigte Züge bleiben als Lernvariante erhalten.');});
 $('clear-dialogue').addEventListener('click',async()=>{
  if(!confirm('Chatverlauf dieser Partie auf allen Varianten löschen? Partie und eigene Notizen bleiben erhalten. Bereits gespeicherte Partiekopien bleiben unverändert.'))return;
- match.stop();boardActions.length=0;studio.session.clearDialogue();coachBoard.cancel();activeAdapter?.cancel();render();
+ match.stop();illustration=undefined;boardActions.length=0;studio.session.clearDialogue();coachBoard.cancel();activeAdapter?.cancel();render();
  try{if(initialized&&isWebPlatform())await autosave.save();await localPost('/api/ai-diagnostics',{action:'clear'});message('dialogue-feedback','Chatverlauf dieser Partie gelöscht. Anfrageberichte ebenfalls gelöscht.');}
  catch{message('dialogue-feedback','Chatverlauf in dieser Sitzung gelöscht. Automatisches Speichern fehlgeschlagen; Sitzung als Datei sichern.');}
 });
@@ -311,7 +336,8 @@ $('dialogue-form').addEventListener('submit', async event => {
   message('dialogue-feedback', `${real ? 'Modellanfrage' : 'Simulation'} läuft … Stellungswechsel ist weiterhin möglich.`);
   try {
     activeAdapter=real?new ServerModelAdapter(platformFetch):undefined;let toolStarted=false;
-    const result = await studio.ask(question, activeAdapter??new SimulationAdapter($<HTMLSelectElement>('simulation-mode').value as SimulationMode),'chat',hintOverride,real?async(call,node)=>{if(!toolStarted){pendingCoachAnchor={session,node};toolStarted=true;}message('dialogue-feedback',call.function.name==='play_engine'?'Vorführung läuft; die Spielengine antwortet …':'Zugfolge wird am Brett vorgeführt …');const result=await coachBoard.execute(call,node);boardActions.push({at:new Date().toISOString(),call,result});if(boardActions.length>20)boardActions.shift();if(!chatStopped)message('dialogue-feedback','Brettergebnis liegt vor; die Lernengine erläutert es …');return result;}:undefined);
+    const result = await studio.ask(question, activeAdapter??new SimulationAdapter($<HTMLSelectElement>('simulation-mode').value as SimulationMode),'chat',hintOverride,real?async(call,node)=>{if(!toolStarted){pendingCoachAnchor={session,node};toolStarted=true;}message('dialogue-feedback',call.function.name==='play_engine'?'Spielengine antwortet …':call.function.name==='show_line'?'Variante wird vorgeführt …':'Brettdarstellung wird aufgebaut …');if(call.function.name==='show_line'||call.function.name==='play_engine')illustration=undefined;
+      const result=await coachBoard.execute(call,node);boardActions.push({at:new Date().toISOString(),call,result});if(boardActions.length>20)boardActions.shift();if(!chatStopped)message('dialogue-feedback','Brettergebnis liegt vor; die Lernengine erläutert es …');return result;}:undefined);
     message('dialogue-feedback', result === 'stored' ? `${real ? 'Modellantwort' : 'Beispielantwort'} an der angefragten Stellung gespeichert.` : chatStopped?'Angehalten. Gezeigte Züge bleiben als Lernvariante erhalten.':'Veraltete Antwort nach Sitzungs- oder Chatwechsel verworfen.');
     render();
   } catch (error) {

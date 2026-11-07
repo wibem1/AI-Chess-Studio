@@ -23,7 +23,7 @@ test('cancel or chat clear prevents a running line from applying later moves',as
 test('tool loop returns verified board/engine results to the provider and stores explanation at resulting position',async()=>{
  const s=start(),board=new CoachBoard(()=>s.session,()=>engine,()=>{},0);let calls=0;
  const service=new ModelService({enabled:true,apiKey:'fixture-only-not-real',model:'fixture'},(async(_url,init)=>{calls++;const body=JSON.parse(String(init!.body));assert.equal(body.response_format,undefined);
- if(calls===1){assert.deepEqual(body.tools.map((t:any)=>t.function.name),['show_line','play_engine']);return new Response(JSON.stringify({choices:[{finish_reason:'tool_calls',message:{content:null,tool_calls:[call('play_engine',['e4'])]}}],usage:{prompt_tokens:20,completion_tokens:20}}));}
+ if(calls===1){assert.deepEqual(body.tools.map((t:any)=>t.function.name),['show_line','play_engine','show_position','draw_board']);return new Response(JSON.stringify({choices:[{finish_reason:'tool_calls',message:{content:null,tool_calls:[call('play_engine',['e4'])]}}],usage:{prompt_tokens:20,completion_tokens:20}}));}
  assert.equal(body.messages.at(-2).role,'assistant');assert.equal(body.messages.at(-1).role,'tool');const actual=JSON.parse(body.messages.at(-1).content);assert.deepEqual(actual.moves,['e4','e5']);assert.equal(actual.fen,s.session.snapshot().nodes[2]!.fen);
  return new Response(JSON.stringify({choices:[{finish_reason:'stop',message:{content:'Die Engine hat mit e5 das Zentrum besetzt.'}}],usage:{prompt_tokens:20,completion_tokens:20}}));}) as typeof fetch);
  await s.ask('Zeige e4 und lass die Engine antworten.',{source:'model',respond:r=>service.reply(r)},'chat',undefined,(c,n)=>board.execute(c,n));assert.equal(calls,2);const data=s.session.snapshot();assert.equal(data.game!.cursor,'n0');assert.equal(data.annotations.length,3);assert.match(data.annotations[1]!.text,new RegExp(TOOL_RECORD.replace(/[()]/g,'\\$&')));assert.equal(data.annotations[2]!.nodeId,'n2');
@@ -50,4 +50,24 @@ test('when the provider rejects the continuation the executed study move and hon
 test('a toolCall mentioned in ordinary model text is never executed as an API tool request',async()=>{
  const s=start();let executed=0;const service=new ModelService({enabled:true,apiKey:'fixture-only-not-real',model:'fixture'},(async()=>new Response(JSON.stringify({choices:[{finish_reason:'stop',message:{content:JSON.stringify({message:'Dies ist nur ein Beispiel.',toolCall:call('show_line',['e4'])})}}],usage:{prompt_tokens:20,completion_tokens:20}}))) as typeof fetch);
  await s.ask('Erkläre ein Beispiel',{source:'model',respond:r=>service.reply(r)},'chat',undefined,async()=>{executed++;throw Error();});assert.equal(executed,0);assert.equal(s.session.snapshot().nodes.length,1);assert.match(s.session.snapshot().annotations.at(-1)!.text,/nur ein Beispiel/);
+});
+
+test('teaching positions and drawings round-trip through the tool contract without changing any game data',async()=>{
+ const s=start();s.session.play('d4');const before=s.session.export(),fen='8/8/8/4k3/8/8/4K3/8 w - - 0 1';
+ const marks=[{from:'e2',to:'e3',kind:'arrow',color:'green'}];let rendered:unknown;
+ const board=new CoachBoard(()=>s.session,()=>engine,()=>{},0,(d,n)=>{rendered={d,n};});
+ for(const name of ['show_position','draw_board'] as const){
+  const c:CoachCall={id:name,type:'function',function:{name,arguments:JSON.stringify({...name==='show_position'?{fen}:{},marks})}};
+  const result=await board.execute(c,'n1');assert.ok(rendered);assert.equal(s.session.export(),before);assert.deepEqual(result.moves,[]);
+  const origin=s.session.snapshot().nodes[1]!.fen;assert.equal(validateExchanges([{call:c,content:'',result}],origin).length,1);
+  assert.throws(()=>validateExchanges([{call:c,content:'',result:{...result,fen}}],origin));
+ }
+});
+test('diagram validation rejects malformed FEN, injected drawing attributes, excessive marks and stale selection',async()=>{
+ const marks=[{from:'e2',to:'e4',kind:'arrow',color:'green'}];
+ const c=(args:unknown):CoachCall=>({id:'drawing',type:'function',function:{name:'draw_board',arguments:JSON.stringify(args)}});
+ for(const bad of [{marks:[{...marks[0],from:['e2']}]},{marks:[{...marks[0],color:'url(javascript:bad)'}]},{marks:[{...marks[0],onclick:'bad'}]},{marks:Array(13).fill(marks[0])}])assert.throws(()=>parseCoachCall(c(bad)));
+ assert.throws(()=>parseCoachCall({id:'bad',type:'function',function:{name:'show_position',arguments:JSON.stringify({fen:'invalid',marks:[]})}}));
+ const s=start();let changed=false;const board=new CoachBoard(()=>s.session,()=>engine,()=>{},0,()=>{changed=true;});s.session.play('e4');
+ await assert.rejects(board.execute(c({marks}),'n0'));assert.equal(changed,false);
 });

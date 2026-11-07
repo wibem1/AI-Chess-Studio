@@ -19,7 +19,7 @@ export function installBoardDrag(board: HTMLElement, fen: () => string,
     if (current.source.hasPointerCapture(current.id)) current.source.releasePointerCapture(current.id);
   };
   board.addEventListener('pointerdown', event => {
-    if (event.pointerType === 'touch' || !event.isPrimary || event.button !== 0 || drag) return;
+    if (board.dataset.readonly==='true'||event.pointerType === 'touch' || !event.isPrimary || event.button !== 0 || drag) return;
     const source = (event.target as Element).closest<HTMLElement>('[data-square]');
     if (!source || !board.contains(source)) return;
     const from = source.dataset.square as Square;
@@ -41,7 +41,7 @@ export function installBoardDrag(board: HTMLElement, fen: () => string,
       document.body.append(ghost); drag.ghost = ghost;
       drag.source.classList.add('drag-source');
       board.querySelectorAll<HTMLElement>('[data-square]').forEach(cell => {
-        if (drag!.targets.includes(cell.dataset.square as Square)) cell.classList.add('drag-target');
+        if (board.closest('[data-active-view=learn]')&&drag!.targets.includes(cell.dataset.square as Square)) cell.classList.add('drag-target');
       });
     }
     event.preventDefault();

@@ -1,18 +1,23 @@
 import {Chess} from 'chess.js';
 import {pathTo,type PlayingEngine} from './game.js';
 import type {Session} from './session.js';
-import {parseCoachCall,type CoachCall,type CoachResult} from './coach-tools.js';
+import {parseCoachCall,type CoachCall,type CoachResult,type BoardDiagram} from './coach-tools.js';
 import {reviewLocked} from './review.js';
 /** Only the study cursor moves. The actual game cursor is never written here. */
 export class CoachBoard{
  private guard:(()=>boolean)|undefined;
  checkSelection(){if(this.guard&&!this.guard()){this.cancel();return true;}return false;}
  private revision=0;private activeEngine:PlayingEngine|undefined;
- constructor(private current:()=>Session,private engine:()=>PlayingEngine,private changed:(node:string)=>void=()=>{},private delay=150){}
+ constructor(private current:()=>Session,private engine:()=>PlayingEngine,private changed:(node:string)=>void=()=>{},private delay=150,private illustrate:(diagram:BoardDiagram,node:string)=>void=()=>{}){}
  cancel(){this.guard=undefined;this.revision++;this.activeEngine?.cancel?.();this.activeEngine=undefined;}
  async execute(raw:CoachCall,expectedNode:string):Promise<CoachResult>{
   const call=parseCoachCall(raw),session=this.current(),snapshot=session.snapshot(),epoch=this.revision,chat=session.dialogueRevision();
   if(snapshot.activeNodeId!==expectedNode||snapshot.game&&!snapshot.game.paused||reviewLocked(snapshot))throw new Error('Stellung wurde gewechselt oder ist gesperrt.');
+  if(call.function.name==='show_position'||call.function.name==='draw_board'){
+   const origin=snapshot.nodes.find(n=>n.id===expectedNode)!,diagram=JSON.parse(call.function.arguments) as BoardDiagram;
+   this.illustrate(diagram,expectedNode);
+   return {ok:true,fromFen:origin.fen,fen:origin.fen,moves:[],nodeId:expectedNode,diagram};
+  }
   const origin=snapshot.nodes.find(n=>n.id===expectedNode)!,planned=JSON.parse(call.function.arguments).moves as string[],board=new Chess(origin.fen);
   // Validate the entire model line before applying its first move.
   for(const san of planned){if(!board.moves().includes(san))throw new Error('Illegale Vorführung verworfen.');board.move(san);}

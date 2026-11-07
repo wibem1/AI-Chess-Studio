@@ -1,5 +1,16 @@
 # Änderungen
 
+## 0.12.0 – Kompakter Lernbereich und Lehrdiagramme (vorbereitet)
+
+- Oben kompakte KI-Modellanzeige; Zugang und Verbindungstest in Einstellungen.
+- Weniger dauernde Erklärtexte und Zusatzknöpfe, kompakte Werkzeugleiste am Brett.
+- Zum Anfang springen in beiden Modi; freie Lernzweige behalten die Vorwärtsnavigation.
+- Im Spielmodus keine Markierung möglicher Zielfelder, auch beim Ziehen.
+- KI kann separate FEN-Lehrstellungen sowie bis zwölf Pfeile/Linien darstellen.
+  Ansicht ist drehbar und mit Zur Lernstellung rückkehrbar; Partie bleibt erhalten.
+- Lehrdiagramme sind vorübergehende Ansichten. Echte Zugvorführungen weiterhin
+  separat regelgeprüft. Details und Prüfgrenzen in PROJECT_STATE.md.
+
 ## 0.11.2 – Klarer KI-Zugang (veröffentlicht am 7. November 2026)
 
 - Anbieter, Modell-ID, Denktiefe und Demo-/Bereitschaftsstatus oben im Lernmodus.

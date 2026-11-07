@@ -1816,3 +1816,29 @@ zunächst mit unvollständiger Fixture ohne finish_reason fehlgeschlagen; nach
 Korrektur der Fixture inklusive tatsächlicher Modell-ID im Request bestanden.
 Providerantworten abgefangen, keine kostenpflichtige echte KI-Anfrage.
 Root-Build/Typprüfung bestanden; Zugangskarte visuell geprüft.
+
+
+## 0.12.0 – kompakter Arbeitsbereich und Lehrdiagramme
+
+7. November 2026: npm run check, npm test und npm run build:pages erfolgreich;
+156/156 Einzeltests. Chromium 153.0.8010.0: 14/14 gezielte Fälle aus
+compact-board, coach-tools, model-diagnostics, access-layout, windows-learning,
+pages. Nach Layoutänderung Navigation der Modelltests in Einstellungen verlegt;
+alte 900-px-Gesamthöhenerwartung im Plan-Test durch vertikale Brett-/Antwortfolge
+ersetzt, entsprechend gleicher Brettgröße mit Scrollen seit 0.11.1.
+
+Neue Prüfungen: Lehr-FEN und Pfeil-/Linienwerkzeuge durch gesamte Provider-
+Fixture-/Tool-/UI-Kette; unveränderte Sitzung bei Diagrammaufbau, ungültige FEN,
+Attribute/Farben/Feldtypen, Obergrenze zwölf, veralteter Knoten; korrektes
+Spiegeln von SVG-Koordinaten, Zeichnung nachträglich ändern und Lehransicht
+verlassen. Sprung zum Anfang ohne verlorene Vorwärtsnavigation, keine Spiel-
+Zielfeldvorschau, kompakte Modellanzeige und versteckte technische/alte Optionen.
+Desktop-, niedrige Windows- und 390-px-Ansicht; 64 Felder ohne horizontalen
+Überlauf, gleiche Spiel-/Lernbrettgröße. Screenshots visuell geprüft.
+
+Echte lokale Stockfish-/Maia-Inferenz und Pages-Unterordner/Offlineablauf in den
+gezielten Fällen; Providerantworten abgefangen. Keine bezahlten KI-Anfragen,
+keine echte Modellauswahlkompetenz und keine native Windows-/Mobil-Abnahme.
+Kein neuer vollständiger Gesamtlauf aller älteren Browserfälle; Tests, die
+entfernte Kommentar-/Analyseknöpfe erwarten, sind nicht als gültige Abnahme der
+neuen Oberfläche zu verwenden. Nicht veröffentlicht, kein Pages-Push/Workflow.

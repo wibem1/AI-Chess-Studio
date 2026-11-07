@@ -125,7 +125,7 @@ export class Studio {
       if(!active()||session.snapshot().activeNodeId!==result.nodeId)return 'discarded';
       expectedNode=result.nodeId;
       if(!recordedQuestion){session.annotate({nodeId,kind:'dialogue',source:'human',text:request.question,hypothesis:false,openQuestions:[]});recordedQuestion=true;}
-      session.annotate({nodeId,kind:'dialogue',source:'model',text:TOOL_RECORD+(result.ok?'Ausgeführt. ':'Nicht vollständig ausgeführt. ')+(result.moves.length?'Gezeigte Züge: '+result.moves.join(' ')+' . ':'Keine Züge ausgeführt. ')+(result.engine?'Antwort von '+result.engine+'. ':'')+(result.error??'')+'\n\nAnalyse-Details:\n'+JSON.stringify(result),hypothesis:false,openQuestions:[]});
+      session.annotate({nodeId,kind:'dialogue',source:'model',text:TOOL_RECORD+(result.ok?'Ausgeführt. ':'Nicht vollständig ausgeführt. ')+(result.diagram?(result.diagram.fen?'Lehrstellung aufgebaut. ':'')+result.diagram.marks.length+' Brettmarkierungen. ':result.moves.length?'Gezeigte Züge: '+result.moves.join(' ')+' . ':'Keine Züge ausgeführt. ')+(result.engine?'Antwort von '+result.engine+'. ':'')+(result.error??'')+'\n\nAnalyse-Details:\n'+JSON.stringify(result),hypothesis:false,openQuestions:[]});
       request.toolExchanges!.push({call,content:(reply.message??'').slice(0,1000),result});
       if(new TextEncoder().encode(JSON.stringify(request)).byteLength>16000)throw new Error('Werkzeugkontext zu groß; keine weitere KI-Anfrage ausgeführt.');
       raw=await adapter.respond(request);if(!active())return 'discarded';

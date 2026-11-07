@@ -2,9 +2,9 @@ import {pathTo,type LearningGame} from '../src/game.js';
 import type {SessionData} from '../src/session.js';
 import {visibleReviewNodes,reviewLocked} from '../src/review.js';
 /** The actual game line stays separate from freely explored study branches. */
-export function learningLine(data:SessionData){
+export function learningLine(data:SessionData,tip?:string){
  const allowed=visibleReviewNodes(data);
- const end=data.game?.cursor??(data.review?data.review.original.at(-1):undefined)??data.activeNodeId;
+ const end=data.game?.cursor??(data.review?data.review.original.at(-1):undefined)??tip??data.activeNodeId;
  return pathTo(data,end!).filter(n=>allowed.has(n.id));
 }
 const observed=new WeakSet<HTMLElement>();
@@ -13,8 +13,8 @@ function keepSelectedVisible(container:HTMLElement){
  if(selected){const item=selected.getBoundingClientRect(),area=container.getBoundingClientRect(),top=item.top-area.top+container.scrollTop;if(top<container.scrollTop)container.scrollTop=top;else if(top+item.height>container.scrollTop+container.clientHeight)container.scrollTop=top+item.height-container.clientHeight;}
 
 }
-export function renderLearningReplay(data:SessionData,game:LearningGame,change:()=>void){
- const line=learningLine(data),locked=reviewLocked(data),current=data.nodes.find(n=>n.id===data.activeNodeId)!,index=line.findIndex(n=>n.id===current.id);
+export function renderLearningReplay(data:SessionData,game:LearningGame,change:()=>void,tip?:string){
+ const line=learningLine(data,tip),locked=reviewLocked(data),current=data.nodes.find(n=>n.id===data.activeNodeId)!,index=line.findIndex(n=>n.id===current.id);
  const first=document.getElementById('learn-first') as HTMLButtonElement,next=document.getElementById('learn-next') as HTMLButtonElement,container=document.getElementById('learning-line')!;
  first.disabled=locked||current.id===line[0]?.id;next.disabled=locked||index<0||index>=line.length-1;
  first.onclick=()=>{game.analyse(line[0]!.id);change();};next.onclick=()=>{game.analyse(line[index+1]!.id);change();};
