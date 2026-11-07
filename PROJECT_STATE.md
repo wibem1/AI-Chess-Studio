@@ -1,7 +1,11 @@
 # Projektstand
 
-Stand: 7. November 2026 · **0.8.0 vollständig geprüft, Bereitstellung ausstehend**.
-Letzter bestätigter Online-Stand 0.7.0; Nachweis unten.
+Stand: 7. November 2026 · **0.8.0 veröffentlicht, GitHub-Erfolg bestätigt**.
+Quelle cf672f2e28026cec25e0a98f46f4a52bf61f2835; gh-pages
+75e778925920f000cf99ca16c23816e9a678a47e; Run 42346000024 SUCCESS.
+Öffentliches commitgebundenes BUILD.json bestätigt Version, Basis, Quelle
+und unveränderten Maia-Modellfingerabdruck (22 Dateien). Direkter github.io-
+Abruf hier netzpolitisch gesperrt; native Nutzerabnahme bleibt getrennt offen.
 
 Aktuelle Nutzerfehler: Spiel nicht analysierbar, Chat zu weit von Brett entfernt,
 technische Einstellungen zu prominent, merkwürdige Antworten, Demo trotz
@@ -35,8 +39,10 @@ und Mobilansichten mit gespeichertem Testzugang visuell geprüft; KI-Antwort
 dafür abgefangen, keine reale Modellqualität behauptet. Echte
 KI-Qualität weiterhin nicht durch bezahlte Modellaufrufe geprüft; keine solchen
 Aufrufe autorisiert/ausgeführt. Native Windows-/Android-/iPad-Abnahme bleibt offen.
-Nächster Schritt: autorisiertes Update bereitstellen und GitHub-Erfolg für
-den genauen Commit samt öffentlichem Buildmanifest bestätigen.
+Nächster einzelner Schritt: Nutzer übernimmt 0.8.0 und prüft die eigene
+Analysebedienung und Zugangsanzeige. Keine erneute Key-Eingabe oder Einrichtung
+verlangen; Limits bleiben bewusst aktiv. Reale KI-Qualitätsbefunde anschließend
+an konkreten Stellung-/Antwortpaaren prüfen, keine bloßen Fixture-Versprechen.
 
 ## Voriger bestätigter Stand 0.7.0
 

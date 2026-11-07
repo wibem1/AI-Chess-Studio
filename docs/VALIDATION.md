@@ -1375,3 +1375,11 @@ Desktop- und Mobilansichten im tatsächlichen Browser angesehen, mit lokalem
 Testzugang und abgefangener Antwortfixture. Keine bezahlte Modellanfrage,
 keine native Windows-/Android-/iPad-Abnahme und kein Nachweis der Qualität
 einer echten generativen Antwort. Keine DB-/Key-Migration oder Budgetlöschung.
+
+Bereitstellung bestätigt: Quelle `cf672f2e28026cec25e0a98f46f4a52bf61f2835`,
+`gh-pages` `75e778925920f000cf99ca16c23816e9a678a47e`;
+[GitHub-Lauf 42346000024](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42346000024)
+SUCCESS für genau diesen Commit. Öffentliches commitgebundenes BUILD.json
+geprüft: 0.8.0, Basis /AI-Chess-Studio/, identische Quelle, 22 Dateien und
+unverändertes Maia-Modell. Kein neuer Key, keine Budgetrücksetzung, keine
+weitere Bereitstellung durch den anschließenden Dokumentationscommit.
