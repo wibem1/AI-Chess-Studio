@@ -1842,3 +1842,21 @@ keine echte Modellauswahlkompetenz und keine native Windows-/Mobil-Abnahme.
 Kein neuer vollständiger Gesamtlauf aller älteren Browserfälle; Tests, die
 entfernte Kommentar-/Analyseknöpfe erwarten, sind nicht als gültige Abnahme der
 neuen Oberfläche zu verwenden. Nicht veröffentlicht, kein Pages-Push/Workflow.
+
+
+## 0.13.0 – Stellungsübergabe und konstante Brettposition
+
+160/160 Einzeltests; Typprüfung, Root-/Pages-Build. 18/18 gezielte Chromiumfälle:
+position-transfer, compact-board, coach-tools, model-diagnostics, windows-learning,
+access-layout, pages. Nebenvariante zurück/vor, Vorwärtsweg abseits der echten
+Partie, Übergabe exakt ausgewählten Knotens in beide Richtungen, gespeicherte
+Quelle, Lehr-FEN als spielbare Wurzel, Rückladen Original und freie Kopie eines
+geführten Rückblicks. Kein ursprünglicher Sitzungsschreibzugriff im Transferkern.
+
+MutationObserver erfasst echte Layoutkoordinaten jeder KI-Engine-Statusänderung
+mit echtem Stockfish und Modellfixtures bei 1600/390 px. Anfangs trotz fester
+Statushöhe 2-px-Verschiebung beim Start/Ende im Mobilfall: zusätzlicher
+Vorführungs-Stopbutton änderte die umgebende Werkzeugleiste. Doppelte Anzeige
+entfernt; danach konstante Brettposition und Statushöhe mit 1-px-Toleranz.
+Mobil-Screenshot geprüft. Keine bezahlten KI-Anfragen, native Geräte-/Modell-
+Qualitätsabnahme offen. Kein neuer vollständiger Browsergesamtlauf behauptet.

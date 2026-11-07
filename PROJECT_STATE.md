@@ -1,5 +1,47 @@
 # Projektstand
 
+## Vorbereitet: 0.13.0 – Varianten blättern, Stellungen übergeben, ruhiges Brett
+
+Nutzerwunsch nach Praxisabnahme von 0.12.0: Vor/Zurück an der aktuellen
+Lernstellung, jede Stellung in den anderen Modus übergeben und kein springendes
+Brett bei unterschiedlich langen Statusmeldungen im KI-Engine-Spiel.
+
+Umgesetzt:
+- Vor und Zurück direkt in der Werkzeugleiste der Lernansicht. Vor folgt der
+  aktuellen Lernvariante und deren gemerktem Endpunkt, auch abseits der echten
+  Partiefolge. Zum Anfang und bestehende Zugnavigation bleiben vorhanden.
+- Stellung spielen übernimmt die sichtbare Lernposition als spielbare Kopie:
+  Variantenstellung inklusive Verlauf/Notizen oder separate KI-Lehrstellung
+  als unabhängige Wurzel. Farbe/Gegner/Stufe aus der bisherigen Partie bzw.
+  den Spieleinstellungen; Orientierung erhalten. Bei gegnerischem Zugrecht
+  antwortet die gewählte Spielengine. Keine automatische Lern-KI-Anfrage.
+- Vor Übernahme den bisherigen Stand lokal sichern. Misslingt die Sicherung
+  oder ändert sich inzwischen die Quelle, keine neue Sitzung übernehmen.
+  Alte Partie und Zweige bleiben in Sicherung vor Stellungsübergabe ladbar.
+- Stellung lernen übernimmt exakt die sichtbare Spielposition und pausiert den
+  Gegner, ohne zur vorherigen Lernvariante oder Partiestellung zu springen.
+  Tabs behalten ihre bisherige Bedeutung; bewusste Übergabe über den Brettbutton.
+- Auch importierte geführte Rückblicke können als freie Spielkopie übernommen
+  werden; der gesicherte Originalrückblick bleibt unverändert geführt.
+- KI-Engine-Status mit konstantem zweizeiligem Platz, lange Meldungen scrollbar.
+  Während Testpartien kein zusätzlicher Vorführungs-Stopbutton; eigener Start/Stop
+  bleibt sichtbar. Keine wechselnden Rückmeldungen unter dem Brett pro Halbzug.
+
+Prüfung: Typprüfung, Root-/Pages-Build und 160/160 Einzeltests bestanden;
+18/18 gezielte Chromiumfälle aus position-transfer, compact-board, coach-tools,
+model-diagnostics, windows-learning, access-layout und pages. Neue Prüfungen
+für Nebenvarianten, Quellschutz, Import-/Diagrammübernahme, Sicherung und Rückladen.
+Live-Geometrie über echten Stockfish-Testpartieverlauf bei 1600 und 390 px:
+Brettposition und Statushöhe konstant (Toleranz 1 CSS-Pixel), einschließlich
+langer Modell-/kurzer Engine-/Fehlermeldung. Modellantworten ausschließlich
+Fixtures; echte Stockfish-/Maia-Inferenz in den Regressionen. Mobilansicht visuell
+geprüft. Keine bezahlte KI-Anfrage oder native Geräteabnahme.
+Kein neuer vollständiger Lauf aller älteren Browserfälle; Prüfgrenzen aus
+0.12.0 bleiben ausdrücklich bestehen.
+
+Auf work gesichert, noch nicht veröffentlicht. Live bleibt 0.12.0.
+Nächster Schritt: Veröffentlichung auf ausdrücklichen Auftrag, danach Praxisabnahme.
+
 ## Aktuell veröffentlicht: 0.12.0 – kompakter Arbeitsbereich und KI-Lehrdiagramme
 
 Nutzerauftrag nach Praxisabnahme von 0.11.2: mehr Platz für Brett/Chat, weniger

@@ -1,5 +1,15 @@
 # Änderungen
 
+## 0.13.0 – Stellungen zwischen Modi übernehmen (vorbereitet)
+
+- Vor-/Zurück-Buttons unmittelbar am Brett; Vor folgt der aktuellen Lernvariante.
+- Stellung spielen und Stellung lernen übergeben die sichtbare Position gezielt
+  in den anderen Modus, auch separate KI-Lehrstellungen.
+- Vor spielbarer Übernahme bisherigen Stand lokal sichern; Quelle und Orientierung
+  erhalten, Sicherung bleibt ladbar. Gegner/Stufe/Farbe aus bestehenden Einstellungen.
+- Feste Höhe der KI-Engine-Statusanzeige und kein zweiter Stopbutton während
+  Testpartien: Das Brett verschiebt sich nicht mit unterschiedlich langen Meldungen.
+
 ## 0.12.0 – Kompakter Lernbereich und Lehrdiagramme (veröffentlicht am 7. November 2026)
 
 - Oben kompakte KI-Modellanzeige; Zugang und Verbindungstest in Einstellungen.

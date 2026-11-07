@@ -1,3 +1,4 @@
+import {playablePosition} from '../src/position-transfer.js';
 import {validModel} from '../src/model-provider.js';
 import {CoachMatch} from '../src/coach-match.js';
 import {installModelControls} from './model-controls.js';
@@ -79,7 +80,7 @@ function chooseModelMode(value:'model'|'simulation'){
  updateMode();
 }
 function updateMode() {
- $('coach-stop').hidden=!pending&&!match.running;
+ $('coach-stop').hidden=!pending;
  $('coach-origin').hidden=!coachAnchor||coachAnchor.session!==studio.session||coachAnchor.node===studio.session.snapshot().activeNodeId;
  $<HTMLButtonElement>('clear-dialogue').disabled=!pending&&!studio.session.snapshot().annotations.some(a=>a.kind==='dialogue');
  const real=modelMode(),locked=reviewLocked(studio.session.snapshot()),blocked=real&&!modelAvailable||!accessReady||accessReadError;
@@ -163,8 +164,13 @@ function render() {
   $<HTMLButtonElement>('game-undo').disabled=!game.canTakeBack();
   const learning=$('workspace').dataset.activeView==='learn';
   $('learning-controls').hidden=!learning;$('learning-chat').hidden=!learning;
+  for(const id of ['learn-back','learn-next'])$(id).hidden=!learning;
+  $('transfer-position').textContent=learning?'Stellung spielen':'Stellung lernen';
+  $('transfer-position').setAttribute('aria-label',learning?'Im Spielmodus fortsetzen':'Im Lernmodus öffnen');
+  $('transfer-position').title=learning?'Sichtbare Stellung im Spielmodus fortsetzen; bisherigen Stand sichern':'Sichtbare Stellung im Lernmodus öffnen';
   if(!replayTip||replayTip.session!==studio.session||!data.nodes.some(n=>n.id===replayTip!.node)||!pathTo(data,replayTip.node).some(n=>n.id===current.id))replayTip={session:studio.session,node:current.id};
   renderLearningReplay(data,game,()=>{selected=null;illustration=undefined;navigation.select('learn');render();},replayTip.node);
+  if(illustration?.diagram.fen)for(const id of ['learn-first','learn-back','learn-next'])$<HTMLButtonElement>(id).disabled=true;
   message('workbench-status',learning?'Lernmodus · Züge ausprobieren und mit der Lernengine besprechen. Die Partie bleibt unverändert.':live?(live.paused?'Partie pausiert · Zum Fortsetzen Spielmodus wählen.':'Spielmodus · Schachengine ist dein Gegner.'):'Spielmodus · Starte rechts eine Partie gegen die Schachengine.');
   $<HTMLButtonElement>('learn-back').disabled=!current.parentId||locked;
   $<HTMLButtonElement>('learn-origin').disabled=locked;
@@ -287,9 +293,10 @@ function render() {
   if(initialized&&isWebPlatform())void autosave.save().catch(()=>{});
 }
 const boardActionsBar=document.querySelector<HTMLElement>('.board-actions')!;
-boardActionsBar.append($('coach-match'),$('coach-plan-bar'));
+boardActionsBar.append($('coach-match'),$('coach-plan-bar'),$('learn-back'),$('learn-next'));
+$('learn-back').textContent='Zurück';$('learn-next').textContent='Vor';
 const studyTools=document.createElement('details');studyTools.id='study-tools';studyTools.className='tool-section';const studySummary=document.createElement('summary');studySummary.textContent='Weitere Werkzeuge';studyTools.append(studySummary);$('panel-learn').append(studyTools);studyTools.append($('tactical-form').closest('details')!,$('panel-variants'));
-const match=new CoachMatch(()=>studio.session,()=>{render();$('match-status').textContent=match.report?.message??'';if(match.report)message('dialogue-feedback','Testpartie: '+match.report.message);$<HTMLButtonElement>('match-start').disabled=!!match.running;$<HTMLButtonElement>('match-stop').disabled=!match.running;});
+const match=new CoachMatch(()=>studio.session,()=>{render();$('match-status').textContent=match.report?.message??'';if(match.report)message('dialogue-feedback',match.running?'KI-Testpartie läuft.':'KI-Testpartie beendet. Details stehen über dem Brett.');$<HTMLButtonElement>('match-start').disabled=!!match.running;$<HTMLButtonElement>('match-stop').disabled=!match.running;});
 $('match-start').addEventListener('click',async()=>{
  if(pending||!modelAvailable||!modelMode()){message('match-status','Aktiven eigenen KI-Zugang wählen; keine Simulation.');return;}
  game.pause();const snapshot=studio.session.snapshot(),saved=snapshot.game,fen=snapshot.nodes.find(n=>n.id===snapshot.activeNodeId)!.fen;const adapter=new ServerModelAdapter(platformFetch),opponent=saved?.opponent??$<HTMLSelectElement>('game-opponent').value as 'stockfish'|'maia';
@@ -622,6 +629,24 @@ $('analyse-game').addEventListener('click',()=>beginAnalysis(true));
 $('ai-access-edit').addEventListener('click',()=>{navigation.select('settings');$<HTMLDetailsElement>('api-settings').open=true;$('api-settings').scrollIntoView({block:'start'});});
 $('chat-open-access').addEventListener('click',()=>{navigation.select('settings');const section=$('api-settings');(section as HTMLDetailsElement).open=true;section.scrollIntoView({block:'start'});});
 $('learn-back').addEventListener('click',()=>attempt(()=>{const d=studio.session.snapshot(),node=d.nodes.find(n=>n.id===d.activeNodeId)!;if(node.parentId)game.analyse(node.parentId);},'move-feedback','Einen Lernzug zurück.'));
+let transferring=false;
+$('transfer-position').addEventListener('click',async()=>{
+ if(transferring)return;
+ const learning=$('workspace').dataset.activeView==='learn';
+ match.stop('Stellung an anderen Modus übergeben.');chatStopped=true;studio.cancelAsk();coachBoard.cancel();activeAdapter?.cancel();game.pause();
+ if(!learning){const node=studio.session.snapshot().activeNodeId;navigation.select('learn',false,true,false);game.analyse(node);selected=null;render();return;}
+ const source=studio.session,fen=illustration?.diagram.fen;
+ transferring=true;$<HTMLButtonElement>('transfer-position').disabled=true;
+ try{
+  const saved=source.snapshot().game,options={human:saved?.human??$<HTMLSelectElement>('game-color').value as 'w'|'b',level:saved?.level??Number($<HTMLSelectElement>('game-level').value),engine:saved?.engine??$<HTMLSelectElement>('engine-location').value as 'server'|'browser',opponent:saved?.opponent??$<HTMLSelectElement>('game-opponent').value as 'stockfish'|'maia'};
+  const sourceJson=source.export(),next=playablePosition(source,options,fen);
+  await browserRuntime.store.savedGames({id:crypto.randomUUID(),title:'Sicherung vor Stellungsübergabe',date:new Date().toISOString(),json:sourceJson});
+  if(studio.session!==source||source.export()!==sourceJson)throw new Error('Stellung wurde während der Übergabe gewechselt.');
+  studio.session=next;illustration=undefined;selected=null;replayTip=undefined;
+  window.dispatchEvent(new Event('chess-games-change'));navigation.select('play',false,true,false);render();void engineTurn();
+ }catch(error){message('move-feedback',error instanceof Error?error.message:'Stellung konnte nicht übergeben werden.');}
+ finally{transferring=false;$<HTMLButtonElement>('transfer-position').disabled=false;}
+});
 $('learn-origin').addEventListener('click',()=>attempt(()=>{const d=studio.session.snapshot();game.analyse(d.game?.cursor??d.nodes[0]!.id);},'move-feedback','Zur Ausgangsstellung der Analyse zurück.'));
 $('comment-move').addEventListener('click',()=>{text('question').value='Bitte besprich meinen gerade ausprobierten Zug. Welche Idee steckt dahinter, welche gegnerischen Antworten sollte ich beachten und wie könnte mein Plan weitergehen?';$<HTMLSelectElement>('dialogue-topic').value='position';$<HTMLFormElement>('dialogue-form').requestSubmit();});
 installGameLibrary(browserRuntime.store,()=>studio.session.export(),json=>{restoreSession(json);navigation.select('learn');render();});

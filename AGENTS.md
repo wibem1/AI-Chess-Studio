@@ -44,3 +44,10 @@
     beliebigen Modell-Skripte/SVGs. Echte Partie/Analysezugfolge niemals durch
     ein Lehrdiagramm überschreiben. Die temporäre Ansicht bleibt klar benannt
     und rückkehrbar; Zugvorführung bleibt separat legalitätsgeprüft.
+
+16. Ab vorbereitetem 0.13.0 stehen Vor/Zurück am Lernbrett für die aktuelle
+    Variante. Stellung spielen/lernen übernimmt ausdrücklich die sichtbare
+    Stellung; vor spielbarer Kopie Quelle sichern. Auch Lehrdiagramme können
+    als neue Spielwurzel übernommen werden. Keine bestehende Partie still
+    überschreiben. KI-Engine-Statushöhe konstant halten, keinen zweiten
+    Stopbutton einblenden, der das Brett während der Partie verschiebt.

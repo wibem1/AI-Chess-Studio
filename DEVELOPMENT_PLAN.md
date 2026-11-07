@@ -4,6 +4,16 @@ Verbindliche Zielkorrektur aus den Nutzerklarstellungen vom 5. und 6. November 2
 Die folgende Zwei-Modi-Konzeption ersetzt die bisherige Aufteilung in vier
 gleichrangige Arbeitsbereiche.
 
+## Nutzerwunsch nach 0.12.0: aktuelle Variante und Stellung übergeben
+
+Vor/Zurück direkt am Lernbrett müssen der aktuellen Variante folgen. Eine
+explizite Stellungsübergabe in beide Richtungen verwendet genau die sichtbare
+Position, einschließlich KI-Lehrdiagramm. Spielbare Übernahme erfolgt als
+Kopie nach lokaler Sicherung; alte Partie und geführter Rückblick bleiben
+wiederherstellbar. In die Lernansicht übernehmen pausiert den Gegner. Die
+normalen Modus-Tabs behalten ihren bisherigen Wechsel-/Fortsetzungsweg.
+Statuswechsel im KI-Engine-Spiel dürfen die Brettposition nicht verändern.
+
 ## Nutzerkorrektur 7. November nach 0.11.2: kompakte Oberfläche und Lehrdiagramme
 
 Brett und freier Chat haben Vorrang. Modell kompakt oben; Zugang, Anbieterprüfung

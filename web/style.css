@@ -464,3 +464,12 @@ footer span{display:none}
 #study-tools>details{margin:8px 0}
 #learning-chat #ask{min-width:85px;max-width:140px}
 @media(max-width:520px){#board-area .board-actions #coach-match{flex:1 1 auto}#board-area .board-actions{justify-content:flex-start}#board-area .board-actions #coach-plan-bar{margin-right:auto}}
+/* Stable two-line match status, independent of which side is thinking. */
+#board-area .board-actions #coach-match{width:100%;flex:0 0 100%;display:grid;grid-template-columns:auto auto auto minmax(0,1fr);align-items:center;gap:4px 6px}
+#coach-match strong{white-space:nowrap}
+#coach-match #match-status{display:block;min-width:0;max-width:none;margin:0;height:2.8em;min-height:2.8em;max-height:2.8em;line-height:1.4;overflow:auto;font-size:.72rem;overflow-wrap:anywhere}
+#match-status:empty{display:block}
+#board-area .board-actions #learn-back,#board-area .board-actions #learn-next{order:-1;min-width:58px}
+#board-area .board-actions #transfer-position{font-size:.73rem}
+@media(max-width:520px){#board-area .board-actions #coach-match{grid-template-columns:auto auto auto}#coach-match #match-status{grid-column:1/-1;width:100%}}
+.workspace[data-active-view=play] #board-area .board-actions #coach-match{display:none}

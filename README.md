@@ -5,6 +5,10 @@ Aktueller veröffentlichter Funktionsstand: **0.12.0**.
 GitHub-Pages-Bereitstellung und Live-Dateiprüfsummen bestätigt.
 Änderungen: [CHANGELOG.md](CHANGELOG.md).
 
+Vorbereitet **0.13.0**: Vor/Zurück direkt am Lernbrett, gezielte Übergabe jeder
+sichtbaren Stellung in den anderen Modus mit Sicherung sowie stabile
+KI-Engine-Statusanzeige. Noch nicht veröffentlicht; Details in PROJECT_STATE.md.
+
 Kompakte Modellanzeige oben; Zugang, Verbindungstest und Modellwechsel in
 Einstellungen. Weniger Erklärtexte und Zusatzoptionen, direkter Sprung zum
 Anfang. Im Spielmodus keine Vorschau möglicher Zielfelder.

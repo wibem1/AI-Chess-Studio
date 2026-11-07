@@ -7,6 +7,13 @@ export function learningLine(data:SessionData,tip?:string){
  const end=data.game?.cursor??(data.review?data.review.original.at(-1):undefined)??tip??data.activeNodeId;
  return pathTo(data,end!).filter(n=>allowed.has(n.id));
 }
+/** Navigation follows the selected study branch, not a different live-game branch. */
+export function variationLine(data:SessionData,tip?:string){
+ const current=data.activeNodeId,allowed=visibleReviewNodes(data);
+ const candidates=[tip,data.game?.cursor,data.review?.original.at(-1),...data.nodes.slice().reverse().map(n=>n.id)];
+ for(const end of candidates){if(!end||end===current||!allowed.has(end))continue;const path=pathTo(data,end);if(path.some(n=>n.id===current))return path.filter(n=>allowed.has(n.id));}
+ return pathTo(data,current).filter(n=>allowed.has(n.id));
+}
 const observed=new WeakSet<HTMLElement>();
 function keepSelectedVisible(container:HTMLElement){
  const selected=container.querySelector<HTMLElement>('[aria-current=true]');
@@ -14,7 +21,7 @@ function keepSelectedVisible(container:HTMLElement){
 
 }
 export function renderLearningReplay(data:SessionData,game:LearningGame,change:()=>void,tip?:string){
- const line=learningLine(data,tip),locked=reviewLocked(data),current=data.nodes.find(n=>n.id===data.activeNodeId)!,index=line.findIndex(n=>n.id===current.id);
+ const line=variationLine(data,tip),locked=reviewLocked(data),current=data.nodes.find(n=>n.id===data.activeNodeId)!,index=line.findIndex(n=>n.id===current.id);
  const first=document.getElementById('learn-first') as HTMLButtonElement,next=document.getElementById('learn-next') as HTMLButtonElement,container=document.getElementById('learning-line')!;
  first.disabled=locked||current.id===line[0]?.id;next.disabled=locked||index<0||index>=line.length-1;
  first.onclick=()=>{game.analyse(line[0]!.id);change();};next.onclick=()=>{game.analyse(line[index+1]!.id);change();};
