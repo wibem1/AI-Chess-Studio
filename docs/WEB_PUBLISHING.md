@@ -219,3 +219,16 @@ index.html, service-worker.js, assets/index-DlVXQxnY.js und
 assets/index-DZAWGkdv.css bestätigt. Prüfgrundlage 162 Einzeltests und
 21 gezielte Browserfälle. Kein neuer vollständiger Browsergesamtlauf oder
 native Geräte-/echte Modellabnahme behauptet. Keine bezahlten KI-Anfragen.
+
+
+## Veröffentlichung 0.14.1 am 7. November 2026
+
+Unveränderte Quelle eed1abe4015f6cc4cdff602b7367f4510eb51d1a gebaut;
+gh-pages 0bda85c8f7da853a51861973359f8a9d27c732db. 23 öffentliche Dateien,
+fortlaufender Commit, kein neuer Workflow. Pages-Run 42414451932 SUCCESS:
+https://github.com/wibem1/AI-Chess-Studio/actions/runs/42414451932
+Live-BUILD.json vollständig mit vorbereitetem Manifest identisch; SHA-256 von
+index.html, service-worker.js, assets/index-qIRQUTWd.js und
+assets/index-DZAWGkdv.css bestätigt. 162 Einzeltests und 3 betroffene
+Browserfälle als Prüfgrundlage; kein neuer vollständiger Browserlauf,
+keine native Abnahme oder bezahlte KI-Anfrage behauptet.

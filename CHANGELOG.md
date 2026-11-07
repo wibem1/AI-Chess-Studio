@@ -1,6 +1,6 @@
 # Änderungen
 
-## 0.14.1 – Schlüsselstellungen erkennen (vorbereitet)
+## 0.14.1 – Schlüsselstellungen erkennen (veröffentlicht am 7. November 2026)
 
 - „Zeige die Schlüsselstellungen des Spiels“ wie Schlüsselstellen als geprüften
   Partierückblick behandeln, damit Pfeilnavigation statt einzelner Lehrdarstellung

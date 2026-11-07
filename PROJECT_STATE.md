@@ -1,6 +1,6 @@
 # Projektstand
 
-## Vorbereitet: 0.14.1 – Schlüsselstellungen als Analyseauftrag erkennen
+## Aktuell veröffentlicht: 0.14.1 – Schlüsselstellungen als Analyseauftrag erkennen
 
 Nutzer fragt anhand Screenshot nach fehlenden Schlüsselstellen-Buttons. Im
 Eingabefeld steht „Zeige die Schlüsselstellungen des Spiels“, Ansicht zeigt
@@ -20,14 +20,20 @@ Browserfälle (analysis-navigation, game-review) inklusive exakter Nutzerfrage,
 Pfeil-/Tastaturnavigation, Speichern/Laden und Legacy-Rückblick bestanden.
 Providerantworten Fixtures, kein bezahlter Aufruf oder native Geräteabnahme.
 Der übrige 21er-Prüfstand aus 0.14.0 wird nicht als neu vollständig ausgeführt
-behauptet. Auf work gesichert, noch nicht veröffentlicht; live bleibt 0.14.0.
+behauptet. Am 7. November 2026 nach ausdrücklichem Auftrag veröffentlicht.
+Quelle eed1abe4015f6cc4cdff602b7367f4510eb51d1a; gh-pages
+0bda85c8f7da853a51861973359f8a9d27c732db. Pages-Run 42414451932 SUCCESS:
+https://github.com/wibem1/AI-Chess-Studio/actions/runs/42414451932
+Live-BUILD.json vollständig mit vorbereitetem Manifest identisch; SHA-256 von
+index.html, service-worker.js, assets/index-qIRQUTWd.js und
+assets/index-DZAWGkdv.css bestätigt. Keine bezahlte KI-Anfrage.
 
-Sofortiger vorhandener Bedienweg: Zur Lernstellung zurückkehren und erneut
-„Zeige die Schlüsselstellen des Spiels“ senden. Nach geprüftem Rückblick stehen
+Bedienweg nach dem Update: Zur Lernstellung zurückkehren und die ursprüngliche
+Frage „Zeige die Schlüsselstellungen des Spiels“ erneut senden. Nach geprüftem Rückblick stehen
 ←/→ mit Zähler oberhalb des Bretts. Vorliegende freie Lehrdiagramm-Antwort wird
 nicht nachträglich als verknüpfte Partieanalyse ausgegeben.
 
-## Aktuell veröffentlicht: 0.14.0 – Antwortgröße, Schlüsselstellen und gespeicherte Analyse
+## Zuvor veröffentlicht: 0.14.0 – Antwortgröße, Schlüsselstellen und gespeicherte Analyse
 
 Nutzerauftrag nach Praxisabnahme von 0.13.0: KI-Antwortfeld wie Eingabe
 vergrößerbar; bei erfragten Schlüsselstellen per Pfeilen zwischen Stellungen
