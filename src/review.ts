@@ -30,7 +30,7 @@ const clockSeconds = (text:string):number|null => {
 export function parsePgn(pgn:string):ParsedGame {
  if(typeof pgn!=='string'||!pgn.trim()||new TextEncoder().encode(pgn).length>MAX_PGN)throw new Error('Bitte eine PGN mit höchstens 256 KiB einfügen.');
  const chess=new Chess();
- try{chess.loadPgn(pgn,{strict:true});}catch{throw new Error('PGN konnte nicht gelesen werden. Zugfolge, SAN-Schreibweise und Startstellung prüfen.');}
+ try{chess.loadPgn(pgn,{strict:true});}catch{try{chess.loadPgn(pgn,{strict:false});}catch{throw new Error('PGN konnte nicht gelesen werden. Zugfolge, SAN-Schreibweise und Startstellung prüfen.');}}
  const history=chess.history({verbose:true});
  if(!history.length || history.length>1000)throw new Error('Die PGN muss zwischen 1 und 1000 Halbzüge enthalten.');
  const headers=chess.getHeaders();
