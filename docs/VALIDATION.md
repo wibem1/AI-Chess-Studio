@@ -1695,3 +1695,32 @@ Testbrowser war anfangs nicht installiert; erste Browserausführung konnte
 keinen Test starten. Playwrights eigener Browserdownload lieferte ein ungültiges
 Archiv. Mit offiziellem Chrome-for-Testing-Headless-Shell anschließend alle
 18 Fälle erfolgreich ausgeführt. Kein kostenpflichtiger Modellaufruf.
+
+## 0.10.1 – vertikale Lernbesprechung und Planbutton
+
+Neue Nutzerkorrektur ersetzt die breite Spaltenansicht: oberhalb des Bretts
+„Zeige deinen Plan auf dem Brett“, darunter direkt der freie Nachrichtentext
+und die aktuelle Antwort; älterer Verlauf folgt. Historie ohne Duplikate und
+weiterhin mit Stellungsbezug. Bestehendes Sitzungsformat unverändert.
+
+Neue geometrische Browserprüfung mit synthetischer 80-Halbzug-Partie und
+24 langen Chatbeiträgen: Reihenfolge Plan/Brett/Eingabe/Antwort/Verlauf, volle
+Sichtbarkeit von Brett/Eingabe/aktueller Antwort bei 1600/1440/1280×900,
+810×1080, 390×844 und 1280×600, kein horizontaler Überlauf. Internes Scrollen
+der langen aktuellen Antwort bewegt die Seite nicht. 150-%-Schrift bei
+1600×900 zusätzlich geprüft. Brettdrehen/Neue Partie auch in kurzen Fenstern
+erhalten. Bilder der Desktop-, vergrößerten und Telefonansicht visuell geprüft.
+
+Planbutton mit abgefangenem Modellaufruf: legale e4/e5/Nf3-Vorführung am echten
+Brett, Erklärung zur Ergebnisstellung, Entwurf erhalten, Rückfrage ersetzt nur
+aktuelle Antwort und verschiebt vorige in den Verlauf. Rückkehr zur Ausgangs-
+stellung. Separat echte Stockfish-/Maia-Spielantworten und Stoppen bestanden.
+Keine bezahlten Modellaufrufe, keine Aussage zur echten Modell-Werkzeugwahl.
+
+Breiter Lauf von clear-dialogue, coach-tools, game-review, model-reply, studio,
+windows-learning: 50/51 bestanden. Veralteter Studio-Kostentest verlangte noch
+Budget-/Periodenfelder; auf Preisannahmen und fehlende Sperrfelder korrigiert.
+Abschließend 3/3 mit Planbutton, Kosten und Layout nach letzter CSS-Korrektur
+bestanden. Alle 51 betroffenen Fälle damit einzeln erfolgreich, kein kompletter
+51/51-Lauf behauptet. Abschließend npm test: 141/141, Root-/Pages-Build und
+strikte Typprüfung bestanden. Native Windows-/iPad-Bedienung bleibt offen.

@@ -2,7 +2,9 @@
 
 Aktueller veröffentlichter Funktionsstand: **0.10.0**, GitHub-Bereitstellung bestätigt; native Nutzerabnahme steht noch aus. Änderungen: [CHANGELOG.md](CHANGELOG.md).
 Vorbereitet **0.10.1**: Kostenanzeige ohne Budgetperiode oder Drei-Anfragen-Grenze;
-Verbrauch bleibt erhalten. Noch nicht veröffentlicht.
+Verbrauch bleibt erhalten. Neues Lernlayout: Brett, direkt darunter Eingabe und
+aktuelle Antwort, danach Chatverlauf. Oben „Zeige deinen Plan auf dem Brett“.
+Noch nicht veröffentlicht.
 **0.8.1** enthält einen eigenen Partierückblick mit überprüften Zugbezügen
 und anklickbaren Lernmomenten. Veröffentlichung durch GitHub und direkte
 Live-Prüfung bestätigt; echte pädagogische Modellqualität weiterhin offen.
@@ -14,9 +16,10 @@ Desktopansicht mit Brett und Chat nebeneinander, kompakter Zugliste unter dem
 Brett. Veröffentlichung und ausgelieferte Dateien geprüft. Technischer Ablauf mit echten Spielengines
 geprüft; reale KI-Werkzeugauswahl und native Geräteabnahme getrennt offen.
 Ein großes gemeinsames Schachbrett und zwei Modi für dein persönliches Lernen.
-Auf breiten Desktopfenstern stehen im Lernmodus Brett und Chat nebeneinander;
-die kompakte Zugnavigation folgt unter dem Brett. Schmale und niedrige Fenster
-zeigen die Bereiche untereinander; technische Einstellungen folgen darunter.
+Ab 0.10.1 stehen im Lernmodus Brett, Eingabe, aktuelle Antwort und bisheriger
+Chat untereinander. Die Brettgröße passt sich an die Fensterhöhe an. Lange
+Antworten sind im eigenen Bereich lesbar, ohne das Brett aus dem Bild zu scrollen.
+Die Zugnavigation und weitere Werkzeuge folgen darunter.
 
 ## Spielen und lernen
 
@@ -366,7 +369,10 @@ Nachricht sind bis zwei Brettwerkzeugrunden mit anschließender Erklärung mögl
 Es bleibt bei einer laufenden Anfrage je Fenster/Server; keine automatischen
 Wiederholungen. Stockfish und Maia erzeugen keine Modell-API-Kosten.
 
-Für grafische Besprechung im freien Chat zum Beispiel schreiben:
+Für grafische Besprechung oben **„Zeige deinen Plan auf dem Brett“** drücken.
+Das startet eine normale KI-Anfrage, erhält einen ungesendeten Entwurf und
+fordert eine kurze Vorführung mit anschließender Erklärung an. Alternativ im
+freien Chat zum Beispiel schreiben:
 „Zeige mir einen möglichen Zug am Brett und die Antwort darauf.“ Die KI kann
 legale Züge im Lernzweig vorführen und die gewählte Spielengine antworten lassen.
 „Vorführung zurück“ führt zum Ausgangspunkt; die tatsächliche Partie bleibt erhalten.

@@ -72,13 +72,14 @@ function updateMode() {
  const real=modelMode(),locked=reviewLocked(studio.session.snapshot()),blocked=real&&!modelAvailable||!accessReady||accessReadError;
  $<HTMLButtonElement>('ask').textContent=real?'Nachricht senden (reale KI)':'Nachricht senden (Simulation)';
  $<HTMLButtonElement>('ask').disabled=pending||locked||blocked;
+ $<HTMLButtonElement>('coach-show-plan').disabled=!real||pending||locked||blocked;
  for(const id of ['analyse-position','analyse-game'])$<HTMLButtonElement>(id).disabled=pending||locked||blocked;
  $<HTMLButtonElement>('comment-move').disabled=$<HTMLButtonElement>('ask').disabled||!studio.session.snapshot().nodes.find(n=>n.id===studio.session.snapshot().activeNodeId)?.san;
  $('comment-move').textContent=real?'Zug kommentieren':'Zug kommentieren (Simulation)';
  $('simulation-hint').hidden=real||!accessReady||accessReadError;
  $('learn-configure').hidden=modelAvailable;
  message('mode-badge',!accessReady?'Lernchat: Zugang wird geprüft':accessReadError?'Lernchat: Status unklar':real?(modelAvailable?'Lernchat: Eigene KI':'Lernchat: KI gesperrt'):'Lernchat: Demo');
- message('chat-access',!accessReady?'Gespeicherter KI-Zugang wird lokal geprüft …':accessReadError?modelBlocked:real?(modelAvailable?'Eigener KI-Zugang aktiv · bis zu 3 kostenpflichtige Anfragen je Nachricht · Kostenlimits gelten.':modelBlocked):modelSaved||modelConfigured?'Demo ist ausdrücklich gewählt. Dein gespeicherter KI-Zugang bleibt erhalten.':'Demo: nur lokale Brettfakten, keine KI-Analyse.');
+ message('chat-access',!accessReady?'Gespeicherter KI-Zugang wird lokal geprüft …':accessReadError?modelBlocked:real?(modelAvailable?'Eigener KI-Zugang aktiv · bis zu 3 kostenpflichtige Anfragen je Nachricht · Kosten werden geschätzt.':modelBlocked):modelSaved||modelConfigured?'Demo ist ausdrücklich gewählt. Dein gespeicherter KI-Zugang bleibt erhalten.':'Demo: nur lokale Brettfakten, keine KI-Analyse.');
  $('chat-use-model').hidden=real||!(modelSaved||modelConfigured);
  $('chat-open-access').hidden=!real||modelAvailable;
  $('chat-open-access').textContent='KI-Zugang prüfen';
@@ -214,8 +215,17 @@ function render() {
   renderComparison();
   const dialoguePath=new Set(pathTo(data,current.id).map(n=>n.id));
   message('dialogue-anchor',`Gespräch zur Stellung ${current.id}${data.labels?.[current.id]?' · '+data.labels[current.id]:''}. Das bisherige Gespräch bleibt mit seinem jeweiligen Stellungsbezug sichtbar.`);
+  const conversation=data.annotations.filter(a=>a.kind==='dialogue'&&allowed.has(a.nodeId));
+  const lastQuestion=conversation.findLastIndex(a=>a.source==='human');
+  const currentAnswer=conversation.slice(lastQuestion+1).findLast(a=>a.source!=='human');
+  const conversationRoot=$('dialogue');conversationRoot.replaceChildren();
+  const answerBody=document.createElement('div'),historyBody=document.createElement('div');
+  answerBody.id='current-answer-body';historyBody.id='chat-history-body';
+  for(const [id,title,body,hasEntries] of [['current-answer','Aktuelle Antwort',answerBody,!!currentAnswer],['chat-history','Chatverlauf',historyBody,conversation.some(a=>a!==currentAnswer)]] as const){
+   if(!hasEntries)continue;const section=document.createElement('section'),heading=document.createElement('h3');section.id=id;section.setAttribute('aria-label',title);heading.textContent=title;section.append(heading,body);conversationRoot.append(section);
+  }
   for (const [kind, id] of [['dialogue', 'dialogue'], ['memory', 'memories']] as const) {
-    const container = $(id); container.replaceChildren();
+    const container = $(id); if(kind!=='dialogue')container.replaceChildren();
     for (const a of data.annotations.filter(a => a.kind===kind && (kind==='dialogue'?allowed.has(a.nodeId):a.nodeId===current.id))) {
       const entry = document.createElement('article'); entry.className = 'entry';
       const meta = document.createElement('small');
@@ -237,7 +247,7 @@ function render() {
       if(details){const disclosure=document.createElement('details'),summary=document.createElement('summary'),detail=document.createElement('div');summary.textContent='Denkwege und fachliche Einordnung';detail.textContent=details;disclosure.append(summary,detail);entry.append(disclosure);}
       if(kind==='dialogue' && a.nodeId!==current.id){const jump=document.createElement('button');jump.textContent=`Stellung ${a.nodeId} ansehen`;jump.addEventListener('click',()=>{game.analyse(a.nodeId);render();});entry.append(jump);}
       if (a.openQuestions.length) { const questions = document.createElement('p'); questions.textContent = `Offen: ${a.openQuestions.join(' / ')}`; entry.append(questions);if(kind==='dialogue' && a.source!=='human')for(const q of a.openQuestions.slice(0,2)){const follow=document.createElement('button');follow.textContent=`Rückfrage aufgreifen: ${q}`;follow.addEventListener('click',()=>{text('question').value=q;text('question').focus();});entry.append(follow);} }
-      container.append(entry);
+      if(kind==='dialogue')(a===currentAnswer?answerBody:historyBody).append(entry);else container.append(entry);
     }
   }
   reviewUI.render(data);
@@ -254,6 +264,12 @@ $('memory-form').addEventListener('submit', event => {
       openQuestions: input('open-question').value.trim() ? [input('open-question').value.trim()] : [] });
     text('memory').value = ''; input('open-question').value = '';
   }, 'dialogue-feedback', 'Notiz an dieser Stellung gespeichert.');
+});
+$('coach-show-plan').addEventListener('click',()=>{
+ if($<HTMLButtonElement>('coach-show-plan').disabled)return;
+ const draft=text('question').value;
+ text('question').value='Zeige deinen Plan für die aktuell sichtbare Stellung direkt auf dem Brett. Führe eine kurze legale Variante mit dem Brettwerkzeug vor und erkläre danach deine Idee und die mögliche gegnerische Antwort.';
+ $<HTMLFormElement>('dialogue-form').requestSubmit();text('question').value=draft;
 });
 $('coach-origin').addEventListener('click',()=>{if(!coachAnchor||coachAnchor.session!==studio.session)return;chatStopped=true;studio.cancelAsk();coachBoard.cancel();activeAdapter?.cancel();game.analyse(coachAnchor.node);render();message('dialogue-feedback','Zum Ausgangspunkt der Vorführung zurückgekehrt. Die Variante bleibt erhalten.');});
 $('coach-stop').addEventListener('click',()=>{chatStopped=true;studio.cancelAsk();coachBoard.cancel();activeAdapter?.cancel();message('dialogue-feedback','Angehalten. Bereits gezeigte Züge bleiben als Lernvariante erhalten.');});

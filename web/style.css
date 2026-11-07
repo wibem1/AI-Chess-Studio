@@ -325,44 +325,47 @@ h2{font-size:1.65rem}
 .workspace[data-active-view=learn] #move-feedback{order:0}
 #learning-chat{max-width:800px;align-self:center}
 
-/* Wide desktop learning workspace: keep board and conversation together. */
-@media(min-width:1100px) and (min-height:700px){
- .workspace[data-active-view=learn]{max-width:1760px;padding:12px 24px 28px}
- @container(min-width:1000px){
-  .workspace[data-active-view=learn] .position{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(320px,.95fr);grid-template-rows:auto auto auto auto;column-gap:24px;row-gap:6px;padding:16px;max-width:none;align-items:start}
-  .workspace[data-active-view=learn] .board-heading{grid-column:1;grid-row:1;margin:0}
-  .workspace[data-active-view=learn] #position-status{grid-column:1;grid-row:2;margin:0}
-  .workspace[data-active-view=learn] #board{grid-column:1;grid-row:3;width:min(100%,calc(100dvh - var(--studio-chrome-height,116px) - 240px));margin:0 auto 4px}
-  .workspace[data-active-view=learn] #learning-controls{grid-column:1;grid-row:4;justify-content:flex-start;min-width:0}
-  .workspace[data-active-view=learn] .learning-line{max-height:72px;margin:0;padding:2px 0;overscroll-behavior:contain}
-  .workspace[data-active-view=learn] .learning-line button{min-height:28px;padding:3px 7px;font-size:.72rem}
-  .workspace[data-active-view=learn] #learning-chat{grid-column:2;grid-row:1/span 7;align-self:start;position:sticky;top:72px;display:flex;flex-direction:column;gap:4px;max-width:none;height:calc(100dvh - var(--studio-chrome-height,116px) - 100px);min-height:360px;padding:0 0 0 20px;border-top:0;border-left:1px solid var(--line);overflow:hidden}
-  #learning-chat h2{margin:0 0 4px;font-size:1.1rem}
-  #learning-chat>.section-intro,#learning-chat>#dialogue-anchor{display:none}
-  #learning-chat>#chat-access,#learning-chat>#simulation-hint{margin:0;font-size:.72rem;line-height:1.4;padding:4px}
-  #learning-chat>.chat-actions{margin:2px 0;flex:none}
-  #learning-chat button{min-height:32px;padding:6px 10px;font-size:.78rem}
-  #learning-chat>#clear-dialogue,#learning-chat>#coach-stop,#learning-chat>#coach-origin{align-self:flex-start;flex:none}
-  #learning-chat #dialogue{flex:1 1 120px;min-height:64px;overflow-y:auto;overscroll-behavior:contain;max-height:none}
-  #learning-chat #dialogue-form{flex:none;margin:0}
-  #learning-chat #dialogue-form label{margin:2px 0;font-size:.75rem}
-  #learning-chat #question{min-height:60px;height:68px;max-height:20dvh;padding:6px 8px;font-size:.85rem;line-height:1.4}
-  #learning-chat #dialogue-form button{margin-top:4px}
-  #learning-chat>#dialogue-feedback{margin:2px 0;font-size:.7rem;line-height:1.35;max-height:64px;overflow-y:auto;flex:none}
-  .workspace[data-active-view=learn] #workbench-status{grid-column:1;grid-row:5;margin:0}
-  .workspace[data-active-view=learn] #move-feedback{grid-column:1;grid-row:6;margin:0}
-  .workspace[data-active-view=learn] .board-tools{grid-column:1;grid-row:7}
-  .workspace[data-active-view=learn] .games-menu{grid-column:1;grid-row:8}
- }
+
+
+/* The board, composer and latest reply form one vertical discussion area. */
+.workspace[data-active-view=learn]{max-width:900px;padding:10px 20px 28px;gap:12px}
+.workspace[data-active-view=learn] .position{max-width:none;padding:12px 16px;gap:0}
+.workspace:not([data-active-view=learn]) #coach-plan-bar{display:none}
+.workspace[data-active-view=learn] .board-heading{margin:0 0 4px}
+.workspace[data-active-view=learn] .board-heading h2{font-size:1rem;margin:0}
+.workspace[data-active-view=learn] .board-heading button{min-height:32px;padding:6px 10px;font-size:.75rem}
+.workspace[data-active-view=learn] #position-status{margin:0 0 4px;font-size:.75rem}
+.workspace[data-active-view=learn] .position>.hint{display:none}
+#coach-plan-bar{order:-1;display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin:0 0 6px}
+#coach-plan-bar button{min-height:36px;padding:7px 12px;font-size:.8rem}
+.workspace[data-active-view=learn] #board{order:0;width:min(100%,600px,max(160px,calc(100dvh - var(--studio-chrome-height,116px) - 300px - 7.5rem)));margin:0 auto 6px}
+.workspace[data-active-view=learn] #learning-chat{order:1;max-width:none;padding:0;border:0;align-self:stretch}
+#learning-chat #dialogue-form{margin:0;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 10px;align-items:stretch}
+#learning-chat #dialogue-form label{grid-column:1/-1;margin:0;font-size:.8rem}
+#learning-chat #question{min-height:58px;height:58px;padding:8px 10px;font-size:.9rem;line-height:1.4}
+#learning-chat #ask{width:auto;margin:0;max-width:170px;padding:6px 10px;font-size:.8rem}
+#learning-chat #dialogue-feedback{margin:4px 0;font-size:.72rem;max-height:48px;overflow:auto}
+#dialogue h3{font-size:.8rem;margin:6px 0}
+#current-answer-body{max-height:150px;overflow:auto;overscroll-behavior:contain;user-select:text;-webkit-user-select:text}
+#current-answer .entry{margin:0;padding:8px 12px;font-size:.88rem;line-height:1.5}
+#current-answer .entry small{margin-bottom:4px}
+#chat-history{margin-top:18px;padding-top:10px;border-top:1px solid var(--line)}
+#chat-history-body{max-height:480px;overflow:auto;overscroll-behavior:contain}
+#chat-history .entry{margin:8px 0}
+.workspace[data-active-view=learn] #learning-controls{order:2;justify-content:flex-start;margin-top:12px}
+.workspace[data-active-view=learn] .learning-line{max-height:72px}
+.workspace[data-active-view=learn] .learning-line button{min-height:28px;padding:4px 7px;font-size:.75rem}
+#learning-chat>.chat-actions{margin:12px 0 4px}
+#learning-chat>#chat-access,#learning-chat>#dialogue-anchor,#learning-chat>#simulation-hint{margin:4px 0;font-size:.72rem}
+@media(max-width:520px){
+ .workspace[data-active-view=learn]{padding:6px}
+ .workspace[data-active-view=learn] .position{padding:8px}
+ #learning-chat #ask{max-width:110px;font-size:.75rem}
 }
-@media(min-width:901px){
- .workspace[data-active-view=learn] #learning-controls{order:1}
- .workspace[data-active-view=learn] #learning-chat{order:2}
- .workspace[data-active-view=learn] #workbench-status{order:3}
- .workspace[data-active-view=learn] .learning-line{max-height:72px}
+@media(max-height:700px){
+ .workspace[data-active-view=learn] .board-heading h2{display:none}
+ #current-answer-body{max-height:100px}
+ .workspace[data-active-view=learn] #board{width:min(100%,400px,max(140px,calc(100dvh - var(--studio-chrome-height,116px) - 270px - 5rem)))}
 }
 
-@media(min-width:1100px) and (min-height:700px){@container(min-width:1000px){.workspace[data-active-view=learn] #learning-controls>button{min-height:32px;padding:6px 8px;font-size:.72rem}}}
-
-.chat-command-bar{display:flex;flex-wrap:wrap;gap:6px;flex:none;margin:4px 0}
-@media(min-width:901px) and (max-height:699px){.workspace[data-active-view=learn] #board{width:min(100%,calc(100dvh - var(--studio-chrome-height,116px) - 120px))}}
+.workspace[data-active-view=learn] #move-feedback{order:3}

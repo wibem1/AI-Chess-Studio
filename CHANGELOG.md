@@ -1,12 +1,17 @@
 # Änderungen
 
-## 0.10.1 – Kostenanzeige ohne Budgetperioden (vorbereitet)
+## 0.10.1 – Kostenanzeige und sichtbares Brett beim Lerndialog (vorbereitet)
 
 - Budgetperiode, lokale Geldsperre und Drei-Anfragen-Grenze im Browser und
   Desktop entfernt. Kosten/Anfragen werden weiter geschätzt und gespeichert.
 - Bereits ausgeschöpfter Verbrauch blockiert weder Folgefragen noch den
   gespeicherten KI-Zugang nach Neuladen. Keine Löschung oder Neukonfiguration.
-- Beispielhinweis zur grafischen Brettvorführung im freien Lernchat.
+- Lernlayout einspaltig: direkt unter dem Brett Eingabe und aktuelle Antwort,
+  danach Chatverlauf. Lange Antworten scrollbar, Brett nach Fensterhöhe begrenzt.
+- „Zeige deinen Plan auf dem Brett“ oberhalb des Bretts fordert eine legale
+  Vorführung an; ungesendete Texte bleiben erhalten. Kein eigener Antwortzwang.
+- Neueste Antwort aus dem bisherigen Verlauf hervorgehoben, ohne Duplikate
+  oder Änderungen am gespeicherten Chatformat.
 
 ## 0.10.0 – Freier Lernchat, Brett-/Enginewerkzeuge und Desktoplayout (veröffentlicht am 7. November 2026)
 

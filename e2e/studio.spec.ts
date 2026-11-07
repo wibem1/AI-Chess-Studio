@@ -243,12 +243,11 @@ test('diagnosis and cost settings work without exposing credentials or generatin
  let calls=0;page.on('request',r=>{if(r.url().endsWith('/api/dialogue'))calls++;});
  await page.goto('/');await (await reveal(page, page.getByRole('button',{name:'Lokale Diagnose anzeigen', includeHidden:true}))).click();
  await expect(page.locator('#diagnostic-output')).toContainText('Node.js');
- await (await reveal(page, page.getByLabel('Budget pro Periode (USD)'))).fill('0.03');
- await (await reveal(page, page.getByRole('button',{name:'Kostenlimit speichern', includeHidden:true}))).click();
+ await (await reveal(page, page.getByLabel('Preisannahme: USD je Million Eingabe-Tokens'))).fill('0.5');
+ await (await reveal(page, page.getByRole('button',{name:'Preisannahmen speichern', includeHidden:true}))).click();
  await expect(page.locator('#cost-feedback')).toContainText('lokal gespeichert');
- await page.reload();await expect(page.getByLabel('Budget pro Periode (USD)')).toHaveValue('0.03');
- await (await reveal(page, page.getByRole('button',{name:'Neue Budgetperiode starten', includeHidden:true}))).click();
- await expect(page.locator('#cost-feedback')).toContainText('bestätigen');
+ await page.reload();await expect(page.getByLabel('Preisannahme: USD je Million Eingabe-Tokens')).toHaveValue('0.5');
+ await expect(page.locator('#cost-budget')).toHaveCount(0);await expect(page.locator('#cost-reset')).toHaveCount(0);
  await (await reveal(page, page.getByRole('button',{name:'OpenAI-Zugang prüfen (ohne Textgenerierung)', includeHidden:true}))).click();
  await expect(page.locator('#diagnostic-output')).toContainText('Kein API-Schlüssel');
  expect(calls).toBe(0);

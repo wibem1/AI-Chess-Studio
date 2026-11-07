@@ -1,6 +1,6 @@
 # Projektstand
 
-## Aktuell vorbereitet: 0.10.1 – Kosten nur anzeigen
+## Aktuell vorbereitet: 0.10.1 – Kostenanzeige und vertikaler Lerndialog
 
 Nutzerentscheidung vom 7. November: Budgetperiode und Drei-Anfragen-Grenze
 entfernen. In Browser und Desktop keine Sperre anhand lokaler Verbrauchswerte,
@@ -16,11 +16,32 @@ Dazu sichtbaren Beispielhinweis am Chat ergänzt. Tatsächliche Partie bleibt
 erhalten; weiterhin zwei Werkzeugrunden pro Nachricht, eine aktive Anfrage und
 keine automatischen Wiederholungen. Das ist kein Gesamt-Anfragekontingent.
 
+Zusätzlicher Nutzerauftrag: Brett muss beim Besprechen sichtbar bleiben.
+Breite Spaltenansicht entfernt. Einheitliche Reihenfolge: Planbutton über dem
+Brett, darunter Eingabe, aktuelle Antwort, bisheriger Chat. Aktuelle Antwort
+und Verlauf getrennt dargestellt, keine doppelten Beiträge oder neuen
+Speicherformate. Lange Antworten intern scrollbar; Brett nach Fensterhöhe und
+Schriftgröße begrenzt. Zugnavigation/weitere Werkzeuge folgen erst danach.
+Planbutton sendet einen ausdrücklichen freien Vorführungsauftrag über dieselbe
+geprüfte Werkzeugkette. Ungesendeter Entwurf bleibt erhalten. Ohne aktiven
+KI-Zugang bzw. während einer laufenden Anfrage/Rückblicksperre deaktiviert.
+
 Prüfung: 141/141 Einzeltests; 18/18 betroffene Chromium-Browserfälle inklusive
 mehrerer Fenster, Reload, gespeichertem Zugang, Offline/Update, grafischer
 Vorführung mit echtem Stockfish und Maia sowie Windowsgrößen bestanden.
 Anbieterantworten dabei Fixtures, keine bezahlten Modellanfragen. Native
 Geräteabnahme und tatsächliche KI-Werkzeugwahl bleiben gesondert offen.
+
+Zusätzliche Layoutprüfung abgeschlossen: 141/141 Einzeltests, Typprüfung und
+Root-/Pages-Build bestanden. Breiter Browserlauf: 50/51 Fälle bestanden; einzig
+ein veralteter Kostentest verlangte noch das entfernte Budgetfeld. Diesen
+Test auf Preisannahmen umgestellt, danach Schlussprobe mit Planbutton, Kosten-
+Einstellungen und Layout: 3/3 bestanden. Alle 51 betroffenen Fälle damit
+einzeln erfolgreich, kein einzelner vollständig grüner 51er-Lauf behauptet.
+Geometrie bei 1600/1440/1280×900, 810×1080, 390×844, 1280×600 und 150-%-
+Schrift geprüft; Brett, Eingabe und aktuelle Antwort gleichzeitig sichtbar.
+Desktop-, vergrößerte und Telefonansicht visuell geprüft. Native Geräte-
+und echte KI-Modellqualität dadurch nicht abgenommen. Keine bezahlten Aufrufe.
 
 Noch nicht veröffentlicht; öffentliche App weiterhin 0.10.0. Nächster Schritt:
 Freigabe zur Veröffentlichung über den bestehenden Pages-Weg.

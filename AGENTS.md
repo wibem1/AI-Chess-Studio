@@ -25,3 +25,9 @@
     ausführbare Brett-/Enginebefehle separat regelprüfen. Werkzeugschleife für
     Vorführung/Weiterspielen ist implementiert, auf zwei Werkzeugrunden begrenzt
     und mit echten Spielengines geprüft; reale KI-Werkzeugauswahl separat belegen. DEVELOPMENT_PLAN.md beachten.
+
+13. Nutzerkorrektur zum Lernlayout vom 7. November: Brett, Eingabefeld, aktuelle
+    Antwort und älterer Chat stehen in dieser Reihenfolge untereinander. Brett
+    beim Besprechen sichtbar halten; lange Antworten separat scrollbar. Oben
+    „Zeige deinen Plan auf dem Brett“. Keine Rückkehr zur Desktop-Spaltenansicht
+    ohne neuen Nutzerauftrag. Siehe DEVELOPMENT_PLAN.md und PROJECT_STATE.md.

@@ -385,3 +385,12 @@ Vorhandene Verbrauchswerte/Preisannahmen weiterführen; kein Schlüsselwechsel
 oder Löschen der Sitzung nötig. Grafische Brettbesprechung im freien Chat
 über bestehende geprüfte show_line/play_engine-Werkzeuge. Eine aktive Anfrage
 und begrenzte Werkzeugrunden bleiben erhalten.
+
+## Nutzerkorrektur 7. November: vertikale Besprechung am sichtbaren Brett
+
+Eingabe und aktuelle Antwort unmittelbar unter dem Brett; älterer Verlauf
+darunter. Keine Desktop-Spaltenansicht im Lernmodus. Oberhalb des Bretts
+„Zeige deinen Plan auf dem Brett“ als ausdrücklicher Vorführungsauftrag an
+die bestehende KI-Werkzeugkette. Freier Chat bleibt frei, ungesendete Entwürfe
+bleiben erhalten. Lange aktuelle Antworten intern scrollbar, Brett an
+Fensterhöhe/Schrift angepasst. Kein neuer Datenspeicher und keine Partieänderung.
