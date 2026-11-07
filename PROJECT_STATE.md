@@ -1,5 +1,32 @@
 # Projektstand
 
+## Vorbereitet: 0.14.1 – Schlüsselstellungen als Analyseauftrag erkennen
+
+Nutzer fragt anhand Screenshot nach fehlenden Schlüsselstellen-Buttons. Im
+Eingabefeld steht „Zeige die Schlüsselstellungen des Spiels“, Ansicht zeigt
+ein einzelnes Lehrdiagramm. Erkennung in 0.14.0 akzeptierte Schlüsselstellen,
+aber nicht Schlüsselstellungen; Anfrage blieb freier Chat mit Brettwerkzeugen.
+Ohne geprüften Partierückblick waren deshalb keine Navigationspunkte vorhanden.
+
+Korrektur: Schlüsselstellung(en), Schlüsselstelle(n), Schlüsselposition(en),
+Schlüsselmoment(e) und Wendepunkt(e) erkennen; auch Umschreibung Schluessel.
+Reale Screenshot-Formulierung als Browserregression statt nur naher Testphrase.
+Die Aufgabe nutzt damit den geprüften Partieverlauf und erzeugt navigierbare,
+mit der Partie gespeicherte Zugbezüge. Keine Änderung der gesicherten Antworten
+oder automatische bezahlte Wiederholungsanfrage.
+
+Typprüfung, Root-/Pages-Build und 162/162 Einzeltests bestanden; 3/3 betroffene
+Browserfälle (analysis-navigation, game-review) inklusive exakter Nutzerfrage,
+Pfeil-/Tastaturnavigation, Speichern/Laden und Legacy-Rückblick bestanden.
+Providerantworten Fixtures, kein bezahlter Aufruf oder native Geräteabnahme.
+Der übrige 21er-Prüfstand aus 0.14.0 wird nicht als neu vollständig ausgeführt
+behauptet. Auf work gesichert, noch nicht veröffentlicht; live bleibt 0.14.0.
+
+Sofortiger vorhandener Bedienweg: Zur Lernstellung zurückkehren und erneut
+„Zeige die Schlüsselstellen des Spiels“ senden. Nach geprüftem Rückblick stehen
+←/→ mit Zähler oberhalb des Bretts. Vorliegende freie Lehrdiagramm-Antwort wird
+nicht nachträglich als verknüpfte Partieanalyse ausgegeben.
+
 ## Aktuell veröffentlicht: 0.14.0 – Antwortgröße, Schlüsselstellen und gespeicherte Analyse
 
 Nutzerauftrag nach Praxisabnahme von 0.13.0: KI-Antwortfeld wie Eingabe

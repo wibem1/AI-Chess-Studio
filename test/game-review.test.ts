@@ -42,7 +42,7 @@ test('server transport requires a retrospective and reserves its larger output w
 
 test('explicit key-moment requests in free chat store checked analysis and navigable anchors with the game',async()=>{
  const {Session}=await import('../src/session.js');const {reviewAnchors,asksForKeyMoments}=await import('../src/game-review.js');
- for(const q of ['Welche Schlüsselstellen hatte das Spiel?','Zeige die Schlüsselmomente der Partie','Nenne mir Wendepunkte','Was waren die Schlüsselstellen?'])assert.equal(asksForKeyMoments(q),true);
+ for(const q of ['Welche Schlüsselstellen hatte das Spiel?','Zeige die Schlüsselmomente der Partie','Nenne mir Wendepunkte','Was waren die Schlüsselstellen?','Zeige die Schlüsselstellungen des Spiels','Zeige die Schlüsselstellung','Zeige die Schlüsselpositionen der Partie','Zeige die Schluesselstellungen des Spiels'])assert.equal(asksForKeyMoments(q),true);
  assert.equal(asksForKeyMoments('Was bedeutet das Wort Schlüsselstelle?'),false);
  const studio=new Studio(),game=new LearningGame(()=>studio.session);game.start('w',1);game.pause();for(const move of history.moves)studio.session.play(move);studio.session.setGame({...studio.session.snapshot().game!,cursor:'n4'});studio.session.select('n1');
  await studio.ask('Welche Schlüsselstellen hatte das Spiel?',{source:'model',respond:async r=>{assert.equal(r.topic,'review');assert.deepEqual(r.history!.moves,history.moves);return {message:review.summary,gameReview:review};}},'chat');

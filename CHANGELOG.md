@@ -1,5 +1,12 @@
 # Änderungen
 
+## 0.14.1 – Schlüsselstellungen erkennen (vorbereitet)
+
+- „Zeige die Schlüsselstellungen des Spiels“ wie Schlüsselstellen als geprüften
+  Partierückblick behandeln, damit Pfeilnavigation statt einzelner Lehrdarstellung
+  entsteht. Auch Schlüsselpositionen, Singular und Schluessel-Schreibweise.
+- Exakte Nutzerformulierung im Browser mit Navigation und gespeicherter Analyse geprüft.
+
 ## 0.14.0 – Vergrößerbare Antwort und gespeicherte Schlüsselstellen (veröffentlicht am 7. November 2026)
 
 - KI-Antwort vertikal vergrößerbar, mit Griff und Tastaturbedienung; gewählte Höhe

@@ -1884,3 +1884,14 @@ nächste Pfeiltaste verliert. Danach alle 21 gezielten Fälle gemeinsam bestande
 Providerantworten abgefangen, keine bezahlte KI-Anfrage; vorhandene echte
 Stockfish-/Maia-/Offlinefälle bleiben bestanden. Native Geräte-/Modellqualität
 und vollständiger neuer Browsergesamtlauf aller alten Fälle nicht behauptet.
+
+
+## 0.14.1 – Screenshot-Formulierung Schlüsselstellungen
+
+162/162 Einzeltests, Typprüfung und Root-/Pages-Build; 3/3 betroffene Chromiumfälle
+analysis-navigation und game-review bestanden. Exakte Screenshot-Anfrage „Zeige
+die Schlüsselstellungen des Spiels“ muss topic review und volle tatsächliche
+Partie verwenden, Pfeile liefern und mit Metadaten speichern/laden. Zusätzliche
+Wortformen in bestehendem Erkennungstest geprüft. Providerfixtures, keine
+bezahlten Aufrufe, keine neue native Geräteabnahme. Kein neuer vollständiger
+21er-/Browsergesamtlauf behauptet.

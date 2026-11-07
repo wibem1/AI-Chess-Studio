@@ -8,7 +8,7 @@ export interface GameReview {
  lesson:string;
 }
 export function asksForKeyMoments(question:string):boolean{
- return /schl[üu]ssel(?:stellen|momente)|wendepunkte/iu.test(question)&&(/\b(?:spiel(?:s|es)?|partie)\b/iu.test(question)||/\b(?:welche|was\s+waren|wo\s+waren|zeig\w*|nenn\w*|find\w*|analysier\w*)\b/iu.test(question));
+ return /schl(?:ü|ue|u)ssel(?:stelle(?:n)?|stellung(?:en)?|position(?:en)?|moment(?:en?)?)|wendepunkt(?:en?)?/iu.test(question)&&(/\b(?:spiel(?:s|es)?|partie)\b/iu.test(question)||/\b(?:welche|was\s+waren|wo\s+waren|zeig\w*|nenn\w*|find\w*|analysier\w*)\b/iu.test(question));
 }
 export interface ReviewAnchor{nodeId:string;ply:number;label:string}
 export function reviewAnchors(data:SessionData,annotation:Annotation):ReviewAnchor[]{
