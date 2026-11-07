@@ -1,9 +1,19 @@
 # AI-Chess-Studio
 
-Aktueller veröffentlichter Funktionsstand: **0.10.1**, GitHub-Bereitstellung bestätigt; native Nutzerabnahme steht noch aus. Änderungen: [CHANGELOG.md](CHANGELOG.md).
-Vorbereitet **0.11.0**: OpenRouter mit Modellauswahl, exportierbare KI-Diagnose
-und Testpartien der Lernengine gegen Stockfish/Maia. Noch nicht veröffentlicht.
-Anleitung: [KI-Ergebnisse auswerten](docs/AI_EVALUATION.md).
+Aktueller veröffentlichter Funktionsstand: **0.11.2**.
+[Web-App öffnen](https://wibem1.github.io/AI-Chess-Studio/).
+GitHub-Pages-Bereitstellung und Live-Dateiprüfsummen bestätigt.
+Änderungen: [CHANGELOG.md](CHANGELOG.md).
+
+Anbieter, Modell, Denktiefe und Betriebszustand stehen sichtbar im Lernmodus.
+Verbindung dort prüfen und Modell ohne erneute Schlüsseleingabe wechseln.
+Bearbeitete Anbieterauswahl bleibt bei Hintergrundaktualisierungen erhalten.
+OpenRouter, exportierbare KI-Diagnose und Testpartien gegen Stockfish/Maia sind
+enthalten. Anleitung: [KI-Ergebnisse auswerten](docs/AI_EVALUATION.md).
+Prüfstand: 154/154 Einzeltests und 80/86 Browserfälle bestanden; sechs bekannte
+Prüffehler sowie echte Anbieter-/Geräteabnahme bleiben offen.
+Details: [PROJECT_STATE.md](PROJECT_STATE.md).
+
 **0.10.1**: Kostenanzeige ohne Budgetperiode oder Drei-Anfragen-Grenze;
 Verbrauch bleibt erhalten. Neues Lernlayout: Brett, direkt darunter Eingabe und
 aktuelle Antwort, danach Chatverlauf. Oben „Zeige deinen Plan auf dem Brett“.
