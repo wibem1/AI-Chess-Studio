@@ -1,16 +1,18 @@
 # Änderungen
 
-## 0.10.0 – Freier Lernchat vorbereitet (noch nicht veröffentlicht)
+## 0.10.0 – Freier Lernchat, Brett-/Enginewerkzeuge und Desktoplayout (vorbereitet)
 
-- Normale Chatnachrichten erhalten natürliche Textantworten ohne vorgeschriebenes
-  Antwortschema; der Anbieter wird nicht mehr zu JSON-Antworten gezwungen.
-- Tatsächliche Partie und aktuelle ausgewählte Stellung getrennt übergeben.
-  Mehr Gesprächsbeiträge nach Kontextbudget, erkennbare Kürzung.
-- Alte strukturierte Antworten kompatibel lesen. Fehlende Zusatzfelder oder
-  einzelne ungültige Kandidaten zerstören keine vorhandene Erklärung.
-- Keine erfundenen Beurteilungen; ausführbare Vorschläge bleiben regelgeprüft.
-- Enthält noch keine vollständige KI-Werkzeugschleife zur Brettvorführung und
-  zum selbstständigen Weiterspielen gegen die Spielengine. Ziel dokumentiert.
+- Freie Textantworten ohne Antwortschema; Stellung, echte Partie und Gespräch
+  getrennt bereitgestellt. Alte strukturierte Antworten kompatibel lesbar.
+- Lernengine kann legale Varianten im Lernzweig zeigen und die gewählte Spielengine
+  antworten lassen. Tatsächliche Züge/Stellung gehen zur Erklärung zurück ins Modell.
+- Maximal zwei Werkzeugrunden und bis zu drei budgetierte KI-Anfragen je Nachricht.
+  Stoppen und Vorführung zurück; Partiecursor bleibt unverändert.
+- Breite Desktopansicht mit Brett links und Chat/Eingabe rechts. Kompakte Zugliste
+  unter dem Brett, interner Scroll und sichtbarer aktueller Zug beim Größenwechsel.
+- Niedrige/schmale Fenster und Mobilansicht gestapelt; Hilfe überdeckt Senden nicht.
+- Technischer Ablauf mit echten Spielengines und kontrollierten Modellaufrufen
+  geprüft. Reale KI-Werkzeugwahl und native Geräteabnahme bleiben gesondert offen.
 
 ## 0.9.0 – Chatverlauf löschen und verbesserte Fehlerauskunft
 

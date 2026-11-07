@@ -1,42 +1,47 @@
 # Projektstand
 
-## Aktuell: 0.10.0 freier Lernchat vorbereitet, nicht veröffentlicht
+## Aktuell: 0.10.0 freier Lernchat, Brettwerkzeuge und Desktoplayout fertig vorbereitet
 
-Nutzerkorrektur: freier Chat ohne feste Frage-/Antwortschemata. Lernengine kennt
-Partieverlauf, ausgewählte Stellung und Gespräch und soll künftig Brett- und
-Enginewerkzeuge einsetzen können. Ziel verbindlich in DEVELOPMENT_PLAN.md
-präzisiert; AGENTS.md ergänzt. Das ist eine grundlegende Zielkorrektur, keine
-weitere Reparatur eines vorgeschriebenen Antwortformulars.
+Noch nicht veröffentlicht; öffentliche App weiterhin 0.9.0. Nutzerauftrag vom
+7. November: frei sprechen, Züge am Brett zeigen, mit der Spielengine fortsetzen;
+zusätzlich Windowslayout mit zu großer Zugliste über dem abgeschnittenen Brett
+verbessern. Ziel/Abnahme in DEVELOPMENT_PLAN.md, Einstieg in AGENTS.md aktualisiert.
 
-Belegter Fehlerbefund des Nutzers: Kategorie reply_format auf einfache freie
-Stellungsfrage. Die konkrete rohe Modellantwort liegt nicht vor. Im Code waren
-zahlreiche Zusatzfelder und exakte Kandidaten für die ganze Antwort verpflichtend.
+Implementiert:
 
-Implementiert: alle normalen UI-Chatnachrichten verwenden den freien Modus,
-einen eigenen Gesprächsauftrag und keine response_format-/JSON-Pflicht. Keine
-automatische sprachliche Zwangsroutung in das bisherige Review-Antwortschema.
-Aktuelle Stellung mit eigener Vorgeschichte und tatsächliche Partie separat
-regelgeprüft im Kontext. Bis zu 40 Gesprächsbeiträge unter dem bestehenden
-16-kB-Anfragebudget, Kürzung gekennzeichnet. Gespeicherter Verlauf bleibt erhalten.
-Optional vorhandene strukturierte Antworten werden kompatibel gelesen; fehlende
-Zusatzfelder/ungültige Vorschläge verwerfen nicht mehr die ganze Erklärung.
-Keine erfundenen Ersatzbeurteilungen. Nur legale Vorschläge als Brettaktion.
-Freie vollständige Textantworten werden akzeptiert, auch bei führenden Klammern.
-Eigene Kontextnotizen und gewünschter Hilfestil bleiben als Angaben verfügbar.
+- Freier Textchat ohne Pflicht-Antwortschema; aktuelle ausgewählte Stellung,
+  tatsächliche Partie und Gespräch im Kontext. Unvollständige Zusatzfelder
+  vernichten keine Erklärung. Nur legale Vorschläge ausführbar. Bis 40 passende
+  Gesprächsbeiträge unter begrenztem Kontextbudget, Kürzung markiert. Für
+  Werkzeugfolgen anfangs Kontextreserve; gespeicherter Verlauf bleibt vollständig.
+- Optionale show_line- und play_engine-Funktionsaufrufe getrennt vom Erklärungstext.
+  Gemeinsame Regelprüfung, Ausführung im Lernzweig, echte Antwort der gewählten
+  Stockfish-/Maia-Spielengine. Ergebnis mit ausgeführten SANs und FEN als echte
+  assistant/tool-Nachrichten zurück an den Lernchat, dann freie Erklärung.
+- Maximal zwei Werkzeugrunden je Nachricht, bis drei normal budgetierte Modell-
+  anfragen einschließlich Erklärung. Keine automatischen Anfrage-Retries,
+  Limit-/Budgetrücksetzung oder unbeschränkte Spielschleife. Bleibt nach einer
+  Aktion kein Budget für Erklärung, bleibt ein ehrlicher App-Aktionsbericht.
+- Stopptaste, Rückkehr zum Vorführungsbeginn, Schutz bei Session-/Stellungswechsel
+  und Chatlöschung. Unzulässige Linien vor erstem Zug vollständig verworfen.
+  Tatsächlicher Partiecursor unverändert, gezeigte Varianten bleiben erhalten.
+  Vorführungsberichte und nachfolgende Erklärungen bleiben auch beim Wechsel
+  zu früheren Stellungen im freien Chat sichtbar und passend verortet.
+- Desktop: Brett links vollständig sichtbar, Chat/Eingabe rechts. Kompakte
+  Zugliste darunter, gewählter Zug sichtbar. Niedrige/schmale Fenster gestapelt,
+  mobile Ansicht erhalten. Getrennte Chat-/Zuglistenscrollbereiche; Hilfe überdeckt
+  die Eingabe nicht. Schriftvergrößerung und kurze Windowsfenster geprüft.
 
-Freier Chat reserviert wie der vorherige Partierückblick bis 1800 Ausgabe-Tokens;
-bisherige Preisannahmen, Geld-/Anfragelimits und fehlende automatische Retries
-bleiben. Kein neuer kostenpflichtiger Test. Technische Prüfungen siehe
-docs/VALIDATION.md; echte pädagogische Modellqualität noch nicht abgenommen.
+Prüfstand: 141/141 Einzeltests, Typprüfung und Builds bestanden. Breiter
+Chromiumdurchlauf 79/79 bestanden; danach zusätzliche Maia-Werkzeugprobe und
+gezielte Schlussprüfungen bestanden, siehe docs/VALIDATION.md. Echter Stockfish
+und echtes Maia-2 in der Werkzeugkette geprüft; Modellaufrufe dafür ausdrücklich
+kontrollierte Fixtures. Keine bezahlten Modellaufrufe. Reale KI-Werkzeugauswahl,
+pädagogische Qualität und native Windows-/iPad-Abnahme bleiben getrennt offen.
 
-Noch nicht umgesetzt: vollständige Werkzeugschleife Lernengine → Brett/Schachengine
-→ bestätigtes Ergebnis zurück an die Lernengine, insbesondere selbstständiges
-begrenztes Weiterspielen gegen die Engine. Bisherige Einzelzug-Vorführung ist
-kein Nachweis dafür. Diese Vorbereitung nicht als fertige Umsetzung aller
-vom Nutzer beschriebenen Fähigkeiten ausgeben. Nächster Entwicklungsgegenstand:
-separat regelgeprüfte Brett-/Enginewerkzeuge mit Rückkanal.
-
-0.10.0 noch nicht veröffentlicht; öffentliche App weiterhin 0.9.0.
+Nächster einzelner Schritt: ausdrückliche Veröffentlichungsfreigabe für 0.10.0,
+danach vorhandenen Pages-Weg mit Hash-/Liveprüfung verwenden. Keine erneute
+Schlüsseleinrichtung und keine Datenlöschung erforderlich.
 
 ## Aktuell: 0.9.0 veröffentlicht – Chatverlauf löschen und Fehlerauskunft
 

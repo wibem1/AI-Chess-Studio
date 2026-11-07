@@ -1,3 +1,4 @@
+import {parseCoachCall,TOOL_RECORD,type CoachCall,type CoachResult,type CoachExchange} from './coach-tools.js';
 import {normalizeModelReply} from './model-reply.js';
 import {asksForGameReview,validateGameReview,formatGameReview,type GameReview} from './game-review.js';
 import {Chess} from 'chess.js';
@@ -10,9 +11,10 @@ import { Session } from './session.js';
 
 export type DialogueTopic='chat'|'position'|'comparison'|'review';
 export interface DialogueTurn {role:'user'|'assistant';nodeId:string;text:string;fen?:string}
-export interface DialogueRequest { nodeId: string; fen: string; question: string; legalMoves: string[]; positionFacts?:PositionFacts;historyFacts?:ReturnType<typeof historyFacts>;conversationTruncated?:boolean;gameHistory?:{rootFen:string;moves:string[];truncated:boolean;human:'w'|'b'|null};context?: string[];hintMode?:HintMode;topic?:DialogueTopic;turns?:DialogueTurn[];history?:{rootFen:string;moves:string[];truncated:boolean} }
+export interface DialogueRequest { nodeId: string; fen: string; question: string; legalMoves: string[]; positionFacts?:PositionFacts;historyFacts?:ReturnType<typeof historyFacts>;toolsEnabled?:boolean;toolExchanges?:CoachExchange[];conversationTruncated?:boolean;gameHistory?:{rootFen:string;moves:string[];truncated:boolean;human:'w'|'b'|null};context?: string[];hintMode?:HintMode;topic?:DialogueTopic;turns?:DialogueTurn[];history?:{rootFen:string;moves:string[];truncated:boolean} }
 export interface StrategicReply {
   message?:string;
+  toolCall?:CoachCall;
   formatNotes?:string[];
   gameReview?:GameReview;
   assessment?:{verdict:'white_advantage'|'black_advantage'|'balanced'|'unclear';reason:string;dangers:string[]};
@@ -41,12 +43,15 @@ export class SimulationAdapter implements DialogueAdapter {
 }
 
 export class Studio {
+  private runRevision=0;
+  cancelAsk(){this.runRevision++;}
   constructor(public session = new Session()) {}
   restore(json: string): void { const next = Session.import(json); this.session = next; }
 
-  async ask(question: string, adapter: DialogueAdapter, topic:DialogueTopic='position',hintOverride?:HintMode): Promise<'stored' | 'discarded'> {
+  async ask(question: string, adapter: DialogueAdapter, topic:DialogueTopic='position',hintOverride?:HintMode,execute?:(call:CoachCall,expectedNode:string)=>Promise<CoachResult>): Promise<'stored' | 'discarded'> {
     if (!question.trim()) throw new Error('Bitte eine Planfrage eingeben.');
     if(topic!=='chat'&&asksForGameReview(question)){topic='review';hintOverride='explain';}
+    const run=this.runRevision;
     const session = this.session;
     const chatRevision=session.dialogueRevision();
     const snapshot = session.snapshot();
@@ -60,7 +65,7 @@ export class Studio {
     const fen = snapshot.nodes.find(n => n.id === nodeId)!.fen;
     if (question.length > 1000) throw new Error('Die Planfrage darf höchstens 1000 Zeichen enthalten.');
     const ancestors=new Set(pathTo(snapshot,nodeId).map(n=>n.id));
-    const context = snapshot.annotations.filter(a => ancestors.has(a.nodeId) && a.kind!=='dialogue').slice(-6)
+    const context = snapshot.annotations.filter(a => ancestors.has(a.nodeId) && (a.kind!=='dialogue'||a.text.startsWith(TOOL_RECORD))).slice(-6)
       .map(a => `${a.nodeId}/${a.source}/${a.kind}/${a.hypothesis ? 'Hypothese' : 'Eingabe'}: ${a.engine?JSON.stringify({fen:a.engine.fen,score:a.engine.score,line:a.engine.line.slice(0,10),depth:a.engine.depth,nodes:a.engine.nodes,limits:a.engine.limits,meaning:'Begrenzter Suchbefund nur an dieser FEN, keine strategische Wahrheit'}):a.text}\nOffen: ${a.openQuestions.join(' / ')}`.slice(0, 800));
     if(snapshot.comparison){
       const describe=(id:string)=>{const p=pathTo(snapshot,id);const notes=snapshot.annotations.filter(a=>a.nodeId===id && a.kind==='memory').slice(-1).map(a=>`${a.source}/${a.hypothesis?'Hypothese':'Eingabe'}: ${a.text.slice(0,100)}`).join('');return `${(snapshot.labels?.[id]??id).slice(0,40)}: FEN ${p.at(-1)!.fen}; Notiz ${notes}; Züge ${p.slice(1).map(n=>n.san).join(' ').slice(-60)}`.slice(0,360);};
@@ -83,14 +88,13 @@ export class Studio {
     while(context.length>6)context.shift();
     const conversationNodes=new Set(ancestors);
     if(snapshot.game&&!snapshot.review)for(const node of pathTo(snapshot,snapshot.game.cursor))conversationNodes.add(node.id);
-    const dialogue=snapshot.annotations.filter(a=>conversationNodes.has(a.nodeId) && a.kind==='dialogue');
+    const dialogue=snapshot.annotations.filter(a=>(topic==='chat'?allowed.has(a.nodeId):conversationNodes.has(a.nodeId)) && a.kind==='dialogue');
     const turns:DialogueTurn[]=[];
-    for(let i=1;i<dialogue.length;i++){
-      const human=dialogue[i-1]!,answer=dialogue[i]!;
-      if(human.source==='human' && answer.source==='model' && human.nodeId===answer.nodeId){
-        turns.push({role:'user',nodeId:human.nodeId,fen:snapshot.nodes.find(n=>n.id===human.nodeId)!.fen,text:human.text.slice(0,topic==='chat'?4000:700)},
-          {role:'assistant',nodeId:answer.nodeId,fen:snapshot.nodes.find(n=>n.id===answer.nodeId)!.fen,text:answer.text.split('\n\nAnalyse-Details:')[0]!.slice(0,topic==='chat'?4000:700)});
-      }
+    for(let i=0;i<dialogue.length;i++){
+      const human=dialogue[i]!;if(human.source!=='human')continue;
+      const answers:string[]=[];let answerNode=human.nodeId;
+      for(let j=i+1;j<dialogue.length&&dialogue[j]!.source!=='human';j++)if(dialogue[j]!.source==='model'){answers.push(dialogue[j]!.text.split('\n\nAnalyse-Details:')[0]!);answerNode=dialogue[j]!.nodeId;}
+      if(answers.length)turns.push({role:'user',nodeId:human.nodeId,fen:snapshot.nodes.find(n=>n.id===human.nodeId)!.fen,text:human.text.slice(0,topic==='chat'?4000:700)},{role:'assistant',nodeId:answerNode,fen:snapshot.nodes.find(n=>n.id===answerNode)!.fen,text:answers.join('\n').slice(0,topic==='chat'?4000:700)});
     }
     const availableTurns=turns.length;
     while(turns.length>(topic==='chat'?40:4))turns.splice(0,2);
@@ -99,28 +103,44 @@ export class Studio {
     const gameEnd=snapshot.game?.cursor??snapshot.review?.original.at(-1)??nodeId;
     const gamePath=pathTo(snapshot,gameEnd).filter(n=>allowed.has(n.id)),gameStart=Math.max(0,gamePath.length-501);
     const gameHistory={rootFen:gamePath[gameStart]!.fen,moves:gamePath.slice(gameStart+1).map(n=>n.san!),truncated:gameStart>0,human:snapshot.game?.human??snapshot.review?.human??null};
-    const request = { nodeId, fen, question: question.trim(), legalMoves: new Chess(fen).moves(), positionFacts:positionFacts(fen),...(topic==='chat'?{gameHistory,conversationTruncated:availableTurns>turns.length}:{}), context,hintMode,topic,turns,history,...(topic==='review'?{historyFacts:historyFacts(history)}:{}) };
-    while(new TextEncoder().encode(JSON.stringify(request)).byteLength>16000 && (turns.length || context.length)){
+    const request = { nodeId, fen, question: question.trim(), legalMoves: new Chess(fen).moves(), positionFacts:positionFacts(fen),...(topic==='chat'?{gameHistory,conversationTruncated:availableTurns>turns.length,toolsEnabled:!!execute,toolExchanges:[] as CoachExchange[]}:{}), context,hintMode,topic,turns,history,...(topic==='review'?{historyFacts:historyFacts(history)}:{}) };
+    while(new TextEncoder().encode(JSON.stringify(request)).byteLength>(execute?9000:16000) && (turns.length || context.length)){
       if(turns.length)turns.splice(0,2);else context.shift();
     }
     if(topic==='chat')request.conversationTruncated=availableTurns>turns.length;
     if(topic==='review' && (history.truncated||!history.moves.length))throw new Error('Für eine Partieanalyse ist eine vollständige gespielte Zugfolge nötig.');
     if(new TextEncoder().encode(JSON.stringify(request)).byteLength>16000)throw new Error('Partieverlauf überschreitet das Kontextlimit. Bitte eine kürzere Partie untersuchen. Keine Anfrage gesendet.');
-    const raw = await adapter.respond(request);
-    // Replacing a session or clearing its chat invalidates outstanding answers.
-    if (this.session !== session || session.dialogueRevision()!==chatRevision) return 'discarded';
-    const reply = adapter.source==='model'?normalizeModelReply(raw,request.legalMoves):validateReply(raw, request.legalMoves);
+    let raw=await adapter.respond(request),expectedNode=nodeId,recordedQuestion=false;
+    const active=()=>this.session===session&&session.dialogueRevision()===chatRevision&&this.runRevision===run;
+    if(!active())return 'discarded';
+    let reply=adapter.source==='model'?normalizeModelReply(raw,request.legalMoves,true):validateReply(raw,request.legalMoves);
+    while(reply.toolCall){
+      if(!execute||!active()||session.snapshot().activeNodeId!==expectedNode)return 'discarded';
+      if(request.toolExchanges!.length>=2)throw new Error('Grenze der Brettaktionen erreicht.');
+      const call=parseCoachCall(reply.toolCall);if(request.toolExchanges!.some(e=>e.call.id===call.id))throw new Error('Wiederholter Brettauftrag verworfen.');let result:CoachResult;
+      try{result=await execute(call,expectedNode);}catch(error){if(!active()||session.snapshot().activeNodeId!==expectedNode)return 'discarded';result={ok:false,fromFen:session.snapshot().nodes.find(n=>n.id===expectedNode)!.fen,fen:session.snapshot().nodes.find(n=>n.id===expectedNode)!.fen,nodeId:expectedNode,moves:[],error:'Brettaktion nicht ausgeführt: Zugfolge unzulässig oder Vorführung angehalten.'};}
+      if(!active()||session.snapshot().activeNodeId!==result.nodeId)return 'discarded';
+      expectedNode=result.nodeId;
+      if(!recordedQuestion){session.annotate({nodeId,kind:'dialogue',source:'human',text:request.question,hypothesis:false,openQuestions:[]});recordedQuestion=true;}
+      session.annotate({nodeId,kind:'dialogue',source:'model',text:TOOL_RECORD+(result.ok?'Ausgeführt. ':'Nicht vollständig ausgeführt. ')+(result.moves.length?'Gezeigte Züge: '+result.moves.join(' ')+' . ':'Keine Züge ausgeführt. ')+(result.engine?'Antwort von '+result.engine+'. ':'')+(result.error??'')+'\n\nAnalyse-Details:\n'+JSON.stringify(result),hypothesis:false,openQuestions:[]});
+      request.toolExchanges!.push({call,content:(reply.message??'').slice(0,1000),result});
+      if(new TextEncoder().encode(JSON.stringify(request)).byteLength>16000)throw new Error('Werkzeugkontext zu groß; keine weitere KI-Anfrage ausgeführt.');
+      raw=await adapter.respond(request);if(!active())return 'discarded';
+      reply=normalizeModelReply(raw,request.legalMoves,true);
+    }
+    const answerNode=recordedQuestion?expectedNode:nodeId,answerFacts=positionFacts(session.snapshot().nodes.find(n=>n.id===answerNode)!.fen);
+    if(recordedQuestion)reply.candidates=[];
     if(adapter.source==='model' && !reply.message?.trim())throw new Error('Dialogantwort fehlt.');
     const retrospective=adapter.source==='model'&&topic==='review'&&hintMode==='explain'?validateGameReview(reply.gameReview,history):undefined;
     if(adapter.source==='model' && topic!=='review' && hintMode==='explain' && reply.assessment){
-      const f=request.positionFacts,winner=f.checkmate?(f.sideToMove==='w'?'black_advantage':'white_advantage'):f.mateInOne.length?(f.sideToMove==='w'?'white_advantage':'black_advantage'):undefined;
+      const f=answerFacts,winner=f.checkmate?(f.sideToMove==='w'?'black_advantage':'white_advantage'):f.mateInOne.length?(f.sideToMove==='w'?'white_advantage':'black_advantage'):undefined;
       if(winner&&reply.assessment.verdict!==winner)throw new Error('KI-Beurteilung widerspricht der regelgeprüften Mattsituation. Antwort nicht gespeichert.');
     }
     if(hintMode==='question' && !reply.openQuestions.length)throw new Error('Leitfrage fehlt.');
     if(hintMode==='question' && reply.candidates.length)throw new Error('Leitfragenmodus: direkte Zugvorschläge verworfen.');
-    session.annotate({ nodeId, kind: 'dialogue', source: 'human', text: request.question,
+    if(!recordedQuestion)session.annotate({ nodeId, kind: 'dialogue', source: 'human', text: request.question,
       hypothesis: false, openQuestions: [] });
-    session.annotate({ nodeId, kind: 'dialogue', source: adapter.source ?? 'simulation', text: retrospective?formatGameReview(retrospective,history):hintMode==='question'?`Leitfrage: ${reply.openQuestions[0]}`:hintMode==='hint'?`Denkhinweis: ${reply.humanFactors?.idea||reply.playability||reply.message}`:adapter instanceof SimulationAdapter?`${reply.message}\n\nAnalyse-Details:\n${describeFacts(request.positionFacts)}`:`${formatReply(reply)}\n${describeFacts(request.positionFacts)}`,
+    session.annotate({ nodeId:answerNode, kind: 'dialogue', source: adapter.source ?? 'simulation', text: retrospective?formatGameReview(retrospective,history):hintMode==='question'?`Leitfrage: ${reply.openQuestions[0]}`:hintMode==='hint'?`Denkhinweis: ${reply.humanFactors?.idea||reply.playability||reply.message}`:adapter instanceof SimulationAdapter?`${reply.message}\n\nAnalyse-Details:\n${describeFacts(request.positionFacts)}`:`${formatReply(reply)}\n${describeFacts(answerFacts)}`,
       hypothesis: true, openQuestions: retrospective?[]:reply.openQuestions,...(hintMode==='explain'?{suggestions:retrospective?[]:reply.candidates}:{}) });
     return 'stored';
   }

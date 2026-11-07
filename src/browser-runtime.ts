@@ -1,3 +1,4 @@
+import {coachProviderFields,coachProviderMessages,coachToolReply} from './coach-provider.js';
 import {decodeModelContent,normalizeModelReply} from './model-reply.js';
 import {COACH_ERRORS,CoachFailure,providerFailure,type CoachFailureCode} from './model-errors.js';
 import {validateGameReview} from './game-review.js';
@@ -25,7 +26,7 @@ export class BrowserRuntime {
  constructor(readonly store=new BrowserStore(),private transport:typeof fetch=(input,init)=>fetch(input,init)){if(this.channel)this.channel.onmessage=event=>{this.vaultEpoch++;this.config=null;this.restoring=event.data==='changed'?undefined:Promise.resolve();window.dispatchEvent(new Event('chess-vault-change'));};}
  private restoreDevice(){return this.restoring??= (async()=>{const epoch=this.vaultEpoch,record=await this.store.get<StoredVault>('vault');if(record?.version===2){try{const config=await openDeviceConfig(record);if(epoch===this.vaultEpoch)this.config=config;}catch{if(epoch===this.vaultEpoch)this.config=null;}}})();}
  async status(){await this.restoreDevice();const c=(await this.store.budget(ledger=>ledger.snapshot())).state,record=await this.store.get<StoredVault>('vault');return {available:!!this.config,saved:!!record,locked:!!record&&!this.config,limit:this.attempts>=3?'window':c.requests>=3?'period':c.estimatedUsd>=c.budgetUsd?'budget':null,remaining:Math.max(0,Math.min(3-this.attempts,3-c.requests))};}
- async handle(path:string,method:string,raw?:any):Promise<any>{
+ async handle(path:string,method:string,raw?:any,signal?:AbortSignal):Promise<any>{
   await this.restoreDevice();
   if(path==='/api/status'&&method==='GET')return this.status();
   if(path==='/api/diagnostics'&&method==='GET'){const record=await this.store.get<StoredVault>('vault');return {version:APP_VERSION,node:'nicht erforderlich',platform:'Web-App',model:{...await this.status(),configured:!!this.config,localKeySaved:!!record,storageMode:record?.version===2?'device':record?'password':'none',locked:!this.config,model:this.config?.model??null,costs:(await this.store.budget(l=>l.snapshot())).state,pricingIsEstimate:true},update:{stage:'web',message:'Web-App: unter App auf diesem Gerät nach Updates suchen.'}};}
@@ -64,7 +65,7 @@ export class BrowserRuntime {
   }
   if(path==='/api/tactics')return this.tactics.check(raw?.fen,raw?.candidate,raw?.history);
   if(path==='/api/diagnostics')return this.probe();
-  if(path==='/api/dialogue')return this.respond(raw);
+  if(path==='/api/dialogue')return this.respond(raw,signal);
   throw new ApiError(400,'Diese Funktion benötigt den Desktopbetrieb.');
  }
  private async probe(){
@@ -74,26 +75,27 @@ export class BrowserRuntime {
    await r.body?.cancel();return {ok:r.ok,httpStatus:r.status,message:r.ok?'Schlüssel und Modellzugriff bestätigt. Keine Textgenerierung ausgeführt.':r.status===401?'OpenAI lehnt den Schlüssel ab.':'Modellzugriff nicht bestätigt. Anbieterfreigabe und Kontingent prüfen.'};
   }catch{return {ok:false,httpStatus:null,message:'Anbieter nicht erreichbar. Internet, Browserfreigaben und CORS prüfen. Keine Textgenerierung ausgeführt.'};}
  }
- private async respond(raw:unknown){
+ private async respond(raw:unknown,signal?:AbortSignal){
   if(!this.config)throw new ApiError(403,'Lokales Schlüsselfach ist gesperrt.');
   const config=this.config;
   const request=parseRequest(raw);
   if(this.busy||this.attempts>=3)throw new ApiError(429,'Anfragelimit erreicht oder Anfrage läuft.');
-  const {turns=[],...current}=request;
+  const {turns=[],toolExchanges,...current}=request;
   const retrospective=request.topic==='review'&&(request.hintMode??'explain')==='explain',outputTokens=retrospective||request.topic==='chat'?1800:800;
-  const body=JSON.stringify({model:config.model,max_completion_tokens:outputTokens,...(request.topic==='chat'?{}:{response_format:{type:'json_object'}}),messages:[{role:'system',content:request.topic==='chat'?FREE_CHAT_PROMPT:SYSTEM_PROMPT},...turns.map(t=>({role:t.role,content:`[Stellung ${t.nodeId}${t.fen?`, FEN ${t.fen}`:''}] ${t.text}`})),{role:'user',content:JSON.stringify(current)}]});
+  const body=JSON.stringify({model:config.model,max_completion_tokens:outputTokens,...coachProviderFields(request),...(request.topic==='chat'?{}:{response_format:{type:'json_object'}}),messages:[{role:'system',content:request.topic==='chat'?FREE_CHAT_PROMPT:SYSTEM_PROMPT},...turns.map(t=>({role:t.role,content:`[Stellung ${t.nodeId}${t.fen?`, FEN ${t.fen}`:''}] ${t.text}`})),{role:'user',content:JSON.stringify(current)},...coachProviderMessages(request)]});
   if(new TextEncoder().encode(body).length>24000)throw new ApiError(400,'Modellkontext ist zu groß.');
   this.busy=true;let reserved=0,started=false;let failureCode:CoachFailureCode='network';
   try{
    reserved=(await this.store.budget(l=>l.reserve(new TextEncoder().encode(body).length,outputTokens))).value;
    if(this.config!==config)throw new Error();
    this.attempts++;started=true;
-   const response=await this.transport('https://api.openai.com/v1/chat/completions',{method:'POST',mode:'cors',credentials:'omit',referrerPolicy:'no-referrer',redirect:'error',headers:{Authorization:'Bearer '+config.apiKey,'Content-Type':'application/json'},body,signal:AbortSignal.timeout(15000)});
+   const response=await this.transport('https://api.openai.com/v1/chat/completions',{method:'POST',mode:'cors',credentials:'omit',referrerPolicy:'no-referrer',redirect:'error',headers:{Authorization:'Bearer '+config.apiKey,'Content-Type':'application/json'},body,signal:AbortSignal.any([AbortSignal.timeout(15000),...(signal?[signal]:[])])});
    if(!response.ok){await response.body?.cancel();throw new CoachFailure(providerFailure(response.status));}
    failureCode='provider_format';
    const envelope=await readProvider(response);await this.store.budget(l=>l.settle(reserved,envelope.usage));
    if(envelope.choices?.[0]?.finish_reason==='length')throw new CoachFailure('output_limit');
-   if(envelope.choices?.[0]?.finish_reason!=='stop')throw new Error();
+   const toolReply=coachToolReply(envelope.choices?.[0],request);if(toolReply)return toolReply;
+      if(envelope.choices?.[0]?.finish_reason!=='stop')throw new Error();
    failureCode='reply_format';
    const reply=normalizeModelReply(decodeModelContent(envelope.choices[0].message.content,request.topic!=='chat'),request.legalMoves);
    if(!reply.message?.trim()||request.hintMode==='question'&&(!reply.openQuestions.length||reply.candidates.length))throw new Error();

@@ -1,3 +1,4 @@
+import {parseCoachCall} from './coach-tools.js';
 import {validateReply,type StrategicReply} from './dialogue.js';
 const REMOVED_MOVES='Nicht regelkonforme Zugvorschläge wurden nicht übernommen.';
 /** Free chat accepts completed prose; legacy structured replies still reject broken JSON. */
@@ -10,7 +11,7 @@ export function decodeModelContent(content:unknown,structuredExpected=true):unkn
  }
 }
 /** Require the actual explanation; optional presentation fields must not destroy it. */
-export function normalizeModelReply(raw:unknown,legalMoves:string[]):StrategicReply{
+export function normalizeModelReply(raw:unknown,legalMoves:string[],allowToolCall=false):StrategicReply{
  if(typeof raw!=='object'||raw===null||Array.isArray(raw))throw new Error('Keine Dialogantwort.');
  const r=raw as Record<string,unknown>,text=(v:unknown,max:number)=>typeof v==='string'&&v.trim()&&v.length<=max?v.trim():'';
  const review=r.gameReview as StrategicReply['gameReview'];
@@ -23,6 +24,7 @@ export function normalizeModelReply(raw:unknown,legalMoves:string[]):StrategicRe
  const scaffold={plan:'x',opponent:'x',risks:'x',playability:'x',candidates:[],openQuestions:[]};
  if(r.assessment!==undefined)try{const a=validateReply({...scaffold,assessment:r.assessment},legalMoves).assessment;if(a)reply.assessment=a;}catch{}
  if(r.humanFactors!==undefined)try{const h=validateReply({...scaffold,humanFactors:r.humanFactors},legalMoves).humanFactors;if(h)reply.humanFactors=h;}catch{}
+ if(allowToolCall&&r.toolCall!==undefined)reply.toolCall=parseCoachCall(r.toolCall);
  if(r.gameReview!==undefined)reply.gameReview=review!; // Historical validation is mandatory at the review boundary.
  if(removed||Array.isArray(r.formatNotes)&&r.formatNotes.includes(REMOVED_MOVES))reply.formatNotes=[REMOVED_MOVES];
  return reply;

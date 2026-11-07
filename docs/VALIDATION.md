@@ -1595,3 +1595,70 @@ ist belegt; die konkrete rohe abgelehnte Modellantwort weiterhin nicht vorhanden
 Die vereinfachte Textverarbeitung belegt keine fertige Werkzeugschleife zwischen
 Lernengine, Brett und Spielengine. Diese bleibt als nächster Schritt offen und
 ist mit Abnahmekriterien in DEVELOPMENT_PLAN.md dokumentiert.
+
+## Abschluss 0.10.0: Brett-/Enginewerkzeuge und Windows-Lernlayout
+
+7. November 2026, weiterhin nicht veröffentlicht. Freier Chat unverändert ohne
+vorgeschriebenes Antwortschema. Optionale OpenAI-Funktionsaufrufe show_line und
+play_engine nutzen eine eigene validierte Schnittstelle; die tatsächlich
+bestätigten Ausführungsdaten werden über assistant/tool-Nachrichten zurück an
+das Modell übergeben. Referenz: offizielle Function-Calling-Dokumentation unter
+https://developers.openai.com/api/docs/guides/function-calling .
+
+Technische Abnahme:
+
+- `npm run test:all`: Typprüfung, Root-/Pages-Build, **140/140 Einzeltests und
+  79/79 Chromiumfälle bestanden**. Kein Retry.
+- Danach gezielte Schlussprüfung inklusive zusätzlichem echtem Maia-Werkzeugfall:
+  Coachwerkzeuge, Windowslayout, Lernablauf, Schriftzoom/Rücknahme und freier Text:
+  **9/9 bestanden**. Damit wurden alle 80 jetzigen Browserfälle erfolgreich
+  ausgeführt; kein kompletter 80/80-Einzellauf behauptet.
+- Nach letzter Layoutanpassung (Hilfe überdeckt Eingabe/Senden nicht; vollständiges
+  Brett auch bei 1280×600) und zusätzlichem Rückkehrknopf erneut Coachwerkzeuge
+  mit beiden Engines, Stoppen und Windowslayout: **4/4 bestanden**.
+- Abschließender Pages-Build erfolgreich. Keine neue Abhängigkeit eingeführt.
+
+Neue Kernprüfungen: ganze illegale Modelllinie vor ihrem ersten Zug verwerfen;
+aktueller Knoten/Session/Chatrevision gebunden; Auswahlwechsel und Chatlöschung
+während laufender Ausführung; Stoppen; späte Engineantwort; tatsächlicher
+Partiecursor unverändert; volle geprüfte Vorgeschichte an die Spielengine;
+kanonische Ergebnis-FEN und SAN-Folge zurück an den Modelltransport. Doppelte
+Aufruf-IDs und maximal zwei Werkzeugrunden schützen vor wiederholten/weiteren
+Aktionen. Drei normale Anfragen begrenzen zwei Werkzeugrunden plus Erklärung.
+Kosten-/Anfragelimit bleibt wirksam; bei verbrauchtem Fortsetzungsbudget bleiben
+gezeigte Variante und ehrlicher App-Bericht erhalten, ohne erfundene KI-Erklärung.
+
+Browser-Nachweise:
+
+- Kontrollierter Modell-Toolaufruf spielt e4 im Lernzweig. **Echter Stockfish 19
+  Lite WASM** antwortet; echte SAN/FEN und Enginename werden in der folgenden
+  Modellanfrage geprüft. Freier Erklärungstext danach sichtbar; Vorführung zurück
+  kehrt zum Ausgangspunkt. Tatsächliche Partie bleibt unverändert.
+- Derselbe Ablauf mit **echtem Maia-2 Blitz ONNX/CPU-WASM**. Keine vorgetäuschte
+  Engineantwort. Modell-Toolauswahl und Erklärung sind ausdrücklich Fixtures.
+- Anhalten einer ausstehenden Anfrage verhindert einen nachträglichen Toolzug.
+  Löschen verhindert Wiederauffüllen des Chats. Bereits gezeigte Varianten
+  bleiben erhalten. Rückkehr/Abbruch starten keine weitere KI-Anfrage.
+- Synthetische 80-Halbzug-Sitzung: 1600/1440/1280×900, vollständiges Brett links,
+  Chat und Eingabe rechts; Zugliste darunter mit höchstens 72 px Höhe. Keine
+  horizontale Überbreite. 150-%-Schrift mit sichtbarer Eingabe, 1280×600 mit
+  vollständigem Brett, Tabletansicht weiter gestapelt. Aktiver Zug bleibt durch
+  internen Scroll und ResizeObserver sichtbar, ohne die Seite herunterzuziehen.
+- Screenshots der breiten Lernansicht mit langer Zugliste, 150-%-Schrift sowie
+  echter Enginevorführung visuell kontrolliert. Betriebssystem Linux/Chromium
+  153.0.8010.0; **keine native Windows-/Safari-/iPad-Abnahme** behauptet.
+
+Beleggrenzen: keine kostenpflichtigen Modellaufrufe. Die Anwendung implementiert
+und prüft den Werkzeugkreislauf mit echten Spielengines; tatsächliche Auswahl der
+Werkzeuge durch das Nutzermodell und pädagogische Erklärqualität bleiben getrennt
+offen. Keine unbeschränkte autonome Spielschleife, keine Überschreibung der echten
+Partie, keine Budgetrücksetzung. Bestehende Exportformate bleiben; App-Aktionsberichte
+nutzen bestehende Chatannotationen und werden verständlich dargestellt.
+
+Zusätzlicher abschließender Schutzfall: Ein im normalen Erklärungstext/JSON
+erwähntes toolCall-Objekt ist kein ausführbarer API-Werkzeugaufruf. Nur der
+separat geprüfte tool_calls-Protokollkanal wird in eine Brettaktion umgesetzt.
+Danach `npm test`: **141/141 bestanden**, Pages-Build ebenfalls erfolgreich.
+Nach diesem Schutzfall erneut komplette neue Werkzeugprobe mit Stockfish und
+Maia, Stoppen und Windowslayout: **4/4 bestanden**. Damit sind auch die zuletzt
+geänderte Protokoll-/Texttrennung und die endgültige Darstellung abgedeckt.

@@ -23,5 +23,5 @@
 12. Nutzerziel vom 7. November: freier Lernchat ohne vorgeschriebenes Frage-/Antwortschema.
     Aktuelle Stellung, tatsächliche Partie und Gesprächskontext bereitstellen;
     ausführbare Brett-/Enginebefehle separat regelprüfen. Werkzeugschleife für
-    Vorführung/Weiterspielen ist noch offen, nicht durch Prompttext als umgesetzt
-    ausgeben. DEVELOPMENT_PLAN.md beachten.
+    Vorführung/Weiterspielen ist implementiert, auf zwei Werkzeugrunden begrenzt
+    und mit echten Spielengines geprüft; reale KI-Werkzeugauswahl separat belegen. DEVELOPMENT_PLAN.md beachten.

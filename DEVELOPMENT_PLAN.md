@@ -26,7 +26,7 @@ die getrennte Schachengine weiterspielen, um Ideen gemeinsam zu untersuchen.
   Ihre tatsächlichen Züge/Befunde werden der Lernengine wieder zugeführt, sodass
   sie über das Geschehene sprechen kann. Ein Prompt ersetzt diesen Rückkanal nicht.
 
-### Brett- und Enginewerkzeuge: nächster noch offener Entwicklungsschritt
+### Brett- und Enginewerkzeuge: implementierter begrenzter Ablauf
 
 Werkzeuge für Stellung/Verlauf lesen, Variante am Brett zeigen, Zug ausführen,
 Schachengine antworten lassen, zurücknehmen und laufende Vorführung stoppen.
@@ -54,11 +54,29 @@ werden nach Kontextbudget übertragen. Tatsächliche Partie und aktuelle Stellun
 sind getrennt im Modellkontext. Optionale alte strukturierte Antworten bleiben
 lesbar; unzulässige Vorschläge werden nicht als ausführbare Züge angeboten.
 
-Noch nicht implementiert: vollständige Werkzeugschleife zwischen Lernengine,
-Brett und Spielengine samt Rückkanal und selbstständiger begrenzter Vorführung.
-Die bisherige Schaltfläche für einzelne geprüfte Vorschläge belegt diese Fähigkeit
-nicht. Die vorbereitete Textkorrektur darf nicht als vollständige Umsetzung der
-hier beschriebenen Lernengine veröffentlicht oder bezeichnet werden.
+Nun implementiert: show_line und play_engine als optionale Werkzeugaufrufe,
+getrennt vom freien Erklärungstext. Gemeinsame Ausführung im Lernzweig, geprüfte
+Spielengine-Antwort und tatsächliche Stellung als tool-Ergebnis zurück an das
+Modell. Höchstens zwei Werkzeugrunden und abschließende freie Erklärung, also
+bis zu drei normal budgetierte Modellanfragen. Stoppen, Zurück zum Ausgangspunkt,
+Session-/Stellungswechsel und Chatlöschung verhindern spätere Brettänderungen.
+Bereits gezeigte Züge bleiben als untersuchbare Variante erhalten.
+
+Der technische Ablauf ist mit kontrollierten KI-Werkzeugaufrufen und echtem
+Stockfish sowie echtem Maia-2 im Browser geprüft. Reale KI-Werkzeugauswahl und
+pädagogische Qualität bleiben getrennt offen; keine unbeschränkte autonome
+Schleife behaupten. Normale reine Textnachrichten benötigen weiterhin keine
+Werkzeugaufrufe und kein Antwortschema.
+
+## Windows-/Desktopkorrektur vom 7. November
+
+Breite Lernansicht: vollständiges Brett links, Chat einschließlich Eingabe rechts.
+Zugnavigation und maximal 72 px hohe, separat scrollbare Zugliste unter dem Brett;
+ausgewählter Zug bleibt auch beim Größenwechsel sichtbar. Chatverlauf hat eigenen
+Scrollbereich. Bedienungshilfe überdeckt die Eingabe/Senden-Taste nicht. Bei
+schmalen oder niedrigen Fenstern einspaltig, ohne die gesamte Liste vor das Brett
+zu setzen. Mobil-/Tabletansicht bleibt gestapelt. Native Windows-Abnahme bleibt
+von automatisierten Chromiumprüfungen der Windows-Fenstergrößen getrennt.
 
 ## Korrektur vom 7. November: Analyse bedienen und KI-Zugang erkennen
 

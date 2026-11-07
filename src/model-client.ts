@@ -4,13 +4,15 @@ import type { DialogueAdapter, DialogueRequest } from './dialogue.js';
 /** Same-origin transport only. Credentials are never accepted by this adapter. */
 export class ServerModelAdapter implements DialogueAdapter {
   readonly source = 'model' as const;
+  private controller:AbortController|undefined;
+  cancel(){this.controller?.abort();}
   constructor(private transport:typeof fetch=(input,init)=>fetch(input,init)){}
   async respond(request: DialogueRequest): Promise<unknown> {
-    let response: Response;
+    let response: Response;this.controller=new AbortController();
     try {
       response = await this.transport('/api/dialogue', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(request), signal: AbortSignal.timeout(20_000)
+        body: JSON.stringify(request), signal: AbortSignal.any([this.controller.signal,AbortSignal.timeout(20_000)])
       });
     } catch { throw new Error('Modellserver nicht erreichbar oder Zeitlimit überschritten.'); }
     if(!response.ok){

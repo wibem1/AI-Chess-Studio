@@ -1,3 +1,4 @@
+import {coachProviderFields,coachProviderMessages,coachToolReply} from '../src/coach-provider.js';
 import {decodeModelContent,normalizeModelReply} from '../src/model-reply.js';
 import {COACH_ERRORS,CoachFailure,providerFailure,type CoachFailureCode} from '../src/model-errors.js';
 import {validateGameReview} from '../src/game-review.js';
@@ -75,10 +76,10 @@ export class ModelService {
     if (!this.status().available) throw new ApiError(403, 'Modellanbindung gesperrt oder nicht konfiguriert.');
     const request = parseRequest(raw);
     if (this.busy || this.attempts >= 3) throw new ApiError(429, 'Anfragelimit erreicht.');
-    const {turns=[],...currentRequest}=request;
+    const {turns=[],toolExchanges,...currentRequest}=request;
     const retrospective=request.topic==='review'&&(request.hintMode??'explain')==='explain',outputTokens=retrospective||request.topic==='chat'?1800:800;
-    const body=JSON.stringify({model:this.config.model,max_completion_tokens:outputTokens,...(request.topic==='chat'?{}:{response_format:{type:'json_object'}}),
-      messages:[{role:'system',content:request.topic==='chat'?FREE_CHAT_PROMPT:SYSTEM_PROMPT},...turns.map(t=>({role:t.role,content:`[Stellung ${t.nodeId}${t.fen?`, FEN ${t.fen}`:''}] ${t.text}`})),{role:'user',content:JSON.stringify(currentRequest)}]});
+    const body=JSON.stringify({model:this.config.model,max_completion_tokens:outputTokens,...coachProviderFields(request),...(request.topic==='chat'?{}:{response_format:{type:'json_object'}}),
+      messages:[{role:'system',content:request.topic==='chat'?FREE_CHAT_PROMPT:SYSTEM_PROMPT},...turns.map(t=>({role:t.role,content:`[Stellung ${t.nodeId}${t.fen?`, FEN ${t.fen}`:''}] ${t.text}`})),{role:'user',content:JSON.stringify(currentRequest)},...coachProviderMessages(request)]});
     let reservation:number;
     try {reservation=this.costs.reserve(Buffer.byteLength(body),outputTokens);}catch{throw new ApiError(402,'Lokales Anfrage- oder Kostenbudget erreicht.');}
     this.attempts++; this.busy = true;let failureCode:CoachFailureCode='network';
@@ -94,6 +95,7 @@ export class ModelService {
       const envelope = JSON.parse(await readLimited(response));
       this.costs.settle(reservation,envelope.usage);
       if(envelope.choices?.[0]?.finish_reason==='length')throw new CoachFailure('output_limit');
+      const toolReply=coachToolReply(envelope.choices?.[0],request);if(toolReply)return toolReply;
       if (envelope.choices?.[0]?.finish_reason !== 'stop') throw new Error('Incomplete response');
       failureCode='reply_format';
       const reply=normalizeModelReply(decodeModelContent(envelope.choices[0].message.content,request.topic!=='chat'), request.legalMoves);

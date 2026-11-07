@@ -7,6 +7,7 @@ export const COACH_ERRORS={
  provider_format:'Der KI-Anbieter hat keine lesbare vollständige Antwort geliefert.',
  output_limit:'Die KI-Antwort wurde am Ausgabe-Limit abgeschnitten und deshalb nicht übernommen.',
  reply_format:'Die KI-Antwort entspricht nicht dem benötigten Antwortformat und wurde nicht übernommen.',
+ tool_format:'Die KI hat einen unzulässigen Brettbefehl geliefert. Keine Brettaktion ausgeführt.',
  review_format:'Die KI lieferte keinen gültigen Partierückblick: Lernmomente, Zugbezüge oder Alternativen passen nicht zur Partie.'
 } as const;
 export type CoachFailureCode=keyof typeof COACH_ERRORS;

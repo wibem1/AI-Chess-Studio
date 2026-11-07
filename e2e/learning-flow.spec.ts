@@ -1,11 +1,11 @@
 import {test,expect} from '@playwright/test';
 
-test('learning puts chat directly after the board and settings below it on desktop and phone',async({page})=>{
+test('learning keeps chat beside the desktop board and below the phone board with settings further down',async({page})=>{
  await page.goto('/?platform=web');await expect(page.locator('#workspace')).not.toHaveAttribute('inert','');await page.getByRole('tab',{name:'Lernmodus',exact:true}).click();
  for(const width of [1440,390]){
   await page.setViewportSize({width,height:900});
-  const {board,chat,settings}=await page.evaluate(()=>{const rect=(id:string)=>{const r=document.getElementById(id)!.getBoundingClientRect();return {y:r.y,height:r.height};};return {board:rect('board'),chat:rect('learning-chat'),settings:rect('learning-settings')};});
-  expect(chat!.y).toBeGreaterThanOrEqual(board!.y+board!.height);expect(chat!.y-(board!.y+board!.height)).toBeLessThan(30);expect(settings!.y).toBeGreaterThan(chat!.y+chat!.height);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+  const {board,chat,settings}=await page.evaluate(()=>{const rect=(id:string)=>{const r=document.getElementById(id)!.getBoundingClientRect();return {x:r.x,right:r.right,y:r.y,height:r.height};};return {board:rect('board'),chat:rect('learning-chat'),settings:rect('learning-settings')};});
+  if(width>=1100){expect(chat!.x).toBeGreaterThanOrEqual(board!.right);}else{expect(chat!.y).toBeGreaterThanOrEqual(board!.y+board!.height);expect(chat!.y-(board!.y+board!.height)).toBeLessThan(30);}expect(settings!.y).toBeGreaterThan(chat!.y+chat!.height);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
   await expect(page.locator('#learning-settings')).not.toHaveAttribute('open','');
  }
 });
