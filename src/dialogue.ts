@@ -1,6 +1,6 @@
 import {parseCoachCall,TOOL_RECORD,type CoachCall,type CoachResult,type CoachExchange} from './coach-tools.js';
 import {normalizeModelReply} from './model-reply.js';
-import {asksForGameReview,validateGameReview,formatGameReview,type GameReview} from './game-review.js';
+import {asksForKeyMoments,asksForGameReview,validateGameReview,formatGameReview,type GameReview} from './game-review.js';
 import {Chess} from 'chess.js';
 import {MAIA_PROFILES} from './maia-files.js';
 import {positionFacts,describeFacts,historyFacts,type PositionFacts} from './position-facts.js';
@@ -51,7 +51,7 @@ export class Studio {
 
   async ask(question: string, adapter: DialogueAdapter, topic:DialogueTopic='position',hintOverride?:HintMode,execute?:(call:CoachCall,expectedNode:string)=>Promise<CoachResult>): Promise<'stored' | 'discarded'> {
     if (!question.trim()) throw new Error('Bitte eine Planfrage eingeben.');
-    if(topic!=='chat'&&asksForGameReview(question)){topic='review';hintOverride='explain';}
+    if(topic!=='chat'&&asksForGameReview(question)||asksForKeyMoments(question)){topic='review';hintOverride='explain';}
     const run=this.runRevision;
     const session = this.session;
     const chatRevision=session.dialogueRevision();
@@ -145,7 +145,7 @@ export class Studio {
       hypothesis: false, openQuestions: [] });
     const provenance=receipts.length?`Modellnachweis (App): ${receipts.at(-1)!.provider} · ${receipts.at(-1)!.model} · Denken ${receipts.at(-1)!.reasoning??'Standard'} · ${receipts.length} Aufruf(e) · ${receipts.every(r=>r.costUsd!==null)?receipts.reduce((sum,r)=>sum+r.costUsd!,0).toFixed(6)+' USD (Anbieterangabe)':'Kosten nicht vollständig übermittelt'}.\n\n`:'';
     session.annotate({ nodeId:answerNode, kind: 'dialogue', source: adapter.source ?? 'simulation', text: retrospective?formatGameReview(retrospective,history):hintMode==='question'?`Leitfrage: ${reply.openQuestions[0]}`:hintMode==='hint'?`Denkhinweis: ${reply.humanFactors?.idea||reply.playability||reply.message}`:adapter instanceof SimulationAdapter?`${reply.message}\n\nAnalyse-Details:\n${describeFacts(request.positionFacts)}`:`${provenance}${formatReply(reply)}\n${describeFacts(answerFacts)}`,
-      hypothesis: true, openQuestions: retrospective?[]:reply.openQuestions,...(hintMode==='explain'?{suggestions:retrospective?[]:reply.candidates}:{}) });
+      hypothesis: true,...(retrospective?{gameReview:retrospective}:{}), openQuestions: retrospective?[]:reply.openQuestions,...(hintMode==='explain'?{suggestions:retrospective?[]:reply.candidates}:{}) });
     return 'stored';
   }
 }

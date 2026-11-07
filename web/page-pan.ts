@@ -5,7 +5,7 @@
 export function installPagePan() {
   let pan: {id:number; x:number; y:number; top:number; moved:boolean} | null = null;
   let suppressClick = false;
-  const excluded = 'input,textarea,select,button,a,summary,label,[contenteditable],#board,.scroll-help,.scroll-report';
+  const excluded = 'input,textarea,select,button,a,summary,label,[contenteditable],#board,#current-answer-body,[role=separator],.scroll-help,.scroll-report';
   const cancel = () => {
     const current=pan;pan=null;document.body.classList.remove('page-panning');
     if(current && document.body.hasPointerCapture(current.id))document.body.releasePointerCapture(current.id);

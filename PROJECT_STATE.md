@@ -1,5 +1,46 @@
 # Projektstand
 
+## Vorbereitet: 0.14.0 – Antwortgröße, Schlüsselstellen und gespeicherte Analyse
+
+Nutzerauftrag nach Praxisabnahme von 0.13.0: KI-Antwortfeld wie Eingabe
+vergrößerbar; bei erfragten Schlüsselstellen per Pfeilen zwischen Stellungen
+springen; Analyse und Schlüsselstellen mit jeder Partiekopie speichern.
+
+Umgesetzt:
+- Antwortfläche vertikal aufziehbar, zusätzlich eigener Griff für Pointer/Touch
+  und Tastatur (Auf/Ab, Home/End am Griff). Gewählte Höhe über Rerendern und
+  Neuladen als lokale Ansichtseinstellung erhalten. Antwort bleibt schreibgeschützt.
+- Explizite Fragen nach Schlüsselstellen/Schlüsselmomenten/Wendepunkten laufen
+  auch aus dem freien Chat über den vorhandenen geprüften Partierückblick.
+  Allgemeiner Chat und gewöhnliche freie Partieanalyse bleiben unverändert frei.
+- Rückblick enthält strukturierte, beim Speichern/Import erneut geprüfte Zugbezüge
+  im optionalen Annotation.gameReview. Tatsächliche Zugfolge, Reihenfolge und
+  legale Alternativen prüfen; keine erfundenen Knoten oder Verknüpfung nur über Text.
+- Pfeilbuttons am Brett, Zähler und Zugbezug. Links/Rechts bei Fokus in dieser
+  Navigation, am Brett oder in der Antwort; Texteingaben und Größenänderungsgriff
+  behalten eigene Tasten. Sprung zeigt die Stellung VOR dem besprochenen Zug und
+  pausiert gegebenenfalls den Gegner. Tatsächlicher Partiecursor bleibt erhalten.
+- Neueste Analyse standardmäßig ausgewählt; über vorhandene Sprungknöpfe können
+  auch Schlüsselstellen einer älteren Analyse gewählt werden. Eindeutige Zuglabels
+  älterer textbasierter Rückblicke bleiben navigierbar.
+- Partie speichern, JSON-Dateisicherung, Autosicherung und Kopien enthalten Analyse
+  und geprüfte Schlüsselstellen zusammen mit Chat und Varianten. Gesicherte Spiele
+  werden nach Laden/Reload wieder navigierbar. Bereits gespeicherte ältere Kopien
+  sind unveränderte Momentaufnahmen; erneutes Speichern erstellt den neuen Stand.
+
+Prüfung: Typprüfung, Root-/Pages-Build, 162/162 Einzeltests und 21/21 gezielte
+Chromiumfälle bestanden: analysis-navigation, game-review und die 18 zuletzt
+verwendeten Funktions-/Layout-/Pages-Fälle. Echter Ziehgriff, Größenbeibehaltung
+über Stellungswechsel, Tastatur ohne Eingabefeld-Konflikt, benanntes Speichern,
+Dateiinhalt, Laden/Reload, Legacy-Rückblick und manipulierte Zugreferenz geprüft.
+Desktop-Screenshot visuell geprüft; schmale Ansicht ohne horizontalen Überlauf.
+Providerantworten Fixtures, bestehende Stockfish-/Maia-Regressionen real. Kein
+bezahlter Modellaufruf und keine native Geräteabnahme. Kein neuer vollständiger
+Gesamtlauf aller älteren Browserfälle; bekannte frühere Prüfgrenzen bleiben.
+
+Auf work gesichert, noch nicht veröffentlicht. Live bleibt 0.13.0.
+Nächster Schritt: Veröffentlichung nach ausdrücklichem Auftrag, dann Nutzerabnahme.
+
 ## Aktuell veröffentlicht: 0.13.0 – Varianten blättern, Stellungen übergeben, ruhiges Brett
 
 Nutzerwunsch nach Praxisabnahme von 0.12.0: Vor/Zurück an der aktuellen

@@ -39,3 +39,18 @@ test('server transport requires a retrospective and reserves its larger output w
  await assert.rejects(service.reply({...req,history:undefined}));assert.equal(calls,0);
  await service.reply(req);await assert.rejects(service.reply(req));assert.equal(calls,2);
 });
+
+test('explicit key-moment requests in free chat store checked analysis and navigable anchors with the game',async()=>{
+ const {Session}=await import('../src/session.js');const {reviewAnchors,asksForKeyMoments}=await import('../src/game-review.js');
+ for(const q of ['Welche Schlüsselstellen hatte das Spiel?','Zeige die Schlüsselmomente der Partie','Nenne mir Wendepunkte','Was waren die Schlüsselstellen?'])assert.equal(asksForKeyMoments(q),true);
+ assert.equal(asksForKeyMoments('Was bedeutet das Wort Schlüsselstelle?'),false);
+ const studio=new Studio(),game=new LearningGame(()=>studio.session);game.start('w',1);game.pause();for(const move of history.moves)studio.session.play(move);studio.session.setGame({...studio.session.snapshot().game!,cursor:'n4'});studio.session.select('n1');
+ await studio.ask('Welche Schlüsselstellen hatte das Spiel?',{source:'model',respond:async r=>{assert.equal(r.topic,'review');assert.deepEqual(r.history!.moves,history.moves);return {message:review.summary,gameReview:review};}},'chat');
+ const saved=Session.import(studio.session.export()),a=saved.snapshot().annotations.at(-1)!;assert.deepEqual(a.gameReview,review);assert.deepEqual(reviewAnchors(saved.snapshot(),a).map(m=>m.nodeId),['n0','n2']);assert.equal(saved.snapshot().activeNodeId,'n1');
+ const d=saved.snapshot();d.annotations.at(-1)!.gameReview!.moments[0]!.played='d4';assert.throws(()=>Session.import(JSON.stringify(d)),/Zugfolge/);
+});
+test('previously saved text-only reviews retain their checked move anchors',async()=>{
+ const {Session}=await import('../src/session.js');const {reviewAnchors}=await import('../src/game-review.js');const s=new Session();for(const move of history.moves)s.play(move);
+ s.annotate({nodeId:'n4',kind:'dialogue',source:'model',text:formatGameReview(review,history),hypothesis:true,openQuestions:[]});const loaded=Session.import(s.export()),a=loaded.snapshot().annotations[0]!;
+ assert.equal(a.gameReview,undefined);assert.deepEqual(reviewAnchors(loaded.snapshot(),a).map(x=>x.label),['1. f3','2. g4']);
+});

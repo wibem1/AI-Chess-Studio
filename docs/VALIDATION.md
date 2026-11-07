@@ -1860,3 +1860,27 @@ Vorführungs-Stopbutton änderte die umgebende Werkzeugleiste. Doppelte Anzeige
 entfernt; danach konstante Brettposition und Statushöhe mit 1-px-Toleranz.
 Mobil-Screenshot geprüft. Keine bezahlten KI-Anfragen, native Geräte-/Modell-
 Qualitätsabnahme offen. Kein neuer vollständiger Browsergesamtlauf behauptet.
+
+
+## 0.14.0 – Antwortgröße und gespeicherte Analyse mit Schlüsselstellen
+
+Typprüfung, Root-/Pages-Build; 162/162 Einzeltests, 21/21 gezielte Chromiumfälle
+(analysis-navigation, game-review, position-transfer, compact-board, coach-tools,
+model-diagnostics, windows-learning, access-layout, pages). Ganze Schleife aus
+freier Schlüsselstellen-Frage, geprüfter historischer Analyse, Pfeilbuttons/
+Links-Rechts-Tasten, Erhalt der Antwortgröße nach Ziehen und Stellungswechsel,
+benanntem Speichern, Dateiexportinhalt, Laden und Reload geprüft. Tastatur im
+Nachrichtenfeld bleibt unbeeinflusst; Auf/Ab am Größen-Griff verändert die Höhe.
+Alte textbasierte Partierückblicke weiter per Pfeilen navigierbar. Manipulierte
+strukturierte Zugbezüge werden beim JSON-Import abgelehnt.
+
+Antwort/Schlüsselstellen-Screenshot visuell geprüft, Mobilansicht ohne Überlauf.
+Browser anfangs im Runner nicht vorhanden; Chromium 153 lokal bereitgestellt.
+Zusätzliche Laufzeit-Library-/Font-Overrides verursachten Playwright-Protokoll-
+fehler, ohne diese Overrides Browserlauf erfolgreich. Tastaturfokus nach Sprung
+explizit auf Navigation gehalten, damit deaktivierter Endpunktbutton nicht die
+nächste Pfeiltaste verliert. Danach alle 21 gezielten Fälle gemeinsam bestanden.
+
+Providerantworten abgefangen, keine bezahlte KI-Anfrage; vorhandene echte
+Stockfish-/Maia-/Offlinefälle bleiben bestanden. Native Geräte-/Modellqualität
+und vollständiger neuer Browsergesamtlauf aller alten Fälle nicht behauptet.

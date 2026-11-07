@@ -1,3 +1,6 @@
+import {attachAnswerResize} from './answer-resize.js';
+import {installKeyMoments} from './key-moments.js';
+import {reviewAnchors} from '../src/game-review.js';
 import {playablePosition} from '../src/position-transfer.js';
 import {validModel} from '../src/model-provider.js';
 import {CoachMatch} from '../src/coach-match.js';
@@ -259,7 +262,7 @@ function render() {
   const answerBody=document.createElement('div'),historyBody=document.createElement('div');
   answerBody.id='current-answer-body';historyBody.id='chat-history-body';
   for(const [id,title,body,hasEntries] of [['current-answer','Aktuelle Antwort',answerBody,!!currentAnswer],['chat-history','Chatverlauf',historyBody,conversation.some(a=>a!==currentAnswer)]] as const){
-   if(!hasEntries)continue;const section=document.createElement('section'),heading=document.createElement('h3');section.id=id;section.setAttribute('aria-label',title);heading.textContent=title;section.append(heading,body);conversationRoot.append(section);
+   if(!hasEntries)continue;const section=document.createElement('section'),heading=document.createElement('h3');section.id=id;section.setAttribute('aria-label',title);heading.textContent=title;section.append(heading,body);conversationRoot.append(section);if(id==='current-answer')section.append(attachAnswerResize(body));
   }
   for (const [kind, id] of [['dialogue', 'dialogue'], ['memory', 'memories']] as const) {
     const container = $(id); if(kind!=='dialogue')container.replaceChildren();
@@ -275,11 +278,10 @@ function render() {
         const show=document.createElement('button');show.type='button';show.textContent=`Zug zeigen: ${san}`;
         show.addEventListener('click',()=>attempt(()=>{game.analyse(a.nodeId);const board=new Chess(data.nodes.find(n=>n.id===a.nodeId)!.fen),shown=board.move(san);const node=game.play(san);shownMove={node,from:shown.from,to:shown.to};},'move-feedback',`${san} im Lernzweig gezeigt. Die Partie bleibt unverändert.`));entry.append(show);
       }
-      if(kind==='dialogue'&&a.source==='model'&&a.text.startsWith('Partierückblick\n')&&!locked){
-        const line=pathTo(data,a.nodeId);
-        for(const match of a.text.matchAll(/^(\d+)(…|\.) (\S+)$/gm)){
-          const node=line.find(n=>{const parent=line.find(p=>p.id===n.parentId);return parent&&parent.fen.split(' ')[5]===match[1]&&(parent.fen.split(' ')[1]==='b'?'…':'.')===match[2]&&n.san===match[3];});
-          if(node?.parentId){const before=node.parentId,button=document.createElement('button');button.type='button';button.textContent=`Vor ${match[0]} ansehen`;button.onclick=()=>{game.analyse(before);render();$('board').scrollIntoView({block:'start'});};entry.append(button);}
+      if(kind==='dialogue'&&a.source==='model'&&!locked){
+        const anchors=reviewAnchors(data,a),analysis=data.annotations.indexOf(a);
+        for(const [i,moment] of anchors.entries()){
+          const button=document.createElement('button');button.type='button';button.textContent=`Vor ${moment.label} ansehen`;button.setAttribute('aria-current',String(current.id===moment.nodeId));button.onclick=()=>keyMoments.choose(analysis,i);entry.append(button);
         }
       }
       if(details){const disclosure=document.createElement('details'),summary=document.createElement('summary'),detail=document.createElement('div');summary.textContent='Denkwege und fachliche Einordnung';detail.textContent=details;disclosure.append(summary,detail);entry.append(disclosure);}
@@ -288,6 +290,7 @@ function render() {
       if(kind==='dialogue')(a===currentAnswer?answerBody:historyBody).append(entry);else container.append(entry);
     }
   }
+  keyMoments.render();
   reviewUI.render(data);
   updateMode();
   if(initialized&&isWebPlatform())void autosave.save().catch(()=>{});
@@ -307,6 +310,7 @@ $('ai-access-card').append($('chat-use-model'),$('chat-model-controls'));
 $('api-settings').prepend($('ai-access-card'));
 $('panel-settings').append($('learning-settings'));
 $('diagram-close').onclick=()=>{chatStopped=true;studio.cancelAsk();coachBoard.cancel();activeAdapter?.cancel();illustration=undefined;render();};
+const keyMoments=installKeyMoments(()=>studio.session,node=>{match.stop('Schlüsselstelle ansehen.');game.analyse(node);illustration=undefined;selected=null;navigation.select('learn',false,true,false);render();$('board').scrollIntoView({block:'start'});});
 const modelControls=installModelControls(localPost,async()=>{chooseModelMode('model');await refreshModelStatus();await refreshCosts();},()=>({nodeId:studio.session.snapshot().activeNodeId,fen:studio.session.snapshot().nodes.find(n=>n.id===studio.session.snapshot().activeNodeId)!.fen,testMatch:match.report,boardActions,environment:{userAgent:navigator.userAgent,viewport:{width:innerWidth,height:innerHeight},fontScale:$<HTMLSelectElement>('font-scale').value},feedback:$('dialogue-feedback').textContent}));
 $('move-form').addEventListener('submit', event => { event.preventDefault(); move(input('move').value.trim()); });
 $('memory-form').addEventListener('submit', event => {

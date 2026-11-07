@@ -1,5 +1,15 @@
 # Änderungen
 
+## 0.14.0 – Vergrößerbare Antwort und gespeicherte Schlüsselstellen (vorbereitet)
+
+- KI-Antwort vertikal vergrößerbar, mit Griff und Tastaturbedienung; gewählte Höhe
+  bleibt beim Blättern und Neuladen erhalten.
+- Explizite Schlüsselstellen-Fragen liefern geprüfte Zugbezüge. Pfeilbuttons und
+  Links/Rechts springen zwischen den historischen Stellungen vor diesen Zügen.
+- Analyse und Schlüsselstellen strukturiert in der Partiedatei und lokalen
+  Speicherung erhalten; nach Laden weiter navigierbar. Ältere textbasierte
+  Rückblicke mit eindeutigen Zuglabels bleiben unterstützt.
+
 ## 0.13.0 – Stellungen zwischen Modi übernehmen (veröffentlicht am 7. November 2026)
 
 - Vor-/Zurück-Buttons unmittelbar am Brett; Vor folgt der aktuellen Lernvariante.

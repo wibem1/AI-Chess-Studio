@@ -4,6 +4,15 @@ Verbindliche Zielkorrektur aus den Nutzerklarstellungen vom 5. und 6. November 2
 Die folgende Zwei-Modi-Konzeption ersetzt die bisherige Aufteilung in vier
 gleichrangige Arbeitsbereiche.
 
+## Nutzerwunsch nach 0.13.0: Antwortgröße und Schlüsselstellen speichern
+
+KI-Antwortfläche aufziehbar und beim Blättern in ihrer gewählten Größe erhalten.
+Erfragte Schlüsselstellen per Pfeilbuttons und Tastatur am Brett ansteuern. Dafür
+strukturierte, gegen tatsächliche Zugfolge geprüfte Referenzen verwenden und mit
+Analyse, Chat und Varianten in jeder gespeicherten Partiekopie erhalten. Alte
+Text-Rückblicke mit eindeutigen Zuglabels weiter nutzbar machen. Texteingaben
+und Griff dürfen durch Schachnavigation keine Tastaturfunktion verlieren.
+
 ## Nutzerwunsch nach 0.12.0: aktuelle Variante und Stellung übergeben
 
 Vor/Zurück direkt am Lernbrett müssen der aktuellen Variante folgen. Eine

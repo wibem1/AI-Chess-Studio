@@ -51,3 +51,10 @@
     als neue Spielwurzel übernommen werden. Keine bestehende Partie still
     überschreiben. KI-Engine-Statushöhe konstant halten, keinen zweiten
     Stopbutton einblenden, der das Brett während der Partie verschiebt.
+
+17. Ab vorbereitetem 0.14.0 sind KI-Antworten in der Höhe veränderbar. Antwort-
+    größe über Rerender erhalten, Texte nicht editierbar machen. Explizite
+    Schlüsselstellen-Fragen verwenden geprüfte historische Zugbezüge und
+    Pfeilnavigation. Annotation.gameReview mit der Partie serialisieren und
+    beim Import gegen ihre eigene tatsächliche Knotenfolge prüfen. Analyse/
+    Schlüsselstellen dürfen beim Speichern/Laden nicht still verloren gehen.

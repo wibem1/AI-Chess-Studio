@@ -5,6 +5,10 @@ Aktueller veröffentlichter Funktionsstand: **0.13.0**.
 GitHub-Pages-Bereitstellung und Live-Dateiprüfsummen bestätigt.
 Änderungen: [CHANGELOG.md](CHANGELOG.md).
 
+Vorbereitet **0.14.0**: vergrößerbare KI-Antwort, Pfeilnavigation durch erfragte
+Schlüsselstellen sowie Analyse/Zugbezüge in gespeicherten Partien und Dateien.
+Noch nicht veröffentlicht; Prüfstand in PROJECT_STATE.md.
+
 **0.13.0**: Vor/Zurück direkt am Lernbrett, gezielte Übergabe jeder sichtbaren
 Stellung in den anderen Modus mit Sicherung sowie stabile KI-Engine-Statusanzeige.
 Veröffentlicht und Live-Dateien geprüft; Details in PROJECT_STATE.md.

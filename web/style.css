@@ -473,3 +473,12 @@ footer span{display:none}
 #board-area .board-actions #transfer-position{font-size:.73rem}
 @media(max-width:520px){#board-area .board-actions #coach-match{grid-template-columns:auto auto auto}#coach-match #match-status{grid-column:1/-1;width:100%}}
 .workspace[data-active-view=play] #board-area .board-actions #coach-match{display:none}
+#current-answer-body{height:150px;min-height:80px;max-height:80dvh;resize:vertical;overflow:auto;box-sizing:border-box}
+.answer-resize-handle{display:flex;justify-content:center;align-items:center;height:18px;min-height:18px;cursor:ns-resize;touch-action:none;user-select:none;border-bottom:1px solid var(--line)}
+.answer-resize-handle::before{content:"";width:40px;height:4px;border-radius:4px;background:#a9bbae}
+.answer-resize-handle:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+#board-area .board-actions #key-moment-nav{display:flex;align-items:center;justify-content:center;gap:10px;order:-1;flex:1 1 100%;font-size:.8rem}
+#key-moment-status{min-width:130px;text-align:center}
+#key-moment-nav button{min-width:36px}
+.entry button[aria-current=true]{background:var(--green);color:white}
+#key-moment-nav:focus-visible{outline:2px solid var(--accent);outline-offset:2px}

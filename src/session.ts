@@ -1,3 +1,4 @@
+import {validateGameReview,type GameReview} from './game-review.js';
 import {parsePgn,identifyPlayer,validateReview,reviewDecisions,reviewLocked,visibleReviewNodes,repetitionCount,type ReviewState,type ReviewQuestion,type PlayerColor} from './review.js';
 import {validateReflection,type Reflection} from './learning.js';
 import { pathTo, type GameState } from './game.js';
@@ -15,6 +16,7 @@ export interface Annotation {
   openQuestions: string[];
   engine?: TacticalReport;
   suggestions?: string[];
+  gameReview?:GameReview;
 }
 export interface SessionData {
   schemaVersion: 1 | 2;
@@ -105,6 +107,10 @@ export class Session {
   annotate(annotation: Annotation): void {
     const node = this.node(annotation.nodeId);
     validateAnnotation(annotation);
+    if(annotation.gameReview){
+      const path=pathTo(this.data,node.id);
+      validateGameReview(annotation.gameReview,{rootFen:path[0]!.fen,moves:path.slice(1).map(n=>n.san!),truncated:false});
+    }
     if(annotation.suggestions?.some(san=>!new Chess(node.fen).moves().includes(san)))throw new Error('Illegale Zugvorführung.');
     if (annotation.kind === 'factcheck') {
       validateTacticalReport(annotation.engine, node.fen);
@@ -180,5 +186,6 @@ function validateAnnotation(value: unknown): asserts value is Annotation {
       typeof a.hypothesis !== 'boolean' || !Array.isArray(a.openQuestions) ||
       !a.openQuestions.every(q => typeof q === 'string')) throw new Error('Ungültige Annotation');
   if (a.kind === 'factcheck' ? a.source !== 'stockfish' || a.hypothesis !== false || !a.engine : a.source === 'stockfish' || a.engine !== undefined) throw new Error('Ungültige Befundherkunft');
+  if(a.gameReview!==undefined&&(a.kind!=='dialogue'||a.source!=='model'))throw new Error('Ungültige Analyseherkunft.');
   if(a.suggestions!==undefined && (a.kind!=='dialogue'||!['model','simulation'].includes(a.source as string)||!Array.isArray(a.suggestions)||a.suggestions.length>8||!a.suggestions.every(s=>typeof s==='string')))throw new Error('Ungültige Zugvorführung.');
 }
