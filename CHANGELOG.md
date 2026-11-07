@@ -1,6 +1,6 @@
 # Änderungen
 
-## 0.10.0 – Freier Lernchat, Brett-/Enginewerkzeuge und Desktoplayout (vorbereitet)
+## 0.10.0 – Freier Lernchat, Brett-/Enginewerkzeuge und Desktoplayout (veröffentlicht am 7. November 2026)
 
 - Freie Textantworten ohne Antwortschema; Stellung, echte Partie und Gespräch
   getrennt bereitgestellt. Alte strukturierte Antworten kompatibel lesbar.

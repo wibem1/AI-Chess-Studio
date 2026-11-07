@@ -1662,3 +1662,15 @@ Danach `npm test`: **141/141 bestanden**, Pages-Build ebenfalls erfolgreich.
 Nach diesem Schutzfall erneut komplette neue Werkzeugprobe mit Stockfish und
 Maia, Stoppen und Windowslayout: **4/4 bestanden**. Damit sind auch die zuletzt
 geänderte Protokoll-/Texttrennung und die endgültige Darstellung abgedeckt.
+
+## Veröffentlichungsnachweis 0.10.0
+
+Veröffentlicht nach ausdrücklicher Nutzerfreigabe am 7. November 2026. Quelle
+`c93d6a0c33f9fb801ec7c5b4f4410acf4e7aca16`; gh-pages
+`b266112dc57d773ecb6ea0318a4ccd2d53dfbcc5`. GitHub-Lauf
+[42373356791](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42373356791)
+für genau diesen Commit: **completed / success**. Öffentlicher Abruf bestätigt
+das vollständige BUILD.json mit Version und Quellcommit. SHA-256 von index.html,
+Service Worker, Haupt-JavaScript und CSS stimmen mit dem vorbereiteten Build überein.
+
+Native Windows-/iPad-Abnahme und echte kostenpflichtige Modellabnahme bleiben offen.

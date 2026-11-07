@@ -1,8 +1,16 @@
 # Projektstand
 
-## Aktuell: 0.10.0 freier Lernchat, Brettwerkzeuge und Desktoplayout fertig vorbereitet
+## Aktuell: 0.10.0 veröffentlicht – freier Lernchat, Brettwerkzeuge und Desktoplayout
 
-Noch nicht veröffentlicht; öffentliche App weiterhin 0.9.0. Nutzerauftrag vom
+Veröffentlicht nach ausdrücklicher Nutzerfreigabe am 7. November 2026. Quelle
+`c93d6a0c33f9fb801ec7c5b4f4410acf4e7aca16`; gh-pages
+`b266112dc57d773ecb6ea0318a4ccd2d53dfbcc5`. GitHub-Lauf
+[42373356791](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42373356791)
+für genau diesen Commit: **completed / success**. Öffentlicher Abruf bestätigt
+das vollständige BUILD.json mit Version und Quellcommit. SHA-256 von index.html,
+Service Worker, Haupt-JavaScript und CSS stimmen mit dem vorbereiteten Build überein.
+
+Nutzerauftrag vom
 7. November: frei sprechen, Züge am Brett zeigen, mit der Spielengine fortsetzen;
 zusätzlich Windowslayout mit zu großer Zugliste über dem abgeschnittenen Brett
 verbessern. Ziel/Abnahme in DEVELOPMENT_PLAN.md, Einstieg in AGENTS.md aktualisiert.
@@ -39,9 +47,8 @@ und echtes Maia-2 in der Werkzeugkette geprüft; Modellaufrufe dafür ausdrückl
 kontrollierte Fixtures. Keine bezahlten Modellaufrufe. Reale KI-Werkzeugauswahl,
 pädagogische Qualität und native Windows-/iPad-Abnahme bleiben getrennt offen.
 
-Nächster einzelner Schritt: ausdrückliche Veröffentlichungsfreigabe für 0.10.0,
-danach vorhandenen Pages-Weg mit Hash-/Liveprüfung verwenden. Keine erneute
-Schlüsseleinrichtung und keine Datenlöschung erforderlich.
+Nächster einzelner Schritt: Nutzerabnahme des freien Lernchats und Windowslayouts
+in 0.10.0. Keine erneute Schlüsseleinrichtung und keine Datenlöschung erforderlich.
 
 ## Aktuell: 0.9.0 veröffentlicht – Chatverlauf löschen und Fehlerauskunft
 
