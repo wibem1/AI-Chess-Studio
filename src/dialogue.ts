@@ -11,8 +11,9 @@ import { Session } from './session.js';
 
 export type DialogueTopic='chat'|'position'|'comparison'|'review';
 export interface DialogueTurn {role:'user'|'assistant';nodeId:string;text:string;fen?:string}
-export interface DialogueRequest { nodeId: string; fen: string; question: string; legalMoves: string[]; positionFacts?:PositionFacts;historyFacts?:ReturnType<typeof historyFacts>;toolsEnabled?:boolean;toolExchanges?:CoachExchange[];conversationTruncated?:boolean;gameHistory?:{rootFen:string;moves:string[];truncated:boolean;human:'w'|'b'|null};context?: string[];hintMode?:HintMode;topic?:DialogueTopic;turns?:DialogueTurn[];history?:{rootFen:string;moves:string[];truncated:boolean} }
+export interface DialogueRequest {expectedModel?:string;matchTest?:{runId:string;color:'w'|'b';turn:number}; nodeId: string; fen: string; question: string; legalMoves: string[]; positionFacts?:PositionFacts;historyFacts?:ReturnType<typeof historyFacts>;toolsEnabled?:boolean;toolExchanges?:CoachExchange[];conversationTruncated?:boolean;gameHistory?:{rootFen:string;moves:string[];truncated:boolean;human:'w'|'b'|null};context?: string[];hintMode?:HintMode;topic?:DialogueTopic;turns?:DialogueTurn[];history?:{rootFen:string;moves:string[];truncated:boolean} }
 export interface StrategicReply {
+  provenance?:{provider:string;model:string;requestedModel:string;reasoning:string|null;costUsd:number|null;traceId:number};
   message?:string;
   toolCall?:CoachCall;
   formatNotes?:string[];
@@ -113,7 +114,9 @@ export class Studio {
     let raw=await adapter.respond(request),expectedNode=nodeId,recordedQuestion=false;
     const active=()=>this.session===session&&session.dialogueRevision()===chatRevision&&this.runRevision===run;
     if(!active())return 'discarded';
+    const receipts:NonNullable<StrategicReply['provenance']>[]=[];
     let reply=adapter.source==='model'?normalizeModelReply(raw,request.legalMoves,true):validateReply(raw,request.legalMoves);
+    if(reply.provenance)receipts.push(reply.provenance);
     while(reply.toolCall){
       if(!execute||!active()||session.snapshot().activeNodeId!==expectedNode)return 'discarded';
       if(request.toolExchanges!.length>=2)throw new Error('Grenze der Brettaktionen erreicht.');
@@ -126,7 +129,7 @@ export class Studio {
       request.toolExchanges!.push({call,content:(reply.message??'').slice(0,1000),result});
       if(new TextEncoder().encode(JSON.stringify(request)).byteLength>16000)throw new Error('Werkzeugkontext zu groß; keine weitere KI-Anfrage ausgeführt.');
       raw=await adapter.respond(request);if(!active())return 'discarded';
-      reply=normalizeModelReply(raw,request.legalMoves,true);
+      reply=normalizeModelReply(raw,request.legalMoves,true);if(reply.provenance)receipts.push(reply.provenance);
     }
     const answerNode=recordedQuestion?expectedNode:nodeId,answerFacts=positionFacts(session.snapshot().nodes.find(n=>n.id===answerNode)!.fen);
     if(recordedQuestion)reply.candidates=[];
@@ -140,7 +143,8 @@ export class Studio {
     if(hintMode==='question' && reply.candidates.length)throw new Error('Leitfragenmodus: direkte Zugvorschläge verworfen.');
     if(!recordedQuestion)session.annotate({ nodeId, kind: 'dialogue', source: 'human', text: request.question,
       hypothesis: false, openQuestions: [] });
-    session.annotate({ nodeId:answerNode, kind: 'dialogue', source: adapter.source ?? 'simulation', text: retrospective?formatGameReview(retrospective,history):hintMode==='question'?`Leitfrage: ${reply.openQuestions[0]}`:hintMode==='hint'?`Denkhinweis: ${reply.humanFactors?.idea||reply.playability||reply.message}`:adapter instanceof SimulationAdapter?`${reply.message}\n\nAnalyse-Details:\n${describeFacts(request.positionFacts)}`:`${formatReply(reply)}\n${describeFacts(answerFacts)}`,
+    const provenance=receipts.length?`Modellnachweis (App): ${receipts.at(-1)!.provider} · ${receipts.at(-1)!.model} · Denken ${receipts.at(-1)!.reasoning??'Standard'} · ${receipts.length} Aufruf(e) · ${receipts.every(r=>r.costUsd!==null)?receipts.reduce((sum,r)=>sum+r.costUsd!,0).toFixed(6)+' USD (Anbieterangabe)':'Kosten nicht vollständig übermittelt'}.\n\n`:'';
+    session.annotate({ nodeId:answerNode, kind: 'dialogue', source: adapter.source ?? 'simulation', text: retrospective?formatGameReview(retrospective,history):hintMode==='question'?`Leitfrage: ${reply.openQuestions[0]}`:hintMode==='hint'?`Denkhinweis: ${reply.humanFactors?.idea||reply.playability||reply.message}`:adapter instanceof SimulationAdapter?`${reply.message}\n\nAnalyse-Details:\n${describeFacts(request.positionFacts)}`:`${provenance}${formatReply(reply)}\n${describeFacts(answerFacts)}`,
       hypothesis: true, openQuestions: retrospective?[]:reply.openQuestions,...(hintMode==='explain'?{suggestions:retrospective?[]:reply.candidates}:{}) });
     return 'stored';
   }

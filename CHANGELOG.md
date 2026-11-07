@@ -1,5 +1,18 @@
 # Änderungen
 
+## 0.11.0 – OpenRouter, KI-Diagnose und Testpartien (vorbereitet)
+
+- OpenRouter-Zugang und aktueller Modellkatalog mit Werkzeugfilter, Sol/Argon-
+  Favoriten, Denkstufe und Modellwechsel ohne erneute Schlüsseleingabe.
+- Anbieter-Modell und gemeldete Kosten je Antwort; Token-/Denk-Nutzung im Bericht.
+- JSON-Diagnose der letzten 20 Anbieter-Versuche samt tatsächlichem öffentlichen
+  Anfrage-/Antwortkontext, Brettaktionen, eigener Bewertung und Testpartie.
+- Lernengine spielt kontrolliert im Lernzweig gegen Stockfish/Maia. Wählbare
+  Farbe/Stufe/Zugzahl, Stoppen, kein stilles Korrigieren illegaler Modellzüge.
+- Tatsächliche Partie und alte Zugänge erhalten; private Denkblöcke nicht exportiert.
+- Neue Funktionen mit Fixtures und echten Spielengines geprüft. Kein Nachweis,
+  dass ein konkretes KI-Modell als Schachlehrer zuverlässig genug ist.
+
 ## 0.10.1 – Kostenanzeige und sichtbares Brett beim Lerndialog (veröffentlicht am 7. November 2026)
 
 - Budgetperiode, lokale Geldsperre und Drei-Anfragen-Grenze im Browser und

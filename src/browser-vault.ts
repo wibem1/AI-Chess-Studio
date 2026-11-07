@@ -1,11 +1,12 @@
+import {providerOptions,validModel,type ProviderOptions} from './model-provider.js';
 import type {SealedVault,DeviceVault} from './browser-store.js';
-export interface LocalModelConfig {enabled:true;apiKey:string;model:string}
+export interface LocalModelConfig extends ProviderOptions {enabled:true;apiKey:string;model:string}
 const ITERATIONS=250000;
 const encoder=new TextEncoder();
 export function validateLocalConfig(raw:unknown):LocalModelConfig {
  const r=raw as LocalModelConfig|null;
- if(!r||r.enabled!==true||typeof r.apiKey!=='string'||r.apiKey.trim().length<8||r.apiKey.length>1024||/\s/.test(r.apiKey.trim())||typeof r.model!=='string'||!/^[a-zA-Z0-9._:-]{1,100}$/.test(r.model))throw new Error('Schlüssel und Modell prüfen.');
- return {enabled:true,apiKey:r.apiKey.trim(),model:r.model};
+ if(!r||r.enabled!==true||typeof r.apiKey!=='string'||r.apiKey.trim().length<8||r.apiKey.length>1024||/\s/.test(r.apiKey.trim())||typeof r.model!=='string'||!validModel(r.model,providerOptions(r as any)))throw new Error('Schlüssel und Modell prüfen.');
+ return {enabled:true,apiKey:r.apiKey.trim(),model:r.model,...providerOptions(r as any)};
 }
 async function derive(password:string,salt:Uint8Array<ArrayBuffer>,iterations:number):Promise<CryptoKey>{
  const material=await crypto.subtle.importKey('raw',encoder.encode(password),'PBKDF2',false,['deriveKey']);

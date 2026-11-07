@@ -369,3 +369,8 @@ h2{font-size:1.65rem}
 }
 
 .workspace[data-active-view=learn] #move-feedback{order:3}
+#chat-model-controls{margin:10px 0;padding:10px;background:#edf2eb;border-radius:10px;min-width:0}
+#chat-model-controls select{width:100%;font-size:.8rem;min-width:0}
+#chat-model-controls summary{font-size:.8rem;overflow-wrap:anywhere}
+#coach-match select{max-width:100%;min-width:0}
+#coach-match button,#ai-diagnosis button{margin:8px 5px 0 0}

@@ -1,5 +1,55 @@
 # Projektstand
 
+## Aktuell vorbereitet: 0.11.0 – OpenRouter, KI-Diagnose und Testpartie
+
+Nutzeraufträge vom 7. November: frei wählbare Modelle über OpenRouter,
+Anfrageberichte zur fachlichen Qualitätsprüfung und Lernengine gegen
+Stockfish/Maia spielen lassen. Der Nutzerbefund zur übersehenen angegriffenen
+Dame ist KEIN behobener Qualitätsfehler. Tatsächliches Modell/Einstellungen der
+alten fehlerhaften Antwort waren nicht protokolliert. Keine zusätzlichen
+Taktikhinweise als vermeintliche Lösung eingebaut; Modellqualität bleibt zu prüfen.
+
+Implementiert:
+- OpenAI-Direktzugang weiter unterstützt; OpenRouter mit aktuellem öffentlichem
+  Katalog, Werkzeugfilter, Sol/Argon zuerst, Denkstufe und Modellwechsel ohne
+  erneute Schlüsseleingabe. Neue Felder verschlüsselt im bestehenden Browserfach;
+  alte Konfigurationen weiter lesbar. Optionales Passwortfach wird beim Modell-
+  wechsel nicht still umgestellt: dort Auswahl nur im RAM, dauerhafte Änderung
+  über das Zugangsformular. Keine neuen Abhängigkeiten oder Anbieter-Fallbackmodelle.
+- Nur feste OpenAI-/OpenRouter-Ziele. Werkzeuge weiter separat regelgeprüft.
+  Provider-Fortsetzungsblöcke für Werkzeugrunden im RAM erhalten, nicht exportiert.
+  OpenRouter-Modellantwort mit tatsächlichem Modell und gemeldeten Kosten versehen;
+  bei Vorführung Summierung der Aufrufe. Fehlende Kostendaten bleiben unbekannt.
+- KI-Diagnose: letzte 20 Anbieter-Versuche im RAM, vollständiger öffentlicher
+  Anfragekontext mit FEN, Systemvorgaben, Chat/Verlauf, Werkzeugprotokoll,
+  Antwort, Modell/Provider, Token-/Denk-Token-Nutzung, Zeit und Fehlerkategorie.
+  Separater JSON-Download mit aktueller Brett-/Testlage, ausgeführten Brettaktionen
+  und eigener Bewertung/Beobachtung. Schlüssel/Headers und private Denkblöcke
+  ausgeschlossen/redigiert. Export lädt nichts automatisch hoch. Vor Reload
+  sichern; Chatlöschung entfernt auch Anfrageberichte. Keine automatische Gütenote.
+- Testpartie im Lernzweig an der gewählten Stellung: Modell spielt Weiß/Schwarz
+  gegen echten Stockfish oder Maia, Stufe 1–5, höchstens 5/10/30/100 Modellzüge.
+  Ein bezahlter Aufruf pro Modellzug, ausdrücklicher Start, kein Retry bei illegalen
+  Zügen. Stoppen, Sitzungs-/Stellungswechsel und Verlassen des Lernmodus brechen ab.
+  Modellwechsel verhindert Fortsetzung mit anderem Modell. Partiecursor erhalten;
+  Ergebnis nur bei tatsächlichem Regelende, sonst Zuggrenze/Fehler, keine Elo-Zusage.
+
+Prüfung: 153/153 Einzeltests, strikte Typprüfung und Root-/Pages-Build bestanden.
+Breiter Chromiumlauf 74/83 bestanden; neun alte UI-Annahmen (Spaltenlayout,
+Schlüsselbeschriftung, Partiestart-Teiltreffer) eingegrenzt und korrigiert.
+Danach 17/17 betroffene Fälle bestanden. Zusätzlicher realer Maia-Testlauf und
+abschließende Kernprobe: 4/4 bestanden. Alle 84 aktuellen Browserfälle damit
+individuell erfolgreich; kein vollständiger 84/84-Lauf behauptet.
+Öffentlicher echter OpenRouter-Katalog gelesen: 433 Textmodelle, 374 mit
+Werkzeugen; Sol und Argon mit Denk-/Werkzeugparametern und Preisen enthalten.
+Providerantworten ausschließlich Fixtures; echte Stockfish-WASM-/Maia-ONNX-
+Inferenz. KEINE bezahlte KI-Partie oder schachliche Modelleignung nachgewiesen.
+Mobile Lernansicht/Diagnoseseite visuell geprüft. Native Geräteabnahme offen.
+
+Noch nicht veröffentlicht, öffentliche App weiterhin 0.10.1. Nächster Schritt:
+Veröffentlichungsfreigabe für 0.11.0; anschließend echte Modellvergleiche anhand
+exportierter Diagnosen. Bedienung und Prüfgrenzen: docs/AI_EVALUATION.md.
+
 ## Aktuell veröffentlicht: 0.10.1 – Kostenanzeige und vertikaler Lerndialog
 
 Veröffentlicht nach ausdrücklicher Nutzerfreigabe am 7. November 2026. Quelle

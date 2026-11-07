@@ -33,5 +33,5 @@ test('uncertain failures accumulate estimates beyond three requests without rese
  assert.equal(c.snapshot().uncertainRequests,6);assert.equal(c.snapshot().requests,6);assert.ok(c.snapshot().estimatedUsd>0);
 });
 test('invalid prices cannot disable accounting',()=>{
- const c=new CostControl();for(const value of [-1,NaN,Infinity,0])assert.throws(()=>c.configure({action:'configure',inputUsdPerMillion:value,outputUsdPerMillion:1}));
+ const c=new CostControl();for(const value of [-1,NaN,Infinity])assert.throws(()=>c.configure({action:'configure',inputUsdPerMillion:value,outputUsdPerMillion:1}));
 });

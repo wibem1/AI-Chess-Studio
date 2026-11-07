@@ -1736,3 +1736,38 @@ stimmt vollständig mit Version und Quellcommit überein. SHA-256 von index.html
 Service Worker, Haupt-JavaScript und CSS entsprechen dem vorbereiteten Build.
 
 Native Geräteabnahme und tatsächliche KI-Werkzeugwahl weiterhin gesondert offen.
+
+## 0.11.0 – OpenRouter, Anbieterberichte, Testpartien
+
+153/153 Einzeltests erfolgreich, strikte Typprüfung und Root-/Pages-Build.
+Neue Fälle: feste Providerziele, verschlüsselte Provider-/Denkmodus-Konfiguration,
+alte Konfigurationen, Passwortfach beim Modellwechsel erhalten, gemeldete Kosten,
+begrenzter Diagnosering, Schlüssel-/Denktext-Redaktion, Fehler ohne Retry,
+Fortsetzungsblöcke unverändert zur Werkzeugrunde und nicht im Bericht,
+Modellwechsel im Test verweigert, Abbruchsignal am Transport, legale/illegale
+Modellzüge, beide Farben, Zuggrenze und unveränderter tatsächlicher Partiecursor.
+
+Öffentliches echtes /api/v1/models ohne Schlüssel geladen: 827421 Bytes, Parser
+liefert 433 Textmodelle, davon 374 mit tools. Sol/Argon enthalten und beide mit
+Denkmodus-/Werkzeugparametern und Preisen. Keine bezahlten Anbieteraufrufe.
+
+Erste breite Browserausführung scheiterte am fehlenden CHROMIUM_PATH. Danach
+Chromium Headless 157.0.8103.38: 74/83 bestanden, neun Fehler eingegrenzt auf
+alte UI-Annahmen (Spaltenlayout, geänderter Schlüsseltext und mehrdeutiger
+Partiestart-Teiltreffer). Vertikalen Layouttest aktualisiert, providerabhängige
+Schlüsselbeschriftung und eindeutigen KI-Teststart verwendet. Danach 17/17
+betroffene Fälle erfolgreich. Zusätzliche abschließende Probe mit echter
+Maia-Testpartie, OpenRouter/Diagnoseexport, echter Stockfish-Testpartie und
+vertikalem Layout: 4/4 erfolgreich. Damit alle 84 aktuellen Browserfälle
+individuell erfolgreich, kein einzelner grüner 84er-Gesamtlauf behauptet.
+
+Diagnoseexport enthält öffentliche gesendete Modellnachrichten, Modellantwort,
+FEN, Nutzungsdaten und konkrete Bewertung; selbst ein als Beobachtung eingefügter
+Testschlüssel fehlt nach Redaktion. Private reasoning_details sind beim zweiten
+Werkzeugaufruf original erhalten, im Export nicht vorhanden. Separate Stockfish-
+und Maia-Testpartie: Modellzug e4, echte Spielengine antwortet, nachfolgender
+illegaler Modellzug stoppt; tatsächlicher Partiecursor und Ausgangsstellung
+bleiben erhalten. Modellantworten dabei Fixtures; keine reale Modellspielstärke
+oder schachliche Erklärqualität geprüft. Native Windows-/iPad-/Android-Abnahme
+offen. Mobile Lernansicht und Diagnoseseite visuell geprüft. Keine neuen
+Abhängigkeiten, Workflows, Änderungen der Sichtbarkeit oder Veröffentlichung.

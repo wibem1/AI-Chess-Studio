@@ -135,3 +135,8 @@ test('browser coach distinguishes provider rejection, output limit and invalid r
   await assert.rejects(runtime.handle('/api/dialogue','POST',req),e=>e instanceof Error&&(e as {code?:string}).code===code&&!e.message.includes(config.apiKey));assert.equal(calls,1);assert.equal((await store.budget(l=>l.snapshot())).state.requests,1);
  }
 });
+
+test('OpenRouter selection preserves optional password vault and can restore default reasoning',async()=>{
+ const store=new MemoryStore(),runtime=new BrowserRuntime(store);await runtime.handle('/api/model-config','POST',{action:'connect',enabled:true,apiKey:'fixture-or-key',model:'openai/gpt-6.1-sol',provider:'openrouter',reasoning:'high',password,allowPaid:true});const vault=await store.get('vault');
+ const changed=await runtime.handle('/api/model-config','POST',{action:'select-model',provider:'openrouter',model:'google/gemini-4-argon'});assert.equal(changed.selectionPersistent,false);assert.deepEqual(await store.get('vault'),vault);const d=await runtime.handle('/api/diagnostics','GET');assert.equal(d.model.reasoning,null);assert.equal(d.model.model,'google/gemini-4-argon');
+});

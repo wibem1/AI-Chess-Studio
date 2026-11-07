@@ -12,13 +12,14 @@ export class ServerModelAdapter implements DialogueAdapter {
     try {
       response = await this.transport('/api/dialogue', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(request), signal: AbortSignal.any([this.controller.signal,AbortSignal.timeout(20_000)])
+        body: JSON.stringify(request), signal: AbortSignal.any([this.controller.signal,AbortSignal.timeout(100_000)])
       });
     } catch { throw new Error('Modellserver nicht erreichbar oder Zeitlimit überschritten.'); }
     if(!response.ok){
       let code:unknown;try{code=(await response.json()).code;}catch{}
       if(typeof code==='string'&&Object.hasOwn(COACH_ERRORS,code))throw new Error(COACH_ERRORS[code as CoachFailureCode]+' Keine neue Antwort gespeichert.');
-      throw new Error(response.status === 402 ? 'Lokales Kosten- oder Anfragebudget erreicht. Kostenkontrolle öffnen.' : response.status === 403
+      if(response.status===409)throw new Error('Modell oder Zugang wurde während des Testlaufs geändert.');
+      throw new Error(response.status === 402 ? 'Verbrauch konnte nicht gespeichert werden. Diagnose öffnen.' : response.status === 403
       ? 'Reale KI ist serverseitig gesperrt. Die Simulation bleibt verfügbar.'
       : response.status === 429 ? 'Anfragelimit erreicht oder Anfrage läuft bereits.'
       : response.status===400?'Die Analyseanfrage wurde vor der KI-Verarbeitung abgelehnt (HTTP 400). Keine neue Antwort gespeichert.'

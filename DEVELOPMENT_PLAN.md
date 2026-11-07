@@ -394,3 +394,13 @@ darunter. Keine Desktop-Spaltenansicht im Lernmodus. Oberhalb des Bretts
 die bestehende KI-Werkzeugkette. Freier Chat bleibt frei, ungesendete Entwürfe
 bleiben erhalten. Lange aktuelle Antworten intern scrollbar, Brett an
 Fensterhöhe/Schrift angepasst. Kein neuer Datenspeicher und keine Partieänderung.
+
+## Nutzerentscheidung 7. November: Modelle selbst vergleichen
+
+OpenRouter mit Modellauswahl, Denkstufe und nachvollziehbaren Kosten. Diagnose
+muss übergebene Stellung, Kontext und öffentliche Antwort statt bloß Zugang
+belegen. Ein regelgeprüfter Zug ist kein Qualitätsnachweis. Gegen die Spielengine
+antreten lassen, ohne die tatsächliche Partie zu verändern; begrenzter expliziter
+Start, kein stiller Retry und vollständige Fehler-/Zugbezüge im Bericht.
+Die frühere Mini-Modellwahl war fachlich nicht abgenommen. Schachliche
+Modellqualität erst anhand echter Antworten und Testpartien bewerten.

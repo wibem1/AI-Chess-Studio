@@ -1,3 +1,4 @@
+import {providerOptions,validModel} from '../src/model-provider.js';
 import { chmodSync, closeSync, existsSync, fsyncSync, lstatSync, mkdirSync, openSync, readFileSync, renameSync, unlinkSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { homedir } from 'node:os';
@@ -40,8 +41,8 @@ export class FileCredentialsStore implements CredentialsStore {
       else throw new Error();
       const value=JSON.parse(json);
       if(value.enabled!==true || typeof value.apiKey!=='string' || value.apiKey.length<8 || value.apiKey.length>1024 || /\s/.test(value.apiKey) ||
-        typeof value.model!=='string' || !/^[a-zA-Z0-9._:-]{1,100}$/.test(value.model)) throw new Error();
-      return {enabled:true,apiKey:value.apiKey,model:value.model};
+        typeof value.model!=='string' || !validModel(value.model,providerOptions(value))) throw new Error();
+      return {enabled:true,apiKey:value.apiKey,model:value.model,...providerOptions(value)};
     } catch { throw new Error('Lokale Schlüsseldatei konnte nicht sicher geladen werden.'); }
   }
   save(config: ModelConfig): void {

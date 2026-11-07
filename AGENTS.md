@@ -31,3 +31,9 @@
     beim Besprechen sichtbar halten; lange Antworten separat scrollbar. Oben
     „Zeige deinen Plan auf dem Brett“. Keine Rückkehr zur Desktop-Spaltenansicht
     ohne neuen Nutzerauftrag. Siehe DEVELOPMENT_PLAN.md und PROJECT_STATE.md.
+
+14. Ab 0.11.0 OpenRouter, Anfrage-Diagnose und kontrollierte KI-Testpartien.
+    Dokumentation: docs/AI_EVALUATION.md. Technische Fixture-Prüfungen belegen
+    keine Schachkompetenz eines Modells. Private Provider-Denkblöcke gehören
+    nicht in Diagnose, Chat oder Sitzung; zur Werkzeugfortsetzung nur im RAM.
+    Kein automatisches Modell-Fallback oder kostenpflichtiger Teststart.

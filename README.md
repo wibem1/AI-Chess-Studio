@@ -1,6 +1,9 @@
 # AI-Chess-Studio
 
 Aktueller veröffentlichter Funktionsstand: **0.10.1**, GitHub-Bereitstellung bestätigt; native Nutzerabnahme steht noch aus. Änderungen: [CHANGELOG.md](CHANGELOG.md).
+Vorbereitet **0.11.0**: OpenRouter mit Modellauswahl, exportierbare KI-Diagnose
+und Testpartien der Lernengine gegen Stockfish/Maia. Noch nicht veröffentlicht.
+Anleitung: [KI-Ergebnisse auswerten](docs/AI_EVALUATION.md).
 **0.10.1**: Kostenanzeige ohne Budgetperiode oder Drei-Anfragen-Grenze;
 Verbrauch bleibt erhalten. Neues Lernlayout: Brett, direkt darunter Eingabe und
 aktuelle Antwort, danach Chatverlauf. Oben „Zeige deinen Plan auf dem Brett“.
