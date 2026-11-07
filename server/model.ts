@@ -51,8 +51,8 @@ export class ModelService {
         method:'GET',redirect:'error',headers:{Authorization:`Bearer ${this.config.apiKey}`},signal:AbortSignal.timeout(5000)});
       await response.body?.cancel();
       return {ok:response.ok,httpStatus:response.status,message:response.ok?(providerOf(this.config)==='openrouter'?'OpenRouter-Schlüssel akzeptiert; Modellzugriff und Brettwerkzeuge noch nicht geprüft.':'Schlüssel und Modellzugriff bestätigt. Keine Textgenerierung ausgeführt.'):
-        response.status===401?'OpenAI lehnt den Schlüssel ab.':response.status===404?'Modell nicht gefunden oder nicht freigegeben.':response.status===429?'OpenAI meldet ein Kontingent- oder Anfragelimit.':'Zugang vom Anbieter abgelehnt.'};
-    }catch{return {ok:false,httpStatus:null,message:'OpenAI nicht erreichbar: Netzwerk, Proxy und TLS-Vertrauen prüfen. Keine Textgenerierung ausgeführt.'};}
+        response.status===401?'Der gewählte Anbieter lehnt den Schlüssel ab.':response.status===404?'Modell nicht gefunden oder nicht freigegeben.':response.status===429?'Der gewählte Anbieter meldet ein Kontingent- oder Anfragelimit.':'Zugang vom Anbieter abgelehnt.'};
+    }catch{return {ok:false,httpStatus:null,message:'Der gewählte Anbieter ist nicht erreichbar. Netzwerkverbindung prüfen. Keine Textgenerierung ausgeführt.'};}
   }
   configureCosts(raw:unknown) {if(this.busy)throw new ApiError(429,'Eine Modellanfrage läuft bereits.');try{return this.costs.configure(raw);}catch{throw new ApiError(400,'Preisannahmen prüfen.');}}
   configure(raw: unknown): { available: boolean; remaining: null } {

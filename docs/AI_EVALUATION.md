@@ -83,3 +83,15 @@ und Maia-ONNX-Inferenz. Öffentlicher OpenRouter-Katalog tatsächlich geladen.
 Keine bezahlten Modelltests und kein Nachweis schachlicher Lehrqualität.
 Spielstärke und Erklärungsqualität getrennt beurteilen; Ergebnis einer einzigen
 Partie ersetzt keinen Vergleich mehrerer Stellungen und beider Farben.
+
+
+## Aktiven Zugang erkennen (ab 0.11.2)
+
+Im Lernmodus zeigt die Karte oben Anbieter, Modell-ID und Denktiefe. Der
+Betriebszustand unterscheidet Demo, lokal bereit, gesperrt und Lesefehler.
+„Verbindung prüfen“ fragt den Anbieter ohne Textgenerierung ab. Bei OpenRouter
+prüft das nur den Schlüssel; Modellverfügbarkeit/Werkzeugfähigkeit bleiben
+bis zur tatsächlichen Anfrage unbestätigt. Ablehnungen erscheinen direkt
+in der Karte. „Modell wechseln“ ändert das Modell mit dem vorhandenen Schlüssel
+bei demselben Anbieter; für einen anderen Anbieter ist dessen Schlüssel nötig.
+Bearbeitete Einrichtungsfelder werden durch Hintergrundstatus nicht ersetzt.

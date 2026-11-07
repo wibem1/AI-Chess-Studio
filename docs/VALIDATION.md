@@ -1803,3 +1803,16 @@ weiterhin Fixtures, keine bezahlte Modellabnahme. Root-/Pages-Build bestanden.
 Nach Vereinfachung auf nur Start/Stop: Root-Build/Typprüfung und 4/4
 Chromiumfälle für Modellwahl/Diagnose, echte Stockfish-/Maia-Testpartien und
 Brettgrößengleichheit mit genau zwei Testbuttons bestanden.
+
+
+## Klarer KI-Zugang, vorbereitete 0.11.2
+
+154/154 Einzeltests über npm test bestanden. Direkter node-Testlauf zuvor
+ohne npm_execpath: 153/154, umgebungsbedingter Update-Testfehler; unveränderte
+Suite im vorgesehenen npm-Aufruf vollständig grün. Sieben betroffene
+Chromiumfälle über zwei Läufe bestanden (Modellzugang/Diagnose fünf,
+Windows-Zugangsformular und Brettgrößengleichheit zwei). Neuer Direktzugangsfall
+zunächst mit unvollständiger Fixture ohne finish_reason fehlgeschlagen; nach
+Korrektur der Fixture inklusive tatsächlicher Modell-ID im Request bestanden.
+Providerantworten abgefangen, keine kostenpflichtige echte KI-Anfrage.
+Root-Build/Typprüfung bestanden; Zugangskarte visuell geprüft.

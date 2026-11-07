@@ -1,5 +1,22 @@
 # Projektstand
 
+## Vorbereitet: 0.11.2 – KI-Zugang nachvollziehbar
+
+Nutzer meldet unklaren aktiven Zugang und ausbleibende Funktion. Lokal belegte
+Probleme: aktive Identität nur im Untermenü; Kostenaktualisierung schrieb
+Provider-/Denkstufenwahl zurück, OpenAI-Direktmodelle ohne erneuten Schlüssel
+nicht änderbar. Tatsächlicher Kontozustand des Nutzers ist nicht bekannt.
+Behoben: Anbieter/Modell/Denktiefe und Betriebszustand als sichtbare Karte oben;
+Modellwechsel und Verbindungstest dort. Aktive Identität und Bereitschaft werden
+gemeinsam aus lokaler Diagnose gelesen; bearbeitete Formulardaten bleiben stehen.
+Verbindungstest generiert keinen Text, OpenRouter bestätigt dabei nur den Schlüssel.
+Keine Änderung der verschlüsselten Schlüsselablage oder bezahlter echter Test.
+154/154 Einzeltests; 7 betroffene Browserfälle über zwei Läufe erfolgreich,
+inklusive OpenRouter-Wechsel/Reload, unverändertem Formular bei Statusrefresh,
+HTTP-401-Anzeige und tatsächlicher OpenAI-Modell-ID im abgefangenen Request.
+Echte Stockfish/Maia-Inferenz mit Modellfixtures weiterhin bestanden.
+Native Windows-/Anbieterkonto-Abnahme offen. Noch nicht veröffentlicht.
+
 ## Aktuell veröffentlicht: 0.11.1 – Gleiches Lernbrett und Teststart oben
 
 Die Mindestgrößenkorrektur in 0.11.0 genügte dem Nutzer nicht. Jetzt gleiche

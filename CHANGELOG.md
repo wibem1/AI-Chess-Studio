@@ -1,5 +1,13 @@
 # Änderungen
 
+## 0.11.2 – Klarer KI-Zugang (vorbereitet)
+
+- Anbieter, Modell-ID, Denktiefe und Demo-/Bereitschaftsstatus oben im Lernmodus.
+- Verbindung dort ohne Textgenerierung prüfbar; Ablehnung mit HTTP-Status sichtbar.
+- Modellwechsel dort auch für OpenAI direkt ohne erneute Schlüsseleingabe.
+- Hintergrundaktualisierung überschreibt keine bearbeitete Anbieter-/Modellwahl.
+- Aktiver Zugang und Modell stammen gemeinsam aus derselben lokalen Diagnose.
+
 ## 0.11.1 – Gleich großes Lernbrett und Teststart oben (veröffentlicht am 7. November 2026)
 
 - „Lernengine gegen Schachengine“ ganz oben mit ausschließlich Start/Stop.

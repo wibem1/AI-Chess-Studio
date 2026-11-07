@@ -82,7 +82,7 @@ export class BrowserRuntime {
   if(!this.config)return {ok:false,httpStatus:null,message:'Lokales Schlüsselfach zuerst entsperren.'};
   try{
    const r=await this.transport(providerOf(this.config)==='openrouter'?providerBase(this.config)+'/key':providerBase(this.config)+'/models/'+encodeURIComponent(this.config.model),{method:'GET',mode:'cors',credentials:'omit',referrerPolicy:'no-referrer',redirect:'error',headers:{Authorization:'Bearer '+this.config.apiKey},signal:AbortSignal.timeout(5000)});
-   await r.body?.cancel();return {ok:r.ok,httpStatus:r.status,message:r.ok?(providerOf(this.config)==='openrouter'?'OpenRouter-Schlüssel akzeptiert; Modellzugriff und Brettwerkzeuge noch nicht geprüft.':'Schlüssel und Modellzugriff bestätigt. Keine Textgenerierung ausgeführt.'):r.status===401?'OpenAI lehnt den Schlüssel ab.':'Modellzugriff nicht bestätigt. Anbieterfreigabe und Kontingent prüfen.'};
+   await r.body?.cancel();return {ok:r.ok,httpStatus:r.status,message:r.ok?(providerOf(this.config)==='openrouter'?'OpenRouter-Schlüssel akzeptiert; Modellzugriff und Brettwerkzeuge noch nicht geprüft.':'Schlüssel und Modellzugriff bestätigt. Keine Textgenerierung ausgeführt.'):r.status===401?'Der gewählte Anbieter lehnt den Schlüssel ab.':'Modellzugriff nicht bestätigt. Anbieterfreigabe und Kontingent prüfen.'};
   }catch{return {ok:false,httpStatus:null,message:'Anbieter nicht erreichbar. Internet, Browserfreigaben und CORS prüfen. Keine Textgenerierung ausgeführt.'};}
  }
  private async respond(raw:unknown,signal?:AbortSignal){

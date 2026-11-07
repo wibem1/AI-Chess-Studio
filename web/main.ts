@@ -61,6 +61,7 @@ let directAnalysisHint:'explain'|undefined;
 let tacticalPending = false;
 let modelAvailable = false;
 let modelConfigured=false,modelSaved=false,modelBlocked='Kein KI-Zugang eingerichtet.';
+let activeModelId='',activeProviderName='',activeReasoning='';
 let dialogueChosen=false,accessRevision=0,accessReady=false,accessReadError=false;
 const modelMode = () => $<HTMLSelectElement>('dialogue-mode').value === 'model';
 try{const choice=localStorage.getItem('chess-studio-dialogue-mode');if(choice==='model'||choice==='simulation'){$<HTMLSelectElement>('dialogue-mode').value=choice;dialogueChosen=true;}}catch{}
@@ -79,12 +80,15 @@ function updateMode() {
  $<HTMLButtonElement>('coach-show-plan').disabled=!real||pending||match.running||locked||blocked;
  for(const id of ['analyse-position','analyse-game'])$<HTMLButtonElement>(id).disabled=pending||match.running||locked||blocked;
  $<HTMLButtonElement>('model-apply').disabled=pending||match.running;
+ $<HTMLButtonElement>('match-start').disabled=pending||match.running||!modelAvailable||!real||!accessReady||accessReadError;
  for(const id of ['api-connect','api-disconnect'])if(match.running)$<HTMLButtonElement>(id).disabled=true;
  $<HTMLButtonElement>('comment-move').disabled=$<HTMLButtonElement>('ask').disabled||!studio.session.snapshot().nodes.find(n=>n.id===studio.session.snapshot().activeNodeId)?.san;
  $('comment-move').textContent=real?'Zug kommentieren':'Zug kommentieren (Simulation)';
  $('simulation-hint').hidden=real||!accessReady||accessReadError;
  $('learn-configure').hidden=modelAvailable;
  message('mode-badge',!accessReady?'Lernchat: Zugang wird geprüft':accessReadError?'Lernchat: Status unklar':real?(modelAvailable?'Lernchat: Eigene KI':'Lernchat: KI gesperrt'):'Lernchat: Demo');
+ message('active-ai',activeModelId?`${activeProviderName} · ${activeModelId}${activeReasoning?' · Denktiefe '+activeReasoning:''}`:'Keine KI ausgewählt');
+ message('active-ai-state',!accessReady?'Zugang wird lokal geprüft …':accessReadError?modelBlocked:!real?'Demo aktiv – es antwortet keine KI.':modelAvailable?(pending?'KI-Anfrage läuft …':match.running?'KI-Testpartie läuft …':'Bereit · Verbindung noch nicht geprüft.'):modelBlocked);
  message('chat-access',!accessReady?'Gespeicherter KI-Zugang wird lokal geprüft …':accessReadError?modelBlocked:real?(modelAvailable?'Eigener KI-Zugang aktiv · bis zu 3 kostenpflichtige Anfragen je Nachricht · Kosten werden geschätzt.':modelBlocked):modelSaved||modelConfigured?'Demo ist ausdrücklich gewählt. Dein gespeicherter KI-Zugang bleibt erhalten.':'Demo: nur lokale Brettfakten, keine KI-Analyse.');
  $('chat-use-model').hidden=real||!(modelSaved||modelConfigured);
  $('chat-open-access').hidden=!real||modelAvailable;
@@ -93,8 +97,8 @@ function updateMode() {
 async function refreshModelStatus() {
  const revision=++accessRevision;
  try{
-  const response=await platformFetch('/api/status',{signal:AbortSignal.timeout(10000)});if(!response.ok)throw new Error();
-  const status=await response.json();if(revision!==accessRevision)return;
+  const data=await diagnosticData();if(revision!==accessRevision)return;const status={...data.model,available:data.model.configured,saved:data.model.localKeySaved};
+  activeModelId=data.model.model??'';activeProviderName=data.model.provider==='openrouter'?'OpenRouter':'OpenAI direkt';activeReasoning=data.model.reasoning??'';await modelControls.update(data);
   accessReady=true;accessReadError=false;
   modelConfigured=status.available===true;modelSaved=status.saved===true||modelConfigured;
   modelAvailable=modelConfigured;
@@ -270,7 +274,8 @@ $('match-start').addEventListener('click',async()=>{
  try{const identity=await diagnosticData();window.scrollTo({top:0,behavior:'instant'});await match.start({model:identity.model.model,color:new Chess(fen).turn(),opponent,level:saved?.level??Number($<HTMLSelectElement>('game-level').value),maxTurns:100},adapter,opponent==='maia'?new MaiaPlayingEngine(value=>message('match-status',value)):new BrowserPlayingEngine());}catch(error){message('match-status',error instanceof Error?error.message:'Teststart fehlgeschlagen.');}finally{for(const id of ['model-apply','api-connect','api-disconnect'])$<HTMLButtonElement>(id).disabled=false;await refreshCosts();}
 });
 $('match-stop').onclick=()=>{match.stop();render();message('match-status',match.report?.message??'Angehalten.');};
-const modelControls=installModelControls(localPost,async()=>{await refreshModelStatus();await refreshCosts();},()=>({nodeId:studio.session.snapshot().activeNodeId,fen:studio.session.snapshot().nodes.find(n=>n.id===studio.session.snapshot().activeNodeId)!.fen,testMatch:match.report,boardActions,environment:{userAgent:navigator.userAgent,viewport:{width:innerWidth,height:innerHeight},fontScale:$<HTMLSelectElement>('font-scale').value},feedback:$('dialogue-feedback').textContent}));
+$('ai-access-card').append($('chat-use-model'),$('chat-model-controls'));
+const modelControls=installModelControls(localPost,async()=>{chooseModelMode('model');await refreshModelStatus();await refreshCosts();},()=>({nodeId:studio.session.snapshot().activeNodeId,fen:studio.session.snapshot().nodes.find(n=>n.id===studio.session.snapshot().activeNodeId)!.fen,testMatch:match.report,boardActions,environment:{userAgent:navigator.userAgent,viewport:{width:innerWidth,height:innerHeight},fontScale:$<HTMLSelectElement>('font-scale').value},feedback:$('dialogue-feedback').textContent}));
 $('move-form').addEventListener('submit', event => { event.preventDefault(); move(input('move').value.trim()); });
 $('memory-form').addEventListener('submit', event => {
   event.preventDefault();
@@ -385,7 +390,7 @@ $('api-form').addEventListener('submit', async event => {
     accessReady=true;accessReadError=false;modelConfigured=true;modelSaved=true;chooseModelMode('model');
     message('credential-status',isWebPlatform()?'✓ Schlüsselfach verschlüsselt auf diesem Gerät gespeichert und entsperrt.':'✓ API-Schlüssel lokal gespeichert. Er wird beim nächsten App-Start wieder geladen.');
     message('api-feedback',isWebPlatform()?`Schlüssel verschlüsselt auf diesem Gerät gespeichert. ${payload.password?'Nach Neustart mit deinem zusätzlichen Passwort entsperren.':'Kein zusätzliches App-Passwort nötig. In diesem Browserprofil wird er beim nächsten Start wieder geladen.'} Keine Modellanfrage ausgeführt.`:'Schlüssel lokal gespeichert und für den nächsten Start hinterlegt. Das leere Feld ist beabsichtigt; du musst den Schlüssel nicht erneut eingeben. Noch keine Modellanfrage ausgeführt.');
-    void refreshModelStatus();void refreshCosts();
+    modelControls.connected();await refreshModelStatus();await refreshCosts();
   } catch (error) {
     message('api-feedback',error instanceof DOMException && (error.name === 'TimeoutError' || error.name === 'AbortError')
       ? 'Keine rechtzeitige Speicherbestätigung. Der Schlüssel könnte gespeichert sein. Prüfe „Lokale Diagnose anzeigen“, bevor du ihn erneut eingibst.'
@@ -398,7 +403,6 @@ $('api-form').addEventListener('submit', async event => {
 });
 $('api-disconnect').addEventListener('click', async () => {
   try {
-    await modelControls.beforeConnect();
     const response = await platformFetch('/api/model-config', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'disconnect'}),signal:AbortSignal.timeout(5000)});
     if (!response.ok) throw new Error();
     input('api-key').value = ''; input('api-cost-consent').checked = false;
@@ -411,7 +415,7 @@ $('api-disconnect').addEventListener('click', async () => {
 
 async function localPost(path:string,body:unknown):Promise<any> {
   const response=await platformFetch(path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:AbortSignal.timeout(20000)});
-  if(!response.ok)throw new Error('Aktion fehlgeschlagen. Konfiguration, Projektänderungen und Zugriff prüfen.');
+  if(!response.ok){const error=await response.json().catch(()=>null);throw new Error(typeof error?.error==='string'?error.error:'Aktion fehlgeschlagen. Konfiguration und Zugriff prüfen.');}
   return response.json();
 }
 async function diagnosticData() {
@@ -426,7 +430,7 @@ async function diagnosticData() {
 }
 async function refreshCosts(fill=false) {
   try{
-    const d=await diagnosticData(), c=d.model.costs;await modelControls.update(d);
+    const d=await diagnosticData(), c=d.model.costs;
     message('cost-summary',`Geschätzter Verbrauch: ${Number(c.estimatedUsd).toFixed(6)} USD (davon ${Number(c.providerReportedUsd??0).toFixed(6)} USD vom Anbieter gemeldet) · ${c.requests} Anfragen · ${c.promptTokens} Eingabe- und ${c.completionTokens} Ausgabe-Tokens bestätigt · ${c.uncertainRequests} Anfragen mit unsicherer Abrechnung.`);
     if(fill){input('cost-input').value=String(c.inputUsdPerMillion);input('cost-output').value=String(c.outputUsdPerMillion);}
   }catch{message('cost-summary','Kostenstatus nicht verfügbar.');}
@@ -442,10 +446,11 @@ $('diagnose').addEventListener('click',async()=>{
   try{const d=await diagnosticData();message('diagnostic-output',`App-Version: ${d.version ?? 'unbekannt'} · Oberfläche: ${APP_VERSION}\nNode.js: ${d.node} · System: ${d.platform}\nKI-Zugang: ${d.model.configured?'konfiguriert (noch kein Verbindungsnachweis)':'nicht konfiguriert'}\nModell: ${d.model.model??'keines'}\nAnfragen: ohne lokales Kontingent\nUpdate: ${d.update?.message??'nicht verfügbar'}\nKeine Schlüsselwerte oder Sitzungstexte in dieser Diagnose.`);await refreshCosts();}
   catch{message('diagnostic-output','Lokaler Server nicht erreichbar.');}
 });
+$('ai-access-check').addEventListener('click',()=>{ $<HTMLButtonElement>('diagnose-access').click(); });
 $('diagnose-access').addEventListener('click',async()=>{
-  const button=$<HTMLButtonElement>('diagnose-access');button.disabled=true;
-  try{const d=await localPost('/api/diagnostics',{});message('diagnostic-output',`${d.message}${d.httpStatus?` (HTTP ${d.httpStatus})`:''}`);}
-  catch{message('diagnostic-output','Zugangsdiagnose nicht verfügbar.');}finally{button.disabled=false;}
+  const button=$<HTMLButtonElement>('diagnose-access');button.disabled=true;$<HTMLButtonElement>('ai-access-check').disabled=true;message('ai-access-feedback','Anbieterzugang wird geprüft – keine Textgenerierung …');
+  try{const d=await localPost('/api/diagnostics',{});const result=`${d.message}${d.httpStatus?` (HTTP ${d.httpStatus})`:''}`;message('diagnostic-output',result);message('ai-access-feedback',result);}
+  catch{message('diagnostic-output','Zugangsdiagnose nicht verfügbar.');message('ai-access-feedback','Verbindung konnte nicht geprüft werden.');}finally{button.disabled=false;$<HTMLButtonElement>('ai-access-check').disabled=false;}
 });
 let updateTarget:string|null=null;
 $('update-check').addEventListener('click',async()=>{
@@ -588,6 +593,7 @@ function beginAnalysis(wholeGame:boolean){
 }
 $('analyse-position').addEventListener('click',()=>beginAnalysis(false));
 $('analyse-game').addEventListener('click',()=>beginAnalysis(true));
+$('ai-access-edit').addEventListener('click',()=>{navigation.select('settings');$<HTMLDetailsElement>('api-settings').open=true;$('api-settings').scrollIntoView({block:'start'});});
 $('chat-open-access').addEventListener('click',()=>{navigation.select('settings');const section=$('api-settings');(section as HTMLDetailsElement).open=true;section.scrollIntoView({block:'start'});});
 $('learn-back').addEventListener('click',()=>attempt(()=>{const d=studio.session.snapshot(),node=d.nodes.find(n=>n.id===d.activeNodeId)!;if(node.parentId)game.analyse(node.parentId);},'move-feedback','Einen Lernzug zurück.'));
 $('learn-origin').addEventListener('click',()=>attempt(()=>{const d=studio.session.snapshot();game.analyse(d.game?.cursor??d.nodes[0]!.id);},'move-feedback','Zur Ausgangsstellung der Analyse zurück.'));
