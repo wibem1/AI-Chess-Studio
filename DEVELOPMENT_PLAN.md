@@ -58,7 +58,7 @@ Nun implementiert: show_line und play_engine als optionale Werkzeugaufrufe,
 getrennt vom freien Erklärungstext. Gemeinsame Ausführung im Lernzweig, geprüfte
 Spielengine-Antwort und tatsächliche Stellung als tool-Ergebnis zurück an das
 Modell. Höchstens zwei Werkzeugrunden und abschließende freie Erklärung, also
-bis zu drei normal budgetierte Modellanfragen. Stoppen, Zurück zum Ausgangspunkt,
+bis zu drei kostenpflichtige Modellanfragen. Stoppen, Zurück zum Ausgangspunkt,
 Session-/Stellungswechsel und Chatlöschung verhindern spätere Brettänderungen.
 Bereits gezeigte Züge bleiben als untersuchbare Variante erhalten.
 
@@ -377,3 +377,11 @@ aus isolierter FEN ohne Historie.
 - Keine gleichzeitige ungeordnete Codebearbeitung mit Codex; dieser
   Plan ist die Übergabe, Implementierung erst nach Abstimmung mit dem
   laufenden Arbeitsschritt. Keine eigenmächtige Freigabe oder Versionierung.
+
+## Nutzerentscheidung 7. November: Kosten nur anzeigen
+
+Keine Budgetperioden, lokalen Geldlimits oder Drei-Anfragen-Kontingente.
+Vorhandene Verbrauchswerte/Preisannahmen weiterführen; kein Schlüsselwechsel
+oder Löschen der Sitzung nötig. Grafische Brettbesprechung im freien Chat
+über bestehende geprüfte show_line/play_engine-Werkzeuge. Eine aktive Anfrage
+und begrenzte Werkzeugrunden bleiben erhalten.

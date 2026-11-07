@@ -27,12 +27,12 @@ test('web vault confirms save, preserves scrolling, stores ciphertext only and l
  await page.reload();await expect(page.locator('#credential-status')).toContainText('gesperrt');await page.getByRole('tab',{name:'Lernmodus',exact:true}).click();await expect(page.locator('#dialogue')).toContainText(reply.message);await expect(page.locator('#question')).toHaveValue('Welche Idee habe ich?');
 });
 
-test('web budget is shared atomically across windows and persists through reload',async({page,context})=>{
+test('web cost estimates accumulate atomically across windows without request caps',async({page,context})=>{
  const calls={count:0};await mockedProvider(page,calls);await start(page);await saveKey(page);
  const second=await context.newPage();await mockedProvider(second,calls);await start(second);await unlock(second);
  await Promise.all([ask(page,'Erste Frage?'),ask(second,'Zweite Frage?')]);await expect(page.locator('#dialogue-feedback')).toContainText('Modellantwort');await expect(second.locator('#dialogue-feedback')).toContainText('Modellantwort');
- await Promise.all([ask(page,'Dritte Frage?'),ask(second,'Vierte Frage?')]);await expect.poll(()=>calls.count).toBe(3);await expect.poll(async()=>Number((await readStore(page,'budget')).requests)).toBe(3);
- await page.reload();await expect(page.locator('#model-status')).toContainText('Anfragelimit');await unlock(page);await expect(page.locator('#model-status')).toContainText('Anfragelimit');expect(calls.count).toBe(3);
+ await Promise.all([ask(page,'Dritte Frage?'),ask(second,'Vierte Frage?')]);await expect.poll(()=>calls.count).toBe(4);await expect.poll(async()=>Number((await readStore(page,'budget')).requests)).toBe(4);
+ await page.reload();await unlock(page);await ask(page,'Fünfte Frage?');await expect(page.locator('#dialogue-feedback')).toContainText('Modellantwort');expect(calls.count).toBe(5);
 });
 
 test('web browser factcheck runs real Stockfish and restores local session without API backend',async({page})=>{
@@ -151,9 +151,10 @@ test('saving a key overrides an explicitly chosen demo and restores real mode af
  await expect(page.locator('#mode-badge')).toContainText('Eigene KI');await page.reload();await page.getByRole('tab',{name:'Lernmodus',exact:true}).click();await expect(page.locator('#mode-badge')).toContainText('Eigene KI');await expect(page.locator('#ask')).toBeEnabled();expect(calls.count).toBe(0);
 });
 
-test('a saved key with exhausted period stays real and blocked instead of silently falling back to demo',async({page})=>{
+test('a saved key remains usable beyond three requests and reload with cost history preserved',async({page})=>{
  const calls={count:0};await mockedProvider(page,calls);await start(page);
  await settings(page);await page.locator('#api-settings > summary').click();await page.locator('#api-key').fill(secret);await page.locator('#api-cost-consent').check();await page.locator('#api-connect').click();await expect(page.locator('#api-feedback')).toContainText('gespeichert');
  for(let i=0;i<3;i++){await ask(page,`Frage ${i}`);await expect(page.locator('#dialogue-feedback')).toContainText('Modellantwort');}
- await page.reload();await page.getByRole('tab',{name:'Lernmodus',exact:true}).click();await expect(page.locator('#mode-badge')).toContainText('KI gesperrt');await expect(page.locator('#chat-access')).toContainText('Budgetperiode');await expect(page.locator('#ask')).toBeDisabled();await expect(page.locator('#simulation-hint')).toBeHidden();await page.locator('#chat-open-access').click();await expect(page.locator('#cost-form')).toBeVisible();await expect(page.locator('#cost-reset-consent')).not.toBeChecked();expect(calls.count).toBe(3);
+ await page.reload();await page.getByRole('tab',{name:'Lernmodus',exact:true}).click();await expect(page.locator('#mode-badge')).toContainText('Eigene KI');await expect(page.locator('#ask')).toBeEnabled();await expect(page.locator('#simulation-hint')).toBeHidden();await ask(page,'Zeige einen weiteren Vorschlag');await expect(page.locator('#dialogue-feedback')).toContainText('Modellantwort');expect(calls.count).toBe(4);
+ await settings(page);await page.getByText('Kostenanzeige',{exact:true}).click();await expect(page.locator('#cost-summary')).toContainText('4 Anfragen');await expect(page.locator('#cost-budget')).toHaveCount(0);await expect(page.locator('#cost-reset')).toHaveCount(0);
 });

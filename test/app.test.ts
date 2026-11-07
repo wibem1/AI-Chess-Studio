@@ -27,6 +27,6 @@ test('built application server serves browser assets and rejects checkout paths 
     assert.equal((await fetch(base,{method:'POST'})).status,405);
     const denied=await fetch(base+'/api/dialogue',{method:'POST',headers:{Origin:'https://foreign.example','Content-Type':'application/json'},body:'{}'});
     assert.equal(denied.status,403);
-    assert.deepEqual(await (await fetch(base+'/api/status')).json(),{available:false,remaining:3});
+    assert.deepEqual(await (await fetch(base+'/api/status')).json(),{available:false,remaining:null});
   } finally {await new Promise<void>((resolve,reject) => server.close(e => e ? reject(e) : resolve()));rmSync(folder,{recursive:true,force:true});}
 });

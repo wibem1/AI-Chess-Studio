@@ -40,11 +40,11 @@ test('browser vault save, restart, unlock, lock and delete make no provider call
  assert.ok(!JSON.stringify(await next.handle('/api/diagnostics','GET')).includes(config.apiKey));
  await next.handle('/api/model-config','POST',{action:'disconnect'});assert.equal(await store.get('vault'),null);assert.equal(calls,0);
 });
-test('browser provider contract, response validation and persisted request cap apply across restarts',async()=>{
+test('browser provider contract, response validation and usage accounting apply across restarts without a cap',async()=>{
  const store=new MemoryStore();let calls=0;
  const transport=(async(url,init)=>{calls++;assert.equal(url,'https://api.openai.com/v1/chat/completions');assert.equal(init!.mode,'cors');assert.equal(init!.credentials,'omit');assert.equal(init!.redirect,'error');assert.equal(init!.referrerPolicy,'no-referrer');assert.equal((init!.headers as any).Authorization,'Bearer '+config.apiKey);const body=JSON.parse(String(init!.body));assert.equal(body.max_completion_tokens,800);assert.equal(body.response_format.type,'json_object');return new Response(JSON.stringify({choices:[{finish_reason:'stop',message:{content:JSON.stringify(reply)}}],usage:{prompt_tokens:40,completion_tokens:30}}));}) as typeof fetch;
- for(let i=0;i<3;i++){const r=new BrowserRuntime(store,transport);await connect(r);assert.deepEqual(await r.handle('/api/dialogue','POST',request()),reply);}
- const r=new BrowserRuntime(store,transport);await connect(r);await assert.rejects(r.handle('/api/dialogue','POST',request()),/budget/);assert.equal(calls,3);assert.equal((await r.status()).remaining,0);
+ for(let i=0;i<5;i++){const r=new BrowserRuntime(store,transport);await connect(r);assert.deepEqual(await r.handle('/api/dialogue','POST',request()),reply);}
+ const r=new BrowserRuntime(store,transport);await connect(r);await r.handle('/api/dialogue','POST',request());assert.equal(calls,6);assert.equal((await r.status()).remaining,null);
  assert.equal((await store.budget(l=>l.snapshot())).state.uncertainRequests,0);
 });
 test('browser invalid requests do not spend, failed or oversized replies reserve cost and never leak secrets',async()=>{
@@ -73,7 +73,7 @@ test('browser factcheck preserves full history, candidate, perspective and bound
 test('browser access diagnosis uses model metadata only and does not spend request budget',async()=>{
  let calls=0;const r=new BrowserRuntime(new MemoryStore(),(async(url,init)=>{calls++;assert.equal(url,'https://api.openai.com/v1/models/gpt-4.1-mini');assert.equal(init!.method,'GET');assert.equal(init!.credentials,'omit');return new Response('{}');}) as typeof fetch);
  assert.equal((await r.handle('/api/diagnostics','POST',{})).ok,false);assert.equal(calls,0);await connect(r);
- assert.equal((await r.handle('/api/diagnostics','POST',{})).ok,true);assert.equal(calls,1);assert.equal((await r.status()).remaining,3);assert.equal((await r.store.budget(l=>l.snapshot())).state.requests,0);
+ assert.equal((await r.handle('/api/diagnostics','POST',{})).ok,true);assert.equal(calls,1);assert.equal((await r.status()).remaining,null);assert.equal((await r.store.budget(l=>l.snapshot())).state.requests,0);
 });
 
 
@@ -119,11 +119,11 @@ test('storage success requires decrypting the persisted copy, not only the in-me
  assert.equal((await corrupt.status()).available,false);
 });
 
-test('saved access remains distinguishable from demo when period or password blocks requests',async()=>{
+test('saved access ignores old consumed periods and still respects password locking',async()=>{
  const store=new MemoryStore();let calls=0;const runtime=new BrowserRuntime(store,async()=>{calls++;throw new Error('No network expected');});
  await runtime.handle('/api/model-config','POST',{action:'connect',...config,allowPaid:true});
  await store.budget(l=>{for(let i=0;i<3;i++)l.reserve(100,800);});
- const next=new BrowserRuntime(store),status=await next.status();assert.equal(status.saved,true);assert.equal(status.available,true);assert.equal(status.remaining,0);assert.equal(status.limit,'period');
+ const next=new BrowserRuntime(store),status=await next.status();assert.equal(status.saved,true);assert.equal(status.available,true);assert.equal(status.remaining,null);assert.equal(status.limit,null);
  await next.handle('/api/vault','POST',{action:'lock'});const locked=await next.status();assert.equal(locked.saved,true);assert.equal(locked.locked,true);assert.equal(locked.available,false);assert.equal(calls,0);
 });
 

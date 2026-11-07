@@ -3,7 +3,7 @@ export interface CostState {
  requests:number;estimatedUsd:number;promptTokens:number;completionTokens:number;uncertainRequests:number;
 }
 const defaults:CostState={budgetUsd:0.05,inputUsdPerMillion:0.4,outputUsdPerMillion:1.6,requests:0,estimatedUsd:0,promptTokens:0,completionTokens:0,uncertainRequests:0};
-/** User-editable price assumptions; not provider billing or a guaranteed money cap. */
+/** Usage estimate only. budgetUsd is retained solely for old saved records; never enforced. */
 export class CostLedger {
  private state:CostState;
  constructor(saved:unknown=null,private onSave?:(next:CostState)=>void){this.state=saved===null?{...defaults}:this.validate(saved);}
@@ -19,21 +19,17 @@ export class CostLedger {
  snapshot():CostState{return {...this.state};}
  configure(raw:unknown):CostState {
   const r=raw as Record<string,unknown>|null;
-  if(!r || typeof r!=='object')throw new Error('Budget und Preisannahmen prüfen.');
-  if(r.action==='reset'){
-   if(r.confirm!==true)throw new Error('Budget-Neustart muss bestätigt werden.');
-   this.set({...this.state,requests:0,estimatedUsd:0,promptTokens:0,completionTokens:0,uncertainRequests:0});
-  } else if(r.action==='configure'){
-   if(typeof r.budgetUsd!=='number' || typeof r.inputUsdPerMillion!=='number' || typeof r.outputUsdPerMillion!=='number' || r.inputUsdPerMillion<=0 || r.outputUsdPerMillion<=0)throw new Error('Budget und Preisannahmen prüfen.');
-   this.set({...this.state,budgetUsd:r.budgetUsd,inputUsdPerMillion:r.inputUsdPerMillion,outputUsdPerMillion:r.outputUsdPerMillion});
-  } else throw new Error('Ungültige Budgetaktion.');
+  if(!r || typeof r!=='object')throw new Error('Preisannahmen prüfen.');
+  if(r.action==='configure'){
+   if(typeof r.inputUsdPerMillion!=='number' || typeof r.outputUsdPerMillion!=='number' || r.inputUsdPerMillion<=0 || r.outputUsdPerMillion<=0)throw new Error('Preisannahmen prüfen.');
+   this.set({...this.state,inputUsdPerMillion:r.inputUsdPerMillion,outputUsdPerMillion:r.outputUsdPerMillion});
+  } else throw new Error('Ungültige Kostenaktion.');
   return this.snapshot();
  }
  reserve(inputBytes:number,outputTokens:number):number {
   const s=this.state;
   // UTF-8 bytes plus framing margin conservatively bound input tokens for normal text.
   const reserved=((inputBytes+1024)*s.inputUsdPerMillion+outputTokens*s.outputUsdPerMillion)/1000000;
-  if(s.requests>=3 || s.estimatedUsd+reserved>s.budgetUsd)throw new Error('Lokales Anfrage- oder Kostenbudget erreicht.');
   this.set({...s,requests:s.requests+1,estimatedUsd:s.estimatedUsd+reserved,uncertainRequests:s.uncertainRequests+1});
   return reserved;
  }

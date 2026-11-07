@@ -1,6 +1,8 @@
 # AI-Chess-Studio
 
 Aktueller veröffentlichter Funktionsstand: **0.10.0**, GitHub-Bereitstellung bestätigt; native Nutzerabnahme steht noch aus. Änderungen: [CHANGELOG.md](CHANGELOG.md).
+Vorbereitet **0.10.1**: Kostenanzeige ohne Budgetperiode oder Drei-Anfragen-Grenze;
+Verbrauch bleibt erhalten. Noch nicht veröffentlicht.
 **0.8.1** enthält einen eigenen Partierückblick mit überprüften Zugbezügen
 und anklickbaren Lernmomenten. Veröffentlichung durch GitHub und direkte
 Live-Prüfung bestätigt; echte pädagogische Modellqualität weiterhin offen.
@@ -74,11 +76,9 @@ Schlüssel werden weiterhin lokal geladen, ohne zusätzliche Eingabe und ohne
 Testanfrage beim Anbieter. Eine ausdrücklich gewählte Demo lässt sich am Chat
 über „Gespeicherten KI-Zugang verwenden“ verlassen.
 
-Ein gesperrtes Schlüsselfach oder ausgeschöpftes Limit bedeutet **„KI gesperrt“**,
-nicht Demo. Der Chat nennt den Grund und führt direkt zum Zugang oder zur
-Kostenkontrolle. Das bestehende Limit von drei Versuchen pro Fenster/Serverstart
-und Budgetperiode bleibt bestehen; es wird weder beim Speichern noch durch
-ein Update zurückgesetzt. Keine automatische neue Kostenfreigabe.
+Ein gesperrtes Schlüsselfach bedeutet **„KI gesperrt“**, nicht Demo. Der Chat
+führt zum Zugang. Seit 0.10.1 gibt es keine Budgetperiode und kein lokales
+Anfragekontingent; bisheriger Verbrauch bleibt als Schätzung erhalten.
 
 ## Partien speichern und laden
 
@@ -117,11 +117,8 @@ Browsermenü installierte App startet ebenfalls so. Das Brett und die beiden Mod
   Ein zusätzliches Passwort ist nur eine freiwillige Option ohne Mindestlänge.
   Einen neuen Key im oberen Formular speichern; dafür ist das alte Passwort
   nicht nötig. Den alten Zugang separat im zugeklappten Bereich darunter öffnen.
-- Unter „Kostenkontrolle“ Preisannahmen und USD-Budget prüfen. Höchstens drei
-  Generierungsversuche pro Fenster und gespeicherter Budgetperiode; die Periode
-  gilt für alle Fenster derselben Browseradresse. Neuladen, Schlüsselwechsel und
-  Löschen des Schlüssels setzen den Verbrauch nicht zurück. Unsichere Anfragen
-  behalten ihre Reservierung. Die Schätzung ersetzt kein Anbieterlimit.
+- Unter „Kostenanzeige“ die Preisannahmen für das verwendete Modell einstellen.
+  Verbrauch und unsichere Kostenschätzungen bleiben über Neustarts erhalten.
 - Partie, Varianten, Notizen, Reflexionen, Dialog, importierte PGN und der
   Nachrichtenentwurf werden automatisch lokal gespeichert. Nach Neuladen bleibt
   eine Enginepartie pausiert. Mehrere Fenster teilen die zuletzt gespeicherte
@@ -331,7 +328,7 @@ noch nachweisen. Siehe Humanfaktor-Kriterien in DEVELOPMENT_PLAN.md.
 
 1. Unter „Einstellungen“ den Abschnitt „Eigenen API-Schlüssel eingeben“ öffnen.
 2. Schlüssel und Modell eingeben (vorbelegt: gpt-4.1-mini).
-3. Preisannahmen/Budget in „Kostenkontrolle“ prüfen.
+3. Preisannahmen in „Kostenanzeige“ prüfen.
 4. Kostenpflichtige Anfragen bewusst erlauben und „Schlüssel lokal speichern
    und KI aktivieren“ anklicken. Dies erzeugt noch keine Modellantwort.
    Beim Speichern erscheint sofort ein Status. Das Eingabefeld wird bewusst
@@ -354,22 +351,25 @@ liegt diese Datei auf dem Cloud-Rechner. Cloud-Secrets sind für den lokalen
 PC-Betrieb nicht mehr erforderlich. Bestehende serverseitige CHESS_*-Variablen
 werden aus Kompatibilitätsgründen weiterhin unterstützt.
 
-## Kostenkontrolle
+## Kostenanzeige
 
-Voreinstellung: **0,05 USD pro Budgetperiode**, höchstens drei Modellanfragen
-pro Periode und zusätzlich pro Serverstart, je maximal 800 Ausgabe-Tokens.
-Verbrauch und Preisannahmen werden lokal in `credentials.json.usage.json`
-gespeichert und über Neustarts weitergeführt. Eine neue Periode erfordert eine
-explizite Bestätigung; sie hebt das zusätzliche Prozesslimit nicht auf.
+Seit 0.10.1 keine Budgetperiode, keine lokale Geldsperre und kein Drei-Anfragen-
+Kontingent. Die Kostenanzeige zählt fortlaufend weiter. Frühere Verbrauchswerte
+und Preisannahmen bleiben erhalten; alte Budgetfelder werden nur aus
+Kompatibilitätsgründen gespeichert und nicht mehr als Limit ausgewertet.
 
-Die Eingabe-/Ausgabepreise sind editierbare **Preisannahmen**, keine aktuelle
-Anbieterpreisauskunft. Vor einem anderen Modell die Preise anpassen. Vor jeder
-Anfrage wird eine vorsichtige Reservierung berechnet; reicht das Budget nicht,
-wird kein Provideraufruf gestartet. Bestätigte Token-Nutzung korrigiert die
-Schätzung. Bei Fehlern/fehlenden Nutzungsdaten bleibt die Reservierung bestehen.
-Keine automatischen Wiederholungen. Preise/Schätzungen sind **kein verbindliches
-Geldlimit der Anbieterrechnung**; ein separates Anbieterlimit ist weiterhin sinnvoll.
-Nur eine App-Instanz mit demselben Benutzerprofil verwenden.
+Eingabe-/Ausgabepreise sind editierbare Preisannahmen in USD. Bestätigte
+Token-Nutzung korrigiert die vorherige vorsichtige Schätzung. Bei fehlenden
+Nutzungsdaten bleibt die Anfrage als unsichere Schätzung verbucht. Das ist
+keine Anbieterrechnung. Chatantworten haben bis 1800 Ausgabe-Tokens; pro
+Nachricht sind bis zwei Brettwerkzeugrunden mit anschließender Erklärung möglich.
+Es bleibt bei einer laufenden Anfrage je Fenster/Server; keine automatischen
+Wiederholungen. Stockfish und Maia erzeugen keine Modell-API-Kosten.
+
+Für grafische Besprechung im freien Chat zum Beispiel schreiben:
+„Zeige mir einen möglichen Zug am Brett und die Antwort darauf.“ Die KI kann
+legale Züge im Lernzweig vorführen und die gewählte Spielengine antworten lassen.
+„Vorführung zurück“ führt zum Ausgangspunkt; die tatsächliche Partie bleibt erhalten.
 
 ## Scrollhilfe und Bedienungsdiagnose
 

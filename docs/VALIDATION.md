@@ -1674,3 +1674,24 @@ das vollständige BUILD.json mit Version und Quellcommit. SHA-256 von index.html
 Service Worker, Haupt-JavaScript und CSS stimmen mit dem vorbereiteten Build überein.
 
 Native Windows-/iPad-Abnahme und echte kostenpflichtige Modellabnahme bleiben offen.
+
+## 0.10.1 – Kostenanzeige ohne lokales Kontingent
+
+141/141 Einzeltests bestanden. Neue Regressionen: alter Kostenstand mit
+Budget 0, 99 verbuchten Anfragen und Verbrauch über Budget lässt weitere
+Anfragen zu; Schätzung wird weitergezählt. Desktopfehler auch nach fünf
+Aufrufen ehrlich behandelt, keine geheimen Anbietertexte. Browserzählung
+über sechs Anfragen/Neustarts, Passwortschutz getrennt erhalten.
+
+18/18 gezielte Browserfälle bestanden: e2e/web-app.spec.ts, coach-tools.spec.ts,
+windows-learning.spec.ts. Zwei Fenster zusammen vier Fragen und nach Reload
+fünfte Frage möglich; Kosten fortgeschrieben. Kein Budget-/Resetfeld mehr.
+Vorführung mit echter Stockfish-WASM- und Maia-ONNX-Inferenz, Ausgangspunkt
+wiederhergestellt; Anbieteraufrufe kontrollierte Fixtures. Offline-/Update-
+Abläufe und Windowsgrößen erfolgreich. Chromium Headless 157.0.8103.38 auf
+Linux, keine native Windows-/iPad-Abnahme oder echte KI-Qualitätszusage.
+
+Testbrowser war anfangs nicht installiert; erste Browserausführung konnte
+keinen Test starten. Playwrights eigener Browserdownload lieferte ein ungültiges
+Archiv. Mit offiziellem Chrome-for-Testing-Headless-Shell anschließend alle
+18 Fälle erfolgreich ausgeführt. Kein kostenpflichtiger Modellaufruf.

@@ -81,7 +81,7 @@ function updateMode() {
  message('chat-access',!accessReady?'Gespeicherter KI-Zugang wird lokal geprüft …':accessReadError?modelBlocked:real?(modelAvailable?'Eigener KI-Zugang aktiv · bis zu 3 kostenpflichtige Anfragen je Nachricht · Kostenlimits gelten.':modelBlocked):modelSaved||modelConfigured?'Demo ist ausdrücklich gewählt. Dein gespeicherter KI-Zugang bleibt erhalten.':'Demo: nur lokale Brettfakten, keine KI-Analyse.');
  $('chat-use-model').hidden=real||!(modelSaved||modelConfigured);
  $('chat-open-access').hidden=!real||modelAvailable;
- $('chat-open-access').textContent=modelConfigured?'Kostenkontrolle öffnen':'KI-Zugang prüfen';
+ $('chat-open-access').textContent='KI-Zugang prüfen';
 }
 async function refreshModelStatus() {
  const revision=++accessRevision;
@@ -90,10 +90,9 @@ async function refreshModelStatus() {
   const status=await response.json();if(revision!==accessRevision)return;
   accessReady=true;accessReadError=false;
   modelConfigured=status.available===true;modelSaved=status.saved===true||modelConfigured;
-  modelAvailable=modelConfigured&&status.remaining>0&&status.limit!=='budget';
-  modelBlocked=status.limit==='window'?'Schlüssel vorhanden. Das Anfragelimit dieses Fensters ist erreicht. Kostenkontrolle prüfen; keine Demo-Umschaltung.':status.limit==='period'?'Schlüssel vorhanden. Das Anfragelimit der Budgetperiode ist erreicht. In den Einstellungen die Kostenkontrolle prüfen.':status.remaining===0?'Schlüssel vorhanden. Das lokale Anfragelimit ist erreicht. Kostenkontrolle prüfen.':status.limit==='budget'?'Schlüssel vorhanden. Das lokale Kostenbudget ist erreicht. Kostenkontrolle prüfen.':status.locked?'Schlüssel gespeichert, aber gesperrt. In den Einstellungen entsperren.':'Kein aktiver KI-Zugang. In den Einstellungen den gespeicherten Schlüssel prüfen.';
-  if(status.locked)modelBlocked='Schlüssel gespeichert, aber gesperrt. In den Einstellungen entsperren.'+(status.remaining===0?' Zusätzlich ist das Anfragelimit erreicht.':'');
-  message('model-status',modelAvailable?`KI-Zugang konfiguriert, noch kein Verbindungsnachweis. Verbleibende Anfragen: ${status.remaining}. Keine Kostengarantie.`:modelBlocked);
+  modelAvailable=modelConfigured;
+  modelBlocked=status.locked?'Schlüssel gespeichert, aber gesperrt. In den Einstellungen entsperren.':'Kein aktiver KI-Zugang. In den Einstellungen den gespeicherten Schlüssel prüfen.';
+  message('model-status',modelAvailable?'KI-Zugang konfiguriert, noch kein Verbindungsnachweis. Kosten werden als Schätzung angezeigt.':modelBlocked);
   if((modelConfigured||modelSaved)&&!dialogueChosen)$<HTMLSelectElement>('dialogue-mode').value='model';
  }catch{if(revision!==accessRevision)return;accessReady=true;accessReadError=true;modelAvailable=false;modelBlocked='KI-Status konnte nicht gelesen werden. Zugang und Diagnose prüfen.';message('model-status',modelBlocked);}
  updateMode();
@@ -348,7 +347,7 @@ $('api-form').addEventListener('submit', async event => {
     const status = await response.json();
     if (status.available !== true) throw new Error('Die Speicherung ist nicht bestätigt. Bitte die lokale Diagnose öffnen.');
     input('api-key').value='';input('vault-password').value='';input('api-cost-consent').checked=false;
-    modelAvailable = status.remaining > 0;
+    modelAvailable = status.available === true;
     accessReady=true;accessReadError=false;modelConfigured=true;modelSaved=true;chooseModelMode('model');
     message('credential-status',isWebPlatform()?'✓ Schlüsselfach verschlüsselt auf diesem Gerät gespeichert und entsperrt.':'✓ API-Schlüssel lokal gespeichert. Er wird beim nächsten App-Start wieder geladen.');
     message('api-feedback',isWebPlatform()?`Schlüssel verschlüsselt auf diesem Gerät gespeichert. ${payload.password?'Nach Neustart mit deinem zusätzlichen Passwort entsperren.':'Kein zusätzliches App-Passwort nötig. In diesem Browserprofil wird er beim nächsten Start wieder geladen.'} Keine Modellanfrage ausgeführt.`:'Schlüssel lokal gespeichert und für den nächsten Start hinterlegt. Das leere Feld ist beabsichtigt; du musst den Schlüssel nicht erneut eingeben. Noch keine Modellanfrage ausgeführt.');
@@ -393,24 +392,19 @@ async function diagnosticData() {
 async function refreshCosts(fill=false) {
   try{
     const d=await diagnosticData(), c=d.model.costs;
-    message('cost-summary',`Geschätzter Verbrauch: ${Number(c.estimatedUsd).toFixed(6)} USD / ${c.budgetUsd} USD · ${c.requests}/3 Anfragen · ${c.promptTokens} Eingabe- und ${c.completionTokens} Ausgabe-Tokens bestätigt · ${c.uncertainRequests} Anfragen mit unsicherer Abrechnung.`);
-    if(fill){input('cost-budget').value=String(c.budgetUsd);input('cost-input').value=String(c.inputUsdPerMillion);input('cost-output').value=String(c.outputUsdPerMillion);}
+    message('cost-summary',`Geschätzter Verbrauch: ${Number(c.estimatedUsd).toFixed(6)} USD · ${c.requests} Anfragen · ${c.promptTokens} Eingabe- und ${c.completionTokens} Ausgabe-Tokens bestätigt · ${c.uncertainRequests} Anfragen mit unsicherer Abrechnung.`);
+    if(fill){input('cost-input').value=String(c.inputUsdPerMillion);input('cost-output').value=String(c.outputUsdPerMillion);}
   }catch{message('cost-summary','Kostenstatus nicht verfügbar.');}
 }
 
 $('cost-form').addEventListener('submit',async event=>{
   event.preventDefault();try{
-    await localPost('/api/costs',{action:'configure',budgetUsd:Number(input('cost-budget').value),inputUsdPerMillion:Number(input('cost-input').value),outputUsdPerMillion:Number(input('cost-output').value)});
-    await refreshCosts();message('cost-feedback','Budget und Preisannahmen lokal gespeichert.');
-  }catch{message('cost-feedback','Kostenlimit konnte nicht gespeichert werden. Werte und laufende Anfrage prüfen.');}
-});
-$('cost-reset').addEventListener('click',async()=>{
-  if(!input('cost-reset-consent').checked){message('cost-feedback','Bitte den Neustart der Budgetperiode bestätigen.');return;}
-  try{await localPost('/api/costs',{action:'reset',confirm:true});input('cost-reset-consent').checked=false;await refreshCosts();await refreshModelStatus();message('cost-feedback','Neue Budgetperiode gespeichert. Das zusätzliche Limit pro Fenster bzw. Serverstart bleibt bestehen.');}
-  catch{message('cost-feedback','Budgetperiode konnte nicht neu gestartet werden.');}
+    await localPost('/api/costs',{action:'configure',inputUsdPerMillion:Number(input('cost-input').value),outputUsdPerMillion:Number(input('cost-output').value)});
+    await refreshCosts();message('cost-feedback','Preisannahmen lokal gespeichert.');
+  }catch{message('cost-feedback','Preisannahmen konnten nicht gespeichert werden. Werte und laufende Anfrage prüfen.');}
 });
 $('diagnose').addEventListener('click',async()=>{
-  try{const d=await diagnosticData();message('diagnostic-output',`App-Version: ${d.version ?? 'unbekannt'} · Oberfläche: ${APP_VERSION}\nNode.js: ${d.node} · System: ${d.platform}\nKI-Zugang: ${d.model.configured?'konfiguriert (noch kein Verbindungsnachweis)':'nicht konfiguriert'}\nModell: ${d.model.model??'keines'}\nVerbleibende Anfragen: ${d.model.remaining}\nUpdate: ${d.update?.message??'nicht verfügbar'}\nKeine Schlüsselwerte oder Sitzungstexte in dieser Diagnose.`);await refreshCosts();}
+  try{const d=await diagnosticData();message('diagnostic-output',`App-Version: ${d.version ?? 'unbekannt'} · Oberfläche: ${APP_VERSION}\nNode.js: ${d.node} · System: ${d.platform}\nKI-Zugang: ${d.model.configured?'konfiguriert (noch kein Verbindungsnachweis)':'nicht konfiguriert'}\nModell: ${d.model.model??'keines'}\nAnfragen: ohne lokales Kontingent\nUpdate: ${d.update?.message??'nicht verfügbar'}\nKeine Schlüsselwerte oder Sitzungstexte in dieser Diagnose.`);await refreshCosts();}
   catch{message('diagnostic-output','Lokaler Server nicht erreichbar.');}
 });
 $('diagnose-access').addEventListener('click',async()=>{
@@ -558,7 +552,7 @@ function beginAnalysis(wholeGame:boolean){
 }
 $('analyse-position').addEventListener('click',()=>beginAnalysis(false));
 $('analyse-game').addEventListener('click',()=>beginAnalysis(true));
-$('chat-open-access').addEventListener('click',()=>{navigation.select('settings');const section=modelConfigured?$('cost-form').closest('details')!:$('api-settings');(section as HTMLDetailsElement).open=true;section.scrollIntoView({block:'start'});});
+$('chat-open-access').addEventListener('click',()=>{navigation.select('settings');const section=$('api-settings');(section as HTMLDetailsElement).open=true;section.scrollIntoView({block:'start'});});
 $('learn-back').addEventListener('click',()=>attempt(()=>{const d=studio.session.snapshot(),node=d.nodes.find(n=>n.id===d.activeNodeId)!;if(node.parentId)game.analyse(node.parentId);},'move-feedback','Einen Lernzug zurück.'));
 $('learn-origin').addEventListener('click',()=>attempt(()=>{const d=studio.session.snapshot();game.analyse(d.game?.cursor??d.nodes[0]!.id);},'move-feedback','Zur Ausgangsstellung der Analyse zurück.'));
 $('comment-move').addEventListener('click',()=>{text('question').value='Bitte besprich meinen gerade ausprobierten Zug. Welche Idee steckt dahinter, welche gegnerischen Antworten sollte ich beachten und wie könnte mein Plan weitergehen?';$<HTMLSelectElement>('dialogue-topic').value='position';$<HTMLFormElement>('dialogue-form').requestSubmit();});

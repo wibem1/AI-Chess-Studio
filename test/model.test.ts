@@ -19,7 +19,7 @@ test('default gate rejects without calling transport; status never exposes confi
   for (const cfg of [readConfig({}), { ...config, enabled: false }, { ...config, apiKey: '' }, { ...config, model: '' }]) {
     const service = new ModelService(cfg, fake(async () => { calls++; return response(); }));
     await assert.rejects(service.reply(request()), (e: unknown) => e instanceof ApiError && e.status === 403);
-    assert.deepEqual(service.status(), { available: false, remaining: 3 });
+    assert.deepEqual(service.status(), { available: false, remaining:null });
   }
   assert.equal(calls, 0);
 });
@@ -44,11 +44,10 @@ test('input validation rejects excessive context, malformed FEN and forged moves
   }
   assert.equal(calls, 0);
 });
-test('failures consume the three-attempt limit and never leak provider content or keys', async () => {
+test('failures keep accounting without a three-attempt limit and never leak provider content or keys', async () => {
   let calls = 0; const service = new ModelService(config, fake(async () => { calls++; throw new Error('private provider detail local-test-sentinel'); }));
-  for (let i = 0; i < 3; i++) await assert.rejects(service.reply(request()), (e: unknown) => e instanceof ApiError && e.status === 502 && !e.message.includes('sentinel'));
-  await assert.rejects(service.reply(request()), (e: unknown) => e instanceof ApiError && e.status === 429);
-  assert.equal(calls, 3); assert.equal(service.status().remaining, 0);
+  for (let i = 0; i < 5; i++) await assert.rejects(service.reply(request()), (e: unknown) => e instanceof ApiError && e.status === 502 && !e.message.includes('sentinel'));
+  assert.equal(calls, 5); assert.equal(service.status().remaining, null);
 });
 test('rejects refusals, truncated and oversized responses', async () => {
   for (const result of [response(reply, 'length'), new Response('x'.repeat(70000)),
@@ -82,7 +81,7 @@ test('actual local HTTP boundary enforces origin, body size and default model lo
   const address = server.address(); assert.ok(address && typeof address !== 'string');
   const base = `http://127.0.0.1:${address.port}`;
   try {
-    assert.deepEqual(await (await fetch(base+'/api/status')).json(), { available:false, remaining:3 });
+    assert.deepEqual(await (await fetch(base+'/api/status')).json(), { available:false, remaining:null });
     const post = (origin: string, body: string) => fetch(base+'/api/dialogue', { method:'POST', headers:{Origin:origin,'Content-Type':'application/json'}, body });
     assert.equal((await post('https://unrelated.example', JSON.stringify(request()))).status,403);
     assert.equal((await post(base, JSON.stringify(request()))).status,403);
@@ -115,12 +114,12 @@ test('app credential input configures memory only, makes no provider call, and c
     return response();
   }));
   assert.throws(() => service.configure({action:'connect',apiKey:'local-ui-test-key',model:'gpt-4.1-mini',allowPaid:false}));
-  assert.deepEqual(service.configure({action:'connect',apiKey:'local-ui-test-key',model:'gpt-4.1-mini',allowPaid:true}),{available:true,remaining:3});
+  assert.deepEqual(service.configure({action:'connect',apiKey:'local-ui-test-key',model:'gpt-4.1-mini',allowPaid:true}),{available:true,remaining:null});
   assert.equal(calls,0);assert.ok(!JSON.stringify(service.status()).includes('local-ui-test-key'));
   await service.reply(request());assert.equal(calls,1);
-  assert.deepEqual(service.configure({action:'disconnect'}),{available:false,remaining:2});
+  assert.deepEqual(service.configure({action:'disconnect'}),{available:false,remaining:null});
   await assert.rejects(service.reply(request()),(e:unknown) => e instanceof ApiError && e.status===403);
-  assert.deepEqual(service.configure({action:'connect',apiKey:'replacement-test-key',model:'gpt-4.1-mini',allowPaid:true}),{available:true,remaining:2});
+  assert.deepEqual(service.configure({action:'connect',apiKey:'replacement-test-key',model:'gpt-4.1-mini',allowPaid:true}),{available:true,remaining:null});
   assert.equal(new ModelService(readConfig({})).status().available,false);
 });
 test('actual credential endpoint requires local origin and never returns entered key', async () => {
@@ -135,7 +134,7 @@ test('actual credential endpoint requires local origin and never returns entered
     const post=(origin:string,value:unknown) => fetch(base+'/api/model-config',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json'},body:JSON.stringify(value)});
     assert.equal((await post('https://foreign.example',body)).status,403);
     const connected=await post(base,body);assert.equal(connected.status,200);
-    assert.deepEqual(await connected.json(),{available:true,remaining:3});
+    assert.deepEqual(await connected.json(),{available:true,remaining:null});
     const status=await (await fetch(base+'/api/status')).text();assert.ok(!status.includes(body.apiKey));
     assert.equal((await post(base,{action:'disconnect'})).status,200);
     assert.equal((await (await fetch(base+'/api/status')).json()).available,false);
@@ -145,6 +144,6 @@ test('actual credential endpoint requires local origin and never returns entered
 test('access diagnosis checks model metadata without generation or consuming paid request budget',async()=>{
  let calls=0;
  const service=new ModelService(config,fake(async(url,init)=>{calls++;assert.match(String(url),/\/v1\/models\/explicit-test-model$/);assert.equal(init!.method,'GET');return new Response('{}');}));
- assert.equal((await service.probeAccess()).ok,true);assert.equal(calls,1);assert.equal(service.status().remaining,3);
+ assert.equal((await service.probeAccess()).ok,true);assert.equal(calls,1);assert.equal(service.status().remaining,null);
  assert.equal(service.diagnostics().costs.requests,0);
 });

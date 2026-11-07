@@ -1,5 +1,30 @@
 # Projektstand
 
+## Aktuell vorbereitet: 0.10.1 – Kosten nur anzeigen
+
+Nutzerentscheidung vom 7. November: Budgetperiode und Drei-Anfragen-Grenze
+entfernen. In Browser und Desktop keine Sperre anhand lokaler Verbrauchswerte,
+keine Periodenfreigabe und kein Prozess-/Fensterkontingent mehr. Vorhandene
+Kostenwerte/Preisannahmen bleiben erhalten, auch bei früher ausgeschöpftem
+Budget. Die Oberfläche zeigt Kosten/Anfragen fortlaufend; nur Preisannahmen
+sind einstellbar. Altes budgetUsd-Feld ausschließlich zur Speicherkompatibilität,
+keine Auswertung als Limit. Kein Schlüssel-/Sitzungswechsel nötig.
+
+Brettvorführung bereits seit 0.10.0 vorhanden: freie Bitte im Chat, geprüfte
+show_line/play_engine-Ausführung im Lernzweig und Rückkehr zum Ausgangspunkt.
+Dazu sichtbaren Beispielhinweis am Chat ergänzt. Tatsächliche Partie bleibt
+erhalten; weiterhin zwei Werkzeugrunden pro Nachricht, eine aktive Anfrage und
+keine automatischen Wiederholungen. Das ist kein Gesamt-Anfragekontingent.
+
+Prüfung: 141/141 Einzeltests; 18/18 betroffene Chromium-Browserfälle inklusive
+mehrerer Fenster, Reload, gespeichertem Zugang, Offline/Update, grafischer
+Vorführung mit echtem Stockfish und Maia sowie Windowsgrößen bestanden.
+Anbieterantworten dabei Fixtures, keine bezahlten Modellanfragen. Native
+Geräteabnahme und tatsächliche KI-Werkzeugwahl bleiben gesondert offen.
+
+Noch nicht veröffentlicht; öffentliche App weiterhin 0.10.0. Nächster Schritt:
+Freigabe zur Veröffentlichung über den bestehenden Pages-Weg.
+
 ## Aktuell: 0.10.0 veröffentlicht – freier Lernchat, Brettwerkzeuge und Desktoplayout
 
 Veröffentlicht nach ausdrücklicher Nutzerfreigabe am 7. November 2026. Quelle

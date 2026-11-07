@@ -5,7 +5,7 @@ export const browserRuntime=new BrowserRuntime();
 let web=false;
 export const platformReady=(async()=>{
  if(new URLSearchParams(location.search).get('platform')==='web'){web=true;return 'web' as const;}
- try{const r=await fetch(appPath('/api/status'),{signal:AbortSignal.timeout(3000),cache:'no-store'});const value=r.ok?await r.json():null;if(value&&typeof value.available==='boolean'&&typeof value.remaining==='number')return 'desktop' as const;}catch{}
+ try{const r=await fetch(appPath('/api/status'),{signal:AbortSignal.timeout(3000),cache:'no-store'});const value=r.ok?await r.json():null;if(value&&typeof value.available==='boolean'&&(value.remaining===null||typeof value.remaining==='number'))return 'desktop' as const;}catch{}
  web=true;return 'web' as const;
 })();
 export const isWebPlatform=()=>web;

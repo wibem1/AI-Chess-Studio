@@ -1,5 +1,13 @@
 # Änderungen
 
+## 0.10.1 – Kostenanzeige ohne Budgetperioden (vorbereitet)
+
+- Budgetperiode, lokale Geldsperre und Drei-Anfragen-Grenze im Browser und
+  Desktop entfernt. Kosten/Anfragen werden weiter geschätzt und gespeichert.
+- Bereits ausgeschöpfter Verbrauch blockiert weder Folgefragen noch den
+  gespeicherten KI-Zugang nach Neuladen. Keine Löschung oder Neukonfiguration.
+- Beispielhinweis zur grafischen Brettvorführung im freien Lernchat.
+
 ## 0.10.0 – Freier Lernchat, Brett-/Enginewerkzeuge und Desktoplayout (veröffentlicht am 7. November 2026)
 
 - Freie Textantworten ohne Antwortschema; Stellung, echte Partie und Gespräch

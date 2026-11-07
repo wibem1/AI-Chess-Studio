@@ -19,13 +19,13 @@ async function readProvider(response:Response):Promise<any>{
 }
 /** Credentials are plaintext only in RAM. Profile mode stores ciphertext and a non-exportable CryptoKey. */
 export class BrowserRuntime {
- private config:LocalModelConfig|null=null;private vaultEpoch=0;private attempts=0;private busy=false;
+ private config:LocalModelConfig|null=null;private vaultEpoch=0;private busy=false;
  private tactics=new BrowserTacticalAdapter();
  private restoring:Promise<void>|undefined;
  private channel=typeof window!=='undefined'&&typeof BroadcastChannel!=='undefined'?new BroadcastChannel('chess-studio-vault'):null;
  constructor(readonly store=new BrowserStore(),private transport:typeof fetch=(input,init)=>fetch(input,init)){if(this.channel)this.channel.onmessage=event=>{this.vaultEpoch++;this.config=null;this.restoring=event.data==='changed'?undefined:Promise.resolve();window.dispatchEvent(new Event('chess-vault-change'));};}
  private restoreDevice(){return this.restoring??= (async()=>{const epoch=this.vaultEpoch,record=await this.store.get<StoredVault>('vault');if(record?.version===2){try{const config=await openDeviceConfig(record);if(epoch===this.vaultEpoch)this.config=config;}catch{if(epoch===this.vaultEpoch)this.config=null;}}})();}
- async status(){await this.restoreDevice();const c=(await this.store.budget(ledger=>ledger.snapshot())).state,record=await this.store.get<StoredVault>('vault');return {available:!!this.config,saved:!!record,locked:!!record&&!this.config,limit:this.attempts>=3?'window':c.requests>=3?'period':c.estimatedUsd>=c.budgetUsd?'budget':null,remaining:Math.max(0,Math.min(3-this.attempts,3-c.requests))};}
+ async status(){await this.restoreDevice();const record=await this.store.get<StoredVault>('vault');return {available:!!this.config,saved:!!record,locked:!!record&&!this.config,limit:null,remaining:null};}
  async handle(path:string,method:string,raw?:any,signal?:AbortSignal):Promise<any>{
   await this.restoreDevice();
   if(path==='/api/status'&&method==='GET')return this.status();
@@ -79,7 +79,7 @@ export class BrowserRuntime {
   if(!this.config)throw new ApiError(403,'Lokales Schlüsselfach ist gesperrt.');
   const config=this.config;
   const request=parseRequest(raw);
-  if(this.busy||this.attempts>=3)throw new ApiError(429,'Anfragelimit erreicht oder Anfrage läuft.');
+  if(this.busy)throw new ApiError(429,'Eine Modellanfrage läuft bereits.');
   const {turns=[],toolExchanges,...current}=request;
   const retrospective=request.topic==='review'&&(request.hintMode??'explain')==='explain',outputTokens=retrospective||request.topic==='chat'?1800:800;
   const body=JSON.stringify({model:config.model,max_completion_tokens:outputTokens,...coachProviderFields(request),...(request.topic==='chat'?{}:{response_format:{type:'json_object'}}),messages:[{role:'system',content:request.topic==='chat'?FREE_CHAT_PROMPT:SYSTEM_PROMPT},...turns.map(t=>({role:t.role,content:`[Stellung ${t.nodeId}${t.fen?`, FEN ${t.fen}`:''}] ${t.text}`})),{role:'user',content:JSON.stringify(current)},...coachProviderMessages(request)]});
@@ -88,7 +88,7 @@ export class BrowserRuntime {
   try{
    reserved=(await this.store.budget(l=>l.reserve(new TextEncoder().encode(body).length,outputTokens))).value;
    if(this.config!==config)throw new Error();
-   this.attempts++;started=true;
+   started=true;
    const response=await this.transport('https://api.openai.com/v1/chat/completions',{method:'POST',mode:'cors',credentials:'omit',referrerPolicy:'no-referrer',redirect:'error',headers:{Authorization:'Bearer '+config.apiKey,'Content-Type':'application/json'},body,signal:AbortSignal.any([AbortSignal.timeout(15000),...(signal?[signal]:[])])});
    if(!response.ok){await response.body?.cancel();throw new CoachFailure(providerFailure(response.status));}
    failureCode='provider_format';
@@ -102,9 +102,9 @@ export class BrowserRuntime {
    failureCode='review_format';if(retrospective)validateGameReview(reply.gameReview,request.history);
    return reply;
   }catch(error){
-   if(!started)throw new ApiError(402,'Lokales Kosten- oder Anfragebudget erreicht.');
+   if(!started)throw new ApiError(402,'Verbrauch konnte nicht gespeichert werden.');
    const code=error instanceof CoachFailure?error.code:failureCode;
-   throw new ApiError(502,COACH_ERRORS[code]+' Keine neue Antwort gespeichert. Budgetreservierung bleibt bei unklarer Nutzung bestehen.',code);
+   throw new ApiError(502,COACH_ERRORS[code]+' Keine neue Antwort gespeichert. Die Kostenschätzung bleibt bei unklarer Nutzung bestehen.',code);
   }finally{this.busy=false;}
  }
 }

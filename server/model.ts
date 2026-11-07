@@ -27,16 +27,15 @@ async function readLimited(response: Response): Promise<string> {
   return Buffer.concat(chunks).toString('utf8');
 }
 
-/** Explicit cost gate; no retries; three attempts per server process, including failures. */
+/** Explicit paid access; usage estimates, one active request, no automatic retries. */
 export class ModelService {
-  private attempts = 0;
   private busy = false;
   private localKeySaved = false;
   constructor(private config: ModelConfig, private transport: typeof fetch = fetch, private store?: CredentialsStore, private costs = new CostControl()) {
     const saved = store?.load(); if (saved) { this.config = saved; this.localKeySaved = true; }
   }
-  status(): { available: boolean; remaining: number } {
-    return { available: this.config.enabled && !!this.config.apiKey && !!this.config.model, remaining: Math.max(0, Math.min(3 - this.attempts, 3 - this.costs.snapshot().requests)) };
+  status(): { available: boolean; remaining: null } {
+    return { available: this.config.enabled && !!this.config.apiKey && !!this.config.model, remaining: null };
   }
   diagnostics() { return {localKeySaved:this.localKeySaved,configured:this.status().available,model:this.config.model || null,remaining:this.status().remaining,costs:this.costs.snapshot(),pricingIsEstimate:true}; }
   async probeAccess() {
@@ -49,8 +48,8 @@ export class ModelService {
         response.status===401?'OpenAI lehnt den Schlüssel ab.':response.status===404?'Modell nicht gefunden oder nicht freigegeben.':response.status===429?'OpenAI meldet ein Kontingent- oder Anfragelimit.':'Zugang vom Anbieter abgelehnt.'};
     }catch{return {ok:false,httpStatus:null,message:'OpenAI nicht erreichbar: Netzwerk, Proxy und TLS-Vertrauen prüfen. Keine Textgenerierung ausgeführt.'};}
   }
-  configureCosts(raw:unknown) {if(this.busy)throw new ApiError(429,'Eine Modellanfrage läuft bereits.');try{return this.costs.configure(raw);}catch{throw new ApiError(400,'Budget und Preisannahmen prüfen.');}}
-  configure(raw: unknown): { available: boolean; remaining: number } {
+  configureCosts(raw:unknown) {if(this.busy)throw new ApiError(429,'Eine Modellanfrage läuft bereits.');try{return this.costs.configure(raw);}catch{throw new ApiError(400,'Preisannahmen prüfen.');}}
+  configure(raw: unknown): { available: boolean; remaining: null } {
     if (this.busy) throw new ApiError(429, 'Eine Modellanfrage läuft bereits.');
     const r = raw as Record<string, unknown> | null;
     if (!r || typeof r !== 'object') throw new ApiError(400, 'Ungültige Konfiguration.');
@@ -69,20 +68,19 @@ export class ModelService {
     this.store?.save(next);
     this.localKeySaved = this.store !== undefined;
     this.config = next;
-    // Reconfiguring never resets the process-wide request budget.
     return this.status();
   }
   async reply(raw: unknown): Promise<StrategicReply> {
     if (!this.status().available) throw new ApiError(403, 'Modellanbindung gesperrt oder nicht konfiguriert.');
     const request = parseRequest(raw);
-    if (this.busy || this.attempts >= 3) throw new ApiError(429, 'Anfragelimit erreicht.');
+    if (this.busy) throw new ApiError(429, 'Eine Modellanfrage läuft bereits.');
     const {turns=[],toolExchanges,...currentRequest}=request;
     const retrospective=request.topic==='review'&&(request.hintMode??'explain')==='explain',outputTokens=retrospective||request.topic==='chat'?1800:800;
     const body=JSON.stringify({model:this.config.model,max_completion_tokens:outputTokens,...coachProviderFields(request),...(request.topic==='chat'?{}:{response_format:{type:'json_object'}}),
       messages:[{role:'system',content:request.topic==='chat'?FREE_CHAT_PROMPT:SYSTEM_PROMPT},...turns.map(t=>({role:t.role,content:`[Stellung ${t.nodeId}${t.fen?`, FEN ${t.fen}`:''}] ${t.text}`})),{role:'user',content:JSON.stringify(currentRequest)},...coachProviderMessages(request)]});
     let reservation:number;
-    try {reservation=this.costs.reserve(Buffer.byteLength(body),outputTokens);}catch{throw new ApiError(402,'Lokales Anfrage- oder Kostenbudget erreicht.');}
-    this.attempts++; this.busy = true;let failureCode:CoachFailureCode='network';
+    try {reservation=this.costs.reserve(Buffer.byteLength(body),outputTokens);}catch{throw new ApiError(402,'Verbrauch konnte nicht gespeichert werden.');}
+    this.busy = true;let failureCode:CoachFailureCode='network';
     try {
       const response = await this.transport('https://api.openai.com/v1/chat/completions', {
         method: 'POST', redirect: 'error',
