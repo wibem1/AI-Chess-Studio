@@ -1771,3 +1771,17 @@ bleiben erhalten. Modellantworten dabei Fixtures; keine reale Modellspielstärke
 oder schachliche Erklärqualität geprüft. Native Windows-/iPad-/Android-Abnahme
 offen. Mobile Lernansicht und Diagnoseseite visuell geprüft. Keine neuen
 Abhängigkeiten, Workflows, Änderungen der Sichtbarkeit oder Veröffentlichung.
+
+
+## Windows-Brettgröße, 7. November 2026 (vorbereitete 0.11.0)
+
+Root-Build inklusive TypeScript bestanden. Sechs bestehende Chromiumfälle für
+Brettgeometrie, beide Vergleichsbretter, Stockfish/Maia-Vorführung, Stoppen und
+Planbutton bestanden. Anschließend beide Windows-Lernlayoutfälle bestanden:
+1600/1440/1280×900, 1280×600, Tablet/Telefon, Schriftgröße 150 Prozent sowie
+1032×552 mit deviceScaleFactor 1.667. Dort Brett mindestens 280 CSS-Pixel
+(ungefähr 467 physische Pixel), alle 64 quadratischen Felder, Eingabe und
+aktuelle Antwort gleichzeitig sichtbar, keine horizontale Überbreite.
+Screenshot visuell geprüft. Chromium-Reproduktion, keine native Windows-Abnahme.
+Erster Browserlauf fehlte wegen nicht vorhandenem Browser; nach Installation
+und zwei Layout-/Testkorrekturen obige Prüfungen erfolgreich. Nicht veröffentlicht.

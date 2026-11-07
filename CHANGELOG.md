@@ -2,6 +2,10 @@
 
 ## 0.11.0 – OpenRouter, KI-Diagnose und Testpartien (vorbereitet)
 
+- Windows-Lernbrett: lesbare Mindestgröße statt Schrumpfen bis auf 140 CSS-Pixel;
+  bei niedrigen Desktopfenstern mindestens 280, sonst 360 CSS-Pixel. Beim
+  Schreiben und nach Antworten Brett und Besprechung gemeinsam ins Bild rücken.
+
 - OpenRouter-Zugang und aktueller Modellkatalog mit Werkzeugfilter, Sol/Argon-
   Favoriten, Denkstufe und Modellwechsel ohne erneute Schlüsseleingabe.
 - Anbieter-Modell und gemeldete Kosten je Antwort; Token-/Denk-Nutzung im Bericht.

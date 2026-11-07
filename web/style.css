@@ -374,3 +374,15 @@ h2{font-size:1.65rem}
 #chat-model-controls summary{font-size:.8rem;overflow-wrap:anywhere}
 #coach-match select{max-width:100%;min-width:0}
 #coach-match button,#ai-diagnosis button{margin:8px 5px 0 0}
+/* Desktop readability takes precedence over fitting all page chrome above the board. */
+@media(min-width:901px) and (any-pointer:fine){
+ .workspace[data-active-view=learn] .position{position:relative}
+ .workspace[data-active-view=learn] .board-heading{position:absolute;top:12px;right:16px;margin:0}
+ .workspace[data-active-view=learn] .board-heading h2{display:none}
+ .workspace[data-active-view=learn] #position-status{padding-right:210px;min-height:32px;display:flex;align-items:center}
+ .workspace[data-active-view=learn] #board{width:min(100%,600px,max(360px,50dvh));scroll-margin-top:calc(var(--studio-nav-height,56px) + 8px)}
+}
+@media(min-width:901px) and (max-height:700px) and (any-pointer:fine){
+ .workspace[data-active-view=learn] #board{width:min(100%,480px,max(280px,50dvh))}
+ #current-answer-body{max-height:64px}
+}

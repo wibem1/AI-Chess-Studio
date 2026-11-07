@@ -10,6 +10,10 @@ alten fehlerhaften Antwort waren nicht protokolliert. Keine zusätzlichen
 Taktikhinweise als vermeintliche Lösung eingebaut; Modellqualität bleibt zu prüfen.
 
 Implementiert:
+- Windows-Lernlayout korrigiert: Desktop-Mindestbrettgröße 280 CSS-Pixel bei
+  niedrigen Fenstern, sonst 360; Schrift und Figuren skalieren mit dem Brett.
+  Eingabe/aktuelle Antwort bleiben darunter; Desktop-Fokus und Antwort scrollen
+  zum sichtbaren Brett. Mobile Größenregeln bleiben erhalten.
 - OpenAI-Direktzugang weiter unterstützt; OpenRouter mit aktuellem öffentlichem
   Katalog, Werkzeugfilter, Sol/Argon zuerst, Denkstufe und Modellwechsel ohne
   erneute Schlüsseleingabe. Neue Felder verschlüsselt im bestehenden Browserfach;
