@@ -21,5 +21,5 @@ export function historyFacts(history:{rootFen:string;moves:string[]}){
    events.push({ply:index+1,san,fen:board.fen(),check:board.inCheck(),whiteMinusBlack:difference,...(move.captured?{captured:move.captured}:{})});
   }
  }
- return events.length>8?[...events.slice(0,3),...events.slice(-5)]:events;
+ return events.length>8?Array.from({length:8},(_,i)=>events[Math.round(i*(events.length-1)/7)]!):events;
 }

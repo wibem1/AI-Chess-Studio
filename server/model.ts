@@ -1,3 +1,4 @@
+import {validateGameReview} from '../src/game-review.js';
 import { CostControl } from './costs.js';
 import type { CredentialsStore } from './credentials.js';
 import {ApiError,SYSTEM_PROMPT,parseRequest} from '../src/model-contract.js';
@@ -73,10 +74,11 @@ export class ModelService {
     const request = parseRequest(raw);
     if (this.busy || this.attempts >= 3) throw new ApiError(429, 'Anfragelimit erreicht.');
     const {turns=[],...currentRequest}=request;
-    const body=JSON.stringify({model:this.config.model,max_completion_tokens:800,response_format:{type:'json_object'},
+    const retrospective=request.topic==='review'&&(request.hintMode??'explain')==='explain',outputTokens=retrospective?1800:800;
+    const body=JSON.stringify({model:this.config.model,max_completion_tokens:outputTokens,response_format:{type:'json_object'},
       messages:[{role:'system',content:SYSTEM_PROMPT},...turns.map(t=>({role:t.role,content:`[Stellung ${t.nodeId}${t.fen?`, FEN ${t.fen}`:''}] ${t.text}`})),{role:'user',content:JSON.stringify(currentRequest)}]});
     let reservation:number;
-    try {reservation=this.costs.reserve(Buffer.byteLength(body),800);}catch{throw new ApiError(402,'Lokales Anfrage- oder Kostenbudget erreicht.');}
+    try {reservation=this.costs.reserve(Buffer.byteLength(body),outputTokens);}catch{throw new ApiError(402,'Lokales Anfrage- oder Kostenbudget erreicht.');}
     this.attempts++; this.busy = true;
     try {
       const response = await this.transport('https://api.openai.com/v1/chat/completions', {
@@ -90,10 +92,11 @@ export class ModelService {
       this.costs.settle(reservation,envelope.usage);
       if (envelope.choices?.[0]?.finish_reason !== 'stop') throw new Error('Incomplete response');
       const reply=validateReply(JSON.parse(envelope.choices[0].message.content), request.legalMoves);
-      if((request.hintMode??'explain')==='explain' && !reply.assessment)throw new Error('Missing assessment');
+      if((request.hintMode??'explain')==='explain' && !retrospective && !reply.assessment)throw new Error('Missing assessment');
       if(request.topic && !reply.message?.trim())throw new Error('Missing dialogue');
       if(request.hintMode && !reply.humanFactors)throw new Error('Missing human analysis');
       if(request.hintMode==='question' && (!reply.openQuestions.length || reply.candidates.length))throw new Error('Unwanted solution');
+      if(retrospective)validateGameReview(reply.gameReview,request.history);
       return reply;
     } catch { throw new ApiError(502, 'Modellanfrage fehlgeschlagen oder Antwort ungültig.'); }
     finally { this.busy = false; }

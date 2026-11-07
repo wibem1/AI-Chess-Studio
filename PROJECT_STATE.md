@@ -1,5 +1,40 @@
 # Projektstand
 
+## Aktuelle Korrektur: 0.8.1 implementiert, noch nicht veröffentlicht
+
+7. November 2026. Ausgangspunkt: work 85fa26aa, veröffentlichte App 0.8.0.
+Nutzerbeleg: „Analysiere das Spiel“ führte nur zu wiederholter Beschreibung
+der Mattstellung, ohne konkrete Entscheidungen im Verlauf zu erklären.
+
+Ursachen im Code: freie Spielanalyse konnte als topic position laufen; das
+gemeinsame Antwortschema priorisierte aktuelle FEN/assessment und sehr kurze
+Antworten. Der ganze SAN-Verlauf war bereits vorhanden; keine Behauptung, die
+gesamte Historie habe grundsätzlich gefehlt.
+
+Implementiert: sprachlich ausdrückliche Spielanalyse als review/explain routen,
+tatsächliche Partie statt ausgewähltem Analysezweig verwenden. Eigener validierter
+Partierückblick mit 2–4 chronologischen Lernmomenten, belegten SAN-Zügen, legalen
+Alternativen an der historischen Stellung und konkreter Lerngewohnheit. Bei sehr
+kurzen Partien entsprechend weniger Momente. Reine Schlusszugantworten und falsche
+Zuordnungen ablehnen. Buttons öffnen die Stellung VOR einer Entscheidung; keine
+Partieänderung. Regelereignisse gleichmäßiger verteilt, volle Historie erforderlich.
+Keine Sitzungsmigration oder Änderungen an gespeicherten Zugängen. Ein Aufruf,
+1800 Ausgabe-Tokens nur für diesen Rückblick mit entsprechender Kostenreservierung;
+bisherige Limits bleiben. Keine automatischen Faktenchecks oder Retries.
+
+Prüfungen und Grenzen: siehe neuen Abschnitt in docs/VALIDATION.md. Implementierung
+und automatisierter Ablauf sind belegt; echte Modellqualität ist weiterhin offen.
+Keine bezahlten Modellaufrufe, keine Veröffentlichung. Die konkrete Nutzerpartie
+aus dem Screenshot liegt nicht als vollständige Datei vor; synthetische Tests
+ersetzen deren Prüfung nicht.
+
+Nächster einzelner Schritt: ausdrückliche Veröffentlichungsfreigabe für 0.8.1,
+dann bestehenden Pages-Veröffentlichungsweg samt Erfolgskontrolle verwenden.
+Nicht erneut Zugang einrichten oder Daten löschen. Bei bereitgestellter echter
+Partiedatei kann deren tatsächlicher Kontext separat geprüft werden.
+
+## Bisher veröffentlichter Stand
+
 Stand: 7. November 2026 · **0.8.0 veröffentlicht, GitHub-Erfolg bestätigt**.
 Quelle cf672f2e28026cec25e0a98f46f4a52bf61f2835; gh-pages
 75e778925920f000cf99ca16c23816e9a678a47e; Run 42346000024 SUCCESS.

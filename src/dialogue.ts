@@ -1,3 +1,5 @@
+import {asksForGameReview,validateGameReview,formatGameReview,type GameReview} from './game-review.js';
+import {Chess} from 'chess.js';
 import {MAIA_PROFILES} from './maia-files.js';
 import {positionFacts,describeFacts,historyFacts,type PositionFacts} from './position-facts.js';
 import {reviewLocked,visibleReviewNodes,REVIEW_QUESTIONS} from './review.js';
@@ -10,6 +12,7 @@ export interface DialogueTurn {role:'user'|'assistant';nodeId:string;text:string
 export interface DialogueRequest { nodeId: string; fen: string; question: string; legalMoves: string[]; positionFacts?:PositionFacts;historyFacts?:ReturnType<typeof historyFacts>;context?: string[];hintMode?:HintMode;topic?:DialogueTopic;turns?:DialogueTurn[];history?:{rootFen:string;moves:string[];truncated:boolean} }
 export interface StrategicReply {
   message?:string;
+  gameReview?:GameReview;
   assessment?:{verdict:'white_advantage'|'black_advantage'|'balanced'|'unclear';reason:string;dangers:string[]};
   plan: string; opponent: string; candidates: string[]; risks: string;
   playability: string; openQuestions: string[];humanFactors?:HumanFactors;
@@ -41,9 +44,11 @@ export class Studio {
 
   async ask(question: string, adapter: DialogueAdapter, topic:DialogueTopic='position',hintOverride?:HintMode): Promise<'stored' | 'discarded'> {
     if (!question.trim()) throw new Error('Bitte eine Planfrage eingeben.');
+    if(asksForGameReview(question)){topic='review';hintOverride='explain';}
     const session = this.session;
     const snapshot = session.snapshot();
-    const nodeId = snapshot.activeNodeId;
+    const reviewEnd=topic==='review'&&!snapshot.review?.guiding?(snapshot.game?.cursor??snapshot.review?.original.at(-1)):undefined;
+    const nodeId = reviewEnd??snapshot.activeNodeId;
     if(reviewLocked(snapshot))throw new Error('Zuerst eigene Gedanken festhalten oder den Originalzug ausdrücklich aufdecken.');
     const allowed=visibleReviewNodes(snapshot);
     if(snapshot.comparison && (!allowed.has(snapshot.comparison.a)||!allowed.has(snapshot.comparison.b)))throw new Error('Künftige Originalstellungen sind im geführten Vergleich verborgen.');
@@ -87,18 +92,21 @@ export class Studio {
     while(turns.length>4)turns.splice(0,2);
     const path=pathTo(snapshot,nodeId),start=Math.max(0,path.length-501);
     const history={rootFen:path[start]!.fen,moves:path.slice(start+1).map(n=>n.san!),truncated:start>0};
-    const request = { nodeId, fen, question: question.trim(), legalMoves: session.legalMoves(), positionFacts:positionFacts(fen), context,hintMode,topic,turns,history,...(topic==='review'?{historyFacts:historyFacts(history)}:{}) };
+    const request = { nodeId, fen, question: question.trim(), legalMoves: new Chess(fen).moves(), positionFacts:positionFacts(fen), context,hintMode,topic,turns,history,...(topic==='review'?{historyFacts:historyFacts(history)}:{}) };
     while(new TextEncoder().encode(JSON.stringify(request)).byteLength>16000 && (turns.length || context.length)){
       if(turns.length)turns.splice(0,2);else context.shift();
     }
+    if(topic==='review' && (history.truncated||!history.moves.length))throw new Error('Für eine Partieanalyse ist eine vollständige gespielte Zugfolge nötig.');
+    if(new TextEncoder().encode(JSON.stringify(request)).byteLength>16000)throw new Error('Partieverlauf überschreitet das Kontextlimit. Bitte eine kürzere Partie untersuchen. Keine Anfrage gesendet.');
     const raw = await adapter.respond(request);
     // Replacing a session invalidates outstanding answers, even if node IDs coincide.
     if (this.session !== session) return 'discarded';
     const reply = validateReply(raw, request.legalMoves);
     if(adapter.source==='model' && !reply.message?.trim())throw new Error('Dialogantwort fehlt.');
     if(adapter.source==='model' && !reply.humanFactors)throw new Error('Menschliche Lernanalyse fehlt in der Modellantwort.');
-    if(adapter.source==='model' && hintMode==='explain' && !reply.assessment)throw new Error('Begründete Stellungsbeurteilung fehlt.');
-    if(adapter.source==='model' && hintMode==='explain' && reply.assessment){
+    const retrospective=adapter.source==='model'&&topic==='review'&&hintMode==='explain'?validateGameReview(reply.gameReview,history):undefined;
+    if(adapter.source==='model' && topic!=='review' && hintMode==='explain' && !reply.assessment)throw new Error('Begründete Stellungsbeurteilung fehlt.');
+    if(adapter.source==='model' && topic!=='review' && hintMode==='explain' && reply.assessment){
       const f=request.positionFacts,winner=f.checkmate?(f.sideToMove==='w'?'black_advantage':'white_advantage'):f.mateInOne.length?(f.sideToMove==='w'?'white_advantage':'black_advantage'):undefined;
       if(winner&&reply.assessment.verdict!==winner)throw new Error('KI-Beurteilung widerspricht der regelgeprüften Mattsituation. Antwort nicht gespeichert.');
     }
@@ -106,8 +114,8 @@ export class Studio {
     if(hintMode==='question' && reply.candidates.length)throw new Error('Leitfragenmodus: direkte Zugvorschläge verworfen.');
     session.annotate({ nodeId, kind: 'dialogue', source: 'human', text: request.question,
       hypothesis: false, openQuestions: [] });
-    session.annotate({ nodeId, kind: 'dialogue', source: adapter.source ?? 'simulation', text: hintMode==='question'?`Leitfrage: ${reply.openQuestions[0]}`:hintMode==='hint'?`Denkhinweis: ${reply.humanFactors?.idea??reply.playability}`:adapter instanceof SimulationAdapter?`${reply.message}\n\nAnalyse-Details:\n${describeFacts(request.positionFacts)}`:`${formatReply(reply)}\n${describeFacts(request.positionFacts)}`,
-      hypothesis: true, openQuestions: reply.openQuestions,...(hintMode==='explain'?{suggestions:reply.candidates}:{}) });
+    session.annotate({ nodeId, kind: 'dialogue', source: adapter.source ?? 'simulation', text: retrospective?formatGameReview(retrospective,history):hintMode==='question'?`Leitfrage: ${reply.openQuestions[0]}`:hintMode==='hint'?`Denkhinweis: ${reply.humanFactors?.idea??reply.playability}`:adapter instanceof SimulationAdapter?`${reply.message}\n\nAnalyse-Details:\n${describeFacts(request.positionFacts)}`:`${formatReply(reply)}\n${describeFacts(request.positionFacts)}`,
+      hypothesis: true, openQuestions: retrospective?[]:reply.openQuestions,...(hintMode==='explain'?{suggestions:retrospective?[]:reply.candidates}:{}) });
     return 'stored';
   }
 }

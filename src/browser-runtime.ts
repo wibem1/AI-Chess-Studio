@@ -1,3 +1,4 @@
+import {validateGameReview} from './game-review.js';
 import {BrowserStore,type StoredVault} from './browser-store.js';
 import {sealConfig,openConfig,sealDeviceConfig,openDeviceConfig,type LocalModelConfig} from './browser-vault.js';
 import {ApiError,parseRequest,SYSTEM_PROMPT} from './model-contract.js';
@@ -77,11 +78,12 @@ export class BrowserRuntime {
   const request=parseRequest(raw);
   if(this.busy||this.attempts>=3)throw new ApiError(429,'Anfragelimit erreicht oder Anfrage läuft.');
   const {turns=[],...current}=request;
-  const body=JSON.stringify({model:config.model,max_completion_tokens:800,response_format:{type:'json_object'},messages:[{role:'system',content:SYSTEM_PROMPT},...turns.map(t=>({role:t.role,content:`[Stellung ${t.nodeId}${t.fen?`, FEN ${t.fen}`:''}] ${t.text}`})),{role:'user',content:JSON.stringify(current)}]});
+  const retrospective=request.topic==='review'&&(request.hintMode??'explain')==='explain',outputTokens=retrospective?1800:800;
+  const body=JSON.stringify({model:config.model,max_completion_tokens:outputTokens,response_format:{type:'json_object'},messages:[{role:'system',content:SYSTEM_PROMPT},...turns.map(t=>({role:t.role,content:`[Stellung ${t.nodeId}${t.fen?`, FEN ${t.fen}`:''}] ${t.text}`})),{role:'user',content:JSON.stringify(current)}]});
   if(new TextEncoder().encode(body).length>24000)throw new ApiError(400,'Modellkontext ist zu groß.');
   this.busy=true;let reserved=0,started=false;
   try{
-   reserved=(await this.store.budget(l=>l.reserve(new TextEncoder().encode(body).length,800))).value;
+   reserved=(await this.store.budget(l=>l.reserve(new TextEncoder().encode(body).length,outputTokens))).value;
    if(this.config!==config)throw new Error();
    this.attempts++;started=true;
    const response=await this.transport('https://api.openai.com/v1/chat/completions',{method:'POST',mode:'cors',credentials:'omit',referrerPolicy:'no-referrer',redirect:'error',headers:{Authorization:'Bearer '+config.apiKey,'Content-Type':'application/json'},body,signal:AbortSignal.timeout(15000)});
@@ -89,7 +91,8 @@ export class BrowserRuntime {
    const envelope=await readProvider(response);await this.store.budget(l=>l.settle(reserved,envelope.usage));
    if(envelope.choices?.[0]?.finish_reason!=='stop')throw new Error();
    const reply=validateReply(JSON.parse(envelope.choices[0].message.content),request.legalMoves);
-   if(!reply.message?.trim()||!reply.humanFactors||((request.hintMode??'explain')==='explain'&&!reply.assessment)||request.hintMode==='question'&&(!reply.openQuestions.length||reply.candidates.length))throw new Error();
+   if(!reply.message?.trim()||!reply.humanFactors||((request.hintMode??'explain')==='explain'&&!retrospective&&!reply.assessment)||request.hintMode==='question'&&(!reply.openQuestions.length||reply.candidates.length))throw new Error();
+   if(retrospective)validateGameReview(reply.gameReview,request.history);
    return reply;
   }catch(error){
    if(!started)throw new ApiError(402,'Lokales Kosten- oder Anfragebudget erreicht.');

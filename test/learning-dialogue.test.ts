@@ -33,7 +33,7 @@ test('comparison without chosen variants is blocked before any model call',async
 
 test('game conversations retain the explicit FEN when discussing an earlier move',async()=>{
  const {LearningGame}=await import('../src/game.js');const studio=new Studio(),game=new LearningGame(()=>studio.session);game.start('w',1);game.play('e4');await game.reply({move:async()=>({san:'e5',level:1,engine:'Stockfish fixture'})});game.learn();
- await studio.ask('Besprich den Verlauf',{source:'model',respond:async()=>response},'review');const endFen=studio.session.snapshot().nodes.at(-1)!.fen;
+ await studio.ask('Besprich den Verlauf',{source:'model',respond:async()=>({...response,gameReview:{summary:'Beide Seiten besetzen das Zentrum.',moments:[{ply:1,played:'e4',explanation:'Weiß besetzt das Zentrum.',alternative:'d4',reason:'Andere zentrale Bauernstellung prüfen.'},{ply:2,played:'e5',explanation:'Schwarz besetzt ebenfalls das Zentrum.',alternative:'c5',reason:'Asymmetrisches Zentrum prüfen.'}],lesson:'Entwicklung nach der Zentrumsbesetzung planen.'}})},'review');const endFen=studio.session.snapshot().nodes.at(-1)!.fen;
  game.analyse('n1');await studio.ask('Warum dieser erste Zug?',{source:'model',respond:async request=>{assert.equal(request.nodeId,'n1');assert.equal(request.turns!.length,2);assert.equal(request.turns![1]!.fen,endFen);return response;}});
 });
 

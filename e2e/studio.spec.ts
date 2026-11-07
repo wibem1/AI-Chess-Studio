@@ -336,7 +336,9 @@ test('learning dialogue integrates engine game, actual model-service transport a
  const service=new ModelService({enabled:true,apiKey:'local-integration-test-key',model:'fixture'},(async(_url,init)=>{
   calls++;const body=JSON.parse(init!.body as string);if(calls===2){expect(body.messages.map((m:{role:string})=>m.role)).toEqual(['system','user','assistant','user']);expect(body.messages[2].content).toContain('Zentrumsidee');}
   if(calls===3){const current=JSON.parse(body.messages.at(-1).content);expect(current.topic).toBe('review');expect(current.history.moves).toHaveLength(2);}
-  return new Response(JSON.stringify({usage:{prompt_tokens:200,completion_tokens:100},choices:[{finish_reason:'stop',message:{content:JSON.stringify({...fixture,message:calls===1?fixture.message:'Als zweite Testantwort betrachten wir deinen Gegenplan.'})}}]}));
+  const current=JSON.parse(body.messages.at(-1).content);
+  const retrospective=calls===3?{gameReview:{summary:'Test-Rückblick auf die beiden tatsächlichen Züge.',moments:current.history.moves.map((played:string,index:number)=>({ply:index+1,played,explanation:'Testbeleg zur tatsächlichen Zentrumsbesetzung.',alternative:'',reason:'Keine Alternative in dieser Transportfixture berechnet.'})),lesson:'Zentrumsbesetzung und Entwicklung gemeinsam betrachten.'}}:{};
+  return new Response(JSON.stringify({usage:{prompt_tokens:200,completion_tokens:100},choices:[{finish_reason:'stop',message:{content:JSON.stringify({...fixture,...retrospective,message:calls===1?fixture.message:'Als zweite Testantwort betrachten wir deinen Gegenplan.'})}}]}));
  }) as typeof fetch);
  await page.route('**/api/status',route=>route.fulfill({json:service.status()}));
  await page.route('**/api/dialogue',async route=>{const result=await service.reply(route.request().postDataJSON());await route.fulfill({json:result});});

@@ -1,5 +1,25 @@
 # Änderungen
 
+## 0.8.1 – Partierückblick mit konkreten Lernmomenten (noch nicht veröffentlicht)
+
+- Eine ausdrückliche Nachricht wie „Analysiere das Spiel“ wählt den Partierückblick
+  samt Erklärung; auch von einem früheren Lernzweig aus die tatsächliche Partie.
+- Eigenes Antwortformat: Überblick, zwei bis vier chronologische Entscheidungen,
+  tatsächliche Zugnummern, nachvollziehbare Folgen, Alternativen zum Prüfen und
+  eine konkrete Lerngewohnheit. Keine Schlussstellungsbewertung als Partieanalyse.
+- Züge werden der tatsächlichen Geschichte zugeordnet; Alternativen werden an
+  der Stellung vor dem genannten Zug auf Legalität geprüft. Unpassende und reine
+  Schlusszugantworten werden verworfen, ohne automatische Wiederholung.
+- Direkt zu den Stellungen vor den besprochenen Entscheidungen springen. Kein
+  neues Sitzungsformat; Texte und bestehende Partien bleiben importierbar.
+- Regelereignisse über den Verlauf verteilen statt Anfang/Ende zu bevorzugen.
+  Vollständige Geschichte erforderlich; zu große Anfragen vor Versand stoppen.
+- Ein einzelner Partierückblick erhält bis zu 1800 statt 800 Ausgabe-Tokens;
+  passende Kostenreservierung, unveränderte Budget-/Anfragelimits. Keine
+  zusätzlichen Modell- oder automatischen Stockfish-Anfragen.
+- Ablauf und Regelprüfung automatisiert getestet; echte pädagogische Modellqualität
+  und die Nutzerpartie im Screenshot dadurch nicht abgenommen.
+
 ## 0.8.0 – Lernchat am Brett, Partienanalyse und eindeutiger KI-Zugang
 
 - Lernmodus als durchgehender Ablauf: Zugnavigation, Brett, Chat, danach weitere

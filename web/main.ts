@@ -219,6 +219,13 @@ function render() {
         const show=document.createElement('button');show.type='button';show.textContent=`Zug zeigen: ${san}`;
         show.addEventListener('click',()=>attempt(()=>{game.analyse(a.nodeId);const board=new Chess(data.nodes.find(n=>n.id===a.nodeId)!.fen),shown=board.move(san);const node=game.play(san);shownMove={node,from:shown.from,to:shown.to};},'move-feedback',`${san} im Lernzweig gezeigt. Die Partie bleibt unverändert.`));entry.append(show);
       }
+      if(kind==='dialogue'&&a.source==='model'&&a.text.startsWith('Partierückblick\n')&&!locked){
+        const line=pathTo(data,a.nodeId);
+        for(const match of a.text.matchAll(/^(\d+)(…|\.) (\S+)$/gm)){
+          const node=line.find(n=>{const parent=line.find(p=>p.id===n.parentId);return parent&&parent.fen.split(' ')[5]===match[1]&&(parent.fen.split(' ')[1]==='b'?'…':'.')===match[2]&&n.san===match[3];});
+          if(node?.parentId){const before=node.parentId,button=document.createElement('button');button.type='button';button.textContent=`Vor ${match[0]} ansehen`;button.onclick=()=>{game.analyse(before);render();$('board').scrollIntoView({block:'start'});};entry.append(button);}
+        }
+      }
       if(details){const disclosure=document.createElement('details'),summary=document.createElement('summary'),detail=document.createElement('div');summary.textContent='Denkwege und fachliche Einordnung';detail.textContent=details;disclosure.append(summary,detail);entry.append(disclosure);}
       if(kind==='dialogue' && a.nodeId!==current.id){const jump=document.createElement('button');jump.textContent=`Stellung ${a.nodeId} ansehen`;jump.addEventListener('click',()=>{game.analyse(a.nodeId);render();});entry.append(jump);}
       if (a.openQuestions.length) { const questions = document.createElement('p'); questions.textContent = `Offen: ${a.openQuestions.join(' / ')}`; entry.append(questions);if(kind==='dialogue' && a.source!=='human')for(const q of a.openQuestions.slice(0,2)){const follow=document.createElement('button');follow.textContent=`Rückfrage aufgreifen: ${q}`;follow.addEventListener('click',()=>{text('question').value=q;text('question').focus();});entry.append(follow);} }

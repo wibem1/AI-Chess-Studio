@@ -1383,3 +1383,53 @@ SUCCESS für genau diesen Commit. Öffentliches commitgebundenes BUILD.json
 geprüft: 0.8.0, Basis /AI-Chess-Studio/, identische Quelle, 22 Dateien und
 unverändertes Maia-Modell. Kein neuer Key, keine Budgetrücksetzung, keine
 weitere Bereitstellung durch den anschließenden Dokumentationscommit.
+
+## Korrektur 0.8.1: eigener Partierückblick (7. November 2026)
+
+Ausgangsstand work 85fa26aa. Anlass: Screenshot mit „Analysiere das Spiel“,
+aber ausschließlich wiederholter Beschreibung der Mattstellung. Vollständige
+Nutzerpartie nicht vorhanden; die folgenden Partien sind synthetische Fixtures.
+
+Implementiert/geprüft:
+
+- Freie ausdrückliche Spielanalyse wählt review/explain, auch bei vorheriger
+  Leitfragenpräferenz. Tatsächliche Enginepartie bleibt vom Lernzweig getrennt;
+  Anfrage referenziert deren Ende, ohne den betrachteten Brettknoten zu verändern.
+- Strukturierte chronologische Lernmomente: exakte historische SAN-Zuordnung,
+  alternative SAN vor dem jeweiligen Zug legal; falsche/illegale Alternativen,
+  fehlende Momente, gekürzte/fehlende Geschichte und reine Schlusszugauswahl
+  werden abgelehnt. Legale Alternativen sind kein Beweis ihrer Überlegenheit.
+- Sichtbare Erklärung und Schaltflächen zur Stellung VOR einer Entscheidung.
+  Kein neues Sitzungsformat; keine Vorschläge aus der Endstellung vortäuschen.
+- Desktop-/Web-Provider prüfen denselben Reviewvertrag. 1800 Ausgabe-Tokens nur
+  für review/explain; identische höhere Reservierung im vorhandenen Kostenkonto.
+  Keine zusätzlichen Requests, Retries, Budgetrücksetzung oder Engineanalyse.
+
+Ausführung mit Node.js 24 und lokalem Chromium 153.0.8010.0:
+
+- `npm test`: am endgültigen 0.8.1-Stand **123/123 bestanden**, samt Typprüfung
+  und Root-Build. `npm run build:pages` ebenfalls erfolgreich.
+- Breiter Durchlauf `CHROMIUM_PATH=/tmp/chromium npm run test:all`: Typprüfung,
+  Einzeltests und beide Builds erfolgreich; Browser **72/73 bestanden**. Der
+  alte Test „learning dialogue integrates …“ lieferte noch ausschließlich das
+  bisherige Stellungsformat. Fixture auf zwei tatsächliche historische Züge
+  umgestellt; gezielter Nachlauf **1/1 bestanden**. Kein Produktfehler durch
+  Wiederholen verdeckt, kein automatischer Retry.
+- Nach Versions-/Fixtureabschluss die betroffenen Fälle erneut zusammen:
+  `CHROMIUM_PATH=/tmp/chromium npx playwright test --grep 'typed retrospective|learning dialogue integrates|visible UI version'`:
+  **3/3 bestanden**. Zusammen wurden alle 73 Browserfälle erfolgreich ausgeführt;
+  kein erfolgreicher kompletter Einzellauf mit 73/73 behauptet.
+- Neuer Browserfall verwendet die vollständige Fool's-Mate-Fixture, importiert
+  eine echte Session, geht zur Anfangsstellung, tippt „Analysiere das Spiel“,
+  prüft den tatsächlichen Providerpayload und 1800er-Ausgabelimit, die sichtbaren
+  Zugnummern/Alternativen und den Sprung vor g4 bei erhaltener Originalpartie.
+- iPad-große Chromiumansicht visuell kontrolliert. Keine native iPad-/Safari-
+  Abnahme. Der Standard-Playwright-Browserdownload lieferte keine verwendbare
+  ZIP; separater temporärer Chromium-153-Paketbrowser verwendet, keine neue
+  Projektabhängigkeit oder Lockfileabhängigkeit dafür eingeführt.
+
+Providerantworten sind ausdrücklich abgefangene Fixtures. Keine kostenpflichtige
+Modellanfrage, kein Zugriff auf Nutzerschlüssel und keine Behauptung verbesserter
+realer KI-Qualität. Die neue Struktur verhindert bestimmte nachweisbare Fehler;
+Begründungen/Planqualität bleiben fehlbare Modellurteile. Der konkrete Screenshot
+wird nicht als bestandene Abnahme geführt. Keine Veröffentlichung ausgeführt.
