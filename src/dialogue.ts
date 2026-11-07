@@ -46,6 +46,7 @@ export class Studio {
     if (!question.trim()) throw new Error('Bitte eine Planfrage eingeben.');
     if(asksForGameReview(question)){topic='review';hintOverride='explain';}
     const session = this.session;
+    const chatRevision=session.dialogueRevision();
     const snapshot = session.snapshot();
     const reviewEnd=topic==='review'&&!snapshot.review?.guiding?(snapshot.game?.cursor??snapshot.review?.original.at(-1)):undefined;
     const nodeId = reviewEnd??snapshot.activeNodeId;
@@ -99,8 +100,8 @@ export class Studio {
     if(topic==='review' && (history.truncated||!history.moves.length))throw new Error('Für eine Partieanalyse ist eine vollständige gespielte Zugfolge nötig.');
     if(new TextEncoder().encode(JSON.stringify(request)).byteLength>16000)throw new Error('Partieverlauf überschreitet das Kontextlimit. Bitte eine kürzere Partie untersuchen. Keine Anfrage gesendet.');
     const raw = await adapter.respond(request);
-    // Replacing a session invalidates outstanding answers, even if node IDs coincide.
-    if (this.session !== session) return 'discarded';
+    // Replacing a session or clearing its chat invalidates outstanding answers.
+    if (this.session !== session || session.dialogueRevision()!==chatRevision) return 'discarded';
     const reply = validateReply(raw, request.legalMoves);
     if(adapter.source==='model' && !reply.message?.trim())throw new Error('Dialogantwort fehlt.');
     if(adapter.source==='model' && !reply.humanFactors)throw new Error('Menschliche Lernanalyse fehlt in der Modellantwort.');

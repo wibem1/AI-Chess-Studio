@@ -61,6 +61,7 @@ function chooseModelMode(value:'model'|'simulation'){
  updateMode();
 }
 function updateMode() {
+ $<HTMLButtonElement>('clear-dialogue').disabled=!pending&&!studio.session.snapshot().annotations.some(a=>a.kind==='dialogue');
  const real=modelMode(),locked=reviewLocked(studio.session.snapshot()),blocked=real&&!modelAvailable||!accessReady||accessReadError;
  $<HTMLButtonElement>('ask').textContent=real?'Nachricht senden (reale KI)':'Nachricht senden (Simulation)';
  $<HTMLButtonElement>('ask').disabled=pending||locked||blocked;
@@ -247,20 +248,26 @@ $('memory-form').addEventListener('submit', event => {
     text('memory').value = ''; input('open-question').value = '';
   }, 'dialogue-feedback', 'Notiz an dieser Stellung gespeichert.');
 });
+$('clear-dialogue').addEventListener('click',async()=>{
+ if(!confirm('Chatverlauf dieser Partie auf allen Varianten löschen? Partie und eigene Notizen bleiben erhalten. Bereits gespeicherte Partiekopien bleiben unverändert.'))return;
+ studio.session.clearDialogue();render();
+ try{if(initialized&&isWebPlatform())await autosave.save();message('dialogue-feedback','Chatverlauf dieser Partie gelöscht.');}
+ catch{message('dialogue-feedback','Chatverlauf in dieser Sitzung gelöscht. Automatisches Speichern fehlgeschlagen; Sitzung als Datei sichern.');}
+});
 $('dialogue-form').addEventListener('submit', async event => {
   event.preventDefault(); if (pending || (modelMode() && !modelAvailable)) return;
   const real = modelMode();
   game.pause();
   const question = text('question').value,hintOverride=directAnalysisHint;directAnalysisHint=undefined;
-  const session = studio.session;
-  pending = true; $<HTMLButtonElement>('ask').disabled = true;
+  const session = studio.session,chatRevision=session.dialogueRevision();
+  pending = true;updateMode();
   message('dialogue-feedback', `${real ? 'Modellanfrage' : 'Simulation'} läuft … Stellungswechsel ist weiterhin möglich.`);
   try {
     const result = await studio.ask(question, real ? new ServerModelAdapter(platformFetch) : new SimulationAdapter($<HTMLSelectElement>('simulation-mode').value as SimulationMode),$<HTMLSelectElement>('dialogue-topic').value as DialogueTopic,hintOverride);
-    message('dialogue-feedback', result === 'stored' ? `${real ? 'Modellantwort' : 'Beispielantwort'} an der angefragten Stellung gespeichert.` : 'Veraltete Antwort nach Sitzungswechsel verworfen.');
+    message('dialogue-feedback', result === 'stored' ? `${real ? 'Modellantwort' : 'Beispielantwort'} an der angefragten Stellung gespeichert.` : 'Veraltete Antwort nach Sitzungs- oder Chatwechsel verworfen.');
     render();
   } catch (error) {
-    message('dialogue-feedback', studio.session !== session ? 'Veraltete Anfrage nach Sitzungswechsel verworfen.' : (error instanceof Error ? error.message : 'Anfrage fehlgeschlagen.')+' Die bisherigen Chatbeiträge stammen von früheren Anfragen.');
+    message('dialogue-feedback', studio.session !== session ? 'Veraltete Anfrage nach Sitzungswechsel verworfen.' : session.dialogueRevision()!==chatRevision ? 'Chatverlauf gelöscht; die frühere Anfrage wurde nicht übernommen.' : (error instanceof Error ? error.message : 'Anfrage fehlgeschlagen.')+' Die bisherigen Chatbeiträge stammen von früheren Anfragen.');
   } finally { pending = false; updateMode(); if (real) {void refreshModelStatus();void refreshCosts();} }
 });
 $('export').addEventListener('click', () => {

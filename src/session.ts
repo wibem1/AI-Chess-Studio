@@ -32,6 +32,7 @@ export interface SessionData {
 /** Branch identity is retained even when two nodes share the same FEN. */
 export class Session {
   private data: SessionData;
+  private chatRevision=0;
 
   constructor(fen = DEFAULT_POSITION) {
     this.data = { schemaVersion: 1, activeNodeId: 'n0',
@@ -110,6 +111,12 @@ export class Session {
       if(this.data.review){const path=pathTo(this.data,node.id),expected={rootFen:path[0]!.fen,moves:path.slice(1).map(n=>n.san!)};if(JSON.stringify(annotation.engine!.history)!==JSON.stringify(expected))throw new Error('Befund ohne passende vollständige Partievergangenheit.');}
     }
     this.data.annotations.push(structuredClone(annotation));
+  }
+  dialogueRevision():number{return this.chatRevision;}
+  /** Clear only the current session's conversations, including other branches. */
+  clearDialogue():void{
+    this.data.annotations=this.data.annotations.filter(a=>a.kind!=='dialogue');
+    this.chatRevision++;
   }
   setGame(raw:GameState):void {
     const g=raw;

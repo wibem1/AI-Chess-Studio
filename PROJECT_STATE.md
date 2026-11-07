@@ -1,6 +1,25 @@
 # Projektstand
 
-## Aktuell: 0.8.2 Fehlerauskunft vorbereitet, nicht veröffentlicht
+## Aktuell: 0.9.0 Chatverlauf löschen vorbereitet, nicht veröffentlicht
+
+Nutzerauftrag: Möglichkeit zum Löschen des bisherigen Chatverlaufs. Schaltfläche
+„Chatverlauf löschen“ direkt im Lernchat, mit kurzer Bestätigung. Löscht alle
+Dialogue-Annotationen dieser Sitzung über alle Varianten. Züge, aktive Stellung,
+Partie, Varianten, eigene Notizen/Reflexionen, ungesendeter Entwurf und KI-Zugang
+bleiben erhalten; benannte gespeicherte Kopien anderer Sitzungen unverändert.
+
+Nach dem Löschen wird die automatische Sitzung gespeichert. Auch bereits
+laufende Antworten werden über eine nicht persistierte Chatrevision verworfen,
+damit sie den Verlauf nicht erneut auffüllen. Beim nächsten Gespräch wird kein
+gelöschter Chat als Modellvorgeschichte übergeben. Keine Anfrage oder Änderung
+am Kostenkonto durch das Löschen. Die zuvor vorbereitete Diagnosekorrektur aus
+0.8.2 ist enthalten; die unbekannte Ursache des echten KI-Fehlers bleibt offen.
+
+Prüfungen: 128/128 Einzeltests; Browserablauf mit Bestätigung/Abbrechen und
+Neuladen geprüft. Abschließende Ergebnisse siehe docs/VALIDATION.md. Noch nicht
+veröffentlicht. Nächster Schritt: Freigabe und bestehender Veröffentlichungsweg.
+
+## Enthaltene vorbereitete Diagnosekorrektur aus 0.8.2
 
 Nutzer meldet nach 0.8.1 „Modellanfrage fehlgeschlagen“, darüber weiterhin die
 alte Mattbeschreibung. Nun eine echte Sitzungsdatei und Screenshot vorhanden.

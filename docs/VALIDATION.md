@@ -1492,3 +1492,27 @@ Prüfungen am vorbereiteten 0.8.2-Stand:
 Keine bezahlten Modellaufrufe. Das behebt die fehlende Diagnose, belegt keine
 Behebung der unbekannten Ursache des konkreten Modellaufrufs. 0.8.2 noch nicht
 veröffentlicht; tatsächliche Fehlerkategorie des Nutzers bleibt offen.
+
+## 0.9.0: Chatverlauf löschen
+
+Nutzerauftrag vom 7. November 2026. Löscht nach Bestätigung ausschließlich
+Dialogue-Annotationen der aktuellen Sitzung über alle Varianten. Eigene Notizen,
+Züge und aktive Stellung bleiben, der ungesendete Entwurf wird nicht entfernt.
+Gespeicherte Partiekopien werden nicht nachträglich verändert. Kein Anbieteraufruf,
+kein Zurücksetzen von Anfragelimit/Kostenkonto. Bestehendes Sitzungsformat bleibt.
+
+128/128 Einzeltests bestanden (`npm test`, einschließlich Typprüfung/Root-Build),
+Pages-Build erfolgreich. Zwei neue Kernfälle: Löschung über Geschwisterzweige,
+Export/Import, erhaltene Notizen und fehlende gelöschte Vorgeschichte in der
+nächsten Anfrage; laufende Antwort nach Chatlöschung verworfen, ohne dass dafür
+die Partie gewechselt werden muss. Chatrevision ist nur lokal im RAM und wird
+nicht in das Sitzungsformat eingeführt.
+
+Browserprüfung (Chromium 153.0.8010.0):
+`CHROMIUM_PATH=/tmp/chromium npx playwright test --grep 'chat deletion|failed model request shows|typed retrospective|visible UI version'`: 4/4 bestanden.
+Neuer Fall bedient Import, Bestätigung abbrechen, bestätigen, leert den Chat,
+prüft erhaltenen Entwurf, lädt neu und exportiert die Session als Datei über
+die vorhandene UI. Export enthält alle drei Stellungsknoten samt verstecktem
+Geschwisterzweig und eigene Notiz, aber keine Chatannotation. Bestehende
+Diagnose-/Partierückblick-/Versionsfälle ebenfalls bestanden. Keine nativen
+iPad-Tests und keine echten Modellaufrufe; keine Veröffentlichung ausgeführt.

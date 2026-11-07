@@ -1,5 +1,16 @@
 # Änderungen
 
+## 0.9.0 – Chatverlauf löschen (noch nicht veröffentlicht)
+
+- Schaltfläche direkt am Lernchat; vor dem Löschen kurze Bestätigung.
+- Entfernt den Chat der aktuellen Partie einschließlich aller Varianten.
+  Partie, Notizen, Entwurf und gespeicherte andere Partiekopien bleiben erhalten.
+- Sofortige automatische Sitzungssicherung; nach Neuladen bleibt der Chat leer.
+  Bereits laufende Antworten werden nach dem Löschen nicht mehr gespeichert.
+- Enthält die vorbereitete Diagnosekorrektur aus 0.8.2, ohne Behauptung einer
+  bereits behobenen echten Modellstörung. Keine automatische Anfrage oder
+  Budgetrücksetzung durch die Löschfunktion.
+
 ## 0.8.2 – Aussagekräftige Fehler beim Lerndialog (noch nicht veröffentlicht)
 
 - Anbieterablehnung, Anbieterlimit, Netzwerk, abgeschnittene Antworten und
