@@ -23,3 +23,17 @@ test('foreign PGN gives chat the whole recorded game without claiming a user sid
  await studio.ask('Zeige die Schlüsselstellungen des Spiels',{respond:async request=>{assert.equal(request.topic,'review');assert.deepEqual(request.history!.moves,moves);return new SimulationAdapter().respond(request);}},'chat');
  const saved=Session.import(s.export()).snapshot();assert.equal(saved.review!.browsing,true);assert.equal(saved.annotations.length,4);
 });
+
+
+test('iPad text-PGN accepts Unicode line separators and common file extensions',()=>{
+ const pgn='[Event "Test"]\u2028[White "EgorSN"]\u2028[Black "wibem"]\u2028\u20281. e4 { [%clk 0:10:00] } e5 { [%clk 0:10:00] } 2. d4 exd4 1/2-1/2';
+ for(const name of ['partie.pgn','partie.txt','partie.dat']){
+  const imported=importGameFile(pgn,name,'b');
+  assert.equal(imported.format,'pgn');
+  assert.equal(imported.session.snapshot().orientation,'b');
+  assert.equal(parsePgn(imported.session.snapshot().review!.pgn).moves.length,4);
+ }
+});
+test('tolerant PGN parsing still rejects unrelated text and illegal moves',()=>{
+ for(const invalid of ['This is not a chess game.','1. e4 e5 2. Ke7','[Event "Test"]\n\n1. e4 e5 2. Qh5 Nc6 3. Qxe5+??'])assert.throws(()=>importGameFile(invalid,'partie.txt'));
+});
