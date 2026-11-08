@@ -41,6 +41,8 @@ jobs:
         run: npm run check
       - name: Build und Einzeltests
         run: npm test
+      - name: Produktions-Build fuer Pages-Browsertest
+        run: npm run build:pages
       - name: Browserintegration und reale lokale Spielengines
         run: |
           npx playwright test \
@@ -51,8 +53,6 @@ jobs:
             e2e/position-transfer.spec.ts \
             e2e/maia.spec.ts \
             e2e/pages.spec.ts
-      - name: Produktions-Build
-        run: npm run build:pages
       - name: Build-Metadaten und Dateien vorbereiten
         run: node scripts/publish-pages.mjs --prepare-only
       - name: Anlieferung an gh-pages autorisieren
