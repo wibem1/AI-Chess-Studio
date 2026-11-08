@@ -78,3 +78,40 @@ test('model review with an illegal alternative preserves valid moments and never
  const broken={...review,moments:[{...review.moments[0]!,played:'e4'},review.moments[1]!]};
  assert.throws(()=>validateGameReview(broken,history,true),/Analyse verworfen/);
 });
+
+test('paid-model review with one illegal alternative is saved, navigable and exportable without retry',async()=>{
+ const {Session}=await import('../src/session.js');
+ const {reviewAnchors}=await import('../src/game-review.js');
+ const studio=new Studio(),game=new LearningGame(()=>studio.session);
+ game.start('w',1);game.pause();
+ for(const san of history.moves)studio.session.play(san);
+ studio.session.setGame({...studio.session.snapshot().game!,cursor:'n4'});
+ const candidate={...review,moments:[
+  {...review.moments[0]!,alternative:'Qh4#',reason:'Falsche Empfehlung der KI, obwohl noch nicht legal.'},
+  review.moments[1]!
+ ]};
+ let providerRequests=0;
+ const result=await studio.ask('Zeige die Schlüsselstellungen der Partie',{
+  source:'model',
+  respond:async()=>{
+   providerRequests++;
+   return {message:'Zwei Wendepunkte',gameReview:candidate};
+  }
+ },'chat');
+ assert.equal(result,'stored');
+ assert.equal(providerRequests,1); // No costly retry to repair one bad SAN.
+ const original=studio.session.snapshot();
+ const report=original.annotations.findLast(a=>a.source==='model')!;
+ assert.ok(report.gameReview);
+ assert.equal(report.gameReview!.moments[0]!.alternative,'');
+ assert.match(report.text,/Alternativzug war in dieser Stellung nicht legal/);
+ assert.match(report.text,/2\. g4/);
+ assert.doesNotMatch(report.text,/Falsche Empfehlung der KI/);
+ assert.deepEqual(reviewAnchors(original,report).map(m=>m.nodeId),['n0','n2']);
+ const reloaded=Session.import(studio.session.export()),persisted=reloaded.snapshot();
+ const saved=persisted.annotations.findLast(a=>a.source==='model')!;
+ assert.deepEqual(reviewAnchors(persisted,saved).map(m=>m.nodeId),['n0','n2']);
+ assert.equal(saved.gameReview!.moments[0]!.alternative,'');
+ // The provider's original response object was not overwritten.
+ assert.equal(candidate.moments[0]!.alternative,'Qh4#');
+});
