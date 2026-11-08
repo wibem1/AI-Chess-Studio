@@ -16,6 +16,7 @@ export function installKeyMoments(current:()=>Session,jump:(node:string)=>void){
  });
  return {choose,render(){
   const focused=nav.contains(document.activeElement);
+  document.getElementById('find-key-moments')!.hidden=document.getElementById('workspace')?.dataset.activeView!=='learn';
   const session=current(),data=session.snapshot(),allowed=visibleReviewNodes(data);const candidates=data.annotations.map((a,i)=>({i,anchors:reviewAnchors(data,a)})).filter(x=>x.anchors.length&&x.anchors.every(m=>allowed.has(m.nodeId)));
   const newest=candidates.at(-1)?.i??-1;
   if(latest?.session!==session||latest.index!==newest){latest={session,index:newest};selected=newest<0?undefined:{session,index:newest,text:data.annotations[newest]!.text};}
@@ -23,6 +24,8 @@ export function installKeyMoments(current:()=>Session,jump:(node:string)=>void){
   if(!selected&&candidates.length){const last=candidates.at(-1)!;selected={session,index:last.i,text:data.annotations[last.i]!.text};}
   anchors=selected?candidates.find(x=>x.i===selected!.index)?.anchors??[]:[];index=anchors.findIndex(a=>a.nodeId===data.activeNodeId);
   nav.hidden=!anchors.length||reviewLocked(data)||document.getElementById('workspace')?.dataset.activeView!=='learn';previous.disabled=index===0;next.disabled=index===anchors.length-1;status.textContent=index<0?`${anchors.length} Schlüsselstellen`:`${index+1}/${anchors.length} · vor ${anchors[index]!.label}`;
+  const links=document.getElementById('key-moment-links')!;links.replaceChildren();
+  for(const [i,anchor] of anchors.entries()){const button=document.createElement('button');button.type='button';button.textContent=anchor.label;button.setAttribute('aria-label',`Schlüsselstellung vor ${anchor.label}`);button.setAttribute('aria-current',String(i===index));button.onclick=()=>{if(selected)choose(selected.index,i);};links.append(button);}
   if(focused&&!nav.hidden&&!nav.contains(document.activeElement))nav.focus({preventScroll:true});
  }};
 }

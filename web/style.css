@@ -485,3 +485,6 @@ footer span{display:none}
 #board-area #pgn-game-info{order:-6;font-size:.76rem;color:var(--muted);margin:0 0 5px}
 #board-area #pgn-game-comments{order:3;width:100%;font-size:.8rem}
 #pgn-game-comment{white-space:pre-wrap}
+
+#key-moment-links{display:flex;flex-wrap:wrap;gap:6px}
+#board-area .board-actions #key-moment-nav{flex-wrap:wrap}

@@ -1,3 +1,53 @@
+# Veröffentlichung vorbereitet: 0.16.0
+
+Schlüsselstellungen-Button, direkte Navigation und PGN-Korrektur geprüft.
+170 Einzeltests und 5/5 gezielte Browserfälle bestanden. Browserfälle prüfen
+Buttonauftrag, unveränderte Ausgangsposition, direkte Sprünge, Analyse-Speicherung,
+Referenz-PGN und fehlgeschlagene Sicherung. Providerantworten Fixtures.
+Kein vollständiger grüner Alt-Browsergesamtlauf, keine native iPad-Abnahme.
+Keine bezahlten KI-Anfragen. Veröffentlichung und Live-Prüfung stehen noch aus.
+
+# Fortgesetzter Korrekturstand: PGN-Import
+
+PR #2 erweitert, noch nicht veröffentlicht. Vor der Laufzeitunterbrechung:
+170 Einzeltests bestanden; die drei PGN-Browserfälle bestanden (Referenzimport,
+Datei/JSON-Rundlauf und Sitzungsbackup, Texteingabe, fehlgeschlagene Sicherung).
+Reale Referenz EgorSN – wibem: 137 Halbzüge bis 69. Kh2, Ergebnis und Uhren geprüft.
+Unicode-Zeilentrenner und aufeinanderfolgende Lichess-Kommentare werden nur für
+den Parser angepasst; gespeicherter Originaltext bleibt erhalten. Texteingabe
+im normalen Lademenü ergänzt. Einleitungstext wird abgewiesen.
+
+Der vollständige 97er-Browserlauf zeigte Fehler älterer Oberflächentests; sein
+Endergebnis und der Vergleichslauf gegen 0.15.0 sind nach Laufzeitwechsel nicht
+mehr verfügbar. Keine vollständige Testfreigabe behaupten. Vor Veröffentlichung
+gezielte Tests und Builds erneut ausführen, Versionsnummer/CHANGELOG anheben,
+PR integrieren und Pages samt Live-Manifest prüfen. Native iPad-Abnahme offen.
+Letzter veröffentlichter Stand bleibt 0.15.0. Keine bezahlten KI-Anfragen.
+
+# Nicht integrierter Korrekturstand: iPad-PGN-Import (8. November 2026)
+
+Branch `fix/ipad-pgn-import-20261108` – **implementiert, nicht gebaut oder getestet, nicht veröffentlicht**.
+Ausgangspunkt: Branch `work`, Stand 0.15.0. Bezug: Issue #1.
+
+- Datei-Input ohne starren HTML-`accept`-Filter; auf iPadOS/Safari soll eine
+  PGN-Datei auch bei abweichender UTType-/MIME-Erkennung auswählbar sein.
+  Nach Auswahl kontrolliert weiterhin der Importer den Inhalt; Bilddateien
+  werden ausdrücklich abgewiesen.
+- Der Dateilader gibt den konkreten Parser-/Sicherungsfehler gekürzt als
+  Status aus, statt sämtliche Fehler mit „ungültig oder nicht lesbar“ zu verdecken.
+- PGN-Textnormalisierung für Unicode-Zeilentrenner U+2028/U+2029/U+0085;
+  strenger Parser zuerst, kompatibler Modus als Fallback. Original-Zugfolge
+  und Rohtext bleiben für den erfolgreichen Import erhalten, soweit
+  Eingangsnormalisierung nicht erforderlich ist.
+- Neue Einzeltests für Unicode-Trenner, PGN-Inhalt mit `.pgn`, `.txt` und
+  unbekannter Endung sowie Ablehnung ungeeigneter Inhalte.
+- **Noch offen:** Typprüfung, Build, sämtliche Tests, echte iPad-Safari-
+  Dateiauswahl, Import der Original-Lichess-Datei, eventuell PGN-Text-
+  Eingabefallback. Diese Prüfungen sind nicht erfolgt; keine Freigabe.
+- Aktuell gesicherter, veröffentlichter Stand bleibt 0.15.0 auf `work`.
+  Integration erst nach Prüfungen und Konfliktabgleich mit Codex, keine
+  unkoordinierte parallele Bearbeitung von `work`.
+
 # Projektstand
 
 ## Aktuell veröffentlicht: 0.15.0 – Fremde PGN-Partien direkt laden
@@ -1165,3 +1215,12 @@ Aktuell-Meldung bestanden. Native Android-Abnahme weiterhin offen.
 BUILD.json bestätigt Version, Basis und Quellcommit. Nächster einzelner Schritt:
 Nutzer bestätigt: Update auf 0.3.3 hat funktioniert. Native Android-Installation
 weiterhin nicht möglich. Keine erneute Chrome-/Pages-Einrichtung anfordern.
+
+## Neuer Auftrag: sichtbare Schlüsselstellungen-Aktion
+
+Im Lernmodus Button „Schlüsselstellungen“ am Brett ergänzt. Er verwendet den
+vorhandenen geprüften Partierückblick und fordert Suche und Beschreibung an.
+Nach Analyse direkte Sprungbuttons zusätzlich zu Vor/Zurück am Brett; bestehende
+Speicherung der gameReview-Annotation bleibt zuständig. Keine automatische
+Anfrage beim Öffnen. Kein kostenpflichtiger Test. Noch nicht veröffentlicht;
+gezielte Browserprüfung und Veröffentlichung bleiben ausstehend.
