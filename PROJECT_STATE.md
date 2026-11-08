@@ -1,3 +1,11 @@
+# Fehlerprüfung: Web-App meldet plötzlich fehlenden KI-Schlüssel – 8. November 2026
+
+Nutzer meldet nach erfolgreichem Web-App-Update plötzlich nicht mehr verfügbaren API-Schlüssel. Geräteursache bislang **nicht nachgewiesen**. Der bestehende PWA-Updatecode entfernt ausschließlich App-Shell-Cache und die registrierte Service-Worker-Kontrolle, nicht den IndexedDB-Schlüsselspeicher; vollständiger Verlust durch Browserprofilwechsel, manuelles Löschen oder Browser-Speicherbereinigung kann damit nicht ausgeschlossen werden.
+
+Im aktuellen Entwicklungsbranch `work` umgesetzt (noch nicht veröffentlicht): `BrowserRuntime.restoreDevice()` merkt einen fehlgeschlagenen IndexedDB-Leseversuch bzw. eine fehlgeschlagene Entschlüsselung nicht mehr endgültig, sondern versucht die vorhandene verschlüsselte Aufzeichnung beim folgenden Statusaufruf erneut zu lesen; keine automatische Löschung oder Überschreibung. Die Benutzeroberfläche unterscheidet einen vorhandenen, derzeit nicht lesbaren Schlüsseldatensatz von einem tatsächlich fehlenden. Regressionstest für vorübergehenden IndexedDB-Lesefehler ergänzt. Keine API-Schlüsselwerte geloggt.
+
+GitHub Actions: https://github.com/wibem1/AI-Chess-Studio/actions/runs/42465988406 SUCCESS. Typprüfung, Pages-Build, 173 Einzeltests und 11 ausgewählte Chromiumtests bestanden; kein Deployment. Live weiterhin Version 1.0.1. Für konkrete Geräteursache sichere Anzeige aus Einstellungen / KI-Zugang und ggf. Diagnose ohne Schlüsselwert erfragen. Keine Neueingabe oder Datenlöschung erzwingen.
+
 # Nach 1.0.1: systematische Bedienbereinigung – in `work`, noch nicht veröffentlicht
 
 Nutzer-Screenshot vom 8. November: überfrachteter Lernmodus mit Faktencheck, Textzug-Option, Demo-Bezeichnung und praktisch unbrauchbarem Variantenvergleich. Funktionsinventar und Entscheidungen unter `docs/UI_AUDIT.md`.
