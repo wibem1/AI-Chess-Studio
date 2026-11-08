@@ -33,5 +33,5 @@ test('Pages subdirectory serves the complete app, scoped manifest, real Stockfis
   await page.getByRole('tab',{name:'Spielmodus',exact:true}).click();await page.locator('#game-color').selectOption('b');await page.locator('#open-game-setup').click();await expect(page.locator('#game-feedback')).toContainText('Maia hat gezogen',{timeout:30000});await expect(page.locator('#position-status')).toContainText('n1 · Schwarz');
   await openView(page,'settings');const licenses=page.locator('footer a');await expect(licenses).toHaveAttribute('href',prefix+'licenses.html');await licenses.click();await expect(page.getByRole('heading',{name:'Lizenzen und Enginequellen'})).toBeVisible();await page.getByRole('link',{name:'BSD-2-Clause-Lizenz'}).click();await expect(page.locator('body')).toContainText('Jeff Hlywa');
   expect(outside).toEqual([]);expect(errors).toEqual([]);
- }finally{await context.setOffline(false);await page.goto('about:blank');await new Promise<void>(resolve=>server.close(()=>resolve()));}
+ }finally{await context.setOffline(false);await page.close();await new Promise<void>(resolve=>server.close(()=>resolve()));}
 });
