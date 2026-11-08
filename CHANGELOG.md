@@ -1,12 +1,15 @@
 # Änderungen
 
-## In Entwicklung nach 1.0.1 – KI-Anbieter und Schlüsselzustand
+## In Entwicklung nach 1.0.1 – KI-Anbieter, Schlüsselzustand und Sol-Transport
 
 - Anbieterwahl OpenAI direkt oder OpenRouter im Einstellungsformular ausdrücklich sichtbar.
 - Beim nicht lesbaren Schlüsselfach keinen falschen OpenAI-Zugang vorauswählen.
 - Für neu gewähltes OpenAI direkt ist `gpt-6.1-sol` die Modell-Voreinstellung; bestehende gespeicherte Modelle werden nicht verändert.
 - Fehlgeschlagene Leseversuche des verschlüsselten lokalen Schlüssels erneut prüfen, ohne ihn zu löschen.
-- Hinweis: Der vorhandene Chat-Completions-Transport ist für Sol 6.1-Brettwerkzeugaufrufe nicht nachgewiesen; Modellfunktion separat testen.
+- Direkte Sol-6.1-Anfragen werden an die OpenAI Responses API geleitet; OpenRouter behält Chat Completions.
+- Vier Brettwerkzeuge werden über eine validierte Responses-Funktionsschnittstelle fortgeführt; bis zu zwei Werkzeugrunden, keine ungeprüften Züge.
+- Verschlüsselter Modell-Fortsetzungskontext bleibt ausschließlich im RAM und wird aus Diagnoseberichten entfernt.
+- Funktionstests mit Mock-Antworten; echter OpenAI-Modellzugriff und Tool-Fortsetzung bleiben ausdrücklich ungeprüft.
 
 
 ## 1.0.1 – Web-App-Update und Cache-Reparatur
