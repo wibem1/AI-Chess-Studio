@@ -19,6 +19,8 @@ import { Chess, type Square } from 'chess.js';
 import { Studio, type DialogueTopic } from '../src/dialogue.js';
 import { ServerModelAdapter } from '../src/model-client.js';
 import { checkTactics, ServerTacticalAdapter } from '../src/tactics.js';
+import {BrowserTacticalAdapter} from '../src/browser-tactics.js';
+import {withStockfishAssessment} from '../src/stockfish-assist.js';
 import { LearningGame, ServerPlayingEngine, pathTo } from '../src/game.js';
 import type {HintMode} from '../src/learning.js';
 import './style.css';
@@ -38,6 +40,7 @@ document.title = `AI-Chess-Studio ${APP_VERSION}`;
 installFontScale();
 const studio = new Studio();
 let generalAiInstructions='';
+let stockfishAssistEnabled=false;
 let initialized=false;
 const autosave=new AutoSave(browserRuntime.store,()=>({json:studio.session.export(),question:text('question').value}),value=>message('autosave-status',value));
 const game=new LearningGame(()=>studio.session);
@@ -295,7 +298,7 @@ const studyTools=document.createElement('details');studyTools.id='study-tools';s
 const match=new CoachMatch(()=>studio.session,()=>{render();$('match-status').textContent=match.report?.message??'';if(match.report)message('dialogue-feedback',match.running?'KI-Testpartie läuft.':'KI-Testpartie beendet. Details stehen unter dem Brett.');$<HTMLButtonElement>('match-start').disabled=!!match.running;$<HTMLButtonElement>('match-stop').disabled=!match.running;});
 $('match-start').addEventListener('click',async()=>{
  if(pending||!modelAvailable){message('match-status','Aktiven eigenen KI-Zugang wählen; keine Simulation.');return;}
- game.pause();const snapshot=studio.session.snapshot(),saved=snapshot.game,fen=snapshot.nodes.find(n=>n.id===snapshot.activeNodeId)!.fen;const adapter=new ServerModelAdapter(platformFetch,()=>generalAiInstructions),opponent=saved?.opponent??$<HTMLSelectElement>('game-opponent').value as 'stockfish'|'maia';
+ game.pause();const snapshot=studio.session.snapshot(),saved=snapshot.game,fen=snapshot.nodes.find(n=>n.id===snapshot.activeNodeId)!.fen;const adapter=new ServerModelAdapter(platformFetch,()=>generalAiInstructions,enrichWithStockfish),opponent=saved?.opponent??$<HTMLSelectElement>('game-opponent').value as 'stockfish'|'maia';
  try{const identity=await diagnosticData();await match.start({model:identity.model.model,color:new Chess(fen).turn(),opponent,level:saved?.level??Number($<HTMLSelectElement>('game-level').value),maxTurns:100},adapter,opponent==='maia'?new MaiaPlayingEngine(value=>message('match-status',value)):new BrowserPlayingEngine());}catch(error){message('match-status',error instanceof Error?error.message:'Teststart fehlgeschlagen.');}finally{for(const id of ['model-apply','api-connect','api-disconnect'])$<HTMLButtonElement>(id).disabled=false;await refreshCosts();}
 });
 $('match-stop').onclick=()=>{match.stop();render();message('match-status',match.report?.message??'Angehalten.');};
@@ -306,6 +309,19 @@ $('learning-settings').hidden=true;
 $('panel-settings').append($('learning-settings'));
 $('diagram-close').onclick=()=>{chatStopped=true;studio.cancelAsk();coachBoard.cancel();activeAdapter?.cancel();illustration=undefined;render();};
 const keyMoments=installKeyMoments(()=>studio.session,node=>{match.stop('Schlüsselstelle ansehen.');game.analyse(node);illustration=undefined;selected=null;navigation.select('learn',false,true,false);render();});
+const stockfishToggle=$<HTMLInputElement>('stockfish-assist-enabled'),stockfishStatus=$('stockfish-assist-status');
+void browserRuntime.store.getStockfishAssistEnabled().then(enabled=>{stockfishAssistEnabled=enabled;stockfishToggle.checked=enabled;stockfishStatus.textContent=enabled?'Aktiv: Stockfish wird vor deiner nächsten Lernfrage geprüft.':'Aus: KI antwortet ohne zusätzlichen Stockfish-Suchlauf.';}).catch(()=>{stockfishStatus.textContent='Einstellung konnte nicht gelesen werden; Faktencheck bleibt aus.';});
+stockfishToggle.addEventListener('change',async()=>{
+ const chosen=stockfishToggle.checked;
+ try{await browserRuntime.store.setStockfishAssistEnabled(chosen);stockfishAssistEnabled=chosen;stockfishStatus.textContent=chosen?'Aktiv: Stockfish prüft vor der nächsten Lernfrage.':'Aus: Keine zusätzliche Engineprüfung für die KI.';}
+ catch(error){stockfishToggle.checked=stockfishAssistEnabled;stockfishStatus.textContent=error instanceof Error?error.message:'Einstellung konnte nicht gespeichert werden.';}
+});
+const enrichWithStockfish=async(request:import('../src/dialogue.js').DialogueRequest)=>{
+ if(!stockfishAssistEnabled)return request;
+ message('dialogue-feedback','Stockfish prüft die aktuelle Stellung vor dem KI-Aufruf …');
+ const adapter=isWebPlatform()?new BrowserTacticalAdapter():new ServerTacticalAdapter(platformFetch);
+ return withStockfishAssessment(request,adapter);
+};
 const instructionsEditor=$<HTMLTextAreaElement>('general-ai-instructions');
 const instructionsStatus=$('general-ai-instructions-status');
 void browserRuntime.store.getGeneralInstructions().then(saved=>{generalAiInstructions=saved;instructionsEditor.value=saved;instructionsStatus.textContent=saved?'Gespeicherte Anweisungen geladen.':'Noch keine allgemeinen Anweisungen gespeichert.';}).catch(()=>{instructionsStatus.textContent='Gerätespeicher nicht lesbar. Anweisungen können hier nicht geladen werden.';});
