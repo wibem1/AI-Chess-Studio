@@ -1,3 +1,11 @@
+# Fehlerbehebung Partierückblick – ungültiger KI-Alternativzug, 8. November 2026
+
+**Nutzerdiagnose Version 1.0.5:** Partierückblick über vollständige 149-Halbzug-Partie. Anfrage zu Schlüsselstellungen über OpenRouter / `openai/gpt-6.1-sol`, HTTP 200, Providerkosten 0,0298785 USD, danach `review_format`. Modell schlug bei 24.c4 als Alternative `Rc3` vor, erklärte jedoch selbst, warum der Zug illegal ist (eigener Bauer auf c3). Der bisherige strenge Validator verwarf daher den gesamten Rückblick. Die App-Fehlermeldung war sachlich richtig; das Verwerfen sämtlicher anderen Momente war aber vermeidbar. Der zuvor ausgegebene freie Gesamtbericht wurde separat erfolgreich übernommen (0,0271585 USD).
+
+**Im `work`-Branch implementiert, nicht veröffentlicht:** `validateGameReview(..., true)` erhält streng geprüfte historische Zugbezüge und Beschreibungen, entfernt ausschließlich nicht legale/identische Alternativzüge mit deren unzuverlässiger Begründung und kennzeichnet die Entfernung im betreffenden Moment. Der Standardmodus bleibt streng, damit Import und Session-Validierung weiterhin ungültige Alternativen ablehnen. Beide Providerwege (`src/browser-runtime.ts`, `server/model.ts`) bereinigen vor der Rückgabe; der Dialog sichert die bereinigte Analyse. Keine automatische neue KI-Anfrage, keine Änderung an gespeicherten Partien/Schlüsseln. Regression in `test/game-review.test.ts`.
+
+**Prüfung:** https://github.com/wibem1/AI-Chess-Studio/actions/runs/42515422947 – SUCCESS, TypeScript, 190 Node-Tests, Web-Build und 15 Browser-Tests. Ausschließlich Fixture-Tests, kein echter Modellaufruf und keine Geräteabnahme. Nächster Schritt: Auf ausdrücklichen Auftrag veröffentlichen und danach Benutzerprüfung mit bestehendem Partierückblick (keine Rückwirkung auf bereits abgelehnte Antwort).
+
 # Veröffentlicht: ChessStudio 1.0.5 – Ausgabelimit für Sol-Partierückblicke (8. November 2026)
 
 Auf den Auftrag „weiter“ nach Vorbereitung und nachgewiesenen 189 Einzel- sowie 15 Browsertests wurde die Ausgabelimit-Einstellung als Version **1.0.5** veröffentlicht. Quellcommit `e2e56f8a05c50a574ebd5bac0432c5a57c0b2c11`, gh-pages-Commit `1f5d21af43eba5bab7443c660ce46b03c7324454`; `gh-pages/BUILD.json` bestätigt Version 1.0.5, identischen Quellcommit und 22 Webdateien.
