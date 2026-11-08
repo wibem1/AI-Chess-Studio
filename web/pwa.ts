@@ -16,7 +16,7 @@ export function installPwa(save:()=>Promise<void>){
  };
  const newer=(version:string)=>{
   const current=APP_VERSION.split('.').map(Number),available=version.split('.').map(Number);
-  return available.some((part,i)=>part!==current[i]&&available.slice(0,i).every((v,j)=>v===current[j])&&part>current[i]);
+  for(let i=0;i<3;i++){if(available[i]!==current[i])return (available[i]??0)>(current[i]??0);}return false;
  };
  check.disabled=true;
  const offlineReady=()=>{status.textContent=`Version ${APP_VERSION}: App-Oberfläche und Stockfish sind für den Offline-Start vorbereitet. KI-Chat und Zugangsprüfung brauchen Internet.`;};
