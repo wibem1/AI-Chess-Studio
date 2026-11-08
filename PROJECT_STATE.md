@@ -1,3 +1,13 @@
+# Nach 1.0.1: systematische Bedienbereinigung – in `work`, noch nicht veröffentlicht
+
+Nutzer-Screenshot vom 8. November: überfrachteter Lernmodus mit Faktencheck, Textzug-Option, Demo-Bezeichnung und praktisch unbrauchbarem Variantenvergleich. Funktionsinventar und Entscheidungen unter `docs/UI_AUDIT.md`.
+
+Umgesetzt: verborgene Textzug- und Faktencheck-Oberflächen, keine Legale-Züge-Liste, Demo-Bezeichnung im Senden-Knopf entfernt; bestehende technische Adapter und alte gespeicherte Simulationen/Faktenchecks bleiben erhalten. Variantenübersicht zeigt statt sämtlicher Halbzüge nur Endpunkte und ausdrücklich benannte Stellungen. Vergleichsauswahl ist entsprechend kompakt, bei weniger als zwei Varianten inaktiv. Die normale Brettbedienung, Bauernumwandlung, freier Chat, PGN, Speichern/Laden sowie gespeicherte Zweige bleiben vorhanden.
+
+Objektive Prüfung: GitHub Actions Lauf https://github.com/wibem1/AI-Chess-Studio/actions/runs/42465566829 SUCCESS; Node 24, Typprüfung, Root- und Pages-Build, 172 Einzeltests, 11 gezielte Chromiumfälle einschließlich neuem verzweigten Variantenvergleich, PGN-Sicherung, Stellungsübergabe und unverrückbarer Brettsteuerung bestanden. Kein Deployment, keine bezahlten KI-Aufrufe, keine native iPad-Geräteabnahme. Auslieferung bleibt 1.0.1.
+
+Noch offen: größere Partie mit echten parallelen Verzweigungen auf Touch-Gerät vollständig durchführen, Variantenablauf verbessern (Anfang und Unterschiede der Zweige), alte PGN-Zweitwege nach Kompatibilitätsprüfung zusammenführen, veraltete historische E2E-Tests aktualisieren. Kein neu nummerierter Release vor vollständiger Freigabe.
+
 # Veröffentlicht: 1.0.1 – PWA-Update-Korrektur (8. November 2026)
 
 GitHub Actions erfolgreich: https://github.com/wibem1/AI-Chess-Studio/actions/runs/42464356212
