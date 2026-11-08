@@ -1,13 +1,10 @@
 import {test,expect} from '@playwright/test';
 
-test('optional Stockfish search reaches the AI and is shown only after a requested learning question',async({page})=>{
+test('Stockfish result appears under learning board immediately and reaches the AI after a question',async({page})=>{
  test.setTimeout(60000);
  await page.goto('/?platform=web');
  await expect(page.locator('#workspace')).not.toHaveAttribute('inert','');
  await page.locator('#open-settings').click();
- await page.locator('#stockfish-assist-settings > summary').click();
- await page.locator('#stockfish-assist-enabled').check();
- await expect(page.locator('#stockfish-assist-status')).toContainText('Aktiv');
  await page.locator('#api-settings > summary').click();
  await page.locator('#api-provider').selectOption('openai');
  await page.locator('#settings-model-section > summary').click();
@@ -28,11 +25,32 @@ test('optional Stockfish search reaches the AI and is shown only after a request
  });
  await page.getByRole('tab',{name:'Lernmodus',exact:true}).click();
  await expect(page.locator('#stockfish-assist-result')).toBeHidden();
+ await page.locator('#stockfish-assist-enabled').check();
+ await expect(page.locator('#stockfish-assist-result')).toBeVisible({timeout:30000});
+ await expect(page.locator('#stockfish-assist-result')).toContainText('Stockfish:');
+ await expect(page.locator('#stockfish-assist-result')).toContainText('Hauptvariante:');
  expect(calls).toBe(0);
  await page.locator('#question').fill('Bewerte die aktuelle Ausgangsstellung mit begrenzter Stockfish-Prüfung.');
  await page.locator('#ask').click();
  await expect(page.locator('#dialogue-feedback')).toContainText('gespeichert',{timeout:45000});
  await expect(page.locator('#stockfish-assist-result')).toBeVisible();
- await expect(page.locator('#stockfish-assist-result')).toContainText('Stockfish-Faktencheck');
+ await expect(page.locator('#stockfish-assist-result')).toContainText('Stockfish:');
  expect(calls).toBe(1);
+});
+
+test('Stockfish board score is refreshed for the visible learning position, never for the play view',async({page})=>{
+ test.setTimeout(60000);
+ await page.goto('/?platform=web#lernen');
+ await expect(page.locator('#workspace')).not.toHaveAttribute('inert','');
+ const score=page.locator('#stockfish-assist-result');
+ await page.locator('#stockfish-assist-enabled').check();
+ await expect(score).toBeVisible({timeout:30000});
+ const initial=await score.textContent();
+ await page.locator('#board [data-square=e2]').click();
+ await page.locator('#board [data-square=e4]').click();
+ await expect(page.locator('#position-status')).toContainText('n1');
+ await expect(score).toBeVisible({timeout:30000});
+ await expect(score).not.toHaveText(initial!);
+ await page.getByRole('tab',{name:'Spielmodus',exact:true}).click();
+ await expect(page.locator('#stockfish-assist-settings')).toBeHidden();
 });
