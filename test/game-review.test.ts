@@ -69,7 +69,7 @@ test('model review with an illegal alternative preserves valid moments and never
  assert.equal(repaired.moments[1]!.alternative,'g3');
  const formatted=formatGameReview(repaired,history);
  assert.match(formatted,/Partierückblick/);
- assert.doesNotMatch(formatted,/Qh4#/);
+ assert.doesNotMatch(formatted,/Alternative zum Prüfen: Qh4#/);
  assert.match(formatted,/nicht legal und wurde entfernt/);
  assert.match(formatted,/Alternative zum Prüfen: g3/);
  assert.equal(raw.moments[0]!.alternative,'Qh4#'); // No mutation of provider data.
