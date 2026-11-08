@@ -1,3 +1,11 @@
+# Fehleranalyse nach 1.0.2 – alte Demo als aktuelle Antwort und unklare Providerablehnung (8. November 2026)
+
+Nutzer-Screenshot: Bei einer abgelehnten Anfrage „Finde und beschreibe die Schlüsselstellungen“ zeigt die App noch eine alte, als Simulation gekennzeichnete Antwort unter „Aktuelle Antwort“ sowie frühere Google-Modellbeiträge im Verlauf. Das sind historische Sitzungsdaten und **kein Beleg für den aktiven Anbieter**. Die aktuelle Anfrage wurde nicht gespeichert; echte Ursache der Providerablehnung noch unbekannt (Diagnose mit HTTP-Status und aktuellem Anbieter nötig).
+
+In `work` korrigiert, **noch nicht veröffentlicht**: Nach gescheiterter Anfrage bekommt der bisherige Antwortblock die ehrliche Überschrift „Letzte gespeicherte Antwort · neue Anfrage fehlgeschlagen“. Bei `provider_http` werden nur numerische HTTP-Statuswerte 400/404/405/409/422/500/502/503/504 aus sicherem lokalem Fehlertext über den Client an die Oberfläche weitergereicht, niemals fremde Response-Bodies. Regression `e2e/rejected-ai-request.spec.ts` simuliert erfolgreiche Antwort, anschließendes HTTP 400, fehlende neue Antwort, alte Antwort korrekt bezeichnet und Geheimtext aus Anbieterantwort nicht angezeigt. Dies verändert keine Schlüssel, Partien, Chatdaten oder Anbieteroptionen.
+
+GitHub Actions https://github.com/wibem1/AI-Chess-Studio/actions/runs/42473687057 SUCCESS: Typprüfung, Build, 180 Einzeltests und 13 Browserprüfungen bestanden. Keine echten kostenpflichtigen Anbieteraufrufe, keine native Geräteabnahme, **kein Deployment**. Online bleibt 1.0.2. Nächster Schritt: Nutzer soll in der laufenden Web-App die vorhandene KI-Anfrage-Diagnose exportieren (ohne Schlüssel) oder den angezeigten aktuellen Anbieter, das Modell und den HTTP-Status nennen. Erst dann Ursache im Providertransport gezielt korrigieren. Vorher keine weitere teure Probe erzwingen.
+
 # Veröffentlicht: ChessStudio 1.0.2 – 8. November 2026
 
 Auf ausdrücklichen Nutzerauftrag über GitHub Actions veröffentlicht. Quellcommit `5daf60f98a79cbfd81d9c0728da1b307fd88a789`, gh-pages-Commit `2a3ef19f724f0ea002a7c48c3f393382e395c66e`. `gh-pages/BUILD.json` bestätigt `version: 1.0.2`, passenden Quellcommit und 22 Webdateien. GitHub-Pages-Deploymentlauf https://github.com/wibem1/AI-Chess-Studio/actions/runs/42472751116 für exakt diesen gh-pages-Commit SUCCESS.
