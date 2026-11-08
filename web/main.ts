@@ -224,16 +224,25 @@ function render() {
   }
 
   const variants = $('variations'); variants.replaceChildren();
-  // Build iteratively so deeply imported lines do not overflow the render stack.
-  const lists = new Map<string | null, HTMLUListElement>();
-  const rootList = document.createElement('ul'); lists.set(null, rootList); variants.append(rootList);
-  for (const node of data.nodes.filter(n=>allowed.has(n.id))) {
-    const li = document.createElement('li'); const button = document.createElement('button');
-    button.textContent = `${node.id} · ${data.labels?.[node.id] ?? node.san ?? 'Ausgangsstellung'}${mainIds.has(node.id)?' · Partie':data.review?.original.includes(node.id)?' · Original':''}`;
-    button.setAttribute('aria-current', String(node.id === current.id));
-    button.addEventListener('click', () => { game.analyse(node.id); selected = null; render(); message('move-feedback', 'Stellung gewechselt.'); });
-    li.append(button); lists.get(node.parentId)!.append(li);
-    const children = document.createElement('ul'); li.append(children); lists.set(node.id, children);
+  // Present playable branches, not a long list of every half-move.
+  const visibleNodes=data.nodes.filter(n=>allowed.has(n.id));
+  const childrenCount=new Map<string,number>();
+  for(const node of visibleNodes)if(node.parentId)childrenCount.set(node.parentId,(childrenCount.get(node.parentId)??0)+1);
+  const tips=visibleNodes.filter(node=>node.parentId!==null&&(childrenCount.get(node.id)??0)===0);
+  const meaningful=visibleNodes.filter(node=>node.parentId!==null&&!!data.labels?.[node.id]&&!tips.includes(node));
+  const choices=[...tips,...meaningful];
+  const summary=document.createElement('p');summary.className='hint';
+  summary.textContent=choices.length>1?`${choices.length} Varianten oder benannte Stellungen. Tippe eine an, um sie auf dem großen Brett zu öffnen.`:'Noch keine eigene Abzweigung. Wähle mit Zurück eine frühere Stellung und ziehe dann eine andere Figur. Die Partie bleibt erhalten.';
+  variants.append(summary);
+  const branchList=document.createElement('div');branchList.className='variant-choices';variants.append(branchList);
+  if(choices.length>1)for(const node of choices){
+    const path=pathTo(data,node.id),label=data.labels?.[node.id];
+    const name=label||`${node.san??'Stellung'} · ${path.length-1} Halbzüge`;
+    const button=document.createElement('button');button.type='button';button.className='secondary';
+    button.textContent=`${name}${mainIds.has(node.id)?' · Hauptpartie':' · Variante'}`;
+    button.setAttribute('aria-current',String(node.id===current.id));
+    button.addEventListener('click',()=>{game.analyse(node.id);selected=null;render();message('move-feedback','Variante auf dem Brett geöffnet.');});
+    branchList.append(button);
   }
   input('variant-label').value=data.labels?.[current.id]??'';
   renderComparison();
@@ -510,11 +519,15 @@ $('compare-form').addEventListener('submit',event=>{event.preventDefault();attem
 function renderComparison(){
  const d=studio.session.snapshot(),allowed=visibleReviewNodes(d);
  const visible=d.nodes.filter(n=>allowed.has(n.id));
+ const count=new Map<string,number>();for(const node of visible)if(node.parentId)count.set(node.parentId,(count.get(node.parentId)??0)+1);
+ const options=visible.filter(n=>n.parentId!==null&&((count.get(n.id)??0)===0||!!d.labels?.[n.id]));
  for(const [id,saved] of [['compare-a',d.comparison?.a],['compare-b',d.comparison?.b]] as const){
   const select=$<HTMLSelectElement>(id),previous=saved??select.value;select.replaceChildren();
-  for(const node of visible){const option=document.createElement('option');option.value=node.id;option.textContent=`${node.id} · ${d.labels?.[node.id]??node.san??'Ausgangsstellung'}`;select.append(option);}
-  if(visible.some(n=>n.id===previous))select.value=previous;
+  for(const node of options){const option=document.createElement('option');option.value=node.id;option.textContent=d.labels?.[node.id]??`${node.san??'Stellung'} · ${pathTo(d,node.id).length-1} Halbzüge`;select.append(option);}
+  if(options.some(n=>n.id===previous))select.value=previous;
+  else if(id==='compare-b'&&options.length>1)select.selectedIndex=1;
  }
+ $<HTMLButtonElement>('compare-form').querySelector('button')!.disabled=options.length<2;
  const container=$('comparison-view');container.replaceChildren();if(!d.comparison||!allowed.has(d.comparison.a)||!allowed.has(d.comparison.b))return;
  const a=pathTo(d,d.comparison.a),b=pathTo(d,d.comparison.b);
  const common=a.filter((node,i)=>b[i]?.id===node.id).at(-1)!;
