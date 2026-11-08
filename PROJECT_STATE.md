@@ -1,3 +1,16 @@
+# Aktuell veröffentlicht: 0.16.1 – Konkrete Analysefehler und Speicherbereinigung
+
+Am 8. November 2026 veröffentlicht, PR #3 integriert. Quelle 4cc05fd46c772a66499399cb282aa5173145cc53,
+gh-pages 51ed010f95211c73fe1d531f493dad4832f3613c.
+Pages-Run 42456586866 SUCCESS: https://github.com/wibem1/AI-Chess-Studio/actions/runs/42456586866
+Live-Manifest vollständig identisch. HTML bytegleich, Service Worker und App-JS SHA-256 bestätigt.
+Typprüfung, Root-/Pages-Build, 171 Einzeltests und 8 gezielte Browserfälle bestanden.
+Prüfung umfasst konkrete illegale historische Alternative, Spielneustart, Analyse-Speicherung,
+PGN/Backup sowie echten Stockfish und Offline-Restore. Providerantworten Fixtures.
+Doppelte JSON-Speicheroberfläche samt Handlern entfernt. Automatische Sicherung erhalten.
+Keine native iPad-Abnahme oder vollständige 1.0-Freigabe; weitere Bereinigung bleibt offen.
+Keine bezahlten KI-Anfragen. Folgende Einträge sind ältere Zwischenstände.
+
 # Vorbereitet: 0.16.1
 
 171 Einzeltests und 8 gezielte Browserfälle bestanden; Root-/Pages-Build geprüft.
