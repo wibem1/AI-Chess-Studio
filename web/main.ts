@@ -423,7 +423,7 @@ async function diagnosticData() {
   const data=await response.json();
   if(isWebPlatform()){$('vault-controls').hidden=!data.model.localKeySaved||data.model.storageMode==='device';$('vault-unlock-fields').hidden=!data.model.locked;$('vault-lock').hidden=data.model.locked;$('vault-use-device').hidden=data.model.locked;}
   message('credential-status',data.model.localKeySaved === true
-    ? isWebPlatform()?data.model.storageMode==='device'?data.model.locked?'Lokaler Schlüssel derzeit nicht lesbar. Bitte erneut speichern.':'✓ API-Schlüssel in diesem Browserprofil gespeichert und bereit. Kein zusätzliches App-Passwort nötig.':`✓ Verschlüsseltes Schlüsselfach auf diesem Gerät · ${data.model.locked?'gesperrt: mit bisherigem Gerätepasswort entsperren':'entsperrt'}.`:'✓ API-Schlüssel lokal gespeichert. Du musst ihn nicht erneut eingeben.'
+    ? isWebPlatform()?data.model.storageMode==='device'?data.model.locked?(data.model.storageIssue==='unreadable'?'Gespeicherter Schlüssel gefunden, aber Entschlüsselung fehlgeschlagen. Schlüsselfach nicht löschen; Seite neu laden und Diagnose prüfen.':'Verschlüsselter Schlüssel ist gespeichert, aber derzeit gesperrt. Seite neu laden und Status erneut prüfen; nicht löschen.'):'✓ API-Schlüssel in diesem Browserprofil gespeichert und bereit. Kein zusätzliches App-Passwort nötig.':`✓ Verschlüsseltes Schlüsselfach auf diesem Gerät · ${data.model.locked?'gesperrt: mit bisherigem Gerätepasswort entsperren':'entsperrt'}.`:'✓ API-Schlüssel lokal gespeichert. Du musst ihn nicht erneut eingeben.'
     : 'Kein API-Schlüssel lokal gespeichert.');
   return data;
 }
