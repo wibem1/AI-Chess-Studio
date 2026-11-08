@@ -1,4 +1,4 @@
-name: ChessStudio live Stockfish board score checks (no deployment)
+name: ChessStudio Stockfish under-board regression check (no deploy)
 on:
   workflow_dispatch:
   push:
