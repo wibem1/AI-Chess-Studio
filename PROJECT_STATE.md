@@ -1,3 +1,9 @@
+# Veröffentlicht: ChessStudio 1.0.6 – sichere Schlüsselstellen-Übernahme (8. November 2026)
+
+Auf ausdrücklichen Nutzerauftrag „veröffentlichen“ wurde Version **1.0.6** veröffentlicht. Quellcommit `d8c6522e4bb93cccf7f6cdad710086086c2517ad`; `gh-pages/BUILD.json` belegt Version 1.0.6 mit demselben Quellcommit und 22 ausgelieferten Dateien. Quell-/Veröffentlichungsworkflow https://github.com/wibem1/AI-Chess-Studio/actions/runs/42517326570 **SUCCESS**, einschließlich Typprüfung, Node-Einzeltests, Browserintegration, Deploymentstatusprüfung und Veröffentlichung. Separater GitHub-Pages-Deploy https://github.com/wibem1/AI-Chess-Studio/actions/runs/42517507364 **SUCCESS**; Onlineadresse https://wibem1.github.io/AI-Chess-Studio/ . Keine echten kostenpflichtigen KI-Modelltests oder native Geräteabnahme durchgeführt.
+
+Änderung: unzulässige KI-Alternativzüge und deren Begründung werden aus strukturierten Partierückblicken entfernt und als solche gekennzeichnet; restliche historische Schlüsselstellungen bleiben gespeichert und navigierbar. Reale Nutzerprüfung mit dessen Partie noch ausstehend. Bestehende vor dem Update verworfene Antwort wird nicht automatisch rekonstruiert.
+
 # Veröffentlicht: ChessStudio 1.0.6 – Schlüsselstellen-Korrektur (8. November 2026)
 
 Auf **ausdrücklichen** Nutzerauftrag „veröffentlichen“ wurde die bisher im Branch `work` geprüfte Bereinigung ungültiger Alternativzüge für den Partierückblick als Patchversion 1.0.6 freigegeben. `package.json` und `package-lock.json` tragen 1.0.6, `CHANGELOG.md` ist ergänzt. Quellcommit `d8c6522e4bb93cccf7f6cdad710086086c2517ad`, gh-pages-Commit `f7397544643dc314c149f1f3347e9c4765e9f5ab`; `gh-pages/BUILD.json` bestätigt `version=1.0.6`, exakt den Quellcommit und 22 Webdateien.
