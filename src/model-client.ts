@@ -18,7 +18,11 @@ export class ServerModelAdapter implements DialogueAdapter {
     if(!response.ok){
       let code:unknown,detail:unknown;try{const body=await response.json();code=body.code;detail=body.error;}catch{}
       if(code==='review_format'&&typeof detail==='string'&&detail.startsWith('Analyse verworfen:'))throw new Error(detail.slice(0,1600));
-      if(typeof code==='string'&&Object.hasOwn(COACH_ERRORS,code))throw new Error(COACH_ERRORS[code as CoachFailureCode]+' Keine neue Antwort gespeichert.');
+      if(typeof code==='string'&&Object.hasOwn(COACH_ERRORS,code)){
+        // Only forward a bounded numeric HTTP status, never an arbitrary provider response body.
+        const status=code==='provider_http'&&typeof detail==='string'?detail.match(/\(HTTP (400|404|405|409|422|500|502|503|504)(?:\s|\))/)?.[1]:undefined;
+        throw new Error(COACH_ERRORS[code as CoachFailureCode]+(status?` (HTTP ${status})`:'')+' Keine neue Antwort gespeichert.');
+      }
       if(response.status===409)throw new Error('Modell oder Zugang wurde während des Testlaufs geändert.');
       throw new Error(response.status === 402 ? 'Verbrauch konnte nicht gespeichert werden. Diagnose öffnen.' : response.status === 403
       ? 'Reale KI ist serverseitig gesperrt. Die Simulation bleibt verfügbar.'
