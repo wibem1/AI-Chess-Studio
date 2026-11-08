@@ -68,3 +68,44 @@ test('Sol review output limit is selectable, persisted across reload, and can re
  await page.locator('#chat-model-controls > summary').click();
  await expect(page.locator('#review-output-tokens')).toHaveValue('');
 });
+
+test('general AI instructions persist independently and appear in future model requests',async({page})=>{
+ await page.goto('/?platform=web');
+ await expect(page.locator('#workspace')).not.toHaveAttribute('inert','');
+ await page.locator('#open-settings').click();
+ await page.locator('#settings-ai-instructions > summary').click();
+ const editor=page.locator('#general-ai-instructions');
+ await editor.fill('Erkläre die Bauernstruktur in kurzen, verständlichen Sätzen.');
+ await page.locator('#save-general-ai-instructions').click();
+ await expect(page.locator('#general-ai-instructions-status')).toContainText('gespeichert');
+ await page.reload();
+ await page.locator('#open-settings').click();
+ await page.locator('#settings-ai-instructions > summary').click();
+ await expect(editor).toHaveValue('Erkläre die Bauernstruktur in kurzen, verständlichen Sätzen.');
+ await page.locator('#api-settings > summary').click();
+ await page.locator('#api-provider').selectOption('openai');
+ await page.locator('#settings-model-section > summary').click();
+ await page.locator('#api-model').fill('gpt-4.1-mini');
+ await page.locator('#api-key').fill('fixture-no-real-key');
+ await page.locator('#api-cost-consent').check();
+ await page.locator('#api-connect').click();
+ await expect(page.locator('#api-feedback')).toContainText('gespeichert');
+ let calls=0;
+ await page.route('https://api.openai.com/v1/chat/completions',async route=>{
+  calls++;
+  const req=route.request().postDataJSON();
+  expect(req.messages[0].role).toBe('system');
+  expect(req.messages[0].content).toContain('Erkläre die Bauernstruktur in kurzen, verständlichen Sätzen.');
+  await route.fulfill({json:{choices:[{finish_reason:'stop',message:{content:'Die Bauernstruktur bestimmt wichtige Felder.'}}],usage:{prompt_tokens:30,completion_tokens:20}}});
+ });
+ await page.getByRole('tab',{name:'Lernmodus',exact:true}).click();
+ await page.locator('#question').fill('Was sollte ich beachten?');
+ await page.locator('#ask').click();
+ await expect(page.locator('#current-answer')).toContainText('Die Bauernstruktur bestimmt wichtige Felder.');
+ expect(calls).toBe(1);
+ await page.locator('#open-settings').click();
+ await page.locator('#settings-ai-instructions > summary').click();
+ await page.locator('#clear-general-ai-instructions').click();
+ await expect(editor).toHaveValue('');
+ await expect(page.locator('#general-ai-instructions-status')).toContainText('gelöscht');
+});
