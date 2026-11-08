@@ -1,5 +1,14 @@
 # Änderungen
 
+## 1.1.0 – Allgemeine KI-Anweisungen, Pfeile und zuschaltbare Stockfish-Stellungsprüfung (8. November 2026)
+
+- Unter Einstellungen → Allgemeine KI-Anweisungen ein aufklappbares, vergrößerbares Textfeld mit Speichern/Löschen. Bis 2.000 Zeichen dauerhaft im lokalen Browserprofil und unabhängig von der Partie gespeichert; bei späteren KI-Anfragen als untergeordnete Lehr- und Stilwünsche berücksichtigt. Der Text wird beim KI-Aufruf an den gewählten Anbieter übermittelt.
+- Die KI wird bei ausdrücklich gewünschten Brettzeichnungen gezielt auf die vorhandenen Werkzeuge `draw_board` (Pfeile/Linien) und `show_position` (Lehrdiagramm) hingewiesen; die Partie wird durch Zeichnungen nicht verändert. Anforderung und Darstellung mit simuliertem Modellaufruf im Browser getestet.
+- Neue optional aktivierbare Stockfish-Stellungsprüfung für Lernchat-Antworten (standardmäßig ausgeschaltet). Beim Absenden der Anfrage prüft Stockfish 19 Lite die aktuelle spielbare Stellung lokal, gibt der KI den begrenzten Suchbefund (Bewertung aus Sicht Weiß, Tiefe, Hauptvariante) und zeigt ihn separat im Lernchat. Keine automatische Bewertungsleiste während der Partie, keine kostenpflichtige KI-Anfrage, wenn die eingeschaltete Prüfung scheitert.
+- Suche mit maximal Tiefe 12, 20.000 Knoten und einer Sekunde begrenzt. Die Bewertung ist ein taktischer Anhaltspunkt, kein Nachweis einer vollständigen strategischen Analyse. Eine echte kostenpflichtige KI- oder native Geräteprüfung fand nicht statt.
+- Unit-, Browser- und lokaler Stockfish-Integrationstest ohne kostenpflichtige Modellanfrage erfolgreich.
+
+
 ## 1.0.6 – Schlüsselstellungen bei fehlerhaften Alternativzügen behalten (8. November 2026)
 
 - Vollständige Partierückblicke bleiben erhalten, auch wenn die KI einen illegalen oder identischen Alternativzug vorschlägt. Nur dieser Vorschlag und seine ungeprüfte Begründung werden entfernt und als verworfen gekennzeichnet.
