@@ -261,3 +261,21 @@ test('review output setting persists in device vault, is visible and can reset t
  const again=new BrowserRuntime(store);
  assert.equal((await again.handle('/api/diagnostics','GET')).model.reviewOutputTokens,null);
 });
+
+test('general coaching preferences reach provider system prompt, never party data or credentials',async()=>{
+ const store=new MemoryStore(),prompts:string[]=[];
+ const transport=(async(_url,init)=>{
+  const body=JSON.parse(String(init!.body));prompts.push(body.messages[0].content);
+  assert.equal(body.messages[0].role,'system');
+  assert.ok(!JSON.stringify(body).includes('generalInstructions":'));
+  return new Response(JSON.stringify({choices:[{finish_reason:'stop',message:{content:JSON.stringify(reply)}}],usage:{prompt_tokens:30,completion_tokens:35}}));
+ }) as typeof fetch;
+ const runtime=new BrowserRuntime(store,transport);await connect(runtime);
+ await runtime.handle('/api/dialogue','POST',{...request(),generalInstructions:'Bitte kurze Sätze und anschauliche Pläne.'});
+ await runtime.handle('/api/dialogue','POST',request());
+ assert.match(prompts[0]!,/Bitte kurze Sätze und anschauliche Pläne/);
+ assert.doesNotMatch(prompts[1]!,/Bitte kurze Sätze und anschauliche Pläne/);
+ assert.equal(prompts.length,2);
+ await assert.rejects(runtime.handle('/api/dialogue','POST',{...request(),generalInstructions:'X'.repeat(2001)}),/2.000 Zeichen/);
+ assert.equal(prompts.length,2);
+});
