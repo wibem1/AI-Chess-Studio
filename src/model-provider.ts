@@ -6,7 +6,7 @@ export function providerOptions(r:Record<string,any>):ProviderOptions{
  if(r.provider!==undefined&&!['openai','openrouter'].includes(r.provider)||r.reasoning!==undefined&&!['low','medium','high'].includes(r.reasoning))throw new Error('Provider und Denkstufe prüfen.');
  return {...(r.provider?{provider:r.provider}:{}),...(r.reasoning?{reasoning:r.reasoning}:{})};
 }
-export const isBatchModel=(model:unknown):model is string=>typeof model==='string'&&/:batch$/i.test(model);
+export const isBatchModel=(model:unknown):boolean=>typeof model==='string'&&/:batch$/i.test(model);
 export function validModel(model:unknown,options:ProviderOptions):model is string{return typeof model==='string'&&!isBatchModel(model)&&(providerOf(options)==='openrouter'?/^[a-zA-Z0-9._:-]+\/[a-zA-Z0-9._:/-]+$/:/^[a-zA-Z0-9._:-]+$/).test(model)&&model.length<=160;}
 export function generationOptions(c:ProviderOptions,defaultTokens:number){
  const routing=providerOf(c)==='openrouter'?{provider:{require_parameters:true}}:{};
