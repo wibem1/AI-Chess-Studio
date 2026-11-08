@@ -247,3 +247,17 @@ test('a cancelled Sol request does not retry, alter the saved key, or settle unc
  assert.equal(state.requests,1);
  assert.equal(state.uncertainRequests,1);
 });
+
+test('review output setting persists in device vault, is visible and can reset to automatic',async()=>{
+ const store=new MemoryStore(),runtime=new BrowserRuntime(store);
+ await runtime.handle('/api/model-config','POST',{action:'connect',provider:'openai',model:'gpt-6.1-sol',apiKey:config.apiKey,allowPaid:true});
+ await assert.rejects(runtime.handle('/api/model-config','POST',{action:'select-model',provider:'openai',model:'gpt-6.1-sol',reviewOutputTokens:99999}),/Ausgabelimit/);
+ await runtime.handle('/api/model-config','POST',{action:'select-model',provider:'openai',model:'gpt-6.1-sol',reviewOutputTokens:8192});
+ assert.equal((await runtime.handle('/api/diagnostics','GET')).model.reviewOutputTokens,8192);
+ const reloaded=new BrowserRuntime(store);
+ assert.equal((await reloaded.handle('/api/diagnostics','GET')).model.reviewOutputTokens,8192);
+ await reloaded.handle('/api/model-config','POST',{action:'select-model',provider:'openai',model:'gpt-6.1-sol',reviewOutputTokens:null});
+ assert.equal((await reloaded.handle('/api/diagnostics','GET')).model.reviewOutputTokens,null);
+ const again=new BrowserRuntime(store);
+ assert.equal((await again.handle('/api/diagnostics','GET')).model.reviewOutputTokens,null);
+});
