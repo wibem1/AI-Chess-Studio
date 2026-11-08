@@ -1,4 +1,4 @@
-name: ChessStudio AI error display regression (no deployment)
+name: ChessStudio AI HTTP status regression (no deployment)
 on:
   workflow_dispatch:
   push:
