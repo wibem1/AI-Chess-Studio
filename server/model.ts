@@ -111,7 +111,7 @@ export class ModelService {
       const reply=normalizeModelReply(decodeModelContent(envelope.choices[0].message.content,request.topic!=='chat'), request.legalMoves);
       if(request.topic && !reply.message?.trim())throw new Error('Missing dialogue');
       if(request.hintMode==='question' && (!reply.openQuestions.length || reply.candidates.length))throw new Error('Unwanted solution');
-      failureCode='review_format';if(retrospective)validateGameReview(reply.gameReview,request.history);
+      failureCode='review_format';if(retrospective)reply.gameReview=validateGameReview(reply.gameReview,request.history,true);
       trace.finish('accepted');return taggedReply(reply,this.config,envelope,trace.id);
     } catch(error) { const code=error instanceof CoachFailure?error.code:failureCode;trace.finish('failed',code,httpStatus,error instanceof ReviewValidationError?error.message:undefined);throw new ApiError(502,(error instanceof ReviewValidationError?error.message:COACH_ERRORS[code])+' Keine neue Antwort gespeichert.',code); }
     finally { this.busy = false; }
