@@ -129,6 +129,7 @@ export class BrowserRuntime {
   if(new TextEncoder().encode(body).length>120000)throw new ApiError(400,'Modellkontext ist zu groß.');
   const trace=this.traces.start(JSON.parse(body),{nodeId:request.nodeId,fen:request.fen,provider:providerOf(config),model:config.model,reasoning:config.reasoning??null,toolRound:request.toolExchanges?.length??0,priceAssumptions:(await this.store.budget(l=>l.snapshot())).state},config.apiKey);
   this.busy=true;let httpStatus:number|undefined;let reserved=0,started=false;let failureCode:CoachFailureCode='network';
+  const requestTimeout=AbortSignal.timeout(providerTimeoutMs(config));
   try{
    reserved=(await this.store.budget(l=>l.reserve(new TextEncoder().encode(body).length,JSON.parse(body).max_tokens??JSON.parse(body).max_completion_tokens??JSON.parse(body).max_output_tokens))).value;
    if(this.config!==config)throw new Error();
@@ -148,7 +149,7 @@ export class BrowserRuntime {
    trace.finish('accepted');return taggedReply(reply,config,envelope,trace.id);
   }catch(error){
    if(!started){trace.finish('failed','accounting');throw new ApiError(402,'Verbrauch konnte nicht gespeichert werden.');}
-   const code=error instanceof CoachFailure?error.code:failureCode;trace.finish('failed',code,httpStatus,error instanceof ReviewValidationError?error.message:undefined);
+   const code=error instanceof CoachFailure?error.code:requestTimeout.aborted&&!signal?.aborted?'timeout':failureCode;trace.finish('failed',code,httpStatus,error instanceof ReviewValidationError?error.message:undefined);
    const statusHint=code==='provider_http'&&httpStatus?` (HTTP ${httpStatus}${httpStatus===400||httpStatus===422?' · Anfrageparameter oder Modellunterstützung prüfen':httpStatus===404?' · Modell oder API-Endpunkt nicht gefunden':''})`:'';
    throw new ApiError(502,(error instanceof ReviewValidationError?error.message:COACH_ERRORS[code])+statusHint+' Keine neue Antwort gespeichert. Die Kostenschätzung bleibt bei unklarer Nutzung bestehen.',code);
   }finally{this.busy=false;}
