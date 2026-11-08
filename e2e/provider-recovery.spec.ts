@@ -28,6 +28,11 @@ test('provider remains explicit when device key is unreadable, and OpenRouter ca
  await expect(page.locator('label[for=api-key]')).toHaveText('OpenRouter-API-Schlüssel');
  await expect(page.locator('#api-model')).toHaveValue('openai/gpt-6.1-sol');
  await expect(page.locator('#api-provider-warning')).toBeHidden();
+ await page.locator('#api-provider').selectOption('openai');
+ await expect(page.locator('#api-model')).toHaveValue('gpt-6.1-sol');
+ await expect(page.locator('label[for=api-key]')).toHaveText('OpenAI-API-Schlüssel');
+ await page.locator('#api-provider').selectOption('openrouter');
+ await expect(page.locator('#api-model')).toHaveValue('openai/gpt-6.1-sol');
  const saved=await page.evaluate(async()=>new Promise<unknown>((resolve,reject)=>{
   const open=indexedDB.open('ai-chess-studio',1);open.onsuccess=()=>{const db=open.result,r=db.transaction('vault','readonly').objectStore('vault').get('current');r.onsuccess=()=>{resolve(r.result);db.close();};r.onerror=()=>reject(r.error);};open.onerror=()=>reject(open.error);
  }));
