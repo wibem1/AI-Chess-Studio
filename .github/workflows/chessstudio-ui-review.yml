@@ -1,4 +1,4 @@
-name: ChessStudio batch-model regression final (no deployment)
+name: ChessStudio settings usability regression (no deployment)
 on:
   workflow_dispatch:
   push:
@@ -25,4 +25,4 @@ jobs:
       - run: npm run check
       - run: npm test
       - run: npm run build:pages
-      - run: npx playwright test e2e/rejected-ai-request.spec.ts e2e/provider-recovery.spec.ts e2e/simplified-workflow.spec.ts e2e/stable-toolbar.spec.ts e2e/pgn-file.spec.ts e2e/position-transfer.spec.ts
+      - run: npx playwright test e2e/settings-layout.spec.ts e2e/rejected-ai-request.spec.ts e2e/provider-recovery.spec.ts e2e/simplified-workflow.spec.ts e2e/stable-toolbar.spec.ts e2e/pgn-file.spec.ts e2e/position-transfer.spec.ts
