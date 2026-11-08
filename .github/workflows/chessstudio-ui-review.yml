@@ -1,4 +1,4 @@
-name: ChessStudio key-moments browser regression (no deployment)
+name: ChessStudio general AI preferences checks (no deployment)
 on:
   workflow_dispatch:
   push:
