@@ -8,7 +8,7 @@ export class ModelDiagnostics {
   const visit=(v:any):any=>{
    if(typeof v==='string'){let s=v;for(const key of this.secrets)s=s.split(key).join('[SCHLÜSSEL ENTFERNT]');return s.replace(/\bsk-[A-Za-z0-9_-]{8,}/g,'[SCHLÜSSEL ENTFERNT]').replace(/Bearer\s+[^\s"\\]+/gi,'Bearer [ENTFERNT]');}
    if(Array.isArray(v))return v.map(visit);
-   if(v&&typeof v==='object')return Object.fromEntries(Object.entries(v).filter(([k])=>!/(api.?key|authorization|password|reasoning_content|reasoning_details|reasoning_text|thought_signature|extra_content)/i.test(k)).map(([k,x])=>[k,visit(x)]));
+   if(v&&typeof v==='object')return Object.fromEntries(Object.entries(v).filter(([k])=>!/(api.?key|authorization|password|reasoning_content|reasoning_details|reasoning_text|encrypted_content|thought_signature|extra_content)/i.test(k)).map(([k,x])=>[k,visit(x)]));
    return v;
   };return visit(value);
  }
