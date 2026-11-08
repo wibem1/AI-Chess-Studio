@@ -1,3 +1,9 @@
+# OpenAI-Modellstandard Sol 6.1 und eindeutige Anbieterwahl (8. November 2026)
+
+Auf Benutzerwunsch ist bei neu ausgewähltem Anbieter „OpenAI direkt“ jetzt `gpt-6.1-sol` statt `gpt-4.1-mini` vorbelegt. OpenRouter verwendet weiterhin `openai/gpt-6.1-sol` als Vorschlag und bleibt separat auswählbar. Bereits gespeicherte Modelle/Schlüsselfächer werden nicht automatisch ersetzt. Bei unlesbarem lokalem Schlüssel wird der Anbieter nicht fälschlich auf OpenAI zurückgesetzt; die Nutzeroberfläche fordert explizite Auswahl. Browserregression für nicht lesbaren Schlüssel mit Providerwechsel und Sol-Voreinstellung ergänzt; ältere Test-Fixtures für explizite Auswahl angepasst.
+
+GitHub Actions: https://github.com/wibem1/AI-Chess-Studio/actions/runs/42468084186 SUCCESS, Typprüfung, Einzeltests, Pages-Build und ausgewählte Browserprüfungen. **Kein Deployment**; zuletzt veröffentlichte Web-App bleibt 1.0.1. Achtung: Die OpenAI-API dokumentiert, dass Sol-6.1-Werkzeugaufrufe die Responses API benötigen; der bisherige ChessStudio-Transport verwendet Chat Completions. Eignung für die Brettwerkzeuge ist damit nicht nachgewiesen und bedarf eigener technischer Anpassung/Prüfung ohne kostenpflichtige Aufrufe. Nutzerbestätigung der Schlüsselwiederherstellung fehlt.
+
 # Fehlerprüfung: Web-App meldet plötzlich fehlenden KI-Schlüssel – 8. November 2026
 
 Nutzer meldet nach erfolgreichem Web-App-Update plötzlich nicht mehr verfügbaren API-Schlüssel. Geräteursache bislang **nicht nachgewiesen**. Der bestehende PWA-Updatecode entfernt ausschließlich App-Shell-Cache und die registrierte Service-Worker-Kontrolle, nicht den IndexedDB-Schlüsselspeicher; vollständiger Verlust durch Browserprofilwechsel, manuelles Löschen oder Browser-Speicherbereinigung kann damit nicht ausgeschlossen werden.
