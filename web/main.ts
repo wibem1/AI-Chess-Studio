@@ -357,6 +357,8 @@ $<HTMLDetailsElement>('vault-setup').addEventListener('toggle',()=>{
 $('api-form').addEventListener('submit', async event => {
   event.preventDefault();
   const fail=(value:string)=>{message('api-feedback',value);$('api-feedback').focus({preventScroll:false});};
+  const provider=$<HTMLSelectElement>('api-provider').value;
+  if(provider!=='openai'&&provider!=='openrouter'){fail('Wähle zuerst ausdrücklich OpenAI direkt oder OpenRouter. Der bisherige Anbieter kann bei gesperrtem Schlüsselfach nicht ermittelt werden.');return;}
   const apiKey=input('api-key').value.trim(),model=input('api-model').value.trim();
   if(apiKey.length<8||apiKey.length>1024||/\s/.test(apiKey)){fail('Bitte den API-Schlüssel im Feld „API-Schlüssel“ eingeben. Ein Gerätepasswort ist dafür nicht nötig.');return;}
   if(!validModel(model,{provider:$<HTMLSelectElement>('api-provider').value as 'openai'|'openrouter'})){fail('Bitte ein gültiges Modell angeben, zum Beispiel gpt-4.1-mini.');return;}
