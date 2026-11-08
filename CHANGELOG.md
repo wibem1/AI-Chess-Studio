@@ -1,5 +1,12 @@
 # Änderungen
 
+## 0.16.0 – Schlüsselstellungen und PGN-Import
+
+- Sichtbarer Analysebutton im Lernmodus und direkte Sprungbuttons am Brett.
+- Lichess-Kommentarfolgen und Unicode-Zeilentrenner unterstützt, Texteingabefallback.
+- 170 Einzeltests und 5 gezielte Browserfälle bestanden; native iPad-Abnahme offen.
+
+
 ## 0.15.0 – Fremde PGN-Partien laden (veröffentlicht am 7. November 2026)
 
 - PGN-Dateien direkt über „Partiedatei laden“ öffnen, ohne eigene Spielerseite

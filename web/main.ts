@@ -91,7 +91,7 @@ function updateMode() {
  $('ask').setAttribute('aria-label',real?'Nachricht senden (reale KI)':'Nachricht senden (Simulation)');
  $<HTMLButtonElement>('ask').disabled=pending||match.running||locked||blocked;
  $<HTMLButtonElement>('coach-show-plan').disabled=!real||pending||match.running||locked||blocked;
- for(const id of ['analyse-position','analyse-game'])$<HTMLButtonElement>(id).disabled=pending||match.running||locked||blocked;
+ for(const id of ['analyse-position','analyse-game','find-key-moments'])$<HTMLButtonElement>(id).disabled=pending||match.running||locked||blocked;
  $<HTMLButtonElement>('model-apply').disabled=pending||match.running;
  $<HTMLButtonElement>('match-start').disabled=pending||match.running||!modelAvailable||!real||!accessReady||accessReadError;
  for(const id of ['api-connect','api-disconnect'])if(match.running)$<HTMLButtonElement>(id).disabled=true;
@@ -620,16 +620,17 @@ const navigation=installNavigation(cancelBoardDrag,view=>{
  else if(studio.session.snapshot().game?.paused&&!studio.session.snapshot().review?.guiding)game.resume();
  selected=null;render();if(view==='play')void engineTurn();
 });
-function beginAnalysis(wholeGame:boolean){
+function beginAnalysis(wholeGame:boolean,keyOnly=false){
  const data=studio.session.snapshot();
  if(reviewLocked(data)){message('dialogue-feedback','Zuerst den aktuellen Rückblick-Schritt beantworten oder aufdecken.');return;}
- game.learn();if(wholeGame){const end=learningLine(studio.session.snapshot()).at(-1);if(end)game.analyse(end.id);}
+ game.learn();if(wholeGame&&!keyOnly){const end=learningLine(studio.session.snapshot()).at(-1);if(end)game.analyse(end.id);}
  $<HTMLSelectElement>('dialogue-topic').value=wholeGame?'review':'position';
- text('question').value=wholeGame?'Bitte besprich die bisherige Partie: Welche konkreten Wendepunkte, Gefahren und gelungenen Ideen sind aus dem Verlauf belegbar? Erkläre verständlich, was ich daraus lernen kann. Behaupte keine ungeprüften Fehler oder besten Züge.':'Bitte analysiere die aktuelle Brettstellung: Wer steht besser und warum? Welche konkreten Gefahren gibt es, welche verständlichen Pläne und möglichen Antworten sollte ich prüfen?';
+ text('question').value=keyOnly?'Finde und beschreibe die Schlüsselstellungen der gesamten Partie. Erkläre zu jeder Stellung, warum sie entscheidend ist und welche verständliche Lehre daraus folgt.':wholeGame?'Bitte besprich die bisherige Partie: Welche konkreten Wendepunkte, Gefahren und gelungenen Ideen sind aus dem Verlauf belegbar? Erkläre verständlich, was ich daraus lernen kann. Behaupte keine ungeprüften Fehler oder besten Züge.':'Bitte analysiere die aktuelle Brettstellung: Wer steht besser und warum? Welche konkreten Gefahren gibt es, welche verständlichen Pläne und möglichen Antworten sollte ich prüfen?';
  render();directAnalysisHint='explain';$<HTMLFormElement>('dialogue-form').requestSubmit();
 }
 $('analyse-position').addEventListener('click',()=>beginAnalysis(false));
 $('analyse-game').addEventListener('click',()=>beginAnalysis(true));
+$('find-key-moments').addEventListener('click',()=>beginAnalysis(true,true));
 $('ai-access-edit').addEventListener('click',()=>{navigation.select('settings');$<HTMLDetailsElement>('api-settings').open=true;$('api-settings').scrollIntoView({block:'start'});});
 $('chat-open-access').addEventListener('click',()=>{navigation.select('settings');const section=$('api-settings');(section as HTMLDetailsElement).open=true;section.scrollIntoView({block:'start'});});
 $('learn-back').addEventListener('click',()=>attempt(()=>{const d=studio.session.snapshot(),node=d.nodes.find(n=>n.id===d.activeNodeId)!;if(node.parentId)game.analyse(node.parentId);},'move-feedback','Einen Lernzug zurück.'));

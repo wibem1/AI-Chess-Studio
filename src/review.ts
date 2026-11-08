@@ -27,10 +27,43 @@ const clockSeconds = (text:string):number|null => {
  const value=parts.length===3?parts[0]!*3600+parts[1]!*60+parts[2]!:parts[0]!*60+parts[1]!;
  return value<=2678400?value:null;
 };
+/** Adapt lexical quirks for chess.js; never change the stored original PGN.
+ * Lichess emits separate annotation/clock comments for the same move.
+ * Scan complete tokens so braces inside headers or line comments stay literal.
+ */
+function parserPgn(raw:string):string {
+ const text=raw.replace(/^\uFEFF/,'').replace(/[\u2028\u2029\u0085]/g,'\n').trim();
+ let out='',i=0;
+ while(i<text.length){
+  const start=i;
+  if(text[i]==='['){
+   let quoted=false;
+   for(i++;i<text.length;i++){
+    if(text[i]==='"'&&text[i-1]!=='\\')quoted=!quoted;
+    if(text[i]===']'&&!quoted){i++;break;}
+   }
+   out+=text.slice(start,i);
+  }else if(text[i]===';'){
+   while(i<text.length&&text[i]!=='\n'&&text[i]!=='\r')i++;
+   out+=text.slice(start,i);
+  }else if(text[i]==='{'){
+   const parts:string[]=[];
+   while(text[i]==='{'){
+    const end=text.indexOf('}',i+1);
+    if(end<0)throw new Error('PGN-Kommentar nicht geschlossen.');
+    parts.push(text.slice(i+1,end));i=end+1;
+    const gap=/^[ \t\r\n]*/.exec(text.slice(i))![0];
+    if(text[i+gap.length]==='{')i+=gap.length;else break;
+   }
+   out+='{'+parts.join(' ')+'}';
+  }else{out+=text[i];i++;}
+ }
+ return out;
+}
 export function parsePgn(pgn:string):ParsedGame {
  if(typeof pgn!=='string'||!pgn.trim()||new TextEncoder().encode(pgn).length>MAX_PGN)throw new Error('Bitte eine PGN mit höchstens 256 KiB einfügen.');
- const chess=new Chess();
- try{chess.loadPgn(pgn,{strict:true});}catch{try{chess.loadPgn(pgn,{strict:false});}catch{throw new Error('PGN konnte nicht gelesen werden. Zugfolge, SAN-Schreibweise und Startstellung prüfen.');}}
+ const chess=new Chess(),input=parserPgn(pgn);
+ try{chess.loadPgn(input,{strict:true});}catch{try{chess.loadPgn(input,{strict:false});}catch{throw new Error('PGN konnte nicht gelesen werden. Nur eine Partie ohne Einleitungstext einfügen; Zugfolge, Kommentare und Startstellung prüfen.');}}
  const history=chess.history({verbose:true});
  if(!history.length || history.length>1000)throw new Error('Die PGN muss zwischen 1 und 1000 Halbzüge enthalten.');
  const headers=chess.getHeaders();
