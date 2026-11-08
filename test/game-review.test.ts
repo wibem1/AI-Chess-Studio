@@ -54,3 +54,27 @@ test('previously saved text-only reviews retain their checked move anchors',asyn
  s.annotate({nodeId:'n4',kind:'dialogue',source:'model',text:formatGameReview(review,history),hypothesis:true,openQuestions:[]});const loaded=Session.import(s.export()),a=loaded.snapshot().annotations[0]!;
  assert.equal(a.gameReview,undefined);assert.deepEqual(reviewAnchors(loaded.snapshot(),a).map(x=>x.label),['1. f3','2. g4']);
 });
+
+test('model review with an illegal alternative preserves valid moments and never presents the illegal move',()=>{
+ const raw={...review,moments:[
+  {...review.moments[0]!,alternative:'Qh4#',reason:'Der alternative Damenangriff wäre angeblich gut.'},
+  review.moments[1]!
+ ]};
+ assert.throws(()=>validateGameReview(raw,history),/Alternativzug/); // Imported sessions remain strict.
+ const repaired=validateGameReview(raw,history,true);
+ assert.equal(repaired.moments.length,2);
+ assert.equal(repaired.moments[0]!.played,'f3');
+ assert.equal(repaired.moments[0]!.alternative,'');
+ assert.doesNotMatch(repaired.moments[0]!.reason,/Damenangriff/);
+ assert.equal(repaired.moments[1]!.alternative,'g3');
+ const formatted=formatGameReview(repaired,history);
+ assert.match(formatted,/Partierückblick/);
+ assert.doesNotMatch(formatted,/Qh4#/);
+ assert.match(formatted,/nicht legal und wurde entfernt/);
+ assert.match(formatted,/Alternative zum Prüfen: g3/);
+ assert.equal(raw.moments[0]!.alternative,'Qh4#'); // No mutation of provider data.
+ const duplicate={...review,moments:[{...review.moments[0]!,alternative:'f3'},review.moments[1]!]};
+ assert.equal(validateGameReview(duplicate,history,true).moments[0]!.alternative,'');
+ const broken={...review,moments:[{...review.moments[0]!,played:'e4'},review.moments[1]!]};
+ assert.throws(()=>validateGameReview(broken,history,true),/Analyse verworfen/);
+});
