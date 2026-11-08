@@ -1,4 +1,4 @@
-name: ChessStudio AI HTTP status regression (no deployment)
+name: ChessStudio batch-model rejection regression (no deployment)
 on:
   workflow_dispatch:
   push:
