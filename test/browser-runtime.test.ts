@@ -2,7 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {sealConfig,openConfig,sealDeviceConfig,openDeviceConfig} from '../src/browser-vault.js';
 import {BrowserStore} from '../src/browser-store.js';
-import {BrowserRuntime,providerTimeoutMs} from '../src/browser-runtime.js';
+import {BrowserRuntime,providerTimeoutMs,classifyRequestFailure} from '../src/browser-runtime.js';
 import {COACH_ERRORS} from '../src/model-errors.js';
 import {CostLedger,type CostState} from '../src/costs.js';
 import {Session} from '../src/session.js';
@@ -209,4 +209,37 @@ test('Sol Responses uses a longer timeout while legacy model transport keeps its
  assert.equal(providerTimeoutMs({enabled:true,apiKey:'fixture-sol-key',model:'gpt-4.1-mini',provider:'openai'}),15000);
  assert.equal(providerTimeoutMs({enabled:true,apiKey:'fixture-sol-key',model:'openai/gpt-6.1-sol',provider:'openrouter'}),15000);
  assert.match(COACH_ERRORS.timeout,/Zeitlimit/);
+});
+
+test('timeout errors are distinct from connectivity errors and deliberate cancellation',()=>{
+ const abort=new DOMException('The operation was aborted','AbortError');
+ const deadline=new DOMException('The request timed out','TimeoutError');
+ assert.equal(classifyRequestFailure(deadline,true,false,'network'),'timeout');
+ assert.equal(classifyRequestFailure(abort,true,false,'network'),'timeout');
+ assert.equal(classifyRequestFailure(abort,true,true,'network'),'network');
+ assert.equal(classifyRequestFailure(new TypeError('Failed to fetch'),false,false,'network'),'network');
+ assert.equal(classifyRequestFailure(new SyntaxError('Invalid JSON'),true,false,'provider_format'),'provider_format');
+});
+test('a cancelled Sol request does not retry, alter the saved key, or settle uncertain cost as zero',async()=>{
+ const store=new MemoryStore(),controller=new AbortController();
+ let calls=0;
+ const runtime=new BrowserRuntime(store,(async(_url,init)=>{
+  calls++;
+  const signal=init?.signal as AbortSignal;
+  return new Promise<Response>((_resolve,reject)=>{
+   if(signal.aborted){reject(signal.reason);return;}
+   signal.addEventListener('abort',()=>reject(signal.reason),{once:true});
+  });
+ }) as typeof fetch);
+ await runtime.handle('/api/model-config','POST',{action:'connect',provider:'openai',model:'gpt-6.1-sol',apiKey:config.apiKey,allowPaid:true});
+ const ongoing=runtime.handle('/api/dialogue','POST',request(),controller.signal);
+ // Allow the transport to start; no elapsed 45-second deadline needed.
+ await new Promise<void>(resolve=>setImmediate(resolve));
+ controller.abort();
+ await assert.rejects(ongoing,(e:unknown)=>e instanceof Error&&(e as Error&{code?:string}).code==='network');
+ assert.equal(calls,1);
+ assert.equal((await runtime.status()).available,true);
+ const state=(await store.budget(l=>l.snapshot())).state;
+ assert.equal(state.requests,1);
+ assert.equal(state.uncertainRequests,1);
 });
