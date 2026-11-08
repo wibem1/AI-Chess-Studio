@@ -106,7 +106,7 @@ test('general AI instructions persist independently and appear in future model r
  await expect(page.locator('#current-answer')).toContainText('Die Bauernstruktur bestimmt wichtige Felder.');
  expect(calls).toBe(1);
  await page.locator('#open-settings').click();
- await page.locator('#settings-ai-instructions > summary').click();
+ if(!(await page.locator('#settings-ai-instructions').evaluate((el:HTMLDetailsElement)=>el.open)))await page.locator('#settings-ai-instructions > summary').click();
  await page.locator('#clear-general-ai-instructions').click();
  await expect(editor).toHaveValue('');
  await expect(page.locator('#general-ai-instructions-status')).toContainText('gelöscht');
