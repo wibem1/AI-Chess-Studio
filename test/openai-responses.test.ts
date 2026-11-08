@@ -18,21 +18,21 @@ test('Responses request restricts tools, disables storage and has correct output
  assert.equal(body.model,'gpt-6.1-sol');assert.equal(body.store,false);
  assert.equal(body.parallel_tool_calls,false);
  assert.ok(body.max_output_tokens>=1800);
- assert.equal(body.tools.length,4);
- assert.ok(body.tools.every(t=>t.strict===false&&t.type==='function'&&typeof t.name==='string'));
+ assert.equal(body.tools?.length,4);
+ assert.ok(body.tools?.every(t=>t.strict===false&&t.type==='function'&&typeof t.name==='string'));
 });
 test('Sol tool call feeds the existing validated board command and local result back to Responses',()=>{
  const envelope={status:'completed',output:[{type:'function_call',call_id:'call_1',name:'show_line',arguments:'{"moves":["e4"]}'}],usage:{input_tokens:51,output_tokens:25}};
  const normalized=normalizeResponses(envelope);
  const reply=coachToolReply(normalized.choices[0],req);
  assert.equal(reply?.toolCall?.function.name,'show_line');
- assert.equal(normalized.usage.prompt_tokens,51);
+ assert.equal(normalized.usage?.prompt_tokens,51);
  const follow={...req,toolExchanges:[{call:reply!.toolCall!,content:'',result:{ok:true,fromFen:fen,fen:new Session().snapshot().nodes[0]!.fen,moves:[],nodeId:'n0'}}]};
  const body=createResponsesBody(config,follow as DialogueRequest,'coach instructions',{},[],1800);
  assert.equal(body.input.at(-2)?.type,'function_call');
  assert.equal(body.input.at(-1)?.type,'function_call_output');
  assert.equal(body.input.at(-1)?.call_id,'call_1');
- assert.equal(body.tools.length,4);
+ assert.equal(body.tools?.length,4);
 });
 test('Sol free prose and incomplete outputs normalize safely',()=>{
  const choice=normalizeResponses({status:'completed',output:[{type:'message',content:[{type:'output_text',text:'Die offene Linie ist entscheidend.'}]}],usage:{input_tokens:5,output_tokens:9}});
