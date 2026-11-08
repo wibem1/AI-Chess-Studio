@@ -1,4 +1,4 @@
-name: ChessStudio batch-model rejection regression (no deployment)
+name: ChessStudio validated batch-model rejection (no deployment)
 on:
   workflow_dispatch:
   push:
