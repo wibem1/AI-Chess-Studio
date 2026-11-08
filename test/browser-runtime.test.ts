@@ -161,3 +161,23 @@ test('temporary IndexedDB read failure does not permanently forget an encrypted 
  assert.equal((await runtime.status()).saved,true);
  assert.deepEqual(await unstable.get('vault'),await store.get('vault'));
 });
+
+test('direct OpenAI Sol uses stateless Responses with encrypted-key storage and no paid network',async()=>{
+ const store=new MemoryStore(),calls:string[]=[];
+ const runtime=new BrowserRuntime(store,(async(url,init)=>{
+  calls.push(String(url));
+  const body=JSON.parse(String(init!.body));
+  assert.equal(body.model,'gpt-6.1-sol');
+  assert.equal(body.store,false);
+  assert.equal(body.parallel_tool_calls,false);
+  assert.ok(Array.isArray(body.input));
+  assert.ok(!JSON.stringify(body).includes(config.apiKey));
+  return new Response(JSON.stringify({status:'completed',output:[{type:'message',content:[{type:'output_text',text:JSON.stringify(reply)}]}],usage:{input_tokens:55,output_tokens:22}}));
+ }) as typeof fetch);
+ await runtime.handle('/api/model-config','POST',{action:'connect',apiKey:config.apiKey,model:'gpt-6.1-sol',provider:'openai',allowPaid:true});
+ assert.deepEqual(await runtime.handle('/api/dialogue','POST',request()),reply);
+ assert.deepEqual(calls,['https://api.openai.com/v1/responses']);
+ assert.equal((await store.budget(l=>l.snapshot())).state.uncertainRequests,0);
+ const report=await runtime.handle('/api/ai-diagnostics','POST',{});
+ assert.ok(!JSON.stringify(report).includes(config.apiKey));
+});
