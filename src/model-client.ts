@@ -6,13 +6,13 @@ export class ServerModelAdapter implements DialogueAdapter {
   readonly source = 'model' as const;
   private controller:AbortController|undefined;
   cancel(){this.controller?.abort();}
-  constructor(private transport:typeof fetch=(input,init)=>fetch(input,init)){}
+  constructor(private transport:typeof fetch=(input,init)=>fetch(input,init),private preferences:()=>string=()=>'' ){}
   async respond(request: DialogueRequest): Promise<unknown> {
     let response: Response;this.controller=new AbortController();
     try {
       response = await this.transport('/api/dialogue', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(request), signal: AbortSignal.any([this.controller.signal,AbortSignal.timeout(100_000)])
+        body: JSON.stringify({...request,...(this.preferences().trim()?{generalInstructions:this.preferences().trim()}: {})}), signal: AbortSignal.any([this.controller.signal,AbortSignal.timeout(100_000)])
       });
     } catch { throw new Error('Modellserver nicht erreichbar oder Zeitlimit überschritten.'); }
     if(!response.ok){
