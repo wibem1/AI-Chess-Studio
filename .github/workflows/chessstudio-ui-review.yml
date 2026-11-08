@@ -1,4 +1,4 @@
-name: ChessStudio Stockfish-assisted learning verification (no deployment)
+name: ChessStudio live Stockfish board score checks (no deployment)
 on:
   workflow_dispatch:
   push:
