@@ -7,7 +7,7 @@ import {COACH_ERRORS,CoachFailure,providerFailure,type CoachFailureCode} from '.
 import {validateGameReview,ReviewValidationError} from './game-review.js';
 import {BrowserStore,type StoredVault} from './browser-store.js';
 import {sealConfig,openConfig,sealDeviceConfig,openDeviceConfig,type LocalModelConfig} from './browser-vault.js';
-import {ApiError,parseRequest,SYSTEM_PROMPT,FREE_CHAT_PROMPT} from './model-contract.js';
+import {ApiError,parseRequest,SYSTEM_PROMPT,FREE_CHAT_PROMPT,promptWithUserInstructions} from './model-contract.js';
 import {validateReply} from './dialogue.js';
 import {APP_VERSION} from './version.js';
 import {BrowserTacticalAdapter} from './browser-tactics.js';
@@ -123,9 +123,10 @@ export class BrowserRuntime {
   const request=parseRequest(raw);if(request.expectedModel&&request.expectedModel!==config.model)throw new ApiError(409,'Modell während des Testlaufs gewechselt.');
   if(this.busy)throw new ApiError(429,'Eine Modellanfrage läuft bereits.');
   const {turns=[],toolExchanges,...current}=request;
+  const instructionsPrompt=promptWithUserInstructions(request.topic==='chat'?FREE_CHAT_PROMPT:SYSTEM_PROMPT,request.generalInstructions);
   const retrospective=request.topic==='review'&&(request.hintMode??'explain')==='explain',outputTokens=retrospective||request.topic==='chat'?1800:800;
   const responses=needsResponses(config);
-  const body=JSON.stringify(responses?createResponsesBody(config,request,request.topic==='chat'?FREE_CHAT_PROMPT:SYSTEM_PROMPT,current,turns,outputTokens,this.responseReasoning):{model:config.model,...generationOptions(config,outputTokens),...providerToolFields(config,request),...(request.topic==='chat'?{}:{response_format:{type:'json_object'}}),messages:[{role:'system',content:request.topic==='chat'?FREE_CHAT_PROMPT:SYSTEM_PROMPT},...turns.map(t=>({role:t.role,content:`[Stellung ${t.nodeId}${t.fen?`, FEN ${t.fen}`:''}] ${t.text}`})),{role:'user',content:JSON.stringify(current)},...(providerOf(config)==='openrouter'?this.continuity.restore(coachProviderMessages(request)):coachProviderMessages(request))]});
+  const body=JSON.stringify(responses?createResponsesBody(config,request,instructionsPrompt,current,turns,outputTokens,this.responseReasoning):{model:config.model,...generationOptions(config,outputTokens),...providerToolFields(config,request),...(request.topic==='chat'?{}:{response_format:{type:'json_object'}}),messages:[{role:'system',content:instructionsPrompt},...turns.map(t=>({role:t.role,content:`[Stellung ${t.nodeId}${t.fen?`, FEN ${t.fen}`:''}] ${t.text}`})),{role:'user',content:JSON.stringify(current)},...(providerOf(config)==='openrouter'?this.continuity.restore(coachProviderMessages(request)):coachProviderMessages(request))]});
   if(new TextEncoder().encode(body).length>120000)throw new ApiError(400,'Modellkontext ist zu groß.');
   const trace=this.traces.start(JSON.parse(body),{nodeId:request.nodeId,fen:request.fen,provider:providerOf(config),model:config.model,reasoning:config.reasoning??null,toolRound:request.toolExchanges?.length??0,priceAssumptions:(await this.store.budget(l=>l.snapshot())).state},config.apiKey);
   this.busy=true;let httpStatus:number|undefined;let reserved=0,started=false;let failureCode:CoachFailureCode='network';
