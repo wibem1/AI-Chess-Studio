@@ -1,3 +1,9 @@
+# Fortsetzung: gespeicherte Schlüsselstellen trotz ungültiger Alternative – 8. November 2026
+
+**Ziel:** Die zuletzt korrigierte Behandlung ungültiger Alternativzüge nicht nur isoliert, sondern im vollständigen Chat- und Speicherablauf absichern. Neue Integration `test/game-review.test.ts`: simuliertes KI-Review enthält einen illegalen Alternativzug; genau ein Modelladapter-Aufruf; andere Schlüsselstellungen bleiben erhalten; ungültiger Zug und seine unbegründete Empfehlung werden entfernt; Positionen sind per `reviewAnchors` auffindbar; Export und erneuter Import der Partie erhalten die bereinigten Momente und den ursprünglichen Partieverlauf. Modellantwort wird nicht ungewollt verändert.
+
+**Prüfnachweis:** https://github.com/wibem1/AI-Chess-Studio/actions/runs/42516268873 — SUCCESS; TypeScript, 191 Node-Tests, Web-Build und 15 Browserprüfungen. Fixture-Tests, keine echten kostenpflichtigen Modellanfragen, keine Geräteabnahme. Stand im Branch `work`, **nicht veröffentlicht**; Live-Version 1.0.5 unverändert. Nächster Schritt: Nutzerfreigabe zur Veröffentlichung, anschließend kurzer realer Test der gespeicherten Analyse und Navigation; die bereits abgewiesene alte API-Antwort kann nicht rückwirkend aus der App rekonstruiert werden.
+
 # Fehlerbehebung Partierückblick – ungültiger KI-Alternativzug, 8. November 2026
 
 **Nutzerdiagnose Version 1.0.5:** Partierückblick über vollständige 149-Halbzug-Partie. Anfrage zu Schlüsselstellungen über OpenRouter / `openai/gpt-6.1-sol`, HTTP 200, Providerkosten 0,0298785 USD, danach `review_format`. Modell schlug bei 24.c4 als Alternative `Rc3` vor, erklärte jedoch selbst, warum der Zug illegal ist (eigener Bauer auf c3). Der bisherige strenge Validator verwarf daher den gesamten Rückblick. Die App-Fehlermeldung war sachlich richtig; das Verwerfen sämtlicher anderen Momente war aber vermeidbar. Der zuvor ausgegebene freie Gesamtbericht wurde separat erfolgreich übernommen (0,0271585 USD).
