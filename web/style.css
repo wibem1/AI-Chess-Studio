@@ -510,3 +510,21 @@ footer span{display:none}
 .provider-choice label{font-weight:700;color:var(--green)}
 .provider-choice select{display:block;width:100%;min-height:48px}
 .provider-choice p{margin:0;font-size:.82rem;line-height:1.45}
+
+
+/* Settings: one clearly named job per section, usable on tablet and desktop. */
+#panel-settings{gap:12px}
+#panel-settings>.panel,#panel-settings>details.panel{width:100%;margin:0}
+#panel-settings>.settings-intro{display:block}
+#panel-settings>.settings-intro h1{margin:4px 0 8px}
+#panel-settings>details.panel>summary{font-weight:750;font-size:1rem;padding:8px 0;cursor:pointer}
+#panel-settings>details.panel>.disclosure-body{display:grid;gap:10px;min-width:0}
+#panel-settings #api-settings{margin-top:14px;padding-top:10px;border-top:1px solid var(--line)}
+#panel-settings #api-settings>summary{font-weight:700}
+#panel-settings #settings-model-section #api-model,
+#panel-settings #settings-model-section #model-catalog,
+#panel-settings #settings-model-section #chat-model-id{width:100%;min-height:44px}
+#panel-settings #chat-model-controls{background:var(--paper);border:1px solid var(--line);margin-top:10px}
+#panel-settings #pwa-tools button,#panel-settings #settings-diagnosis button{justify-self:start}
+#panel-settings #settings-diagnosis #ai-diagnosis{border-top:1px solid var(--line);padding-top:10px}
+@media(max-width:650px){#panel-settings>details.panel{padding:12px 16px}#panel-settings>.settings-intro{padding:16px}#panel-settings>.panel p{line-height:1.5}}
