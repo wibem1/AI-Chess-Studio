@@ -78,3 +78,10 @@ test('PGN compatibility rejects malformed input, extra games and size overflow',
  const original=new Session();original.annotate({nodeId:'n0',source:'human',kind:'memory',hypothesis:false,text:'Unicode\u2028bleibt',openQuestions:[]});
  assert.equal(importGameFile(original.export(),'file.json').session.snapshot().annotations[0]!.text,'Unicode\u2028bleibt');
 });
+
+test('rejected real review reports each illegal alternative with its historical move',async()=>{
+ const {readFileSync}=await import('node:fs'),{validateGameReview}=await import('../src/game-review.js');
+ const game=parsePgn(readFileSync('test/fixtures/lichess-1Vh80QL2.pgn','utf8'));
+ const moments=[[18,'Qxe5+','Qxe7+'],[56,'Nxg3','Nf5'],[85,'Rc7+','Rf7'],[136,'Ng3+','Nh5']].map(([ply,played,alternative])=>({ply,played,alternative,explanation:'Erklärung',reason:'Begründung'}));
+ assert.throws(()=>validateGameReview({summary:'Überblick',lesson:'Lernfolgerung',moments},{rootFen:game.rootFen,moves:game.moves.map(m=>m.san),truncated:false}),error=>{assert.ok(error instanceof Error);for(const label of ['9… Qxe5+','28… Nxg3','43. Rc7+','68… Ng3+'])assert.ok(error.message.includes(label));return true;});
+});

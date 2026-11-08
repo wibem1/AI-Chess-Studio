@@ -355,26 +355,7 @@ $('dialogue-form').addEventListener('submit', async event => {
     message('dialogue-feedback', chatStopped?'Angehalten. Gezeigte Züge bleiben als Lernvariante erhalten.':studio.session !== session ? 'Veraltete Anfrage nach Sitzungswechsel verworfen.' : session.dialogueRevision()!==chatRevision ? 'Chatverlauf gelöscht; die frühere Anfrage wurde nicht übernommen.' : (error instanceof Error ? error.message : 'Anfrage fehlgeschlagen.')+' Die bisherigen Chatbeiträge stammen von früheren Anfragen.');
   } finally { pending = false;activeAdapter=undefined; updateMode(); if (real) {void refreshModelStatus();void refreshCosts();} }
 });
-$('export').addEventListener('click', () => {
-  text('session-json').value = studio.session.export();
-  const blob = new Blob([studio.session.export()], { type: 'application/json' });
-  const url = URL.createObjectURL(blob); const link = document.createElement('a');
-  link.href = url; link.download = 'schachlabor-sitzung.json'; link.click();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-  message('storage-feedback', 'JSON bereitgestellt und als Datei exportiert.');
-});
-$('import').addEventListener('click', () => attempt(() => restoreSession(text('session-json').value), 'storage-feedback', 'Sitzung wiederhergestellt.'));
 render();
-
-$('session-file').addEventListener('change', async () => {
-  const file = $<HTMLInputElement>('session-file').files?.[0];
-  if (!file) return;
-  try {
-    const json = await file.text();
-    attempt(() => { restoreSession(json); text('session-json').value = json; }, 'storage-feedback', 'Sitzung aus Datei wiederhergestellt.');
-  } catch { message('storage-feedback', 'Datei konnte nicht gelesen werden.'); }
-  $<HTMLInputElement>('session-file').value = '';
-});
 
 $('tactical-form').addEventListener('submit', async event => {
   event.preventDefault(); if (tacticalPending) return;

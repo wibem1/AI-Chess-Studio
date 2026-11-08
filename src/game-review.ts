@@ -28,22 +28,25 @@ export function reviewAnchors(data:SessionData,annotation:Annotation):ReviewAnch
 export function asksForGameReview(question:string):boolean {
  return asksForKeyMoments(question)||/\b(?:analysier\w*|besprich|untersuch\w*|beurteil\w*)\s+(?:(?:bitte|mir)\s+)*(?:(?:das|die|mein(?:e)?|dieses?|gesamte|ganze|bisherige)\s+)*(?:spiel|partie)\b/iu.test(question);
 }
+export class ReviewValidationError extends Error {}
 export function validateGameReview(raw:unknown,history:{rootFen:string;moves:string[];truncated:boolean}|undefined):GameReview {
- if(!history || history.truncated || !history.moves.length)throw new Error('Für den Partierückblick fehlt die vollständige Zugfolge.');
+ if(!history || history.truncated || !history.moves.length)throw new ReviewValidationError('Analyse verworfen: Die vollständige Zugfolge fehlt.');
  const r=raw as GameReview|undefined;
  const text=(s:unknown,max:number)=>typeof s==='string'&&s.trim().length>0&&s.length<=max;
- if(!r||!text(r.summary,1200)||!text(r.lesson,800)||!Array.isArray(r.moments)||r.moments.length<Math.min(2,history.moves.length)||r.moments.length>4)throw new Error('Partieanalyse ohne konkrete Lernmomente verworfen.');
+ if(!r||!text(r.summary,1200)||!text(r.lesson,800)||!Array.isArray(r.moments)||r.moments.length<Math.min(2,history.moves.length)||r.moments.length>4)throw new ReviewValidationError('Analyse verworfen: Erwartet werden ein Überblick, eine Lernfolgerung und zwei bis vier Schlüsselstellungen (Lernmomente) mit Beschreibung.');
  const board=new Chess(history.rootFen),before:string[]=[];
  for(const san of history.moves){before.push(board.fen());board.move(san);}
+ const problems:string[]=[];
  let previous=0;
  for(const m of r.moments){
-  if(!m||!Number.isInteger(m.ply)||m.ply<=previous||m.ply>before.length||m.played!==history.moves[m.ply-1]||!text(m.explanation,1000)||!text(m.reason,700)||typeof m.alternative!=='string')throw new Error('Lernmoment passt nicht zur tatsächlichen Zugfolge.');
+  if(!m||!Number.isInteger(m.ply)||m.ply<=previous||m.ply>before.length||m.played!==history.moves[m.ply-1]||!text(m.explanation,1000)||!text(m.reason,700)||typeof m.alternative!=='string'){problems.push('Eine Schlüsselstellung enthält einen ungültigen Bezug zur Zugfolge oder eine fehlende Beschreibung.');continue;}
   const position=new Chess(before[m.ply-1]!);
-  if(m.alternative && (m.alternative===m.played||!position.moves().includes(m.alternative)))throw new Error('Alternative ist in der historischen Stellung nicht legal oder kein anderer Zug.');
+  if(m.alternative && (m.alternative===m.played||!position.moves().includes(m.alternative))){const label=`${position.fen().split(' ')[5]}${position.turn()==='b'?'…':'.'} ${m.played}`;problems.push(`Bei ${label}: Der Alternativzug ${/^[a-zA-Z0-9=+#-]{1,16}$/.test(m.alternative)?m.alternative:'(ungültige Schreibweise)'} ist nicht legal oder entspricht dem gespielten Zug.`);}
   previous=m.ply;
  }
+ if(problems.length)throw new ReviewValidationError('Analyse verworfen: '+problems.join(' '));
  // A retrospective must discuss the path to the result, not only the last move.
- if(history.moves.length>=8 && r.moments.every(m=>m.ply>history.moves.length-2))throw new Error('Partieanalyse beschreibt nur die Schlusszüge.');
+ if(history.moves.length>=8 && r.moments.every(m=>m.ply>history.moves.length-2))throw new ReviewValidationError('Analyse verworfen: Alle Schlüsselstellungen betreffen nur die Schlusszüge (letzten beiden Halbzüge).');
  return r;
 }
 export function formatGameReview(r:GameReview,history:{rootFen:string;moves:string[]}):string {

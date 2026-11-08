@@ -1,3 +1,27 @@
+# Entwicklung zu Version 1.0 – Bereinigung
+
+Branch refactor/1.0-cleanup-20261108, Ausgangspunkt veröffentlichte 0.16.0.
+Nutzerauftrag: Oberfläche und Code gründlich bereinigen, konkrete Fehlermeldungen.
+Erster geprüfter Schritt: doppelte JSON-Speicheroberfläche und zugehörige Handler
+entfernt, automatische Sicherung erhalten; sichere Detailmeldung für ungültige
+Partierückblicke vom Prüfer über Web-/Desktoptransport bis zur Anzeige.
+Vier reale illegale Alternativen aus Nutzerdiagnose als Regression geprüft.
+Typprüfung, Root-Build und 171/171 Einzeltests bestanden.
+Noch keine Browserabnahme dieses Umbaus, keine 1.0-Freigabe oder Veröffentlichung.
+
+Noch erforderlich für 1.0:
+- Veraltete Analyse-/Kommentarformulare und Simulationsbedienung entfernen,
+  zugehörige Handler/Abhängigkeiten bereinigen; Testsimulation außerhalb Produkt-UI.
+- Partien nur an einem Ort laden/speichern, Varianten und Faktencheck unter
+  Weitere Werkzeuge; Anbieter/Modell/Darstellung in Einstellungen zusammenführen.
+- Diagnose direkt erreichbar; genaue Validierungsursache auch im Bericht erhalten.
+- main.ts in nachvollziehbare Verantwortlichkeiten teilen; tote Styles entfernen.
+- Alte Oberflächentests auf aktuelle Abläufe umstellen, vollständige Prüfung und
+  visuelle Desktop-/iPad-Größenprüfung, Speicher-/Update-Kompatibilität nachweisen.
+- Erst danach Versionsnummer 1.0.0, Changelog, Integration und ggf. Veröffentlichung.
+
+Letzter veröffentlichter Stand bleibt 0.16.0. Keine bezahlten KI-Anfragen.
+
 # Aktuell veröffentlicht: 0.16.0 – Schlüsselstellungen und PGN-Korrektur
 
 Am 8. November 2026 veröffentlicht. PR #2 integriert: Quelle 577309b059fa48bdaa5533ff6f8c89c4803c555f;
