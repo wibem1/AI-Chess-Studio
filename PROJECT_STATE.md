@@ -1,3 +1,9 @@
+# Sol 6.1 – Responses-API-Adapter im Entwicklungsbranch (8. November 2026)
+
+Nach bestätigter Standardmodellwahl `gpt-6.1-sol` verwendet die Web-App für direkte OpenAI-Sol-Modelle nun `POST /v1/responses` mit `store:false`; OpenRouter und ältere Chat-Completions-Modelle bleiben beim bisherigen Transport. Die vier bestehenden Brettwerkzeuge werden als Responses-Funktionen übergeben. Die Antworten werden in die vorhandene validierte Zug- und Dialogpipeline überführt; maximal zwei Werkzeugrunden und keine automatische Übernahme illegaler Züge. Opaque `reasoning.encrypted_content` kann über eine einzelne Werkzeugfortsetzung ausschließlich im RAM übergeben werden, wird beim Sperren/Wechseln gelöscht und aus Diagnosen gefiltert. Neue Fixture-Tests decken Textantworten, Funktionsaufrufe, Fehler und Verschlüsselung ab.
+
+Keine echten kostenpflichtigen OpenAI-Anfragen oder native Geräteabnahme. Die tatsächliche Kompatibilität des Modells mit komplexen Brettwerkzeugfolgen ist **noch nicht real bestätigt**. Die Web-App bleibt auf dem veröffentlichten Stand 1.0.1; weder neue Versionsnummer noch Veröffentlichung erfolgt. GitHub Actions prüft aktuell die Änderungen; endgültiges Testergebnis nachtragen.
+
 # OpenAI-Modellstandard Sol 6.1 und eindeutige Anbieterwahl (8. November 2026)
 
 Auf Benutzerwunsch ist bei neu ausgewähltem Anbieter „OpenAI direkt“ jetzt `gpt-6.1-sol` statt `gpt-4.1-mini` vorbelegt. OpenRouter verwendet weiterhin `openai/gpt-6.1-sol` als Vorschlag und bleibt separat auswählbar. Bereits gespeicherte Modelle/Schlüsselfächer werden nicht automatisch ersetzt. Bei unlesbarem lokalem Schlüssel wird der Anbieter nicht fälschlich auf OpenAI zurückgesetzt; die Nutzeroberfläche fordert explizite Auswahl. Browserregression für nicht lesbaren Schlüssel mit Providerwechsel und Sol-Voreinstellung ergänzt; ältere Test-Fixtures für explizite Auswahl angepasst.
