@@ -1,0 +1,64 @@
+name: ChessStudio 1.0 - pruefen und veroeffentlichen
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [work]
+    paths:
+      - .github/workflows/chessstudio-1.0-release.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: chessstudio-1-0-release
+  cancel-in-progress: false
+
+jobs:
+  verify-and-publish:
+    if: github.ref == 'refs/heads/work'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      CI: "true"
+      CHESS_ENABLE_PAID_API: "0"
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Projektstand auschecken
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Node 24 installieren
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+      - name: Abhaengigkeiten installieren
+        run: npm ci
+      - name: Chromium fuer Browsertests installieren
+        run: npx playwright install --with-deps chromium
+      - name: Typpruefung
+        run: npm run check
+      - name: Build und Einzeltests
+        run: npm test
+      - name: Browserintegration und reale lokale Spielengines
+        run: |
+          npx playwright test \
+            e2e/stable-toolbar.spec.ts \
+            e2e/model-diagnostics.spec.ts \
+            e2e/pgn-file.spec.ts \
+            e2e/game-review.spec.ts \
+            e2e/position-transfer.spec.ts \
+            e2e/maia.spec.ts \
+            e2e/pages.spec.ts
+      - name: Produktions-Build
+        run: npm run build:pages
+      - name: Build-Metadaten und Dateien vorbereiten
+        run: node scripts/publish-pages.mjs --prepare-only
+      - name: Anlieferung an gh-pages autorisieren
+        run: |
+          git config --global credential.helper '!f() { echo username=x-access-token; echo "password=$GITHUB_TOKEN"; }; f'
+      - name: ChessStudio 1.0.0 auf gh-pages veroeffentlichen
+        run: node scripts/publish-pages.mjs
+      - name: Deploymentstatus pruefen
+        run: npm run check:pages
