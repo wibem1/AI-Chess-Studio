@@ -2,7 +2,8 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {sealConfig,openConfig,sealDeviceConfig,openDeviceConfig} from '../src/browser-vault.js';
 import {BrowserStore} from '../src/browser-store.js';
-import {BrowserRuntime} from '../src/browser-runtime.js';
+import {BrowserRuntime,providerTimeoutMs} from '../src/browser-runtime.js';
+import {COACH_ERRORS} from '../src/model-errors.js';
 import {CostLedger,type CostState} from '../src/costs.js';
 import {Session} from '../src/session.js';
 import {BrowserTacticalAdapter} from '../src/browser-tactics.js';
@@ -200,4 +201,12 @@ test('Sol direct tool call returns a legal app-level command without invoking th
  assert.equal(calls.length,1);
  const report=await runtime.handle('/api/ai-diagnostics','POST',{});
  assert.ok(!JSON.stringify(report).includes('ENCRYPTED_PRIVATE_REASONING'));
+});
+
+test('Sol Responses uses a longer timeout while legacy model transport keeps its prior limit',()=>{
+ assert.equal(providerTimeoutMs({enabled:true,apiKey:'fixture-sol-key',model:'gpt-6.1-sol',provider:'openai'}),45000);
+ assert.equal(providerTimeoutMs({enabled:true,apiKey:'fixture-sol-key',model:'gpt-6.1-sol',provider:'openai',reasoning:'high'}),90000);
+ assert.equal(providerTimeoutMs({enabled:true,apiKey:'fixture-sol-key',model:'gpt-4.1-mini',provider:'openai'}),15000);
+ assert.equal(providerTimeoutMs({enabled:true,apiKey:'fixture-sol-key',model:'openai/gpt-6.1-sol',provider:'openrouter'}),15000);
+ assert.match(COACH_ERRORS.timeout,/Zeitlimit/);
 });
