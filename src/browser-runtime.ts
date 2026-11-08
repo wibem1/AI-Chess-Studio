@@ -1,5 +1,5 @@
 import {ModelDiagnostics} from './model-diagnostics.js';
-import {needsResponses,createResponsesBody,normalizeResponses} from './openai-responses.js';
+import {needsResponses,createResponsesBody,normalizeResponses,encryptedReasoningForCall} from './openai-responses.js';
 import {providerBase,providerOf,providerOptions,validModel,generationOptions,modelCatalog} from './model-provider.js';
 import {taggedReply,providerToolFields,ProviderContinuity,coachProviderFields,coachProviderMessages,coachToolReply} from './coach-provider.js';
 import {decodeModelContent,normalizeModelReply} from './model-reply.js';
@@ -24,6 +24,7 @@ async function readProvider(response:Response,maxBytes=65536):Promise<any>{
 export class BrowserRuntime {
  readonly traces=new ModelDiagnostics();
  private continuity=new ProviderContinuity();
+ private responseReasoning=new Map<string,Record<string,unknown>[]>();
  private config:LocalModelConfig|null=null;private vaultEpoch=0;private busy=false;
  private tactics=new BrowserTacticalAdapter();
  private restoring:Promise<void>|undefined;
@@ -81,7 +82,7 @@ export class BrowserRuntime {
     if(raw?.action==='disconnect'){await this.store.clear('vault');this.config=null;this.channel?.postMessage('changed');return await this.status();}
     if(raw?.action==='select-model'){
      if(!this.config||raw.provider!==providerOf(this.config)||!validModel(raw.model,this.config))throw new ApiError(400,'Aktiven Provider und Modell prüfen.');
-     const config={...this.config,model:raw.model,...providerOptions(raw)},record=await this.store.get<StoredVault>('vault');if(raw.reasoning===undefined)delete config.reasoning;if(record?.version===2){const sealed=await sealDeviceConfig(config);if(epoch!==this.vaultEpoch)throw new ApiError(409,'Zugang geändert.');await this.store.put('vault',sealed);this.channel?.postMessage('changed');}this.continuity.clear();this.config=config;return {...await this.status(),selectionPersistent:record?.version===2};
+     const config={...this.config,model:raw.model,...providerOptions(raw)},record=await this.store.get<StoredVault>('vault');if(raw.reasoning===undefined)delete config.reasoning;if(record?.version===2){const sealed=await sealDeviceConfig(config);if(epoch!==this.vaultEpoch)throw new ApiError(409,'Zugang geändert.');await this.store.put('vault',sealed);this.channel?.postMessage('changed');}this.continuity.clear();this.responseReasoning.clear();this.config=config;return {...await this.status(),selectionPersistent:record?.version===2};
     }
     if(raw?.action!=='connect'||raw.allowPaid!==true)throw new ApiError(400,'Kostenfreigabe und Schlüssel prüfen.');
     const config={enabled:true,apiKey:raw.apiKey,model:raw.model,...providerOptions(raw)};
@@ -92,7 +93,7 @@ export class BrowserRuntime {
     try{unlocked=stored.version===2?await openDeviceConfig(stored):await openConfig(stored,raw.password);}
     catch{throw new ApiError(500,'Die Speicherung konnte nicht bestätigt werden: Der gespeicherte Schlüssel konnte nicht gelesen werden.');}
     if(unlocked.apiKey!==config.apiKey.trim()||unlocked.model!==config.model)throw new ApiError(409,'Gespeicherter Zugang wurde zwischenzeitlich geändert. Bitte erneut prüfen.');
-    if(epoch!==this.vaultEpoch)throw new ApiError(409,'Schlüsselfach wurde in einem anderen Fenster geändert.');this.continuity.clear();this.config=unlocked;return await this.status();
+    if(epoch!==this.vaultEpoch)throw new ApiError(409,'Schlüsselfach wurde in einem anderen Fenster geändert.');this.continuity.clear();this.responseReasoning.clear();this.config=unlocked;return await this.status();
    }finally{this.busy=false;}
   }
   if(path==='/api/costs'){
@@ -119,7 +120,7 @@ export class BrowserRuntime {
   const {turns=[],toolExchanges,...current}=request;
   const retrospective=request.topic==='review'&&(request.hintMode??'explain')==='explain',outputTokens=retrospective||request.topic==='chat'?1800:800;
   const responses=needsResponses(config);
-  const body=JSON.stringify(responses?createResponsesBody(config,request,request.topic==='chat'?FREE_CHAT_PROMPT:SYSTEM_PROMPT,current,turns,outputTokens):{model:config.model,...generationOptions(config,outputTokens),...providerToolFields(config,request),...(request.topic==='chat'?{}:{response_format:{type:'json_object'}}),messages:[{role:'system',content:request.topic==='chat'?FREE_CHAT_PROMPT:SYSTEM_PROMPT},...turns.map(t=>({role:t.role,content:`[Stellung ${t.nodeId}${t.fen?`, FEN ${t.fen}`:''}] ${t.text}`})),{role:'user',content:JSON.stringify(current)},...(providerOf(config)==='openrouter'?this.continuity.restore(coachProviderMessages(request)):coachProviderMessages(request))]});
+  const body=JSON.stringify(responses?createResponsesBody(config,request,request.topic==='chat'?FREE_CHAT_PROMPT:SYSTEM_PROMPT,current,turns,outputTokens,this.responseReasoning):{model:config.model,...generationOptions(config,outputTokens),...providerToolFields(config,request),...(request.topic==='chat'?{}:{response_format:{type:'json_object'}}),messages:[{role:'system',content:request.topic==='chat'?FREE_CHAT_PROMPT:SYSTEM_PROMPT},...turns.map(t=>({role:t.role,content:`[Stellung ${t.nodeId}${t.fen?`, FEN ${t.fen}`:''}] ${t.text}`})),{role:'user',content:JSON.stringify(current)},...(providerOf(config)==='openrouter'?this.continuity.restore(coachProviderMessages(request)):coachProviderMessages(request))]});
   if(new TextEncoder().encode(body).length>120000)throw new ApiError(400,'Modellkontext ist zu groß.');
   const trace=this.traces.start(JSON.parse(body),{nodeId:request.nodeId,fen:request.fen,provider:providerOf(config),model:config.model,reasoning:config.reasoning??null,toolRound:request.toolExchanges?.length??0,priceAssumptions:(await this.store.budget(l=>l.snapshot())).state},config.apiKey);
   this.busy=true;let httpStatus:number|undefined;let reserved=0,started=false;let failureCode:CoachFailureCode='network';
@@ -131,7 +132,7 @@ export class BrowserRuntime {
    httpStatus=response.status;
    if(!response.ok){await response.body?.cancel();throw new CoachFailure(providerFailure(response.status));}
    failureCode='provider_format';
-   const received=await readProvider(response,providerOf(config)==='openrouter'?524288:262144);const envelope=responses?normalizeResponses(received):received;if(providerOf(config)==='openrouter')this.continuity.remember(envelope.choices?.[0]?.message);trace.received(envelope,response.status);await this.store.budget(l=>l.settle(reserved,envelope.usage));
+   const received=await readProvider(response,providerOf(config)==='openrouter'?524288:262144);const envelope=responses?normalizeResponses(received):received;if(responses){const opaque=encryptedReasoningForCall(received);if(opaque){this.responseReasoning.set(opaque.callId,opaque.items);while(this.responseReasoning.size>4)this.responseReasoning.delete(this.responseReasoning.keys().next().value!);}}if(providerOf(config)==='openrouter')this.continuity.remember(envelope.choices?.[0]?.message);trace.received(envelope,response.status);await this.store.budget(l=>l.settle(reserved,envelope.usage));
    if(envelope.choices?.[0]?.finish_reason==='length')throw new CoachFailure('output_limit');
    const toolReply=coachToolReply(envelope.choices?.[0],request);if(toolReply){trace.finish('accepted');return taggedReply(toolReply,config,envelope,trace.id);}
       if(envelope.choices?.[0]?.finish_reason!=='stop')throw new Error();
