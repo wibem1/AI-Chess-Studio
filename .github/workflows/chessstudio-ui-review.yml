@@ -1,4 +1,4 @@
-name: ChessStudio regression review (no deployment)
+name: ChessStudio provider and UI regression (no deployment)
 on:
   workflow_dispatch:
   push:
