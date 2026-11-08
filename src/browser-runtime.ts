@@ -27,9 +27,34 @@ export class BrowserRuntime {
  private tactics=new BrowserTacticalAdapter();
  private restoring:Promise<void>|undefined;
  private channel=typeof window!=='undefined'&&typeof BroadcastChannel!=='undefined'?new BroadcastChannel('chess-studio-vault'):null;
- constructor(readonly store=new BrowserStore(),private transport:typeof fetch=(input,init)=>fetch(input,init)){if(this.channel)this.channel.onmessage=event=>{this.vaultEpoch++;this.config=null;this.restoring=event.data==='changed'?undefined:Promise.resolve();window.dispatchEvent(new Event('chess-vault-change'));};}
- private restoreDevice(){return this.restoring??= (async()=>{const epoch=this.vaultEpoch,record=await this.store.get<StoredVault>('vault');if(record?.version===2){try{const config=await openDeviceConfig(record);if(epoch===this.vaultEpoch)this.config=config;}catch{if(epoch===this.vaultEpoch)this.config=null;}}})();}
- async status(){await this.restoreDevice();const record=await this.store.get<StoredVault>('vault');return {available:!!this.config,saved:!!record,locked:!!record&&!this.config,limit:null,remaining:null};}
+ constructor(readonly store=new BrowserStore(),private transport:typeof fetch=(input,init)=>fetch(input,init)){if(this.channel)this.channel.onmessage=event=>{this.vaultEpoch++;this.config=null;this.restoreIssue=null;this.restoring=event.data==='changed'?undefined:Promise.resolve();window.dispatchEvent(new Event('chess-vault-change'));};}
+ private restoreIssue:'unreadable'|null=null;
+ private restoreDevice(){
+  if(this.restoring)return this.restoring;
+  const epoch=this.vaultEpoch;
+  const attempt=(async()=>{
+   const record=await this.store.get<StoredVault>('vault');
+   if(epoch!==this.vaultEpoch)return;
+   if(record?.version!==2){this.restoreIssue=null;return;}
+   try{
+    const config=await openDeviceConfig(record);
+    if(epoch===this.vaultEpoch){this.config=config;this.restoreIssue=null;}
+   }catch{
+    if(epoch===this.vaultEpoch){this.config=null;this.restoreIssue='unreadable';}
+   }
+  })();
+  this.restoring=attempt;
+  void attempt.then(()=>{
+   // A failed decryption can be transient (e.g. during browser profile startup).
+   // Retry on the next explicit status request; never replace or delete the vault.
+   if(this.restoreIssue==='unreadable'&&this.restoring===attempt)this.restoring=undefined;
+  },()=>{
+   // IndexedDB opening may fail temporarily. Let the next status check retry.
+   if(this.restoring===attempt)this.restoring=undefined;
+  });
+  return attempt;
+ }
+ async status(){await this.restoreDevice();const record=await this.store.get<StoredVault>('vault');return {available:!!this.config,saved:!!record,locked:!!record&&!this.config,storageIssue:this.restoreIssue,limit:null,remaining:null};}
  async handle(path:string,method:string,raw?:any,signal?:AbortSignal):Promise<any>{
   await this.restoreDevice();
   if(path==='/api/models'&&method==='POST')return modelCatalog(this.transport);
