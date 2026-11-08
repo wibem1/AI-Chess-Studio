@@ -135,7 +135,7 @@ export class Studio {
     const answerNode=recordedQuestion?expectedNode:nodeId,answerFacts=positionFacts(session.snapshot().nodes.find(n=>n.id===answerNode)!.fen);
     if(recordedQuestion)reply.candidates=[];
     if(adapter.source==='model' && !reply.message?.trim())throw new Error('Dialogantwort fehlt.');
-    const retrospective=adapter.source==='model'&&topic==='review'&&hintMode==='explain'?validateGameReview(reply.gameReview,history):undefined;
+    const retrospective=adapter.source==='model'&&topic==='review'&&hintMode==='explain'?validateGameReview(reply.gameReview,history,true):undefined;
     if(adapter.source==='model' && topic!=='review' && hintMode==='explain' && reply.assessment){
       const f=answerFacts,winner=f.checkmate?(f.sideToMove==='w'?'black_advantage':'white_advantage'):f.mateInOne.length?(f.sideToMove==='w'?'white_advantage':'black_advantage'):undefined;
       if(winner&&reply.assessment.verdict!==winner)throw new Error('KI-Beurteilung widerspricht der regelgeprüften Mattsituation. Antwort nicht gespeichert.');
