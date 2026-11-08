@@ -51,6 +51,22 @@ export class BrowserStore {
    tx.onerror=tx.onabort=()=>reject(new Error('Allgemeine KI-Anweisungen konnten nicht gespeichert werden.'));
   });
  }
+ /** Off by default: evaluated only before an explicitly sent learning question. */
+ async getStockfishAssistEnabled():Promise<boolean>{
+  const db=await this.database();return new Promise((resolve,reject)=>{
+   const tx=db.transaction('session','readonly'),request=tx.objectStore('session').get('stockfish-assist');
+   request.onsuccess=()=>resolve(request.result===true);
+   request.onerror=()=>reject(new Error('Stockfish-Einstellung nicht lesbar.'));
+  });
+ }
+ async setStockfishAssistEnabled(enabled:boolean):Promise<void>{
+  const db=await this.database();return new Promise((resolve,reject)=>{
+   const tx=db.transaction('session','readwrite');
+   tx.objectStore('session').put(enabled===true,'stockfish-assist');
+   tx.oncomplete=()=>resolve();
+   tx.onerror=tx.onabort=()=>reject(new Error('Stockfish-Einstellung konnte nicht gespeichert werden.'));
+  });
+ }
  /** Separate key in the existing store: no database upgrade or session replacement. */
  async savedGames(add?:SavedGame):Promise<SavedGame[]>{
   const db=await this.database();return new Promise((resolve,reject)=>{
