@@ -40,7 +40,7 @@ export function parseRequest(raw: unknown): DialogueRequest {
       !Array.isArray(r.context) || r.context.length > 6 || !r.context.every(t => typeof t === 'string' && t.length <= 800)) {
     throw new ApiError(400, 'Ungültiger oder zu großer Kontext.');
   }
-  if(r.generalInstructions!==undefined&&(typeof r.generalInstructions!=='string'||r.generalInstructions.length>2000||/[\\u0000-\\u0008\\u000B\\u000C\\u000E-\\u001F]/.test(r.generalInstructions)))throw new ApiError(400,'Allgemeine KI-Anweisungen sind ungültig oder länger als 2.000 Zeichen.');
+  if(r.generalInstructions!==undefined&&(typeof r.generalInstructions!=='string'||r.generalInstructions.length>2000||/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/.test(r.generalInstructions)))throw new ApiError(400,'Allgemeine KI-Anweisungen sind ungültig oder länger als 2.000 Zeichen.');
   if(r.hintMode!==undefined && (typeof r.hintMode!=='string' || !['question','hint','explain'].includes(r.hintMode)))throw new ApiError(400,'Ungültiger Hinweisumfang.');
   if(r.topic!==undefined && (typeof r.topic!=='string' || !['chat','position','comparison','review'].includes(r.topic)))throw new ApiError(400,'Ungültiges Gesprächsziel.');
   if(r.turns!==undefined && (!Array.isArray(r.turns) || r.turns.length>(r.topic==='chat'?40:4) || !r.turns.every(t=>t && typeof t==='object' && ['user','assistant'].includes(t.role) && typeof t.text==='string' && t.text.length<=(r.topic==='chat'?4000:700) && typeof t.nodeId==='string' && t.nodeId.length<=80)))throw new ApiError(400,'Ungültiger Gesprächsverlauf.');
