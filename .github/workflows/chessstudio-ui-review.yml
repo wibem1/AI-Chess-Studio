@@ -1,4 +1,4 @@
-name: ChessStudio Sol long-review output limit regression (no deployment)
+name: ChessStudio configurable Sol review token limit (no deployment)
 on:
   workflow_dispatch:
   push:
