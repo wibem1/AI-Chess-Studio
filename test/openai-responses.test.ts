@@ -52,3 +52,12 @@ test('encrypted reasoning stays in memory and cannot leak via diagnostics',()=>{
  const diagnostics=new ModelDiagnostics();diagnostics.start({input:opaque?.items}, {},'fixture-key');
  assert.ok(!JSON.stringify(diagnostics.export()).includes('PRIVATE_OPAQUE_CONTENT'));
 });
+
+test('Sol whole-game retrospective has a larger bound than ordinary requests',()=>{
+ const review={...req,topic:'review' as const,hintMode:'explain' as const,toolsEnabled:false};
+ const detailed=createResponsesBody(config,review,'review instructions',{},[],1800);
+ const ordinary=createResponsesBody(config,req,'chat instructions',{},[],1800);
+ assert.equal(detailed.max_output_tokens,6144);
+ assert.equal(ordinary.max_output_tokens,2048);
+ assert.equal(createResponsesBody({...config,reasoning:'medium'},review,'review',{},[],1800).max_output_tokens,16384);
+});
