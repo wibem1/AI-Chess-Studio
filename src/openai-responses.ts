@@ -23,7 +23,7 @@ export function createResponsesBody(config:ProviderOptions&{model:string},reques
  }));
  return {
   model:config.model,input,store:false,parallel_tool_calls:false,
-  max_output_tokens:config.reasoning?({low:8192,medium:16384,high:32768}[config.reasoning]):request.topic==='review'&&request.hintMode==='explain'?6144:Math.max(maxTokens,2048),
+  max_output_tokens:request.topic==='review'&&request.hintMode==='explain'&&config.reviewOutputTokens!==undefined?config.reviewOutputTokens:config.reasoning?({low:8192,medium:16384,high:32768}[config.reasoning]):request.topic==='review'&&request.hintMode==='explain'?6144:Math.max(maxTokens,2048),
   ...(config.reasoning?{reasoning:{effort:config.reasoning}}:{}),
   ...(tools.length?{tools,tool_choice:request.matchTest?{type:'function',name:'show_line'}:'auto'}:{})
  };
