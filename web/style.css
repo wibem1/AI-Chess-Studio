@@ -528,3 +528,6 @@ footer span{display:none}
 #panel-settings #pwa-tools button,#panel-settings #settings-diagnosis button{justify-self:start}
 #panel-settings #settings-diagnosis #ai-diagnosis{border-top:1px solid var(--line);padding-top:10px}
 @media(max-width:650px){#panel-settings>details.panel{padding:12px 16px}#panel-settings>.settings-intro{padding:16px}#panel-settings>.panel p{line-height:1.5}}
+
+/* Obsolete PGN import is kept for legacy handlers, never shown as a duplicate settings category. */
+#panel-settings #learning-settings[hidden]{display:none!important}
