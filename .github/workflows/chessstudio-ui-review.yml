@@ -1,4 +1,4 @@
-name: ChessStudio configurable Sol review token limit (no deployment)
+name: ChessStudio reviewed-move recovery regression (no deployment)
 on:
   workflow_dispatch:
   push:
