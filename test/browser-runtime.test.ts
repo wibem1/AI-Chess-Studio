@@ -223,8 +223,10 @@ test('timeout errors are distinct from connectivity errors and deliberate cancel
 test('a cancelled Sol request does not retry, alter the saved key, or settle uncertain cost as zero',async()=>{
  const store=new MemoryStore(),controller=new AbortController();
  let calls=0;
+ let notifyStarted!:()=>void;
+ const started=new Promise<void>(resolve=>{notifyStarted=resolve;});
  const runtime=new BrowserRuntime(store,(async(_url,init)=>{
-  calls++;
+  calls++;notifyStarted();
   const signal=init?.signal as AbortSignal;
   return new Promise<Response>((_resolve,reject)=>{
    if(signal.aborted){reject(signal.reason);return;}
@@ -233,8 +235,8 @@ test('a cancelled Sol request does not retry, alter the saved key, or settle unc
  }) as typeof fetch);
  await runtime.handle('/api/model-config','POST',{action:'connect',provider:'openai',model:'gpt-6.1-sol',apiKey:config.apiKey,allowPaid:true});
  const ongoing=runtime.handle('/api/dialogue','POST',request(),controller.signal);
- // Allow the transport to start; no elapsed 45-second deadline needed.
- await new Promise<void>(resolve=>setImmediate(resolve));
+ // Cancel only after the actual mock transport starts; no 45-second wait needed.
+ await started;
  controller.abort();
  await assert.rejects(ongoing,(e:unknown)=>e instanceof Error&&(e as Error&{code?:string}).code==='network');
  assert.equal(calls,1);
