@@ -181,3 +181,23 @@ test('direct OpenAI Sol uses stateless Responses with encrypted-key storage and 
  const report=await runtime.handle('/api/ai-diagnostics','POST',{});
  assert.ok(!JSON.stringify(report).includes(config.apiKey));
 });
+
+test('Sol direct tool call returns a legal app-level command without invoking the engine automatically',async()=>{
+ const calls:string[]=[];
+ const runtime=new BrowserRuntime(new MemoryStore(),(async(url,init)=>{
+  calls.push(String(url));
+  const body=JSON.parse(String(init!.body));
+  assert.equal(body.tools?.length,4);
+  return new Response(JSON.stringify({status:'completed',output:[
+   {type:'reasoning',id:'rs_1',encrypted_content:'ENCRYPTED_PRIVATE_REASONING'},
+   {type:'function_call',call_id:'call_line',name:'show_line',arguments:'{"moves":["e4"]}'}
+  ],usage:{input_tokens:32,output_tokens:21}}));
+ }) as typeof fetch);
+ await runtime.handle('/api/model-config','POST',{action:'connect',provider:'openai',model:'gpt-6.1-sol',apiKey:config.apiKey,allowPaid:true});
+ const result=await runtime.handle('/api/dialogue','POST',{...request(),topic:'chat',toolsEnabled:true});
+ assert.equal(result.toolCall?.function.name,'show_line');
+ assert.equal(result.toolCall?.function.arguments,'{"moves":["e4"]}');
+ assert.equal(calls.length,1);
+ const report=await runtime.handle('/api/ai-diagnostics','POST',{});
+ assert.ok(!JSON.stringify(report).includes('ENCRYPTED_PRIVATE_REASONING'));
+});
