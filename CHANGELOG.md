@@ -1,6 +1,6 @@
 # Änderungen
 
-## In Entwicklung nach 1.0.1 – KI-Anbieter, Schlüsselzustand und Sol-Transport
+## 1.0.2 – KI-Anbieter, Schlüsselzustand, Oberfläche und Sol-Transport (8. November 2026)
 
 - Anbieterwahl OpenAI direkt oder OpenRouter im Einstellungsformular ausdrücklich sichtbar.
 - Beim nicht lesbaren Schlüsselfach keinen falschen OpenAI-Zugang vorauswählen.
