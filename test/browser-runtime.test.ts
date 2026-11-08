@@ -205,6 +205,8 @@ test('Sol direct tool call returns a legal app-level command without invoking th
 
 test('Sol Responses uses a longer timeout while legacy model transport keeps its prior limit',()=>{
  assert.equal(providerTimeoutMs({enabled:true,apiKey:'fixture-sol-key',model:'gpt-6.1-sol',provider:'openai'}),45000);
+ assert.equal(providerTimeoutMs({enabled:true,apiKey:'fixture-sol-key',model:'gpt-6.1-sol',provider:'openai'},true),90000);
+ assert.equal(providerTimeoutMs({enabled:true,apiKey:'fixture-sol-key',model:'gpt-4.1-mini',provider:'openai'},true),15000);
  assert.equal(providerTimeoutMs({enabled:true,apiKey:'fixture-sol-key',model:'gpt-6.1-sol',provider:'openai',reasoning:'high'}),90000);
  assert.equal(providerTimeoutMs({enabled:true,apiKey:'fixture-sol-key',model:'gpt-4.1-mini',provider:'openai'}),15000);
  assert.equal(providerTimeoutMs({enabled:true,apiKey:'fixture-sol-key',model:'openai/gpt-6.1-sol',provider:'openrouter'}),15000);
