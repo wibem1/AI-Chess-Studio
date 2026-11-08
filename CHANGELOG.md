@@ -1,5 +1,13 @@
 # Änderungen
 
+## 1.1.2 – Kompakte Stockfish-Bewertung im Lernmodus (8. November 2026)
+
+- Direkt unter dem Lernbrett die Stockfish-Anzeige auf eine platzsparende Leiste mit Ein/Aus-Schalter, Bewertung und erreichter Tiefe reduziert. Der Chat beginnt wieder deutlich näher am Brett.
+- Hauptvariante, Knotenzahl und Suchgrenzen über „Variante“ aufklappbar; Erklärungstext und redundante Statusmeldung aus der Daueransicht entfernt.
+- Bei Stellungswechsel bleiben veraltete Ergebnisse nicht stehen; bei Wechsel in den Spielmodus ist die Leiste ausgeblendet. Bewertung, Berechnungsgrenzen und KI-Befundübergabe bleiben unverändert.
+- Veröffentlichung erst nach bestandener Typprüfung, automatisierten Einzeltests, Chromium-Integration und GitHub-Pages-Deployprüfung.
+
+
 ## 1.1.1 – Stockfish-Bewertung direkt unter dem Lernbrett (8. November 2026)
 
 - Schalter „Stockfish-Bewertung anzeigen“ unmittelbar unter dem Schachbrett im Lernmodus; kein Umweg über Einstellungen oder eine KI-Frage.
