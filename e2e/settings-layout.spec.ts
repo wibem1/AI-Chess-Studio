@@ -10,6 +10,7 @@ test('settings have separate functional sections and keep controls associated',a
  await expect(items).toHaveText([
   'KI-Modell und Denkstufe',
   'Allgemeine KI-Anweisungen',
+  'Stockfish-Stellungsprüfung für KI-Antworten',
   'KI-Kosten und Preisannahmen',
   'Sitzungsdaten und Sicherung',
   'Updates und Installation',
@@ -109,4 +110,28 @@ test('general AI instructions persist independently and appear in future model r
  await page.locator('#clear-general-ai-instructions').click();
  await expect(editor).toHaveValue('');
  await expect(page.locator('#general-ai-instructions-status')).toContainText('gelöscht');
+});
+
+test('opt-in Stockfish check is off initially and persists without triggering an AI request',async({page})=>{
+ let modelCalls=0;
+ await page.route('https://api.openai.com/**',async route=>{modelCalls++;await route.abort();});
+ await page.goto('/?platform=web');
+ await expect(page.locator('#workspace')).not.toHaveAttribute('inert','');
+ await page.locator('#open-settings').click();
+ await page.locator('#stockfish-assist-settings > summary').click();
+ const toggle=page.locator('#stockfish-assist-enabled');
+ await expect(toggle).not.toBeChecked();
+ await toggle.check();
+ await expect(page.locator('#stockfish-assist-status')).toContainText('Aktiv');
+ await page.reload();
+ await page.locator('#open-settings').click();
+ await page.locator('#stockfish-assist-settings > summary').click();
+ await expect(toggle).toBeChecked();
+ await toggle.uncheck();
+ await expect(page.locator('#stockfish-assist-status')).toContainText('Aus');
+ await page.reload();
+ await page.locator('#open-settings').click();
+ await page.locator('#stockfish-assist-settings > summary').click();
+ await expect(toggle).not.toBeChecked();
+ expect(modelCalls).toBe(0);
 });
