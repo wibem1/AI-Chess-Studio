@@ -3,7 +3,7 @@ import {providerBase,providerOf,providerOptions,validModel,generationOptions,mod
 import {taggedReply,providerToolFields,ProviderContinuity,coachProviderFields,coachProviderMessages,coachToolReply} from '../src/coach-provider.js';
 import {decodeModelContent,normalizeModelReply} from '../src/model-reply.js';
 import {COACH_ERRORS,CoachFailure,providerFailure,type CoachFailureCode} from '../src/model-errors.js';
-import {validateGameReview} from '../src/game-review.js';
+import {validateGameReview,ReviewValidationError} from '../src/game-review.js';
 import { CostControl } from './costs.js';
 import type { CredentialsStore } from './credentials.js';
 import {ApiError,SYSTEM_PROMPT,FREE_CHAT_PROMPT,parseRequest} from '../src/model-contract.js';
@@ -113,7 +113,7 @@ export class ModelService {
       if(request.hintMode==='question' && (!reply.openQuestions.length || reply.candidates.length))throw new Error('Unwanted solution');
       failureCode='review_format';if(retrospective)validateGameReview(reply.gameReview,request.history);
       trace.finish('accepted');return taggedReply(reply,this.config,envelope,trace.id);
-    } catch(error) { const code=error instanceof CoachFailure?error.code:failureCode;trace.finish('failed',code,httpStatus);throw new ApiError(502,COACH_ERRORS[code]+' Keine neue Antwort gespeichert.',code); }
+    } catch(error) { const code=error instanceof CoachFailure?error.code:failureCode;trace.finish('failed',code,httpStatus);throw new ApiError(502,(error instanceof ReviewValidationError?error.message:COACH_ERRORS[code])+' Keine neue Antwort gespeichert.',code); }
     finally { this.busy = false; }
   }
 }

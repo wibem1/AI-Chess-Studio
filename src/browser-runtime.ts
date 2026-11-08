@@ -3,7 +3,7 @@ import {providerBase,providerOf,providerOptions,validModel,generationOptions,mod
 import {taggedReply,providerToolFields,ProviderContinuity,coachProviderFields,coachProviderMessages,coachToolReply} from './coach-provider.js';
 import {decodeModelContent,normalizeModelReply} from './model-reply.js';
 import {COACH_ERRORS,CoachFailure,providerFailure,type CoachFailureCode} from './model-errors.js';
-import {validateGameReview} from './game-review.js';
+import {validateGameReview,ReviewValidationError} from './game-review.js';
 import {BrowserStore,type StoredVault} from './browser-store.js';
 import {sealConfig,openConfig,sealDeviceConfig,openDeviceConfig,type LocalModelConfig} from './browser-vault.js';
 import {ApiError,parseRequest,SYSTEM_PROMPT,FREE_CHAT_PROMPT} from './model-contract.js';
@@ -116,7 +116,7 @@ export class BrowserRuntime {
   }catch(error){
    if(!started){trace.finish('failed','accounting');throw new ApiError(402,'Verbrauch konnte nicht gespeichert werden.');}
    const code=error instanceof CoachFailure?error.code:failureCode;trace.finish('failed',code,httpStatus);
-   throw new ApiError(502,COACH_ERRORS[code]+' Keine neue Antwort gespeichert. Die Kostenschätzung bleibt bei unklarer Nutzung bestehen.',code);
+   throw new ApiError(502,(error instanceof ReviewValidationError?error.message:COACH_ERRORS[code])+' Keine neue Antwort gespeichert. Die Kostenschätzung bleibt bei unklarer Nutzung bestehen.',code);
   }finally{this.busy=false;}
  }
 }
