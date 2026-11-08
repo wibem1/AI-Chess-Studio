@@ -129,7 +129,7 @@ export class BrowserRuntime {
   if(new TextEncoder().encode(body).length>120000)throw new ApiError(400,'Modellkontext ist zu groß.');
   const trace=this.traces.start(JSON.parse(body),{nodeId:request.nodeId,fen:request.fen,provider:providerOf(config),model:config.model,reasoning:config.reasoning??null,toolRound:request.toolExchanges?.length??0,priceAssumptions:(await this.store.budget(l=>l.snapshot())).state},config.apiKey);
   this.busy=true;let httpStatus:number|undefined;let reserved=0,started=false;let failureCode:CoachFailureCode='network';
-  const requestTimeout=AbortSignal.timeout(providerTimeoutMs(config));
+  const requestTimeout=AbortSignal.timeout(providerTimeoutMs(config,retrospective));
   try{
    reserved=(await this.store.budget(l=>l.reserve(new TextEncoder().encode(body).length,JSON.parse(body).max_tokens??JSON.parse(body).max_completion_tokens??JSON.parse(body).max_output_tokens))).value;
    if(this.config!==config)throw new Error();
@@ -163,7 +163,8 @@ export function classifyRequestFailure(error:unknown,deadlineExpired:boolean,use
  if(deadlineExpired&&!userCancelled&&error instanceof Error&&(['TimeoutError','AbortError'].includes(error.name)))return 'timeout';
  return fallback;
 }
-export function providerTimeoutMs(config:LocalModelConfig):number{
+export function providerTimeoutMs(config:LocalModelConfig,retrospective=false):number{
  if(config.reasoning)return 90000;
- return needsResponses(config)?45000:15000;
+ if(needsResponses(config))return retrospective?90000:45000;
+ return 15000;
 }
