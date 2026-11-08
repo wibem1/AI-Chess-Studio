@@ -149,7 +149,7 @@ export class BrowserRuntime {
    trace.finish('accepted');return taggedReply(reply,config,envelope,trace.id);
   }catch(error){
    if(!started){trace.finish('failed','accounting');throw new ApiError(402,'Verbrauch konnte nicht gespeichert werden.');}
-   const code=error instanceof CoachFailure?error.code:requestTimeout.aborted&&!signal?.aborted?'timeout':failureCode;trace.finish('failed',code,httpStatus,error instanceof ReviewValidationError?error.message:undefined);
+   const code=classifyRequestFailure(error,requestTimeout.aborted,signal?.aborted===true,failureCode);trace.finish('failed',code,httpStatus,error instanceof ReviewValidationError?error.message:undefined);
    const statusHint=code==='provider_http'&&httpStatus?` (HTTP ${httpStatus}${httpStatus===400||httpStatus===422?' · Anfrageparameter oder Modellunterstützung prüfen':httpStatus===404?' · Modell oder API-Endpunkt nicht gefunden':''})`:'';
    throw new ApiError(502,(error instanceof ReviewValidationError?error.message:COACH_ERRORS[code])+statusHint+' Keine neue Antwort gespeichert. Die Kostenschätzung bleibt bei unklarer Nutzung bestehen.',code);
   }finally{this.busy=false;}
@@ -157,6 +157,12 @@ export class BrowserRuntime {
 }
 
 /** Sol Responses often needs more than 15 seconds even when no reasoning level is selected. */
+/** Classify local deadline expiration separately from user cancellation and provider errors. */
+export function classifyRequestFailure(error:unknown,deadlineExpired:boolean,userCancelled:boolean,fallback:CoachFailureCode):CoachFailureCode{
+ if(error instanceof CoachFailure)return error.code;
+ if(deadlineExpired&&!userCancelled&&error instanceof Error&&(['TimeoutError','AbortError'].includes(error.name)))return 'timeout';
+ return fallback;
+}
 export function providerTimeoutMs(config:LocalModelConfig):number{
  if(config.reasoning)return 90000;
  return needsResponses(config)?45000:15000;
