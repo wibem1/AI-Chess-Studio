@@ -22,7 +22,7 @@ self.addEventListener('fetch',event=>{
  const request=event.request,url=new URL(request.url);
  if(request.method!=='GET'||url.origin!==self.location.origin)return;
  if(request.mode==='navigate'&&(url.pathname===BASE||url.pathname===BASE+'index.html')){
-  event.respondWith(caches.open(CACHE).then(cache=>cache.match(BASE)).then(response=>response||fetch(request)));return;
+  event.respondWith((async()=>{try{const fresh=await fetch(request,{cache:'no-store'});if(fresh.ok)return fresh;}catch{}return (await (await caches.open(CACHE)).match(BASE))||Response.error();})());return;
  }
  if(!url.search&&OPTIONAL.includes(url.pathname)){event.respondWith((async()=>{let cache;try{cache=await caches.open(OPTIONAL_CACHE);const saved=await cache.match(request);if(saved)return saved;}catch{}const response=await fetch(request);if(response.ok)try{await cache?.put(request,response.clone());}catch{}return response;})());return;}
  if(url.search||!PATHS.includes(url.pathname))return;
