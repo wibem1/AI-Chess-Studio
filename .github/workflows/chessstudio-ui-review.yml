@@ -1,4 +1,4 @@
-name: ChessStudio Sol timeout regression (no deployment)
+name: ChessStudio Sol timeout validated (no deployment)
 on:
   workflow_dispatch:
   push:
