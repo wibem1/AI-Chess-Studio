@@ -43,7 +43,7 @@ let generalAiInstructions='';
 let stockfishAssistEnabled=false;
 const stockfishCache=new Map<string,TacticalReport>();
 let stockfishVisibleFen='';
-let stockfishSearch:{fen:string;promise:Promise<TacticalReport>;cancel?:()=>void}|undefined;
+let stockfishSearch:{fen:string;promise:Promise<TacticalReport>;cancel:(()=>void)|undefined}|undefined;
 let stockfishSearchGeneration=0;
 let initialized=false;
 const autosave=new AutoSave(browserRuntime.store,()=>({json:studio.session.export(),question:text('question').value}),value=>message('autosave-status',value));
