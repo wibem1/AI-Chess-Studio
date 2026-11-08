@@ -1,4 +1,4 @@
-name: ChessStudio 1.0.2 - verifizieren und veroeffentlichen
+name: ChessStudio 1.0.2 - finales Release nach Browser-Testanpassung
 
 on:
   workflow_dispatch:
