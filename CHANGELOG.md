@@ -1,5 +1,13 @@
 # Änderungen
 
+## 1.1.1 – Stockfish-Bewertung direkt unter dem Lernbrett (8. November 2026)
+
+- Schalter „Stockfish-Bewertung anzeigen“ unmittelbar unter dem Schachbrett im Lernmodus; kein Umweg über Einstellungen oder eine KI-Frage.
+- Beim Einschalten lokale Bewertung der sichtbaren Stellung mit Anzeige aus Sicht Weiß, Suchtiefe, Knoten und kurzer Hauptvariante; erneute Prüfung bei Stellungswechsel.
+- Für identische FEN wird ein vorhandener geprüfter Befund für die anschließende KI-Frage wiederverwendet. Abschalten oder Wechsel in den Spielmodus beendet offene Suchen; keine Anzeige im Spielmodus.
+- Suchlimits unverändert (Tiefe 12, 20.000 Knoten, 1 Sekunde). 196 Einzeltests und 26 Browserprüfungen einschließlich echter lokaler Stockfish-Suche im GitHub-Prüflauf erfolgreich; keine echte KI-Provider- oder native Geräteabnahme.
+
+
 ## 1.1.0 – Allgemeine KI-Anweisungen, Pfeile und zuschaltbare Stockfish-Stellungsprüfung (8. November 2026)
 
 - Unter Einstellungen → Allgemeine KI-Anweisungen ein aufklappbares, vergrößerbares Textfeld mit Speichern/Löschen. Bis 2.000 Zeichen dauerhaft im lokalen Browserprofil und unabhängig von der Partie gespeichert; bei späteren KI-Anfragen als untergeordnete Lehr- und Stilwünsche berücksichtigt. Der Text wird beim KI-Aufruf an den gewählten Anbieter übermittelt.
