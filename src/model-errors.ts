@@ -1,6 +1,7 @@
 /** Fixed, non-sensitive messages. Never display provider bodies or exception text. */
 export const COACH_ERRORS={
- network:'Der KI-Anbieter ist nicht erreichbar oder hat nicht rechtzeitig geantwortet.',
+ network:'Die Verbindung zum KI-Anbieter wurde unterbrochen oder konnte nicht aufgebaut werden.',
+ timeout:'Die KI-Anfrage hat das Zeitlimit überschritten. Es wurde nicht automatisch erneut angefragt.',
  provider_auth:'Der KI-Anbieter hat den gespeicherten Zugang abgelehnt (HTTP 401/403).',
  provider_limit:'Der KI-Anbieter meldet ein Kontingent- oder Anfragelimit (HTTP 429).',
  provider_http:'Der KI-Anbieter hat die Anfrage abgelehnt. Modell und Anbieterzugang prüfen.',
