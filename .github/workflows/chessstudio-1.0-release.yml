@@ -1,4 +1,4 @@
-name: ChessStudio 1.0.3 - Einstellungen veroeffentlichen
+name: ChessStudio 1.0.3 - bereinigte Einstellungen veroeffentlichen
 
 on:
   workflow_dispatch:
