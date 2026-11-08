@@ -1,4 +1,4 @@
-name: ChessStudio Sol Responses verified (no deployment)
+name: ChessStudio Sol Responses integration checks (no deployment)
 on:
   workflow_dispatch:
   push:
