@@ -41,6 +41,7 @@ installFontScale();
 const studio = new Studio();
 let generalAiInstructions='';
 let stockfishAssistEnabled=false;
+let stockfishAssessmentNode='';
 let initialized=false;
 const autosave=new AutoSave(browserRuntime.store,()=>({json:studio.session.export(),question:text('question').value}),value=>message('autosave-status',value));
 const game=new LearningGame(()=>studio.session);
@@ -146,6 +147,7 @@ function render() {
   const data = studio.session.snapshot();
   const current = data.nodes.find(n => n.id === data.activeNodeId)!;
   const learningView=$('workspace').dataset.activeView==='learn';
+  $('stockfish-assist-result').hidden=!stockfishAssistEnabled||data.activeNodeId!==stockfishAssessmentNode;
   if(illustration&&(illustration.session!==studio.session||illustration.node!==current.id||!learningView))illustration=undefined;
   const chess = new Chess(illustration?.diagram.fen??current.fen);
   $('diagram-toolbar').hidden=!illustration;
@@ -318,9 +320,14 @@ stockfishToggle.addEventListener('change',async()=>{
 });
 const enrichWithStockfish=async(request:import('../src/dialogue.js').DialogueRequest)=>{
  if(!stockfishAssistEnabled)return request;
- message('dialogue-feedback','Stockfish prüft die aktuelle Stellung vor dem KI-Aufruf …');
+ const session=studio.session,position=session.snapshot().nodes.find(n=>n.id===request.nodeId);
+ if(!position||position.fen!==request.fen)throw new Error('Stellung während der Stockfish-Prüfung gewechselt. Keine KI-Anfrage gesendet.');
+ if(request.topic==='chat'&&!request.matchTest&&!(request.toolExchanges?.length))message('dialogue-feedback','Stockfish prüft die aktuelle Stellung vor dem KI-Aufruf …');
  const adapter=isWebPlatform()?new BrowserTacticalAdapter():new ServerTacticalAdapter(platformFetch);
- return withStockfishAssessment(request,adapter);
+ const enriched=await withStockfishAssessment(request,adapter);
+ if(session!==studio.session||session.snapshot().activeNodeId!==request.nodeId)throw new Error('Stellung während der Stockfish-Prüfung gewechselt. Keine KI-Anfrage gesendet.');
+ if(enriched!==request){stockfishAssessmentNode=request.nodeId;message('stockfish-assist-result',enriched.context?.[0]??'');$('stockfish-assist-result').hidden=false;}
+ return enriched;
 };
 const instructionsEditor=$<HTMLTextAreaElement>('general-ai-instructions');
 const instructionsStatus=$('general-ai-instructions-status');
@@ -356,9 +363,10 @@ $('dialogue-form').addEventListener('submit', async event => {
   const question = text('question').value,hintOverride=directAnalysisHint;directAnalysisHint=undefined;
   const session = studio.session,chatRevision=session.dialogueRevision();
   chatStopped=false;pending = true;updateMode();
+  $('stockfish-assist-result').hidden=true;stockfishAssessmentNode='';
   message('dialogue-feedback', 'Modellanfrage läuft … Stellungswechsel ist weiterhin möglich.');
   try {
-    activeAdapter=new ServerModelAdapter(platformFetch,()=>generalAiInstructions);let toolStarted=false;
+    activeAdapter=new ServerModelAdapter(platformFetch,()=>generalAiInstructions,enrichWithStockfish);let toolStarted=false;
     const result = await studio.ask(question, activeAdapter!,'chat',hintOverride,async(call,node)=>{if(!toolStarted){pendingCoachAnchor={session,node};toolStarted=true;}message('dialogue-feedback',call.function.name==='play_engine'?'Spielengine antwortet …':call.function.name==='show_line'?'Variante wird vorgeführt …':'Brettdarstellung wird aufgebaut …');if(call.function.name==='show_line'||call.function.name==='play_engine')illustration=undefined;
       const result=await coachBoard.execute(call,node);boardActions.push({at:new Date().toISOString(),call,result});if(boardActions.length>20)boardActions.shift();if(!chatStopped)message('dialogue-feedback','Brettergebnis liegt vor; die Lernengine erläutert es …');return result;});
     lastAskFailed=false;
