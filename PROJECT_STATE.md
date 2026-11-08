@@ -1,3 +1,10 @@
+# Veröffentlicht: 1.0.1 – PWA-Update-Korrektur (8. November 2026)
+
+GitHub Actions erfolgreich: https://github.com/wibem1/AI-Chess-Studio/actions/runs/42464356212
+Quelle 956802a6eb5b1e705d1cabe5e03af745664ad1b4, gh-pages d47044f46617a529612fde673ecc1adfb0792e75. BUILD.json bestätigt 1.0.1, 22 Webdateien, GitHub-Pages-Statusprüfung erfolgreich.
+Grund: Bisheriger Web-Update-Dialog verließ sich allein auf den Service Worker und konnte trotz neuer veröffentlichter Version 'aktuell' melden. Neue Implementierung prüft BUILD.json (Cache-Bypass) unabhängig, erlaubt nach erfolgreicher Sitzungssicherung kontrollierte Reparatur nur des App-Shell-Caches/registrierten Service Workers und nutzt online für die HTML-Navigation Netzwerk vor Offline-Cache. Nutzer-Sitzungsdaten, Zugang und andere Browser-Caches bleiben unberührt. Aktuelle UI-Änderungen greifen erst nach erfolgreichem Laden der neuen Version; für weiterhin festhängende Alt-PWA ist ein einmaliger separater Browseraufruf bzw. gezieltes Neuladen nötig, keine automatische Migration des Altclients nachgewiesen.
+Prüfung: Node 24/TypeScript, 172 Einzeltests, Pages-Build und 20 gezielte Browsertests inklusive Offline erfolgreich; keine echte Alt-PWA-zu-Neu-PWA-Geräteabnahme, keine bezahlten Provideraufrufe.
+
 # Veröffentlicht: 1.0.0 – 8. November 2026
 
 GitHub Actions Run 42463648023 erfolgreich abgeschlossen: https://github.com/wibem1/AI-Chess-Studio/actions/runs/42463648023
