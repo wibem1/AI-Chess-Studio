@@ -36,3 +36,35 @@ test('settings have separate functional sections and keep controls associated',a
  await expect(page.locator('#pwa-tools summary')).toContainText('Updates und Installation');
  await expect(page.locator('#settings-diagnosis summary').first()).toContainText('Diagnose und Fehlerberichte');
 });
+
+test('Sol review output limit is selectable, persisted across reload, and can return to automatic',async({page})=>{
+ await page.goto('/?platform=web');
+ await expect(page.locator('#workspace')).not.toHaveAttribute('inert','');
+ await page.locator('#open-settings').click();
+ await page.locator('#settings-model-section > summary').click();
+ await page.locator('#api-settings > summary').click();
+ await page.locator('#api-provider').selectOption('openai');
+ await page.locator('#api-key').fill('fixture-sol-review-key');
+ await page.locator('#api-cost-consent').check();
+ await page.locator('#api-connect').click();
+ await expect(page.locator('#api-feedback')).toContainText('gespeichert');
+ await page.locator('#chat-model-controls > summary').click();
+ await expect(page.locator('#review-output-controls')).toBeVisible();
+ await page.locator('#review-output-tokens').selectOption('8192');
+ await page.locator('#model-apply').click();
+ await expect(page.locator('#model-choice-status')).toContainText('gespeichert');
+ await expect(page.locator('#selected-model')).toContainText('8.192 Tokens');
+ await page.reload();
+ await page.locator('#open-settings').click();
+ await page.locator('#settings-model-section > summary').click();
+ await page.locator('#chat-model-controls > summary').click();
+ await expect(page.locator('#review-output-tokens')).toHaveValue('8192');
+ await page.locator('#review-output-tokens').selectOption('');
+ await page.locator('#model-apply').click();
+ await expect(page.locator('#model-choice-status')).toContainText('gespeichert');
+ await page.reload();
+ await page.locator('#open-settings').click();
+ await page.locator('#settings-model-section > summary').click();
+ await page.locator('#chat-model-controls > summary').click();
+ await expect(page.locator('#review-output-tokens')).toHaveValue('');
+});
