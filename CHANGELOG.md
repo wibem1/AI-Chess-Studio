@@ -1,5 +1,12 @@
 # Änderungen
 
+## 1.0.1 – Web-App-Update und Cache-Reparatur
+
+- Version unabhängig vom Service Worker anhand des aktuellen GitHub-Pages-Build-Manifests prüfen.
+- Bei blockiertem Offline-Update nach erfolgreicher Sitzungssicherung nur den App-eigenen Service Worker und Shell-Cache erneuern.
+- Fehlende Build-Metadaten und Fehler bei der Sicherung verständlich anzeigen; andere App- und Nutzerdaten nicht löschen.
+
+
 ## 1.0.0 – Bereinigter Lernablauf (vorbereitet)
 
 - Brettsteuerung unter dem Brett; Navigation und Schlüsselstellen erhalten die Scrollposition.
