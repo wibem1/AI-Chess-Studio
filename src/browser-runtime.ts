@@ -122,7 +122,7 @@ export class BrowserRuntime {
   if(isBatchModel(config.model))throw new ApiError(400,'Das gespeicherte Modell ist eine Batch-Variante und kann keine direkte Chatantwort liefern. Wähle unter KI-Modell das reguläre Modell ohne :batch. Keine Anfrage gesendet.');
   const request=parseRequest(raw);if(request.expectedModel&&request.expectedModel!==config.model)throw new ApiError(409,'Modell während des Testlaufs gewechselt.');
   if(this.busy)throw new ApiError(429,'Eine Modellanfrage läuft bereits.');
-  const {turns=[],toolExchanges,...current}=request;
+  const {generalInstructions:_,turns=[],toolExchanges,...current}=request;
   const instructionsPrompt=promptWithUserInstructions(request.topic==='chat'?FREE_CHAT_PROMPT:SYSTEM_PROMPT,request.generalInstructions);
   const retrospective=request.topic==='review'&&(request.hintMode??'explain')==='explain',outputTokens=retrospective||request.topic==='chat'?1800:800;
   const responses=needsResponses(config);
