@@ -1,3 +1,18 @@
+# Aktuell veröffentlicht: 0.16.0 – Schlüsselstellungen und PGN-Korrektur
+
+Am 8. November 2026 veröffentlicht. PR #2 integriert: Quelle 577309b059fa48bdaa5533ff6f8c89c4803c555f;
+gh-pages 400e8e6dc175ce5d5faade4a32fccc97ea73acb8.
+Pages-Run 42454418948 SUCCESS: https://github.com/wibem1/AI-Chess-Studio/actions/runs/42454418948
+Live-BUILD.json vollständig identisch; HTML, Service Worker und App-JS/CSS per SHA-256 bestätigt.
+170 Einzeltests, 5 gezielte Browserfälle und 1 Pages-/Stockfish-/Offlinefall bestanden.
+Button „Schlüsselstellungen“ im Lernmodus: Analyseauftrag mit vollständiger Partie,
+aktuelle Stellung erhalten, direkte Sprungbuttons nach geprüfter Antwort.
+Lichess-Referenz 137 Halbzüge, Kommentarfolgen, Unicode-Trenner, Texteingabefallback,
+JSON-Rundlauf und sichere Ablehnung bei fehlgeschlagener Sicherung geprüft.
+Providerantworten Fixtures, keine bezahlten Anfragen. Native iPad-Abnahme offen.
+Der alte Browsergesamtlauf ist weiterhin nicht vollständig grün freigegeben.
+Die folgenden Einträge dokumentieren frühere Zwischenstände.
+
 # Veröffentlichung vorbereitet: 0.16.0
 
 Schlüsselstellungen-Button, direkte Navigation und PGN-Korrektur geprüft.
