@@ -5,7 +5,7 @@ export interface ProviderOptions {provider?:Provider;reasoning?:'low'|'medium'|'
 export const providerOf=(c:ProviderOptions):Provider=>c.provider??'openai';
 export const providerBase=(c:ProviderOptions)=>providerOf(c)==='openrouter'?'https://openrouter.ai/api/v1':'https://api.openai.com/v1';
 export function providerOptions(r:Record<string,any>):ProviderOptions{
- if(r.provider!==undefined&&!['openai','openrouter'].includes(r.provider)||r.reasoning!==undefined&&!['low','medium','high'].includes(r.reasoning)||r.reviewOutputTokens!==undefined&&!REVIEW_OUTPUT_OPTIONS.includes(r.reviewOutputTokens))throw new Error('Provider, Denkstufe oder Ausgabelimit prüfen.');
+ if(r.provider!==undefined&&!['openai','openrouter'].includes(r.provider)||r.reasoning!==undefined&&!['low','medium','high'].includes(r.reasoning)||r.reviewOutputTokens!==undefined&&r.reviewOutputTokens!==null&&!REVIEW_OUTPUT_OPTIONS.includes(r.reviewOutputTokens))throw new Error('Provider, Denkstufe oder Ausgabelimit prüfen.');
  return {...(r.provider?{provider:r.provider}:{}),...(r.reasoning?{reasoning:r.reasoning}:{}),...(r.reviewOutputTokens!==undefined?{reviewOutputTokens:r.reviewOutputTokens}:{})};
 }
 export const isBatchModel=(model:unknown):boolean=>typeof model==='string'&&/:batch$/i.test(model);
