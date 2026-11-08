@@ -1,4 +1,5 @@
 import {ModelDiagnostics} from './model-diagnostics.js';
+import {needsResponses,createResponsesBody,normalizeResponses} from './openai-responses.js';
 import {providerBase,providerOf,providerOptions,validModel,generationOptions,modelCatalog} from './model-provider.js';
 import {taggedReply,providerToolFields,ProviderContinuity,coachProviderFields,coachProviderMessages,coachToolReply} from './coach-provider.js';
 import {decodeModelContent,normalizeModelReply} from './model-reply.js';
@@ -117,19 +118,20 @@ export class BrowserRuntime {
   if(this.busy)throw new ApiError(429,'Eine Modellanfrage läuft bereits.');
   const {turns=[],toolExchanges,...current}=request;
   const retrospective=request.topic==='review'&&(request.hintMode??'explain')==='explain',outputTokens=retrospective||request.topic==='chat'?1800:800;
-  const body=JSON.stringify({model:config.model,...generationOptions(config,outputTokens),...providerToolFields(config,request),...(request.topic==='chat'?{}:{response_format:{type:'json_object'}}),messages:[{role:'system',content:request.topic==='chat'?FREE_CHAT_PROMPT:SYSTEM_PROMPT},...turns.map(t=>({role:t.role,content:`[Stellung ${t.nodeId}${t.fen?`, FEN ${t.fen}`:''}] ${t.text}`})),{role:'user',content:JSON.stringify(current)},...(providerOf(config)==='openrouter'?this.continuity.restore(coachProviderMessages(request)):coachProviderMessages(request))]});
+  const responses=needsResponses(config);
+  const body=JSON.stringify(responses?createResponsesBody(config,request,request.topic==='chat'?FREE_CHAT_PROMPT:SYSTEM_PROMPT,current,turns,outputTokens):{model:config.model,...generationOptions(config,outputTokens),...providerToolFields(config,request),...(request.topic==='chat'?{}:{response_format:{type:'json_object'}}),messages:[{role:'system',content:request.topic==='chat'?FREE_CHAT_PROMPT:SYSTEM_PROMPT},...turns.map(t=>({role:t.role,content:`[Stellung ${t.nodeId}${t.fen?`, FEN ${t.fen}`:''}] ${t.text}`})),{role:'user',content:JSON.stringify(current)},...(providerOf(config)==='openrouter'?this.continuity.restore(coachProviderMessages(request)):coachProviderMessages(request))]});
   if(new TextEncoder().encode(body).length>120000)throw new ApiError(400,'Modellkontext ist zu groß.');
   const trace=this.traces.start(JSON.parse(body),{nodeId:request.nodeId,fen:request.fen,provider:providerOf(config),model:config.model,reasoning:config.reasoning??null,toolRound:request.toolExchanges?.length??0,priceAssumptions:(await this.store.budget(l=>l.snapshot())).state},config.apiKey);
   this.busy=true;let httpStatus:number|undefined;let reserved=0,started=false;let failureCode:CoachFailureCode='network';
   try{
-   reserved=(await this.store.budget(l=>l.reserve(new TextEncoder().encode(body).length,JSON.parse(body).max_tokens??JSON.parse(body).max_completion_tokens))).value;
+   reserved=(await this.store.budget(l=>l.reserve(new TextEncoder().encode(body).length,JSON.parse(body).max_tokens??JSON.parse(body).max_completion_tokens??JSON.parse(body).max_output_tokens))).value;
    if(this.config!==config)throw new Error();
    started=true;
-   trace.sent();const response=await this.transport(providerBase(config)+'/chat/completions',{method:'POST',mode:'cors',credentials:'omit',referrerPolicy:'no-referrer',redirect:'error',headers:{Authorization:'Bearer '+config.apiKey,'Content-Type':'application/json'},body,signal:AbortSignal.any([AbortSignal.timeout(config.reasoning?90000:15000),...(signal?[signal]:[])])});
+   trace.sent();const response=await this.transport(providerBase(config)+(responses?'/responses':'/chat/completions'),{method:'POST',mode:'cors',credentials:'omit',referrerPolicy:'no-referrer',redirect:'error',headers:{Authorization:'Bearer '+config.apiKey,'Content-Type':'application/json'},body,signal:AbortSignal.any([AbortSignal.timeout(config.reasoning?90000:15000),...(signal?[signal]:[])])});
    httpStatus=response.status;
    if(!response.ok){await response.body?.cancel();throw new CoachFailure(providerFailure(response.status));}
    failureCode='provider_format';
-   const envelope=await readProvider(response,providerOf(config)==='openrouter'?524288:65536);if(providerOf(config)==='openrouter')this.continuity.remember(envelope.choices?.[0]?.message);trace.received(envelope,response.status);await this.store.budget(l=>l.settle(reserved,envelope.usage));
+   const received=await readProvider(response,providerOf(config)==='openrouter'?524288:262144);const envelope=responses?normalizeResponses(received):received;if(providerOf(config)==='openrouter')this.continuity.remember(envelope.choices?.[0]?.message);trace.received(envelope,response.status);await this.store.budget(l=>l.settle(reserved,envelope.usage));
    if(envelope.choices?.[0]?.finish_reason==='length')throw new CoachFailure('output_limit');
    const toolReply=coachToolReply(envelope.choices?.[0],request);if(toolReply){trace.finish('accepted');return taggedReply(toolReply,config,envelope,trace.id);}
       if(envelope.choices?.[0]?.finish_reason!=='stop')throw new Error();
