@@ -1,5 +1,13 @@
 # Änderungen
 
+## 1.0.6 – Schlüsselstellungen bei fehlerhaften Alternativzügen behalten (8. November 2026)
+
+- Vollständige Partierückblicke bleiben erhalten, auch wenn die KI einen illegalen oder identischen Alternativzug vorschlägt. Nur dieser Vorschlag und seine ungeprüfte Begründung werden entfernt und als verworfen gekennzeichnet.
+- Die historischen Zugbezüge bleiben strikt auf Legalität und Übereinstimmung mit der Partie geprüft; Import und gespeicherte Daten werden weiterhin streng validiert.
+- Browser- und Server-KI-Verarbeitung übernehmen nur bereinigte Analysen. Keine kostenpflichtige automatische Wiederholung.
+- Speicherung, Neuladen und Navigation der Schlüsselstellungen in einem vollständigen Browser-Funktionstest ohne echte kostenpflichtige KI-Anfrage geprüft. Reale Modellqualität und native Geräteprüfung weiter offen.
+
+
 ## 1.0.5 – Ausgabelimit für Sol-Partierückblicke wählbar (8. November 2026)
 
 - In Einstellungen → KI-Modell und Denkstufe kann das Ausgabelimit für vollständige Partierückblicke mit OpenAI Sol gewählt werden: automatisch oder 2.048, 4.096, 6.144, 8.192 bzw. 12.288 Ausgabetokens.
