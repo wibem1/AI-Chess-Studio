@@ -6,7 +6,7 @@ import {COACH_ERRORS,CoachFailure,providerFailure,type CoachFailureCode} from '.
 import {validateGameReview,ReviewValidationError} from '../src/game-review.js';
 import { CostControl } from './costs.js';
 import type { CredentialsStore } from './credentials.js';
-import {ApiError,SYSTEM_PROMPT,FREE_CHAT_PROMPT,parseRequest} from '../src/model-contract.js';
+import {ApiError,SYSTEM_PROMPT,FREE_CHAT_PROMPT,parseRequest,promptWithUserInstructions} from '../src/model-contract.js';
 export {ApiError,SYSTEM_PROMPT,parseRequest} from '../src/model-contract.js';
 import { validateReply, type DialogueRequest, type StrategicReply } from '../src/dialogue.js';
 
@@ -85,9 +85,10 @@ export class ModelService {
     const request = parseRequest(raw);if(request.expectedModel&&request.expectedModel!==this.config.model)throw new ApiError(409,'Modell während des Testlaufs gewechselt.');
     if (this.busy) throw new ApiError(429, 'Eine Modellanfrage läuft bereits.');
     const {turns=[],toolExchanges,...currentRequest}=request;
-    const retrospective=request.topic==='review'&&(request.hintMode??'explain')==='explain',outputTokens=retrospective||request.topic==='chat'?1800:800;
+    const instructionsPrompt=promptWithUserInstructions(request.topic==='chat'?FREE_CHAT_PROMPT:SYSTEM_PROMPT,request.generalInstructions);
+  const retrospective=request.topic==='review'&&(request.hintMode??'explain')==='explain',outputTokens=retrospective||request.topic==='chat'?1800:800;
     const body=JSON.stringify({model:this.config.model,...generationOptions(this.config,outputTokens),...providerToolFields(this.config,request),...(request.topic==='chat'?{}:{response_format:{type:'json_object'}}),
-      messages:[{role:'system',content:request.topic==='chat'?FREE_CHAT_PROMPT:SYSTEM_PROMPT},...turns.map(t=>({role:t.role,content:`[Stellung ${t.nodeId}${t.fen?`, FEN ${t.fen}`:''}] ${t.text}`})),{role:'user',content:JSON.stringify(currentRequest)},...(providerOf(this.config)==='openrouter'?this.continuity.restore(coachProviderMessages(request)):coachProviderMessages(request))]});
+      messages:[{role:'system',content:instructionsPrompt},...turns.map(t=>({role:t.role,content:`[Stellung ${t.nodeId}${t.fen?`, FEN ${t.fen}`:''}] ${t.text}`})),{role:'user',content:JSON.stringify(currentRequest)},...(providerOf(this.config)==='openrouter'?this.continuity.restore(coachProviderMessages(request)):coachProviderMessages(request))]});
     let reservation:number;
     try {reservation=this.costs.reserve(Buffer.byteLength(body),JSON.parse(body).max_tokens??JSON.parse(body).max_completion_tokens);}catch{throw new ApiError(402,'Verbrauch konnte nicht gespeichert werden.');}
     const trace=this.traces.start(JSON.parse(body),{nodeId:request.nodeId,fen:request.fen,provider:providerOf(this.config),model:this.config.model,reasoning:this.config.reasoning??null,toolRound:request.toolExchanges?.length??0,priceAssumptions:this.costs.snapshot()},this.config.apiKey);
