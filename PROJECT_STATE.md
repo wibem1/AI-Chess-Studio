@@ -1,3 +1,9 @@
+# Entwicklung: Stockfish in KI-gegen-Engine-Zeile (8. November 2026)
+
+Auf ausdrücklichen Nutzerauftrag nach Screenshot Chess Studio 1.1.2 wurde die bislang separate Stockfish-Leiste per DOM-Verschiebung direkt hinter die Start-/Stop-Steuerung von „KI gegen Engine“ eingebaut. Visible Label platzsparend „Stockfish“, zugängliche Checkbox-Beschriftung vollständig. Bewertung und Tiefe bleiben sofort sichtbar, Hauptvariante bleibt aufklappbar; responsive Umbruch nur bei schmalem Bildschirm. Der bisher separate Block unter dem Brett entfällt. Bestehende lokale Bewertung, Stellungsbindung und KI-Integration nicht geändert. Neue Playwright-Layoutprüfung verifiziert dieselbe Zeile am Desktop, das Fehlen des alten Blocks und die Ausblendung im Spielmodus.
+
+**Status:** Im Branch `work` implementiert, noch nicht getestet oder veröffentlicht. Nächster Schritt: TypeScript-Build und Browser-Regressionsprüfung mit echten lokalen Stockfish-Komponenten durchführen. Danach gegebenenfalls Patchversion gemäß AGENTS.md; keine automatische Veröffentlichung ohne neuen ausdrücklichen Auftrag.
+
 # Veröffentlichungsauftrag ChessStudio 1.1.2 – kompakte Stockfish-Leiste (8. November 2026)
 
 Auf ausdrücklichen Benutzerauftrag werden kompakte Stockfish-Anzeige und neue Browser-Regressionsprüfung als Patchversion 1.1.2 vorbereitet. Der bestehende Release-Workflow führt vor GitHub-Pages-Upload Typprüfung, Unit-Tests, Web-Build und Browserintegration aus; bei Fehlern erfolgt kein Upload. **Solange Workflow und gh-pages/BUILD.json nicht erfolgreich geprüft sind, bleibt die Veröffentlichung unbestätigt.** Die Stockfish-Suche und kostenpflichtige Modellzugänge werden nicht verändert. Nächster Schritt: Workflowabschluss, Build-Metadaten und tatsächliche Live-Auslieferung prüfen.

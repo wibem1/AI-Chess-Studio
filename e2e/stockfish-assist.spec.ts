@@ -25,6 +25,7 @@ test('Stockfish result appears under learning board immediately and reaches the 
  });
  await page.getByRole('tab',{name:'Lernmodus',exact:true}).click();
  await expect(page.locator('#stockfish-assist-result')).toBeHidden();
+ await expect(page.locator('#coach-match #stockfish-assist-settings')).toHaveCount(1);
  await page.locator('#stockfish-assist-enabled').check();
  await expect(page.locator('#stockfish-assist-result')).toBeVisible({timeout:30000});
  await expect(page.locator('#stockfish-assist-result')).toContainText('Stockfish:');
@@ -58,4 +59,19 @@ test('Stockfish board score is refreshed for the visible learning position, neve
  await expect(score).not.toHaveText(initial!);
  await page.getByRole('tab',{name:'Spielmodus',exact:true}).click();
  await expect(page.locator('#stockfish-assist-settings')).toBeHidden();
+});
+
+test('Stockfish display shares the KI gegen Engine row and does not create an extra board row',async({page})=>{
+ await page.setViewportSize({width:1440,height:900});
+ await page.goto('/?platform=web#lernen');
+ await expect(page.locator('#workspace')).not.toHaveAttribute('inert','');
+ const engine=page.locator('#coach-match > strong');
+ const stockfish=page.locator('#coach-match #stockfish-assist-settings');
+ await expect(stockfish).toBeVisible();
+ const a=await engine.boundingBox(),b=await stockfish.boundingBox();
+ expect(a&&b).toBeTruthy();
+ expect(Math.abs(a!.y-b!.y)).toBeLessThan(20);
+ await expect(page.locator('#board-area > #stockfish-assist-settings')).toHaveCount(0);
+ await page.getByRole('tab',{name:'Spielmodus',exact:true}).click();
+ await expect(stockfish).toBeHidden();
 });

@@ -315,8 +315,8 @@ $('learning-settings').hidden=true;
 $('panel-settings').append($('learning-settings'));
 $('diagram-close').onclick=()=>{chatStopped=true;studio.cancelAsk();coachBoard.cancel();activeAdapter?.cancel();illustration=undefined;render();};
 const keyMoments=installKeyMoments(()=>studio.session,node=>{match.stop('Schlüsselstelle ansehen.');game.analyse(node);illustration=undefined;selected=null;navigation.select('learn',false,true,false);render();});
-// A single visible switch directly under the learning board, not buried in settings.
-$('board').after($('stockfish-assist-settings'));
+// Keep optional Stockfish assessment in the same compact row as KI gegen Engine.
+$('match-stop').after($('stockfish-assist-settings'));
 const stockfishToggle=$<HTMLInputElement>('stockfish-assist-enabled'),stockfishStatus=$('stockfish-assist-status');
 const stockfishResult=$('stockfish-assist-result'),stockfishDetails=$<HTMLDetailsElement>('stockfish-assist-details'),stockfishLine=$('stockfish-assist-line');
 function stopStockfishSearch(){
@@ -383,7 +383,7 @@ void browserRuntime.store.getStockfishAssistEnabled().then(enabled=>{
  stockfishAssistEnabled=enabled;stockfishToggle.checked=enabled;
  stockfishStatus.textContent=enabled?'Stockfish ist eingeschaltet.':'Stockfish ist ausgeschaltet.';
  syncStockfishBoard();
-}).catch(()=>{stockfishStatus.textContent='Einstellung nicht lesbar; Stockfish bleibt aus.';});
+}).catch(()=>{stockfishStatus.hidden=false;stockfishStatus.textContent='Einstellung nicht lesbar; Stockfish bleibt aus.';});
 stockfishToggle.addEventListener('change',async()=>{
  const chosen=stockfishToggle.checked;
  try{
@@ -395,6 +395,7 @@ stockfishToggle.addEventListener('change',async()=>{
   syncStockfishBoard();
  }catch(error){
   stockfishToggle.checked=stockfishAssistEnabled;
+  stockfishStatus.hidden=false;
   stockfishStatus.textContent=error instanceof Error?error.message:'Einstellung konnte nicht gespeichert werden.';
  }
 });
