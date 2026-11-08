@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import {createResponsesBody,normalizeResponses,needsResponses} from '../src/openai-responses.js';
 import {coachToolReply} from '../src/coach-provider.js';
 import {Session} from '../src/session.js';
+import {ModelDiagnostics} from '../src/model-diagnostics.js';
+import {encryptedReasoningForCall} from '../src/openai-responses.js';
 import type {DialogueRequest} from '../src/dialogue.js';
 
 const fen=new Session().snapshot().nodes[0]!.fen;
@@ -40,4 +42,13 @@ test('Sol free prose and incomplete outputs normalize safely',()=>{
  assert.equal(normalizeResponses({status:'incomplete',output:[]}).choices[0]?.finish_reason,'length');
  assert.throws(()=>normalizeResponses({status:'completed',output:[{type:'function_call',call_id:'x',name:'unknown',arguments:'{}'}]}));
  assert.throws(()=>normalizeResponses({status:'completed',output:[{type:'function_call',call_id:'x',name:'show_line',arguments:'{"moves":["e4"]}'},{type:'function_call',call_id:'y',name:'show_line',arguments:'{"moves":["d4"]}'}]}));
+});
+
+test('encrypted reasoning stays in memory and cannot leak via diagnostics',()=>{
+ const opaque=encryptedReasoningForCall({output:[{type:'reasoning',id:'rs_1',encrypted_content:'PRIVATE_OPAQUE_CONTENT'},{type:'function_call',call_id:'call_9',name:'draw_board',arguments:'{"marks":[]}'}]});
+ assert.equal(opaque?.callId,'call_9');assert.equal(opaque?.items[0]?.encrypted_content,'PRIVATE_OPAQUE_CONTENT');
+ const trace=new ModelDiagnostics().start({input:opaque?.items},{} as Record<string,unknown>,'fixture-key');trace.sent();
+ // A fresh diagnostic store is not meaningful; inspect the tracked one.
+ const diagnostics=new ModelDiagnostics();diagnostics.start({input:opaque?.items}, {},'fixture-key');
+ assert.ok(!JSON.stringify(diagnostics.export()).includes('PRIVATE_OPAQUE_CONTENT'));
 });
