@@ -1,4 +1,4 @@
-name: ChessStudio Sol cancellation and cost regression (no deployment)
+name: ChessStudio Sol long-review output limit regression (no deployment)
 on:
   workflow_dispatch:
   push:
