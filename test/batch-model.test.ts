@@ -2,6 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {validModel,isBatchModel,modelCatalog} from '../src/model-provider.js';
 import {BrowserRuntime} from '../src/browser-runtime.js';
+import {BrowserStore} from '../src/browser-store.js';
 
 test('batch variants are not interactive models, normal model remains available',()=>{
  assert.equal(isBatchModel('google/gemini-4-argon:batch'),true);
@@ -15,7 +16,8 @@ test('catalog excludes batch-only models without concealing normal ones',async()
 });
 test('batch variant is rejected before credential storage or provider transport',async()=>{
  let calls=0;
- const r=new BrowserRuntime(undefined,(async()=>{calls++;return new Response('{}');}) as typeof fetch);
+ const store=new (class extends BrowserStore {override async get<T>(_store:'vault'|'budget'|'session'):Promise<T|null>{return null;}})();
+ const r=new BrowserRuntime(store,(async()=>{calls++;return new Response('{}');}) as typeof fetch);
  await assert.rejects(r.handle('/api/model-config','POST',{action:'connect',provider:'openrouter',model:'google/gemini-4-argon:batch',apiKey:'fixture-not-real',allowPaid:true}),/:batch/);
  assert.equal(calls,0);
 });
