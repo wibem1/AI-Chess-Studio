@@ -1,3 +1,24 @@
+# Vorbereitet: 1.0.0 – Bereinigter Lernablauf und stabile Brettsteuerung
+
+Noch nicht veröffentlicht. Freier KI-Chat und Schlüsselstellungen als Hauptablauf.
+Brettsteuerung unter dem Brett, kein erzwungenes Scrollen bei Brettaktionen;
+bei tatsächlichem Moduswechsel bleibt bewusste Navigation erhalten.
+Alte Analyse-/Gedanken-/Kommentarformulare und Simulationsauswahl samt Handlern
+entfernt. SimulationAdapter bleibt ausschließlich Kern-/Testfunktion; gespeicherte
+Simulationen, Reflexionen und Notizen werden weiterhin gelesen, keine Datenmigration.
+Modellwahl in Zugangseinstellungen verschoben. Diagnosebutton direkt erreichbar,
+konkreter Review-Prüfgrund zusätzlich im geschützten Diagnosebericht enthalten.
+Bretttoolbar eigenes Modul, main.ts um alte Handler und Demo-Verzweigungen bereinigt.
+
+Prüfung: 172 Einzeltests, 24 gezielte Browserfälle bestanden. Darunter OpenAI/
+OpenRouter-Modellwechsel mit Fixture-Transport, Diagnose ohne Schlüssel/Denktexte,
+echte Stockfish-/Maia-Spielantworten, Pages/Offline, PGN, Speichern/Laden von
+Analysen, Schlüsselstellen, Stellungsübergabe und Scrollgeometrie bei 820/1440px
+mit 125% Schrift. Keine bezahlten KI-Anfragen, keine native iPad-Abnahme.
+Der vollständige historische Browsertestbestand ist nicht als grün freigegeben;
+ältere Tests für entfernte Formulare/Simulation benötigen gesonderte Aktualisierung.
+Letzter veröffentlichter Stand bleibt 0.16.1. Frühere Einträge sind Historie.
+
 # Aktuell veröffentlicht: 0.16.1 – Konkrete Analysefehler und Speicherbereinigung
 
 Am 8. November 2026 veröffentlicht, PR #3 integriert. Quelle 4cc05fd46c772a66499399cb282aa5173145cc53,
@@ -10,6 +31,22 @@ PGN/Backup sowie echten Stockfish und Offline-Restore. Providerantworten Fixture
 Doppelte JSON-Speicheroberfläche samt Handlern entfernt. Automatische Sicherung erhalten.
 Keine native iPad-Abnahme oder vollständige 1.0-Freigabe; weitere Bereinigung bleibt offen.
 Keine bezahlten KI-Anfragen. Folgende Einträge sind ältere Zwischenstände.
+
+
+
+# Entwicklung 1.0: Brettsteuerung unter dem Brett, stabile Ansicht
+
+Neuer Nutzerauftrag vom 8. November: grundlegende Bereinigung fortsetzen,
+Brettsteuerung unter das Brett, keine Ansichtssprünge durch Bedienung.
+Implementiert: eigener board-toolbar-Baustein für einheitliche Anordnung,
+Desktop-Sonderposition für Undo entfernt, erzwungenes Scrollen bei KI-Start und
+Schlüsselstellen entfernt; Navigation scrollt nur beim tatsächlichen Moduswechsel.
+Root-Build/Typprüfung bestanden; 8 Browserfälle mit Import/Analyse/Navigation
+bestanden. Zusätzliche 2 Geometrie-/Scrollfälle bei 820/1440px und 125% Schrift
+bestanden. Noch keine native iPad-Abnahme. Kein bezahlter KI-Aufruf.
+Noch keine 1.0-Freigabe oder Veröffentlichung. Die grundlegende restliche
+Code-/Formularbereinigung und vollständige aktualisierte Browserprüfung stehen aus.
+Letzter veröffentlichter Stand 0.16.1. Frühere Stände folgen als Historie.
 
 # Vorbereitet: 0.16.1
 

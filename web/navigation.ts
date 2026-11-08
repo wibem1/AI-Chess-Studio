@@ -14,7 +14,7 @@ export function installNavigation(cancelGesture:()=>void,change:(view:View)=>voi
   if(requested==='variants')document.querySelector<HTMLDetailsElement>('#panel-variants')!.open=true;
   if(writeHistory&&location.hash!=='#'+hashes[requested])history.pushState(null,'','#'+hashes[requested]);
   if(notify&&previous!==view)change(view);
-  window.scrollTo({top:0,behavior:'instant'});
+  if(previous!==view)window.scrollTo({top:0,behavior:'instant'});
  };
  for(const [index,tab] of tabs.entries()){
   tab.addEventListener('click',()=>{const view=tab.dataset.view as View,same=current===view;select(view);if(same&&view==='play')change(view);});

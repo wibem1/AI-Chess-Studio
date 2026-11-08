@@ -85,3 +85,9 @@ test('rejected real review reports each illegal alternative with its historical 
  const moments=[[18,'Qxe5+','Qxe7+'],[56,'Nxg3','Nf5'],[85,'Rc7+','Rf7'],[136,'Ng3+','Nh5']].map(([ply,played,alternative])=>({ply,played,alternative,explanation:'Erklärung',reason:'Begründung'}));
  assert.throws(()=>validateGameReview({summary:'Überblick',lesson:'Lernfolgerung',moments},{rootFen:game.rootFen,moves:game.moves.map(m=>m.san),truncated:false}),error=>{assert.ok(error instanceof Error);for(const label of ['9… Qxe5+','28… Nxg3','43. Rc7+','68… Ng3+'])assert.ok(error.message.includes(label));return true;});
 });
+
+test('diagnosis retains the precise validation reason without leaking credentials',async()=>{
+ const {ModelDiagnostics}=await import('../src/model-diagnostics.js');const d=new ModelDiagnostics();
+ d.start({}, {},'private-fixture-key').finish('failed','review_format',200,'Analyse verworfen: Bei 1. e4 ist Qh8 nicht legal. private-fixture-key');
+ const report=JSON.stringify(d.export());assert.match(report,/Bei 1. e4/);assert.match(report,/Qh8/);assert.ok(!report.includes('private-fixture-key'));
+});

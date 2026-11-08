@@ -488,3 +488,13 @@ footer span{display:none}
 
 #key-moment-links{display:flex;flex-wrap:wrap;gap:6px}
 #board-area .board-actions #key-moment-nav{flex-wrap:wrap}
+
+/* One stable toolbar after the board; action rows never precede it. */
+#board-area .board-heading,.workspace[data-active-view=learn] #board-area .board-heading{order:1;align-self:stretch;margin:8px 0;position:static}
+#board-area #learning-chat{order:2}
+#board-area #learning-controls{order:3}
+#board-area .board-actions{justify-content:flex-start;align-items:center;gap:6px}
+#board-area .board-actions #coach-match{order:3;margin:0;flex-basis:100%}
+#board-area .board-actions #coach-plan-bar{order:1}
+#board-area .board-actions #key-moment-nav{order:2;justify-content:flex-start}
+#board-area{overflow-anchor:none}

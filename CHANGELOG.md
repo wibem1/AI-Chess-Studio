@@ -1,5 +1,16 @@
 # Änderungen
 
+## 1.0.0 – Bereinigter Lernablauf (vorbereitet)
+
+- Brettsteuerung unter dem Brett; Navigation und Schlüsselstellen erhalten die Scrollposition.
+- Alte Analyse-, Gedanken-, Kommentar- und Simulationsbedienung entfernt; freier KI-Chat.
+- Gespeicherte Notizen und alte Sitzungsdaten bleiben lesbar.
+- Modellwahl in den Zugangseinstellungen; Diagnose-Download direkt erreichbar.
+- Konkrete Validierungsursachen auch im Diagnosebericht.
+- Tote Bedienhandler entfernt, Brettsteuerung in eigenes Modul ausgelagert.
+- 172 Einzeltests und 24 gezielte Browsertests bestanden, keine native iPad-Abnahme.
+
+
 ## 0.16.1 – Klare Analysefehler und einheitlicher Speicherweg
 
 - Ungültige Alternativzüge mit historischem Zugbezug benennen.
