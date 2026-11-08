@@ -1,3 +1,11 @@
+# Vorbereitet: 0.16.1
+
+171 Einzeltests und 8 gezielte Browserfälle bestanden; Root-/Pages-Build geprüft.
+Konkrete historische Alternativfehler, Spielneustart, gespeicherte Analyse,
+PGN, Backupfehler und Pages/Offline/Stockfish geprüft. Providerantworten Fixtures.
+Keine native iPad-Abnahme. Teilbereinigung; offene Arbeiten für 1.0 bleiben unten.
+Noch nicht veröffentlicht.
+
 # Entwicklung zu Version 1.0 – Bereinigung
 
 Branch refactor/1.0-cleanup-20261108, Ausgangspunkt veröffentlichte 0.16.0.

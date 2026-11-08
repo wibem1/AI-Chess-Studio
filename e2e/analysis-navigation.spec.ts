@@ -22,3 +22,10 @@ test('older text-only analyses keep arrow navigation after importing a game file
  const s=gameFile(),rootFen=s.snapshot().nodes[0]!.fen;s.annotate({nodeId:'n4',kind:'dialogue',source:'model',text:formatGameReview(analysis,{rootFen,moves}),hypothesis:true,openQuestions:[]});await open(page,s.export());await expect(page.locator('#key-moment-nav')).toBeVisible();await page.getByRole('button',{name:'Nächste Schlüsselstelle',exact:true}).click();await expect(page.locator('#position-status')).toContainText('n0');await page.getByRole('button',{name:'Nächste Schlüsselstelle',exact:true}).click();await expect(page.locator('#position-status')).toContainText('n2');const saved=await download(page);expect(saved.annotations[0].text).toContain(analysis.summary);
  await page.setViewportSize({width:390,height:844});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);const resize=page.getByRole('separator',{name:'Größe der KI-Antwort ändern'});await resize.focus();const height=await page.locator('#current-answer-body').evaluate(e=>e.getBoundingClientRect().height);await page.keyboard.press('ArrowDown');expect(await page.locator('#current-answer-body').evaluate(e=>e.getBoundingClientRect().height)).toBeGreaterThan(height+20);await expect(page.locator('#position-status')).toContainText('n2');
 });
+
+test('invalid review names the illegal historical alternative instead of a generic error',async({page})=>{
+ await page.route('https://api.openai.com/**',route=>route.fulfill({json:{choices:[{finish_reason:'stop',message:{content:JSON.stringify({message:'Analyse',gameReview:{...analysis,moments:analysis.moments.map((m,i)=>i===0?{...m,alternative:'Qh8'}:m)}})}}],usage:{prompt_tokens:40,completion_tokens:80}}}));
+ await open(page,gameFile().export(),true);await page.locator('#find-key-moments').click();
+ await expect(page.locator('#dialogue-feedback')).toContainText('Bei 1. e4');await expect(page.locator('#dialogue-feedback')).toContainText('Qh8');await expect(page.locator('#dialogue-feedback')).toContainText('nicht legal');
+ await expect(page.locator('#key-moment-nav')).toBeHidden();
+});

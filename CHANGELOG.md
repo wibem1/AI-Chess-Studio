@@ -1,5 +1,13 @@
 # Änderungen
 
+## 0.16.1 – Klare Analysefehler und einheitlicher Speicherweg
+
+- Ungültige Alternativzüge mit historischem Zugbezug benennen.
+- Doppelten JSON-Speicherbereich und zugehörigen Code entfernt.
+- Automatische Sicherung erhalten, KI-Diagnose übersichtlicher erreichbar.
+- 171 Einzeltests und 8 gezielte Browserfälle bestanden.
+
+
 ## 0.16.0 – Schlüsselstellungen und PGN-Import
 
 - Sichtbarer Analysebutton im Lernmodus und direkte Sprungbuttons am Brett.

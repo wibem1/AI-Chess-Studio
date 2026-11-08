@@ -645,7 +645,6 @@ void(async()=>{
    $('web-mode-link').hidden=true;$('vault-setup').hidden=false;$('desktop-update').hidden=true;$('autosave-controls').hidden=false;
    input('vault-password').required=false;
    message('key-storage-explanation','Dein Schlüssel wird verschlüsselt in diesem Browserprofil gespeichert und beim nächsten Start wieder geladen. Kein zusätzliches App-Passwort nötig. Wer dieses Browserprofil benutzt, kann den Schlüssel in der App verwenden. Nur ausdrücklich gestartete KI-Anfragen oder Zugangsprüfungen verbinden sich mit OpenAI. Der Schlüssel gehört nicht zum Partieexport.');
-   message('session-storage-explanation','Sitzung und Nachrichtenentwurf werden automatisch in diesem Browser gespeichert, ohne Schlüssel oder Gerätepasswort. Pro Browseradresse gilt die zuletzt gespeicherte Sitzung; zum unabhängigen Sichern oder Übertragen JSON exportieren.');
    $<HTMLSelectElement>('engine-location').value='browser';$<HTMLSelectElement>('engine-location').options[0]!.disabled=true;
    $('engine-options').hidden=true;
    const saved=await browserRuntime.store.get<import('../src/browser-store.js').BrowserSession>('session');
