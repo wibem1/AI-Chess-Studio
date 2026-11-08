@@ -342,7 +342,7 @@ $('dialogue-form').addEventListener('submit', async event => {
   chatStopped=false;pending = true;updateMode();
   message('dialogue-feedback', 'Modellanfrage läuft … Stellungswechsel ist weiterhin möglich.');
   try {
-    activeAdapter=new ServerModelAdapter(platformFetch);let toolStarted=false;
+    activeAdapter=new ServerModelAdapter(platformFetch,()=>generalAiInstructions);let toolStarted=false;
     const result = await studio.ask(question, activeAdapter!,'chat',hintOverride,async(call,node)=>{if(!toolStarted){pendingCoachAnchor={session,node};toolStarted=true;}message('dialogue-feedback',call.function.name==='play_engine'?'Spielengine antwortet …':call.function.name==='show_line'?'Variante wird vorgeführt …':'Brettdarstellung wird aufgebaut …');if(call.function.name==='show_line'||call.function.name==='play_engine')illustration=undefined;
       const result=await coachBoard.execute(call,node);boardActions.push({at:new Date().toISOString(),call,result});if(boardActions.length>20)boardActions.shift();if(!chatStopped)message('dialogue-feedback','Brettergebnis liegt vor; die Lernengine erläutert es …');return result;});
     lastAskFailed=false;
