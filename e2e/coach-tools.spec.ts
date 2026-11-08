@@ -2,7 +2,7 @@ import {test,expect} from '@playwright/test';
 import {Studio} from '../src/dialogue.js';
 import {LearningGame} from '../src/game.js';
 async function setup(page:import('@playwright/test').Page,opponent:'stockfish'|'maia'='stockfish'){
- await page.goto('/?platform=web');await expect(page.locator('#workspace')).not.toHaveAttribute('inert','');await page.locator('#open-settings').click();await page.locator('#api-settings > summary').click();await page.locator('#api-key').fill('fixture-tools-only-not-real');await page.locator('#api-cost-consent').check();await page.locator('#api-connect').click();await expect(page.locator('#api-feedback')).toContainText('gespeichert');await page.getByRole('tab',{name:'Lernmodus',exact:true}).click();
+ await page.goto('/?platform=web');await expect(page.locator('#workspace')).not.toHaveAttribute('inert','');await page.locator('#open-settings').click();await page.locator('#api-settings > summary').click();await page.locator('#api-provider').selectOption('openai');await page.locator('#api-key').fill('fixture-tools-only-not-real');await page.locator('#api-cost-consent').check();await page.locator('#api-connect').click();await expect(page.locator('#api-feedback')).toContainText('gespeichert');await page.getByRole('tab',{name:'Lernmodus',exact:true}).click();
  const studio=new Studio(),game=new LearningGame(()=>studio.session);game.start('w',1,'browser',opponent);game.pause();await page.locator('#games-menu > summary').click();await page.locator('#game-file').setInputFiles({name:'study.json',mimeType:'application/json',buffer:Buffer.from(studio.session.export())});await expect(page.locator('#games-status')).toContainText('Partie geladen');
 }
 for(const opponent of ['stockfish','maia'] as const)test(`learning tool plays e4 on the board, obtains real browser ${opponent} reply and explains the returned result`,async({page})=>{
@@ -25,4 +25,31 @@ test('plan button shows a legal variation, retains the draft and separates lates
  await page.setViewportSize({width:1440,height:900});await setup(page);await page.locator('#question').fill('Mein noch ungesendeter Gedanke.');await page.getByRole('button',{name:'Zeige deinen Plan auf dem Brett',exact:true}).click();await expect(page.locator('#dialogue-feedback')).toContainText('Modellantwort');await expect(page.locator('#question')).toHaveValue('Mein noch ungesendeter Gedanke.');await expect(page.locator('#board [data-square=f3]')).toHaveAttribute('aria-label','f3: Weiß Springer');await expect(page.locator('#current-answer')).toContainText('Mein Plan:');await expect(page.locator('#chat-history')).toContainText('App · Brettaktion');await expect(page.locator('#chat-history')).not.toContainText('Mein Plan:');
  const r=await page.evaluate(()=>({board:document.getElementById('board')!.getBoundingClientRect().bottom,answer:document.getElementById('current-answer')!.getBoundingClientRect().bottom}));expect(r.answer).toBeGreaterThan(r.board);
  await page.screenshot({path:'/tmp/chess-plan-button.png',fullPage:false});await page.locator('#question').fill('Und warum?');await page.locator('#ask').click();await expect(page.locator('#current-answer')).toContainText('Die neue Antwort');await expect(page.locator('#chat-history')).toContainText('Mein Plan:');expect(calls).toBe(3);await page.locator('#coach-origin').click();await expect(page.locator('#position-status')).toContainText('n0');
+});
+
+test('on explicit request the model can draw arrows and lines without playing any moves',async({page})=>{
+ let calls=0;
+ await page.route('https://api.openai.com/**',async route=>{
+  calls++;
+  if(calls===1){
+   const body=route.request().postDataJSON();
+   expect(body.messages[0].content).toContain('Bei Fragen nach Pfeilen');
+   expect(body.tools.map((t:any)=>t.function.name)).toContain('draw_board');
+   return route.fulfill({json:{choices:[{finish_reason:'tool_calls',message:{content:null,tool_calls:[{id:'draw_test_1',type:'function',function:{name:'draw_board',arguments:JSON.stringify({marks:[{from:'e2',to:'e4',kind:'arrow',color:'green'},{from:'a1',to:'h8',kind:'line',color:'blue'}]})}}]}}],usage:{prompt_tokens:40,completion_tokens:25}}});
+  }
+  const body=route.request().postDataJSON();
+  const toolResult=JSON.parse(body.messages.at(-1).content);
+  expect(toolResult.ok).toBe(true);
+  expect(toolResult.moves).toEqual([]);
+  return route.fulfill({json:{choices:[{finish_reason:'stop',message:{content:'Grüner Pfeil: möglicher Bauernvorstoß. Blaue Linie: Diagonale zur Erläuterung.'}}],usage:{prompt_tokens:40,completion_tokens:25}}});
+ });
+ await setup(page);
+ await page.locator('#question').fill('Zeige mir die Linien und Drohungen mit Pfeilen direkt auf dem Brett.');
+ await page.locator('#ask').click();
+ await expect(page.locator('#dialogue-feedback')).toContainText('gespeichert');
+ await expect(page.locator('#board svg.board-marks')).toHaveAttribute('aria-label','Pfeil e2 nach e4, Linie a1 nach h8');
+ await expect(page.locator('#board svg.board-marks line')).toHaveCount(2);
+ await expect(page.locator('#position-status')).toContainText('n0');
+ await expect(page.locator('#board [data-square=e2]')).toHaveAttribute('aria-label','e2: Weiß Bauer');
+ expect(calls).toBe(2);
 });
