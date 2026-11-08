@@ -1,5 +1,14 @@
 # Änderungen
 
+## 1.0.5 – Ausgabelimit für Sol-Partierückblicke wählbar (8. November 2026)
+
+- In Einstellungen → KI-Modell und Denkstufe kann das Ausgabelimit für vollständige Partierückblicke mit OpenAI Sol gewählt werden: automatisch oder 2.048, 4.096, 6.144, 8.192 bzw. 12.288 Ausgabetokens.
+- Für ausführliche Partierückblicke gilt ohne Denkstufe standardmäßig 6.144 Ausgabetokens und maximal 90 Sekunden; gewöhnlicher Lernchat bleibt unverändert.
+- Auswahl wird mit dem verschlüsselten Modellzugang gespeichert, bei Neustart wiederhergestellt und kann auf Automatisch zurückgesetzt werden.
+- Token-Obergrenze ist kein Kostenlimit und garantiert keine vollständige Antwort. Keine automatischen kostenpflichtigen Wiederholungen.
+- Validierung mit Unit- und Browsertests ohne kostenpflichtige Modellanfragen; native Geräteprüfung ausstehend.
+
+
 ## 1.0.4 – Sol 6.1: robuste Antwortfrist und Abbruchdiagnose (8. November 2026)
 
 - Direkte OpenAI-Sol-Responses-Aufrufe ohne eingestellte Denkstufe dürfen bis zu 45 statt 15 Sekunden dauern; bei eingestellter Denkstufe weiterhin 90 Sekunden.
