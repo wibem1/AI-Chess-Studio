@@ -62,7 +62,7 @@ let illustration:{diagram:BoardDiagram;session:typeof studio.session;node:string
 let shownMove:{node:string;from:string;to:string}|undefined;
 let coachAnchor:{session:typeof studio.session;node:string}|undefined,pendingCoachAnchor:typeof coachAnchor;
 const boardActions:unknown[]=[];
-let pending = false,chatStopped=false;let activeAdapter:ServerModelAdapter|undefined;
+let pending = false,chatStopped=false;let lastAskFailed=false;let activeAdapter:ServerModelAdapter|undefined;
 const coachBrowserEngine=new BrowserPlayingEngine(),coachMaiaEngine=new MaiaPlayingEngine(value=>{if(pending&&!chatStopped)message('dialogue-feedback',value);});
 const coachBoard=new CoachBoard(()=>studio.session,()=>studio.session.snapshot().game?.opponent==='maia'?coachMaiaEngine:(studio.session.snapshot().game?.engine??$<HTMLSelectElement>('engine-location').value)==='browser'?coachBrowserEngine:desktopEngine,node=>{if(pendingCoachAnchor){coachAnchor=pendingCoachAnchor;pendingCoachAnchor=undefined;}const d=studio.session.snapshot(),n=d.nodes.find(n=>n.id===node)!,parent=d.nodes.find(p=>p.id===n.parentId)!;const move=new Chess(parent.fen).move(n.san!);shownMove={node,from:move.from,to:move.to};render();},150,(diagram,node)=>{
  const previousFen=illustration?.session===studio.session&&illustration.node===node?illustration.diagram.fen:undefined;
@@ -254,7 +254,7 @@ function render() {
   const conversationRoot=$('dialogue');conversationRoot.replaceChildren();
   const answerBody=document.createElement('div'),historyBody=document.createElement('div');
   answerBody.id='current-answer-body';historyBody.id='chat-history-body';
-  for(const [id,title,body,hasEntries] of [['current-answer','Aktuelle Antwort',answerBody,!!currentAnswer],['chat-history','Chatverlauf',historyBody,conversation.some(a=>a!==currentAnswer)]] as const){
+  for(const [id,title,body,hasEntries] of [['current-answer',lastAskFailed?'Letzte gespeicherte Antwort · neue Anfrage fehlgeschlagen':'Aktuelle Antwort',answerBody,!!currentAnswer],['chat-history','Chatverlauf',historyBody,conversation.some(a=>a!==currentAnswer)]] as const){
    if(!hasEntries)continue;const section=document.createElement('section'),heading=document.createElement('h3');section.id=id;section.setAttribute('aria-label',title);heading.textContent=title;section.append(heading,body);conversationRoot.append(section);if(id==='current-answer')section.append(attachAnswerResize(body));
   }
   for (const [kind, id] of [['dialogue', 'dialogue'], ['memory', 'memories']] as const) {
@@ -330,9 +330,12 @@ $('dialogue-form').addEventListener('submit', async event => {
     activeAdapter=new ServerModelAdapter(platformFetch);let toolStarted=false;
     const result = await studio.ask(question, activeAdapter!,'chat',hintOverride,async(call,node)=>{if(!toolStarted){pendingCoachAnchor={session,node};toolStarted=true;}message('dialogue-feedback',call.function.name==='play_engine'?'Spielengine antwortet …':call.function.name==='show_line'?'Variante wird vorgeführt …':'Brettdarstellung wird aufgebaut …');if(call.function.name==='show_line'||call.function.name==='play_engine')illustration=undefined;
       const result=await coachBoard.execute(call,node);boardActions.push({at:new Date().toISOString(),call,result});if(boardActions.length>20)boardActions.shift();if(!chatStopped)message('dialogue-feedback','Brettergebnis liegt vor; die Lernengine erläutert es …');return result;});
+    lastAskFailed=false;
     message('dialogue-feedback', result === 'stored' ? 'Modellantwort an der angefragten Stellung gespeichert.' : chatStopped?'Angehalten. Gezeigte Züge bleiben als Lernvariante erhalten.':'Veraltete Antwort nach Sitzungs- oder Chatwechsel verworfen.');
     render();
   } catch (error) {
+    lastAskFailed=true;
+    render();
     message('dialogue-feedback', chatStopped?'Angehalten. Gezeigte Züge bleiben als Lernvariante erhalten.':studio.session !== session ? 'Veraltete Anfrage nach Sitzungswechsel verworfen.' : session.dialogueRevision()!==chatRevision ? 'Chatverlauf gelöscht; die frühere Anfrage wurde nicht übernommen.' : (error instanceof Error ? error.message : 'Anfrage fehlgeschlagen.')+' Die bisherigen Chatbeiträge stammen von früheren Anfragen.');
   } finally { pending = false;activeAdapter=undefined; updateMode(); void refreshModelStatus();void refreshCosts(); }
 });
