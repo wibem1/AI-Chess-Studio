@@ -1,5 +1,15 @@
 # Änderungen
 
+## 1.0.3 – Einstellungen neu geordnet und KI-Fehler besser erkannt (8. November 2026)
+
+- KI-Anbieter und API-Schlüssel, KI-Modell und Denkstufe, Kosten, Sitzungen, Updates und Diagnose als eigenständige Einstellungsbereiche.
+- Altes doppeltes Lernchat-Einstellungsmenü ausgeblendet; bestehende Funktionen und gespeicherte Daten bleiben erhalten.
+- Verhindert, dass Hintergrundaktualisierungen die gerade eingegebene Modellkennung überschreiben.
+- OpenRouter-Modelle mit `:batch` aus dem interaktiven Katalog ausgeschlossen; bereits gespeicherte Batchmodelle vor kostenpflichtigen Anfragen lokal abgewiesen.
+- Nach einem KI-Fehler eine alte Antwort ausdrücklich als frühere Antwort kennzeichnen; HTTP-Status sicher an die Benutzeroberfläche weiterreichen.
+- Typprüfung, Einzeltests und Tablet-Browsertests über GitHub Actions; echte KI-Provideranfragen und native Android-/iPad-Abnahme nicht durchgeführt.
+
+
 ## 1.0.2 – KI-Anbieter, Schlüsselzustand, Oberfläche und Sol-Transport (8. November 2026)
 
 - Anbieterwahl OpenAI direkt oder OpenRouter im Einstellungsformular ausdrücklich sichtbar.
