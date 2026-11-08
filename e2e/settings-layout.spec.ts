@@ -9,6 +9,7 @@ test('settings have separate functional sections and keep controls associated',a
  const items=page.locator('#panel-settings > details.panel:not([hidden]) > summary');
  await expect(items).toHaveText([
   'KI-Modell und Denkstufe',
+  'Allgemeine KI-Anweisungen',
   'KI-Kosten und Preisannahmen',
   'Sitzungsdaten und Sicherung',
   'Updates und Installation',
