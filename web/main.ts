@@ -299,7 +299,9 @@ $('match-start').addEventListener('click',async()=>{
 });
 $('match-stop').onclick=()=>{match.stop();render();message('match-status',match.report?.message??'Angehalten.');};
 $('api-settings').prepend($('ai-access-card'));
-$('api-settings').append($('chat-model-controls'));
+// Model selection remains in its dedicated settings section.
+// Keep legacy PGN-import controls in the DOM for compatibility, but do not expose a duplicate menu.
+$('learning-settings').hidden=true;
 $('panel-settings').append($('learning-settings'));
 $('diagram-close').onclick=()=>{chatStopped=true;studio.cancelAsk();coachBoard.cancel();activeAdapter?.cancel();illustration=undefined;render();};
 const keyMoments=installKeyMoments(()=>studio.session,node=>{match.stop('Schlüsselstelle ansehen.');game.analyse(node);illustration=undefined;selected=null;navigation.select('learn',false,true,false);render();});
