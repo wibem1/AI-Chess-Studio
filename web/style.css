@@ -538,12 +538,16 @@ footer span{display:none}
 #settings-ai-instructions button{margin:8px 10px 4px 0}
 #general-ai-instructions-status{min-height:1.4em}
 
-/* Learning-board Stockfish: switch and score immediately below the squares, never in settings. */
-#board-area #stockfish-assist-settings{order:0;width:min(100%,560px);align-self:center;margin:-7px auto 10px;padding:8px 12px;border:1px solid var(--line);border-radius:10px;background:var(--paper);font-size:.8rem}
-#stockfish-assist-settings .stockfish-board-switch{margin:0;display:flex;align-items:center;gap:9px;font-size:.88rem;cursor:pointer}
-#stockfish-assist-settings input{width:19px;height:19px;flex:none}
-#stockfish-assist-status{margin:6px 0 0;font-size:.78rem;min-height:1.2em}
-#stockfish-assist-result{margin:7px 0 0;padding-top:6px;border-top:1px solid var(--line);white-space:pre-wrap;overflow-wrap:anywhere;font-size:.8rem;line-height:1.5;font-variant-numeric:tabular-nums}
-#stockfish-assist-settings .stockfish-limits{margin:5px 0 0;font-size:.71rem;color:var(--muted)}
+/* Compact Stockfish ribbon directly below the board: leave the learning chat in view. */
+#board-area #stockfish-assist-settings{order:0;display:flex;align-items:center;justify-content:flex-start;flex-wrap:wrap;gap:4px 12px;width:min(100%,560px);align-self:center;margin:-7px auto 5px;padding:5px 9px;border:1px solid var(--line);border-radius:9px;background:var(--paper);font-size:.78rem}
+#stockfish-assist-settings .stockfish-board-switch{margin:0;display:inline-flex;align-items:center;gap:6px;font-size:.78rem;cursor:pointer;white-space:nowrap}
+#stockfish-assist-settings input{width:16px;height:16px;flex:none}
+#stockfish-assist-status{margin:0;font-size:.75rem;line-height:1.3;flex:1 1 160px}
+#stockfish-assist-result{margin:0;font-size:.78rem;line-height:1.3;font-weight:600;font-variant-numeric:tabular-nums;flex:0 1 auto}
+#stockfish-assist-details{margin:0;font-size:.75rem;flex:0 0 auto}
+#stockfish-assist-details[open]{flex-basis:100%}
+#stockfish-assist-details summary{cursor:pointer;color:var(--muted)}
+#stockfish-assist-line{margin:4px 0 0;overflow-wrap:anywhere}
+#stockfish-assist-settings .stockfish-limits{margin:3px 0 0;font-size:.69rem;color:var(--muted)}
 #board-area #learning-chat{order:2}
 .workspace[data-active-view=play] #stockfish-assist-settings{display:none}

@@ -28,7 +28,12 @@ test('Stockfish result appears under learning board immediately and reaches the 
  await page.locator('#stockfish-assist-enabled').check();
  await expect(page.locator('#stockfish-assist-result')).toBeVisible({timeout:30000});
  await expect(page.locator('#stockfish-assist-result')).toContainText('Stockfish:');
- await expect(page.locator('#stockfish-assist-result')).toContainText('Hauptvariante:');
+ await expect(page.locator('#stockfish-assist-details')).toBeVisible();
+ await expect(page.locator('#stockfish-assist-details')).not.toHaveAttribute('open','');
+ await expect(page.locator('#stockfish-assist-result')).not.toContainText('Hauptvariante:');
+ await page.locator('#stockfish-assist-details > summary').click();
+ await expect(page.locator('#stockfish-assist-line')).toContainText('Hauptvariante:');
+ await expect(page.locator('#stockfish-assist-status')).toBeHidden();
  expect(calls).toBe(0);
  await page.locator('#question').fill('Bewerte die aktuelle Ausgangsstellung mit begrenzter Stockfish-Prüfung.');
  await page.locator('#ask').click();

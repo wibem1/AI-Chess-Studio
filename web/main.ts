@@ -318,7 +318,7 @@ const keyMoments=installKeyMoments(()=>studio.session,node=>{match.stop('Schlüs
 // A single visible switch directly under the learning board, not buried in settings.
 $('board').after($('stockfish-assist-settings'));
 const stockfishToggle=$<HTMLInputElement>('stockfish-assist-enabled'),stockfishStatus=$('stockfish-assist-status');
-const stockfishResult=$('stockfish-assist-result');
+const stockfishResult=$('stockfish-assist-result'),stockfishDetails=$<HTMLDetailsElement>('stockfish-assist-details'),stockfishLine=$('stockfish-assist-line');
 function stopStockfishSearch(){
  stockfishSearchGeneration++;
  stockfishSearch?.cancel?.();
@@ -343,21 +343,29 @@ function showStockfishReport(report:TacticalReport){
  const score=report.score.unit==='cp'
   ?(report.score.value>=0?'+':'')+(report.score.value/100).toFixed(2)
   :report.score.value===0?'Mattbewertung 0':(report.score.value>0?'Matt für Weiß in ':'Matt für Schwarz in ')+Math.abs(report.score.value);
- stockfishResult.textContent='Stockfish: '+score+(report.score.unit==='cp'?' Bauern (Weiß-Sicht)':'')+' · Tiefe '+report.depth+' · '+report.nodes+' Knoten\nHauptvariante: '+report.line.slice(0,8).join(' ');
+ stockfishResult.textContent='Stockfish: '+score+(report.score.unit==='cp'?' (Weiß)':'')+' · T'+report.depth;
+ stockfishLine.textContent='Hauptvariante: '+report.line.slice(0,8).join(' ')+' · '+report.nodes+' Knoten';
+ stockfishDetails.hidden=false;
  stockfishResult.hidden=false;
- stockfishStatus.textContent='Bewertung für die aktuelle Stellung.';
+ stockfishStatus.hidden=true;
 }
 function syncStockfishBoard(){
  const active=$('workspace').dataset.activeView==='learn'&&stockfishAssistEnabled;
  if(!active){
   if(stockfishVisibleFen){stockfishVisibleFen='';stopStockfishSearch();}
   stockfishResult.hidden=true;
+  stockfishDetails.hidden=true;
+  stockfishDetails.open=false;
+  stockfishStatus.hidden=!stockfishAssistEnabled;
   return;
  }
  const data=studio.session.snapshot(),fen=data.nodes.find(n=>n.id===data.activeNodeId)!.fen;
  if(stockfishVisibleFen===fen)return;
  stockfishVisibleFen=fen;
  stockfishResult.hidden=true;
+ stockfishDetails.hidden=true;
+ stockfishDetails.open=false;
+ stockfishStatus.hidden=false;
  const board=new Chess(fen);
  if(board.isGameOver()){stopStockfishSearch();stockfishStatus.textContent='Partie beendet. Für diese Stellung ist keine begrenzte Stockfish-Suche verfügbar.';return;}
  const report=stockfishCache.get(fen);
