@@ -1,6 +1,6 @@
 import {ModelDiagnostics} from './model-diagnostics.js';
 import {needsResponses,createResponsesBody,normalizeResponses,encryptedReasoningForCall} from './openai-responses.js';
-import {providerBase,providerOf,providerOptions,validModel,generationOptions,modelCatalog} from './model-provider.js';
+import {providerBase,providerOf,providerOptions,validModel,isBatchModel,generationOptions,modelCatalog} from './model-provider.js';
 import {taggedReply,providerToolFields,ProviderContinuity,coachProviderFields,coachProviderMessages,coachToolReply} from './coach-provider.js';
 import {decodeModelContent,normalizeModelReply} from './model-reply.js';
 import {COACH_ERRORS,CoachFailure,providerFailure,type CoachFailureCode} from './model-errors.js';
@@ -81,10 +81,12 @@ export class BrowserRuntime {
     }
     if(raw?.action==='disconnect'){await this.store.clear('vault');this.config=null;this.responseReasoning.clear();this.continuity.clear();this.channel?.postMessage('changed');return await this.status();}
     if(raw?.action==='select-model'){
+     if(isBatchModel(raw.model))throw new ApiError(400,'Batch-Modelle sind für den interaktiven Lernchat nicht geeignet. Bitte das Modell ohne :batch wählen.');
      if(!this.config||raw.provider!==providerOf(this.config)||!validModel(raw.model,this.config))throw new ApiError(400,'Aktiven Provider und Modell prüfen.');
      const config={...this.config,model:raw.model,...providerOptions(raw)},record=await this.store.get<StoredVault>('vault');if(raw.reasoning===undefined)delete config.reasoning;if(record?.version===2){const sealed=await sealDeviceConfig(config);if(epoch!==this.vaultEpoch)throw new ApiError(409,'Zugang geändert.');await this.store.put('vault',sealed);this.channel?.postMessage('changed');}this.continuity.clear();this.responseReasoning.clear();this.config=config;return {...await this.status(),selectionPersistent:record?.version===2};
     }
     if(raw?.action!=='connect'||raw.allowPaid!==true)throw new ApiError(400,'Kostenfreigabe und Schlüssel prüfen.');
+    if(isBatchModel(raw.model))throw new ApiError(400,'Batch-Modelle können nicht im interaktiven Lernchat verwendet werden. Wähle das reguläre Modell ohne :batch.');
     const config={enabled:true,apiKey:raw.apiKey,model:raw.model,...providerOptions(raw)};
     const sealed=typeof raw.password==='string'&&raw.password.length?await sealConfig(config,raw.password):await sealDeviceConfig(config);await this.store.put('vault',sealed);this.channel?.postMessage('changed');
     const stored=await this.store.get<StoredVault>('vault');
@@ -115,6 +117,9 @@ export class BrowserRuntime {
  private async respond(raw:unknown,signal?:AbortSignal){
   if(!this.config)throw new ApiError(403,'Lokales Schlüsselfach ist gesperrt.');
   const config=this.config;
+  // Old browser profiles may still contain a previously accepted batch-only model.
+  // Refuse locally, before reserving costs or sending a network request.
+  if(isBatchModel(config.model))throw new ApiError(400,'Das gespeicherte Modell ist eine Batch-Variante und kann keine direkte Chatantwort liefern. Wähle unter KI-Modell das reguläre Modell ohne :batch. Keine Anfrage gesendet.');
   const request=parseRequest(raw);if(request.expectedModel&&request.expectedModel!==config.model)throw new ApiError(409,'Modell während des Testlaufs gewechselt.');
   if(this.busy)throw new ApiError(429,'Eine Modellanfrage läuft bereits.');
   const {turns=[],toolExchanges,...current}=request;
