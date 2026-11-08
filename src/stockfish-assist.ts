@@ -4,7 +4,7 @@ import {Chess} from 'chess.js';
 
 /** Add one verified, position-specific search result to an explicitly requested learning answer. */
 export async function withStockfishAssessment(request:DialogueRequest,adapter:TacticalAdapter):Promise<DialogueRequest>{
- if(request.topic!=='chat'||(request.toolExchanges?.length??0)>0)return request;
+ if(request.topic!=='chat'||request.matchTest||(request.toolExchanges?.length??0)>0)return request;
  const board=new Chess(request.fen);
  if(board.isGameOver())throw new Error('Stockfish-Stellungsprüfung: Die aktuelle Stellung ist bereits beendet. Schalte den Faktencheck aus oder wähle eine spielbare Stellung. Keine KI-Anfrage gesendet.');
  const report=validateTacticalReport(await adapter.check(request.fen,null),request.fen);
