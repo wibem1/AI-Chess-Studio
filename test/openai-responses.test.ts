@@ -61,3 +61,13 @@ test('Sol whole-game retrospective has a larger bound than ordinary requests',()
  assert.equal(ordinary.max_output_tokens,2048);
  assert.equal(createResponsesBody({...config,reasoning:'medium'},review,'review',{},[],1800).max_output_tokens,16384);
 });
+
+test('user-selectable Sol review limit is applied only to full-game reviews',()=>{
+ const review={...req,topic:'review' as const,hintMode:'explain' as const,toolsEnabled:false};
+ for(const n of [2048,4096,6144,8192,12288] as const){
+  const chosen={...config,reviewOutputTokens:n};
+  assert.equal(createResponsesBody(chosen,review,'review',{},[],1800).max_output_tokens,n);
+  assert.equal(createResponsesBody(chosen,req,'chat',{},[],1800).max_output_tokens,2048);
+ }
+ assert.equal(createResponsesBody({...config,reasoning:'high',reviewOutputTokens:4096},review,'review',{},[],1800).max_output_tokens,4096);
+});
