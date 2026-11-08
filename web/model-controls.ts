@@ -4,7 +4,7 @@ export function installModelControls(post:(path:string,body:unknown)=>Promise<an
  const $=<T extends HTMLElement>(id:string)=>document.getElementById(id) as T;
  const provider=$<HTMLSelectElement>('api-provider'),catalog=$<HTMLSelectElement>('model-catalog'),chatModel=$<HTMLSelectElement>('chat-model'),reasoning=$<HTMLSelectElement>('chat-reasoning');
  let models:CatalogModel[]=[],activeProvider='openai',activeModel='',activeReasoning='',configDirty=false,selectionDirty=false;
- $('api-form').addEventListener('input',()=>{configDirty=true;});$('api-form').addEventListener('change',()=>{configDirty=true;});
+ $('api-form').addEventListener('input',()=>{configDirty=true;});$('api-form').addEventListener('change',()=>{configDirty=true;});$<HTMLInputElement>('api-model').addEventListener('input',()=>{configDirty=true;});
  $('chat-model-controls').addEventListener('input',()=>{selectionDirty=true;});$('chat-model-controls').addEventListener('change',()=>{selectionDirty=true;});
  chatModel.onchange=()=>{$<HTMLInputElement>('chat-model-id').value=chatModel.value;};
  const feedback=(s:string)=>$('model-choice-status').textContent=s;
@@ -15,7 +15,7 @@ export function installModelControls(post:(path:string,body:unknown)=>Promise<an
  const configurePrices=async(id:string)=>{const m=models.find(x=>x.id===id);if(m)await post('/api/costs',{action:'configure',inputUsdPerMillion:m.inputUsdPerMillion,outputUsdPerMillion:m.outputUsdPerMillion});};
  $('models-refresh').onclick=()=>void load();$('chat-models-refresh').onclick=()=>void load();
  provider.onchange=()=>{$('api-provider-warning').hidden=!!provider.value;document.querySelector('label[for=api-key]')!.textContent=provider.value==='openrouter'?'OpenRouter-API-Schlüssel':provider.value==='openai'?'OpenAI-API-Schlüssel':'API-Schlüssel des ausgewählten Anbieters';catalog.hidden=provider.value!=='openrouter';$('models-refresh').hidden=provider.value!=='openrouter';if(provider.value==='openrouter'){reasoning.value='medium';($<HTMLInputElement>('api-model')).value='openai/gpt-6.1-sol';void load();}else {reasoning.value='';($<HTMLInputElement>('api-model')).value='gpt-6.1-sol';}};
- catalog.onchange=()=>{if(catalog.value){$<HTMLInputElement>('api-model').value=catalog.value;if(!models.find(m=>m.id===catalog.value)?.reasoning)reasoning.value='';}};
+ catalog.onchange=()=>{if(catalog.value){configDirty=true;$<HTMLInputElement>('api-model').value=catalog.value;if(!models.find(m=>m.id===catalog.value)?.reasoning)reasoning.value='';}};
  $('model-apply').onclick=async()=>{
   const model=$<HTMLInputElement>('chat-model-id').value.trim()||chatModel.value||activeModel;if(!model)return;if(models.some(m=>m.id===model&&!m.reasoning))reasoning.value='';
   try{const r=await post('/api/model-config',{action:'select-model',provider:activeProvider,model,...(reasoning.value?{reasoning:reasoning.value}:{})});await configurePrices(model);activeModel=model;activeReasoning=reasoning.value;selectionDirty=false;await refresh();feedback(r.selectionPersistent===false?'Modell für dieses Fenster gewählt. Optionaler Passwortschutz bleibt erhalten; dauerhafte Speicherung über das Zugangsformular.':'Modell und Denkstufe gespeichert. Keine KI-Anfrage gestartet.');}catch(error){feedback(error instanceof Error?error.message:'Modellwahl nicht gespeichert. Aktiven Zugang prüfen.');}
