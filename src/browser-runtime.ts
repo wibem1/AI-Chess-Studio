@@ -156,7 +156,7 @@ export class BrowserRuntime {
 }
 
 /** Sol Responses often needs more than 15 seconds even when no reasoning level is selected. */
-export function providerTimeoutMs(config:{provider?:string;model:string;reasoning?:string}):number{
+export function providerTimeoutMs(config:LocalModelConfig):number{
  if(config.reasoning)return 90000;
  return needsResponses(config)?45000:15000;
 }
