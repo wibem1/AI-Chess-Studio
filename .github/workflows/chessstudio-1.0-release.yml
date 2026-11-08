@@ -1,4 +1,4 @@
-name: ChessStudio 1.0 - pruefen und veroeffentlichen
+name: ChessStudio Web-Release - pruefen und veroeffentlichen
 
 on:
   workflow_dispatch:
@@ -58,7 +58,7 @@ jobs:
       - name: Anlieferung an gh-pages autorisieren
         run: |
           git config --global credential.helper '!f() { echo username=x-access-token; echo "password=$GITHUB_TOKEN"; }; f'
-      - name: ChessStudio 1.0.0 auf gh-pages veroeffentlichen
+      - name: ChessStudio auf gh-pages veroeffentlichen
         run: node scripts/publish-pages.mjs
       - name: Deploymentstatus pruefen
         run: npm run check:pages
