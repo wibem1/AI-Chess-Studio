@@ -1,4 +1,4 @@
-name: ChessStudio Sol Responses regression (no deployment)
+name: ChessStudio Sol Responses transport and tools (no deployment)
 on:
   workflow_dispatch:
   push:
