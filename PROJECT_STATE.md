@@ -1,3 +1,24 @@
+# Vorbereitet: 1.0.0 – Bereinigter Lernablauf und stabile Brettsteuerung
+
+Noch nicht veröffentlicht. Freier KI-Chat und Schlüsselstellungen als Hauptablauf.
+Brettsteuerung unter dem Brett, kein erzwungenes Scrollen bei Brettaktionen;
+bei tatsächlichem Moduswechsel bleibt bewusste Navigation erhalten.
+Alte Analyse-/Gedanken-/Kommentarformulare und Simulationsauswahl samt Handlern
+entfernt. SimulationAdapter bleibt ausschließlich Kern-/Testfunktion; gespeicherte
+Simulationen, Reflexionen und Notizen werden weiterhin gelesen, keine Datenmigration.
+Modellwahl in Zugangseinstellungen verschoben. Diagnosebutton direkt erreichbar,
+konkreter Review-Prüfgrund zusätzlich im geschützten Diagnosebericht enthalten.
+Bretttoolbar eigenes Modul, main.ts um alte Handler und Demo-Verzweigungen bereinigt.
+
+Prüfung: 172 Einzeltests, 24 gezielte Browserfälle bestanden. Darunter OpenAI/
+OpenRouter-Modellwechsel mit Fixture-Transport, Diagnose ohne Schlüssel/Denktexte,
+echte Stockfish-/Maia-Spielantworten, Pages/Offline, PGN, Speichern/Laden von
+Analysen, Schlüsselstellen, Stellungsübergabe und Scrollgeometrie bei 820/1440px
+mit 125% Schrift. Keine bezahlten KI-Anfragen, keine native iPad-Abnahme.
+Der vollständige historische Browsertestbestand ist nicht als grün freigegeben;
+ältere Tests für entfernte Formulare/Simulation benötigen gesonderte Aktualisierung.
+Letzter veröffentlichter Stand bleibt 0.16.1. Frühere Einträge sind Historie.
+
 # Entwicklung 1.0: Brettsteuerung unter dem Brett, stabile Ansicht
 
 Neuer Nutzerauftrag vom 8. November: grundlegende Bereinigung fortsetzen,

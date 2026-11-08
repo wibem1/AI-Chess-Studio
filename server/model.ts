@@ -113,7 +113,7 @@ export class ModelService {
       if(request.hintMode==='question' && (!reply.openQuestions.length || reply.candidates.length))throw new Error('Unwanted solution');
       failureCode='review_format';if(retrospective)validateGameReview(reply.gameReview,request.history);
       trace.finish('accepted');return taggedReply(reply,this.config,envelope,trace.id);
-    } catch(error) { const code=error instanceof CoachFailure?error.code:failureCode;trace.finish('failed',code,httpStatus);throw new ApiError(502,(error instanceof ReviewValidationError?error.message:COACH_ERRORS[code])+' Keine neue Antwort gespeichert.',code); }
+    } catch(error) { const code=error instanceof CoachFailure?error.code:failureCode;trace.finish('failed',code,httpStatus,error instanceof ReviewValidationError?error.message:undefined);throw new ApiError(502,(error instanceof ReviewValidationError?error.message:COACH_ERRORS[code])+' Keine neue Antwort gespeichert.',code); }
     finally { this.busy = false; }
   }
 }

@@ -12,3 +12,9 @@ for(const width of [820,1440])test(`board controls stay below the board and pres
  }
  await expect(page.locator('#position-status')).toContainText('n0');await page.screenshot({path:`/tmp/chess-toolbar-${width}.png`,fullPage:true});
 });
+
+test('simplified learning has no legacy forms and diagnosis download is directly accessible',async({page})=>{
+ await page.goto('/?platform=web');await expect(page.locator('#workspace')).not.toHaveAttribute('inert','');await page.getByRole('tab',{name:'Lernmodus',exact:true}).click();
+ for(const id of ['memory-form','reflection-form','dialogue-begin','simulation-mode','dialogue-mode','session-json','session-file','analyse-game','analyse-position'])await expect(page.locator('#'+id)).toHaveCount(0);
+ await expect(page.locator('#ask')).toBeDisabled();await page.locator('#open-settings').click();await expect(page.locator('#ai-diagnose-export')).toBeVisible();
+});

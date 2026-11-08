@@ -20,7 +20,7 @@ export class ModelDiagnostics {
   return {id:record.id,
    sent:()=>Object.assign(record,{transportStartedAt:new Date().toISOString()}),
    received:(envelope:any,httpStatus:number)=>Object.assign(record,{httpStatus,response:this.clean({id:envelope?.id,model:envelope?.model,provider:envelope?.provider,usage:envelope?.usage,choices:envelope?.choices?.map((c:any)=>({finish_reason:c.finish_reason,message:{role:c.message?.role,content:c.message?.content,tool_calls:c.message?.tool_calls,refusal:c.message?.refusal}}))})}),
-   finish:(status:'accepted'|'failed',errorCode?:string,httpStatus?:number)=>Object.assign(record,{status,errorCode,httpStatus:httpStatus??(record as any).httpStatus,finishedAt:new Date().toISOString(),elapsedMs:Date.now()-time})
+   finish:(status:'accepted'|'failed',errorCode?:string,httpStatus?:number,validationDetail?:string)=>Object.assign(record,{status,errorCode,...(validationDetail?{validationDetail:this.clean(validationDetail)}:{}),httpStatus:httpStatus??(record as any).httpStatus,finishedAt:new Date().toISOString(),elapsedMs:Date.now()-time})
   };
  }
  export(extra:unknown={},secret=''){if(secret)this.secrets.add(secret);return this.clean({extra,schemaVersion:1,appVersion:APP_VERSION,exportedAt:new Date().toISOString(),scope:'Last 20 provider attempts since runtime start. No automatic chess-quality score. Credential-like values are redacted; private reasoning/continuation data is omitted.',requests:this.records});}
