@@ -1,4 +1,4 @@
-name: ChessStudio AI instructions and arrows verified (no deployment)
+name: ChessStudio optional Stockfish analysis and coaching preferences (no deployment)
 on:
   workflow_dispatch:
   push:
