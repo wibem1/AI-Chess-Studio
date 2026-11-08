@@ -6,6 +6,7 @@ test('failed provider request cannot present old demo or model answer as current
  await page.locator('#open-settings').click();
  await page.locator('#api-settings > summary').click();
  await page.locator('#api-provider').selectOption('openai');
+ await page.locator('#settings-model-section > summary').click();
  await page.locator('#api-model').fill('gpt-4.1-mini');
  await page.locator('#api-key').fill('fixture-no-real-key');
  await page.locator('#api-cost-consent').check();
