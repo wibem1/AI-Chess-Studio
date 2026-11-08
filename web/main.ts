@@ -18,7 +18,7 @@ import {installPwa} from './pwa.js';
 import { Chess, type Square } from 'chess.js';
 import { Studio, type DialogueTopic } from '../src/dialogue.js';
 import { ServerModelAdapter } from '../src/model-client.js';
-import { checkTactics, ServerTacticalAdapter } from '../src/tactics.js';
+import { checkTactics, ServerTacticalAdapter, validateTacticalReport, type TacticalReport } from '../src/tactics.js';
 import {BrowserTacticalAdapter} from '../src/browser-tactics.js';
 import {withStockfishAssessment} from '../src/stockfish-assist.js';
 import { LearningGame, ServerPlayingEngine, pathTo } from '../src/game.js';
@@ -41,7 +41,10 @@ installFontScale();
 const studio = new Studio();
 let generalAiInstructions='';
 let stockfishAssistEnabled=false;
-let stockfishAssessmentNode='';
+const stockfishCache=new Map<string,TacticalReport>();
+let stockfishVisibleFen='';
+let stockfishSearch:{fen:string;promise:Promise<TacticalReport>;cancel?:()=>void}|undefined;
+let stockfishSearchGeneration=0;
 let initialized=false;
 const autosave=new AutoSave(browserRuntime.store,()=>({json:studio.session.export(),question:text('question').value}),value=>message('autosave-status',value));
 const game=new LearningGame(()=>studio.session);
@@ -147,7 +150,7 @@ function render() {
   const data = studio.session.snapshot();
   const current = data.nodes.find(n => n.id === data.activeNodeId)!;
   const learningView=$('workspace').dataset.activeView==='learn';
-  $('stockfish-assist-result').hidden=!stockfishAssistEnabled||data.activeNodeId!==stockfishAssessmentNode;
+  $('stockfish-assist-settings').hidden=!learningView;
   if(illustration&&(illustration.session!==studio.session||illustration.node!==current.id||!learningView))illustration=undefined;
   const chess = new Chess(illustration?.diagram.fen??current.fen);
   $('diagram-toolbar').hidden=!illustration;
@@ -292,6 +295,7 @@ function render() {
   keyMoments.render();
   reviewUI.render(data);
   updateMode();
+  syncStockfishBoard();
   if(initialized&&isWebPlatform())void autosave.save().catch(()=>{});
 }
 installBoardToolbar();
@@ -311,22 +315,87 @@ $('learning-settings').hidden=true;
 $('panel-settings').append($('learning-settings'));
 $('diagram-close').onclick=()=>{chatStopped=true;studio.cancelAsk();coachBoard.cancel();activeAdapter?.cancel();illustration=undefined;render();};
 const keyMoments=installKeyMoments(()=>studio.session,node=>{match.stop('Schlüsselstelle ansehen.');game.analyse(node);illustration=undefined;selected=null;navigation.select('learn',false,true,false);render();});
+// A single visible switch directly under the learning board, not buried in settings.
+$('board').after($('stockfish-assist-settings'));
 const stockfishToggle=$<HTMLInputElement>('stockfish-assist-enabled'),stockfishStatus=$('stockfish-assist-status');
-void browserRuntime.store.getStockfishAssistEnabled().then(enabled=>{stockfishAssistEnabled=enabled;stockfishToggle.checked=enabled;stockfishStatus.textContent=enabled?'Aktiv: Stockfish wird vor deiner nächsten Lernfrage geprüft.':'Aus: KI antwortet ohne zusätzlichen Stockfish-Suchlauf.';}).catch(()=>{stockfishStatus.textContent='Einstellung konnte nicht gelesen werden; Faktencheck bleibt aus.';});
+const stockfishResult=$('stockfish-assist-result');
+function stopStockfishSearch(){
+ stockfishSearchGeneration++;
+ stockfishSearch?.cancel?.();
+ stockfishSearch=undefined;
+}
+async function getStockfishReport(fen:string):Promise<TacticalReport>{
+ const cached=stockfishCache.get(fen);
+ if(cached)return cached;
+ if(stockfishSearch?.fen===fen)return stockfishSearch.promise;
+ stopStockfishSearch();
+ const adapter=isWebPlatform()?new BrowserTacticalAdapter():new ServerTacticalAdapter(platformFetch);
+ const search={fen,promise:Promise.resolve(null) as unknown as Promise<TacticalReport>,cancel:adapter instanceof BrowserTacticalAdapter?()=>adapter.cancel():undefined};
+ search.promise=adapter.check(fen,null).then(raw=>{
+  const report=validateTacticalReport(raw,fen);
+  if(stockfishSearch===search){stockfishCache.set(fen,report);if(stockfishCache.size>40)stockfishCache.delete(stockfishCache.keys().next().value!);}
+  return report;
+ }).finally(()=>{if(stockfishSearch===search)stockfishSearch=undefined;});
+ stockfishSearch=search;
+ return search.promise;
+}
+function showStockfishReport(report:TacticalReport){
+ const score=report.score.unit==='cp'
+  ?(report.score.value>=0?'+':'')+(report.score.value/100).toFixed(2)
+  :report.score.value===0?'Mattbewertung 0':(report.score.value>0?'Matt für Weiß in ':'Matt für Schwarz in ')+Math.abs(report.score.value);
+ stockfishResult.textContent='Stockfish: '+score+(report.score.unit==='cp'?' Bauern (Weiß-Sicht)':'')+' · Tiefe '+report.depth+' · '+report.nodes+' Knoten\nHauptvariante: '+report.line.slice(0,8).join(' ');
+ stockfishResult.hidden=false;
+ stockfishStatus.textContent='Bewertung für die aktuelle Stellung.';
+}
+function syncStockfishBoard(){
+ const active=$('workspace').dataset.activeView==='learn'&&stockfishAssistEnabled;
+ if(!active){
+  if(stockfishVisibleFen){stockfishVisibleFen='';stopStockfishSearch();}
+  stockfishResult.hidden=true;
+  return;
+ }
+ const data=studio.session.snapshot(),fen=data.nodes.find(n=>n.id===data.activeNodeId)!.fen;
+ if(stockfishVisibleFen===fen)return;
+ stockfishVisibleFen=fen;
+ stockfishResult.hidden=true;
+ const board=new Chess(fen);
+ if(board.isGameOver()){stopStockfishSearch();stockfishStatus.textContent='Partie beendet. Für diese Stellung ist keine begrenzte Stockfish-Suche verfügbar.';return;}
+ const report=stockfishCache.get(fen);
+ if(report){showStockfishReport(report);return;}
+ stockfishStatus.textContent='Stockfish berechnet die aktuelle Stellung …';
+ const generation=++stockfishSearchGeneration;
+ void getStockfishReport(fen).then(result=>{
+  if(stockfishAssistEnabled&&$('workspace').dataset.activeView==='learn'&&stockfishVisibleFen===fen&&generation<=stockfishSearchGeneration)showStockfishReport(result);
+ }).catch(error=>{
+  if(stockfishAssistEnabled&&$('workspace').dataset.activeView==='learn'&&stockfishVisibleFen===fen)
+   stockfishStatus.textContent='Stockfish-Bewertung fehlgeschlagen: '+(error instanceof Error?error.message:'Engine nicht verfügbar.');
+ });
+}
+void browserRuntime.store.getStockfishAssistEnabled().then(enabled=>{
+ stockfishAssistEnabled=enabled;stockfishToggle.checked=enabled;
+ stockfishStatus.textContent=enabled?'Stockfish ist eingeschaltet.':'Stockfish ist ausgeschaltet.';
+ syncStockfishBoard();
+}).catch(()=>{stockfishStatus.textContent='Einstellung nicht lesbar; Stockfish bleibt aus.';});
 stockfishToggle.addEventListener('change',async()=>{
  const chosen=stockfishToggle.checked;
- try{await browserRuntime.store.setStockfishAssistEnabled(chosen);stockfishAssistEnabled=chosen;stockfishStatus.textContent=chosen?'Aktiv: Stockfish prüft vor der nächsten Lernfrage.':'Aus: Keine zusätzliche Engineprüfung für die KI.';}
- catch(error){stockfishToggle.checked=stockfishAssistEnabled;stockfishStatus.textContent=error instanceof Error?error.message:'Einstellung konnte nicht gespeichert werden.';}
+ try{
+  await browserRuntime.store.setStockfishAssistEnabled(chosen);
+  stockfishAssistEnabled=chosen;
+  stockfishStatus.textContent=chosen?'Stockfish wird gestartet …':'Stockfish ist ausgeschaltet.';
+  stockfishVisibleFen='';
+  if(!chosen)stopStockfishSearch();
+  syncStockfishBoard();
+ }catch(error){
+  stockfishToggle.checked=stockfishAssistEnabled;
+  stockfishStatus.textContent=error instanceof Error?error.message:'Einstellung konnte nicht gespeichert werden.';
+ }
 });
 const enrichWithStockfish=async(request:import('../src/dialogue.js').DialogueRequest)=>{
- if(!stockfishAssistEnabled)return request;
+ if(!stockfishAssistEnabled||request.topic!=='chat'||request.matchTest||request.toolExchanges?.length)return request;
  const session=studio.session,position=session.snapshot().nodes.find(n=>n.id===request.nodeId);
  if(!position||position.fen!==request.fen)throw new Error('Stellung während der Stockfish-Prüfung gewechselt. Keine KI-Anfrage gesendet.');
- if(request.topic==='chat'&&!request.matchTest&&!(request.toolExchanges?.length))message('dialogue-feedback','Stockfish prüft die aktuelle Stellung vor dem KI-Aufruf …');
- const adapter=isWebPlatform()?new BrowserTacticalAdapter():new ServerTacticalAdapter(platformFetch);
- const enriched=await withStockfishAssessment(request,adapter);
+ const enriched=await withStockfishAssessment(request,{check:(fen)=>getStockfishReport(fen)});
  if(session!==studio.session||session.snapshot().activeNodeId!==request.nodeId)throw new Error('Stellung während der Stockfish-Prüfung gewechselt. Keine KI-Anfrage gesendet.');
- if(enriched!==request){stockfishAssessmentNode=request.nodeId;message('stockfish-assist-result',enriched.context?.[0]??'');$('stockfish-assist-result').hidden=false;}
  return enriched;
 };
 const instructionsEditor=$<HTMLTextAreaElement>('general-ai-instructions');
@@ -363,7 +432,6 @@ $('dialogue-form').addEventListener('submit', async event => {
   const question = text('question').value,hintOverride=directAnalysisHint;directAnalysisHint=undefined;
   const session = studio.session,chatRevision=session.dialogueRevision();
   chatStopped=false;pending = true;updateMode();
-  $('stockfish-assist-result').hidden=true;stockfishAssessmentNode='';
   message('dialogue-feedback', 'Modellanfrage läuft … Stellungswechsel ist weiterhin möglich.');
   try {
     activeAdapter=new ServerModelAdapter(platformFetch,()=>generalAiInstructions,enrichWithStockfish);let toolStarted=false;
