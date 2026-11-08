@@ -498,3 +498,9 @@ footer span{display:none}
 #board-area .board-actions #coach-plan-bar{order:1}
 #board-area .board-actions #key-moment-nav{order:2;justify-content:flex-start}
 #board-area{overflow-anchor:none}
+
+/* Branch navigation: only meaningful alternatives, not a button for every move. */
+.variant-choices{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 14px}
+.variant-choices button{max-width:100%;white-space:normal;text-align:left;overflow-wrap:anywhere}
+.variant-choices button[aria-current=true]{background:var(--green);color:white}
+#panel-variants .variation-tree,#panel-variants .comparison{padding:12px}
