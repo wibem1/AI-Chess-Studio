@@ -84,7 +84,7 @@ export class ModelService {
     if (!this.status().available) throw new ApiError(403, 'Modellanbindung gesperrt oder nicht konfiguriert.');
     const request = parseRequest(raw);if(request.expectedModel&&request.expectedModel!==this.config.model)throw new ApiError(409,'Modell während des Testlaufs gewechselt.');
     if (this.busy) throw new ApiError(429, 'Eine Modellanfrage läuft bereits.');
-    const {turns=[],toolExchanges,...currentRequest}=request;
+    const {generalInstructions:_,turns=[],toolExchanges,...currentRequest}=request;
     const instructionsPrompt=promptWithUserInstructions(request.topic==='chat'?FREE_CHAT_PROMPT:SYSTEM_PROMPT,request.generalInstructions);
   const retrospective=request.topic==='review'&&(request.hintMode??'explain')==='explain',outputTokens=retrospective||request.topic==='chat'?1800:800;
     const body=JSON.stringify({model:this.config.model,...generationOptions(this.config,outputTokens),...providerToolFields(this.config,request),...(request.topic==='chat'?{}:{response_format:{type:'json_object'}}),
