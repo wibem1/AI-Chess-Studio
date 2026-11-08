@@ -1,4 +1,4 @@
-name: ChessStudio settings usability regression (no deployment)
+name: ChessStudio reorganized settings regression (no deployment)
 on:
   workflow_dispatch:
   push:
