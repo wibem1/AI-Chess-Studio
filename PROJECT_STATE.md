@@ -1,3 +1,11 @@
+# Veröffentlicht: 1.0.0 – 8. November 2026
+
+GitHub Actions Run 42463648023 erfolgreich abgeschlossen: https://github.com/wibem1/AI-Chess-Studio/actions/runs/42463648023
+Quelle: 0f888296faf472dd5893bc14bf9d98caade1e961, gh-pages: a8f2880a5bf98f4a45a2a852c17517a4d81eecbf.
+GitHub Pages-Metadaten (gh-pages/BUILD.json) melden Version 1.0.0, korrekten Quellcommit und 22 erfasste Webdateien. GitHub Actions bestätigte den erfolgreichen Pages-Deploymentstatus. Separater Abruf der Live-Binärdateien/Prüfsummen und native iPad-Abnahme sind nicht erfolgt.
+CI: Typprüfung, Build, 172/172 Einzeltests, Produktions-Build, 20/20 ausgewählte Browserfälle mit realen lokalen Stockfish-/Maia-Komponenten, Pages-Unterverzeichnis/Offlineprüfung bestanden. KI-Provider per Fixtures, kostenpflichtige Aufrufe deaktiviert; historische vollständige E2E-Suite nicht als vollständig grün bewertet.
+Die Version ist unter https://wibem1.github.io/AI-Chess-Studio/ bereitgestellt. Bei PWA-Cache ggf. Aktualisierung prüfen. Nutzerabnahme offen.
+
 # 1.0.0 in `work` integriert – Webveröffentlichung noch offen
 
 Am 8. November 2026 wurde PR #4 über den konfliktaufgelösten Merge-Commit d6934f27c60869fe7d11847475e727d505731264 in `work` integriert. Der Konflikt betraf nur PROJECT_STATE.md; der dokumentierte Veröffentlichungsnachweis zu 0.16.1 wurde erhalten. Geprüfter Entwicklungsstand laut PR: Typprüfung, Root-/Pages-Build, 172 Einzeltests und 24 gezielte Browserfälle; keine native iPad-Abnahme und kein vollständig aktualisierter historischer Browsertestlauf. Aktuelle Session konnte diese Prüfungen mangels lauffähiger Projektumgebung nicht erneut ausführen. GitHub Pages wurde NICHT für 1.0.0 gebaut oder aktualisiert; live bleibt 0.16.1. Nächster Arbeitsschritt ist der aktuelle `npm run build:pages` mit Prüfung und anschließender `gh-pages`-Bereitstellung samt Live-Manifestkontrolle. Keine ungetestete Webbereitstellung als erfolgt bezeichnen.
