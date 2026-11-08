@@ -1,4 +1,4 @@
-name: ChessStudio reviewed-move recovery regression (no deployment)
+name: ChessStudio review recovery integration check (no deployment)
 on:
   workflow_dispatch:
   push:
