@@ -1,3 +1,7 @@
+# 1.0.0 in `work` integriert – Webveröffentlichung noch offen
+
+Am 8. November 2026 wurde PR #4 über den konfliktaufgelösten Merge-Commit d6934f27c60869fe7d11847475e727d505731264 in `work` integriert. Der Konflikt betraf nur PROJECT_STATE.md; der dokumentierte Veröffentlichungsnachweis zu 0.16.1 wurde erhalten. Geprüfter Entwicklungsstand laut PR: Typprüfung, Root-/Pages-Build, 172 Einzeltests und 24 gezielte Browserfälle; keine native iPad-Abnahme und kein vollständig aktualisierter historischer Browsertestlauf. Aktuelle Session konnte diese Prüfungen mangels lauffähiger Projektumgebung nicht erneut ausführen. GitHub Pages wurde NICHT für 1.0.0 gebaut oder aktualisiert; live bleibt 0.16.1. Nächster Arbeitsschritt ist der aktuelle `npm run build:pages` mit Prüfung und anschließender `gh-pages`-Bereitstellung samt Live-Manifestkontrolle. Keine ungetestete Webbereitstellung als erfolgt bezeichnen.
+
 # Vorbereitet: 1.0.0 – Bereinigter Lernablauf und stabile Brettsteuerung
 
 Noch nicht veröffentlicht. Freier KI-Chat und Schlüsselstellungen als Hauptablauf.
