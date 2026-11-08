@@ -1,3 +1,17 @@
+# Entwicklung 1.0: Brettsteuerung unter dem Brett, stabile Ansicht
+
+Neuer Nutzerauftrag vom 8. November: grundlegende Bereinigung fortsetzen,
+Brettsteuerung unter das Brett, keine Ansichtssprünge durch Bedienung.
+Implementiert: eigener board-toolbar-Baustein für einheitliche Anordnung,
+Desktop-Sonderposition für Undo entfernt, erzwungenes Scrollen bei KI-Start und
+Schlüsselstellen entfernt; Navigation scrollt nur beim tatsächlichen Moduswechsel.
+Root-Build/Typprüfung bestanden; 8 Browserfälle mit Import/Analyse/Navigation
+bestanden. Zusätzliche 2 Geometrie-/Scrollfälle bei 820/1440px und 125% Schrift
+bestanden. Noch keine native iPad-Abnahme. Kein bezahlter KI-Aufruf.
+Noch keine 1.0-Freigabe oder Veröffentlichung. Die grundlegende restliche
+Code-/Formularbereinigung und vollständige aktualisierte Browserprüfung stehen aus.
+Letzter veröffentlichter Stand 0.16.1. Frühere Stände folgen als Historie.
+
 # Vorbereitet: 0.16.1
 
 171 Einzeltests und 8 gezielte Browserfälle bestanden; Root-/Pages-Build geprüft.

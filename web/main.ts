@@ -1,3 +1,4 @@
+import {installBoardToolbar} from './board-toolbar.js';
 import {attachAnswerResize} from './answer-resize.js';
 import {installKeyMoments} from './key-moments.js';
 import {reviewAnchors} from '../src/game-review.js';
@@ -295,22 +296,21 @@ function render() {
   updateMode();
   if(initialized&&isWebPlatform())void autosave.save().catch(()=>{});
 }
-const boardActionsBar=document.querySelector<HTMLElement>('.board-actions')!;
-boardActionsBar.append($('coach-match'),$('coach-plan-bar'),$('learn-back'),$('learn-next'));
+installBoardToolbar();
 $('learn-back').textContent='Zurück';$('learn-next').textContent='Vor';
 const studyTools=document.createElement('details');studyTools.id='study-tools';studyTools.className='tool-section';const studySummary=document.createElement('summary');studySummary.textContent='Weitere Werkzeuge';studyTools.append(studySummary);$('panel-learn').append(studyTools);studyTools.append($('tactical-form').closest('details')!,$('panel-variants'));
 const match=new CoachMatch(()=>studio.session,()=>{render();$('match-status').textContent=match.report?.message??'';if(match.report)message('dialogue-feedback',match.running?'KI-Testpartie läuft.':'KI-Testpartie beendet. Details stehen über dem Brett.');$<HTMLButtonElement>('match-start').disabled=!!match.running;$<HTMLButtonElement>('match-stop').disabled=!match.running;});
 $('match-start').addEventListener('click',async()=>{
  if(pending||!modelAvailable||!modelMode()){message('match-status','Aktiven eigenen KI-Zugang wählen; keine Simulation.');return;}
  game.pause();const snapshot=studio.session.snapshot(),saved=snapshot.game,fen=snapshot.nodes.find(n=>n.id===snapshot.activeNodeId)!.fen;const adapter=new ServerModelAdapter(platformFetch),opponent=saved?.opponent??$<HTMLSelectElement>('game-opponent').value as 'stockfish'|'maia';
- try{const identity=await diagnosticData();window.scrollTo({top:0,behavior:'instant'});await match.start({model:identity.model.model,color:new Chess(fen).turn(),opponent,level:saved?.level??Number($<HTMLSelectElement>('game-level').value),maxTurns:100},adapter,opponent==='maia'?new MaiaPlayingEngine(value=>message('match-status',value)):new BrowserPlayingEngine());}catch(error){message('match-status',error instanceof Error?error.message:'Teststart fehlgeschlagen.');}finally{for(const id of ['model-apply','api-connect','api-disconnect'])$<HTMLButtonElement>(id).disabled=false;await refreshCosts();}
+ try{const identity=await diagnosticData();await match.start({model:identity.model.model,color:new Chess(fen).turn(),opponent,level:saved?.level??Number($<HTMLSelectElement>('game-level').value),maxTurns:100},adapter,opponent==='maia'?new MaiaPlayingEngine(value=>message('match-status',value)):new BrowserPlayingEngine());}catch(error){message('match-status',error instanceof Error?error.message:'Teststart fehlgeschlagen.');}finally{for(const id of ['model-apply','api-connect','api-disconnect'])$<HTMLButtonElement>(id).disabled=false;await refreshCosts();}
 });
 $('match-stop').onclick=()=>{match.stop();render();message('match-status',match.report?.message??'Angehalten.');};
 $('ai-access-card').append($('chat-use-model'),$('chat-model-controls'));
 $('api-settings').prepend($('ai-access-card'));
 $('panel-settings').append($('learning-settings'));
 $('diagram-close').onclick=()=>{chatStopped=true;studio.cancelAsk();coachBoard.cancel();activeAdapter?.cancel();illustration=undefined;render();};
-const keyMoments=installKeyMoments(()=>studio.session,node=>{match.stop('Schlüsselstelle ansehen.');game.analyse(node);illustration=undefined;selected=null;navigation.select('learn',false,true,false);render();$('board').scrollIntoView({block:'start'});});
+const keyMoments=installKeyMoments(()=>studio.session,node=>{match.stop('Schlüsselstelle ansehen.');game.analyse(node);illustration=undefined;selected=null;navigation.select('learn',false,true,false);render();});
 const modelControls=installModelControls(localPost,async()=>{chooseModelMode('model');await refreshModelStatus();await refreshCosts();},()=>({nodeId:studio.session.snapshot().activeNodeId,fen:studio.session.snapshot().nodes.find(n=>n.id===studio.session.snapshot().activeNodeId)!.fen,testMatch:match.report,boardActions,environment:{userAgent:navigator.userAgent,viewport:{width:innerWidth,height:innerHeight},fontScale:$<HTMLSelectElement>('font-scale').value},feedback:$('dialogue-feedback').textContent}));
 $('move-form').addEventListener('submit', event => { event.preventDefault(); move(input('move').value.trim()); });
 $('memory-form').addEventListener('submit', event => {
@@ -520,10 +520,6 @@ async function startNewGame(){
 $('game-form').addEventListener('submit',event=>{event.preventDefault();void startNewGame();});
 $('open-game-setup').addEventListener('click',()=>{void startNewGame();});
 $('game-undo').addEventListener('click',()=>attempt(()=>game.takeBack(),'move-feedback','Dein letzter Zug wurde samt möglicher Engineantwort zurückgenommen. Der bisherige Verlauf bleibt als Variante erhalten.'));
-// Keep the desktop action visible above the full-height board; on touch, beside board controls.
-const desktopControls=matchMedia('(min-width:901px)');
-const dockUndo=()=>{const button=$('game-undo');if(desktopControls.matches)document.querySelector('.app-navigation')!.append(button);else document.querySelector('.board-actions')!.insertBefore(button,$('open-game-setup'));};
-desktopControls.addEventListener('change',dockUndo);dockUndo();
 $('game-opponent').addEventListener('change',()=>{
  game.pause();maiaEngine.cancel();const saved=studio.session.snapshot().game,opponent=$<HTMLSelectElement>('game-opponent').value as 'stockfish'|'maia';
  if(saved)studio.session.setGame({...saved,opponent,...(opponent==='maia'?{engine:'browser' as const}:{}),revision:saved.revision+1});
