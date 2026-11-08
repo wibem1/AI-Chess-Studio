@@ -6,15 +6,16 @@ export class ServerModelAdapter implements DialogueAdapter {
   readonly source = 'model' as const;
   private controller:AbortController|undefined;
   cancel(){this.controller?.abort();}
-  constructor(private transport:typeof fetch=(input,init)=>fetch(input,init),private preferences:()=>string=()=>'' ){}
+  constructor(private transport:typeof fetch=(input,init)=>fetch(input,init),private preferences:()=>string=()=>'',private enrich:(request:DialogueRequest)=>Promise<DialogueRequest>=async request=>request ){}
   async respond(request: DialogueRequest): Promise<unknown> {
     let response: Response;this.controller=new AbortController();
     try {
+      request = await this.enrich(request);
       response = await this.transport('/api/dialogue', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({...request,...(this.preferences().trim()?{generalInstructions:this.preferences().trim()}: {})}), signal: AbortSignal.any([this.controller.signal,AbortSignal.timeout(100_000)])
       });
-    } catch { throw new Error('Modellserver nicht erreichbar oder Zeitlimit überschritten.'); }
+    } catch(error) { throw new Error(error instanceof Error?error.message:'Modellserver nicht erreichbar oder Zeitlimit überschritten.'); }
     if(!response.ok){
       let code:unknown,detail:unknown;try{const body=await response.json();code=body.code;detail=body.error;}catch{}
       if(code==='review_format'&&typeof detail==='string'&&detail.startsWith('Analyse verworfen:'))throw new Error(detail.slice(0,1600));
