@@ -1,4 +1,4 @@
-name: ChessStudio reorganized settings regression (no deployment)
+name: ChessStudio settings final validation (no deployment)
 on:
   workflow_dispatch:
   push:
