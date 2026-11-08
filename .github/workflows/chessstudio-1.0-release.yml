@@ -37,7 +37,7 @@ jobs:
         run: npm ci
       - name: Chromium fuer Browsertests installieren
         run: npx playwright install --with-deps chromium
-      - name: Typpruefung
+      - name: Typpruefung fuer 1.0.1
         run: npm run check
       - name: Build und Einzeltests
         run: npm test
