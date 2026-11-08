@@ -6,13 +6,14 @@ import type {ProviderOptions} from './model-provider.js';
 export const needsResponses=(config:ProviderOptions&{model:string})=>
   (config.provider??'openai')==='openai'&&/^gpt-6(?:\.\d+)?(?:-sol|-terra|-luna|-astra)(?:-|$)/.test(config.model);
 
-export function createResponsesBody(config:ProviderOptions&{model:string},request:DialogueRequest,systemPrompt:string,current:unknown,turns:Array<{role:string;nodeId:string;fen?:string;text:string}>,maxTokens:number){
+export function createResponsesBody(config:ProviderOptions&{model:string},request:DialogueRequest,systemPrompt:string,current:unknown,turns:Array<{role:string;nodeId:string;fen?:string;text:string}>,maxTokens:number,reasoningByCall:ReadonlyMap<string,Record<string,unknown>[]> = new Map()){
  const input:Record<string,unknown>[]=[{role:'system',content:systemPrompt}];
  for(const turn of turns)input.push({role:turn.role,content:`[Stellung ${turn.nodeId}${turn.fen?`, FEN ${turn.fen}`:''}] ${turn.text}`});
  input.push({role:'user',content:JSON.stringify(current)});
  // Continuation is rebuilt from the locally validated results, never from an untrusted model script.
  for(const e of request.toolExchanges??[]){
   const call=parseCoachCall(e.call);
+  for(const item of reasoningByCall.get(call.id)??[])input.push(item);
   input.push({type:'function_call',call_id:call.id,name:call.function.name,arguments:call.function.arguments});
   input.push({type:'function_call_output',call_id:call.id,output:JSON.stringify(e.result)});
  }
@@ -47,4 +48,18 @@ export function normalizeResponses(envelope:any){
 function normalizeUsage(usage:any){
  if(!usage||!Number.isSafeInteger(usage.input_tokens)||!Number.isSafeInteger(usage.output_tokens))return undefined;
  return {prompt_tokens:usage.input_tokens,completion_tokens:usage.output_tokens};
+}
+
+/** Keep only opaque encrypted reasoning for a pending function call, in volatile memory. */
+export function encryptedReasoningForCall(envelope:any):{callId:string;items:Record<string,unknown>[]} | null{
+ if(!Array.isArray(envelope?.output))return null;
+ const calls=envelope.output.filter((item:any)=>item?.type==='function_call');
+ if(calls.length!==1||typeof calls[0].call_id!=='string')return null;
+ const items:Record<string,unknown>[]=[];
+ for(const item of envelope.output){
+  if(item?.type!=='reasoning'||typeof item.encrypted_content!=='string')continue;
+  if(item.encrypted_content.length>100000||items.length>=4)return null;
+  items.push({type:'reasoning',id:item.id,summary:[],encrypted_content:item.encrypted_content});
+ }
+ return {callId:calls[0].call_id,items};
 }
