@@ -504,3 +504,9 @@ footer span{display:none}
 .variant-choices button{max-width:100%;white-space:normal;text-align:left;overflow-wrap:anywhere}
 .variant-choices button[aria-current=true]{background:var(--green);color:white}
 #panel-variants .variation-tree,#panel-variants .comparison{padding:12px}
+
+/* Always make the provider choice obvious on narrow touch screens. */
+.provider-choice{display:grid;gap:8px;margin:14px 0 16px;padding:12px;border:1px solid var(--line);border-radius:12px;background:#f0f5ee}
+.provider-choice label{font-weight:700;color:var(--green)}
+.provider-choice select{display:block;width:100%;min-height:48px}
+.provider-choice p{margin:0;font-size:.82rem;line-height:1.45}
