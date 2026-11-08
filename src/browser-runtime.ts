@@ -133,7 +133,7 @@ export class BrowserRuntime {
    reserved=(await this.store.budget(l=>l.reserve(new TextEncoder().encode(body).length,JSON.parse(body).max_tokens??JSON.parse(body).max_completion_tokens??JSON.parse(body).max_output_tokens))).value;
    if(this.config!==config)throw new Error();
    started=true;
-   trace.sent();const response=await this.transport(providerBase(config)+(responses?'/responses':'/chat/completions'),{method:'POST',mode:'cors',credentials:'omit',referrerPolicy:'no-referrer',redirect:'error',headers:{Authorization:'Bearer '+config.apiKey,'Content-Type':'application/json'},body,signal:AbortSignal.any([AbortSignal.timeout(config.reasoning?90000:15000),...(signal?[signal]:[])])});
+   trace.sent();const response=await this.transport(providerBase(config)+(responses?'/responses':'/chat/completions'),{method:'POST',mode:'cors',credentials:'omit',referrerPolicy:'no-referrer',redirect:'error',headers:{Authorization:'Bearer '+config.apiKey,'Content-Type':'application/json'},body,signal:AbortSignal.any([requestTimeout,...(signal?[signal]:[])])});
    httpStatus=response.status;
    if(!response.ok){await response.body?.cancel();throw new CoachFailure(providerFailure(response.status));}
    failureCode='provider_format';
@@ -153,4 +153,10 @@ export class BrowserRuntime {
    throw new ApiError(502,(error instanceof ReviewValidationError?error.message:COACH_ERRORS[code])+statusHint+' Keine neue Antwort gespeichert. Die Kostenschätzung bleibt bei unklarer Nutzung bestehen.',code);
   }finally{this.busy=false;}
  }
+}
+
+/** Sol Responses often needs more than 15 seconds even when no reasoning level is selected. */
+export function providerTimeoutMs(config:{provider?:string;model:string;reasoning?:string}):number{
+ if(config.reasoning)return 90000;
+ return needsResponses(config)?45000:15000;
 }
