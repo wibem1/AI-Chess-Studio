@@ -37,6 +37,7 @@ document.getElementById('app-version')!.textContent = `Version ${APP_VERSION}`;
 document.title = `AI-Chess-Studio ${APP_VERSION}`;
 installFontScale();
 const studio = new Studio();
+let generalAiInstructions='';
 let initialized=false;
 const autosave=new AutoSave(browserRuntime.store,()=>({json:studio.session.export(),question:text('question').value}),value=>message('autosave-status',value));
 const game=new LearningGame(()=>studio.session);
@@ -294,7 +295,7 @@ const studyTools=document.createElement('details');studyTools.id='study-tools';s
 const match=new CoachMatch(()=>studio.session,()=>{render();$('match-status').textContent=match.report?.message??'';if(match.report)message('dialogue-feedback',match.running?'KI-Testpartie läuft.':'KI-Testpartie beendet. Details stehen unter dem Brett.');$<HTMLButtonElement>('match-start').disabled=!!match.running;$<HTMLButtonElement>('match-stop').disabled=!match.running;});
 $('match-start').addEventListener('click',async()=>{
  if(pending||!modelAvailable){message('match-status','Aktiven eigenen KI-Zugang wählen; keine Simulation.');return;}
- game.pause();const snapshot=studio.session.snapshot(),saved=snapshot.game,fen=snapshot.nodes.find(n=>n.id===snapshot.activeNodeId)!.fen;const adapter=new ServerModelAdapter(platformFetch),opponent=saved?.opponent??$<HTMLSelectElement>('game-opponent').value as 'stockfish'|'maia';
+ game.pause();const snapshot=studio.session.snapshot(),saved=snapshot.game,fen=snapshot.nodes.find(n=>n.id===snapshot.activeNodeId)!.fen;const adapter=new ServerModelAdapter(platformFetch,()=>generalAiInstructions),opponent=saved?.opponent??$<HTMLSelectElement>('game-opponent').value as 'stockfish'|'maia';
  try{const identity=await diagnosticData();await match.start({model:identity.model.model,color:new Chess(fen).turn(),opponent,level:saved?.level??Number($<HTMLSelectElement>('game-level').value),maxTurns:100},adapter,opponent==='maia'?new MaiaPlayingEngine(value=>message('match-status',value)):new BrowserPlayingEngine());}catch(error){message('match-status',error instanceof Error?error.message:'Teststart fehlgeschlagen.');}finally{for(const id of ['model-apply','api-connect','api-disconnect'])$<HTMLButtonElement>(id).disabled=false;await refreshCosts();}
 });
 $('match-stop').onclick=()=>{match.stop();render();message('match-status',match.report?.message??'Angehalten.');};
@@ -305,6 +306,18 @@ $('learning-settings').hidden=true;
 $('panel-settings').append($('learning-settings'));
 $('diagram-close').onclick=()=>{chatStopped=true;studio.cancelAsk();coachBoard.cancel();activeAdapter?.cancel();illustration=undefined;render();};
 const keyMoments=installKeyMoments(()=>studio.session,node=>{match.stop('Schlüsselstelle ansehen.');game.analyse(node);illustration=undefined;selected=null;navigation.select('learn',false,true,false);render();});
+const instructionsEditor=$<HTMLTextAreaElement>('general-ai-instructions');
+const instructionsStatus=$('general-ai-instructions-status');
+void browserRuntime.store.getGeneralInstructions().then(saved=>{generalAiInstructions=saved;instructionsEditor.value=saved;instructionsStatus.textContent=saved?'Gespeicherte Anweisungen geladen.':'Noch keine allgemeinen Anweisungen gespeichert.';}).catch(()=>{instructionsStatus.textContent='Gerätespeicher nicht lesbar. Anweisungen können hier nicht geladen werden.';});
+$<HTMLButtonElement>('save-general-ai-instructions').addEventListener('click',async()=>{
+ const value=instructionsEditor.value.trim();
+ try{await browserRuntime.store.setGeneralInstructions(value);generalAiInstructions=value;instructionsStatus.textContent=value?'Allgemeine KI-Anweisungen gespeichert. Sie gelten ab der nächsten KI-Anfrage.':'Allgemeine KI-Anweisungen gelöscht.';}
+ catch(error){instructionsStatus.textContent=error instanceof Error?error.message:'Speichern fehlgeschlagen.';}
+});
+$<HTMLButtonElement>('clear-general-ai-instructions').addEventListener('click',async()=>{
+ try{await browserRuntime.store.setGeneralInstructions('');generalAiInstructions='';instructionsEditor.value='';instructionsStatus.textContent='Allgemeine KI-Anweisungen gelöscht.';}
+ catch(error){instructionsStatus.textContent=error instanceof Error?error.message:'Löschen fehlgeschlagen.';}
+});
 const modelControls=installModelControls(localPost,async()=>{updateMode();await refreshModelStatus();await refreshCosts();},()=>({nodeId:studio.session.snapshot().activeNodeId,fen:studio.session.snapshot().nodes.find(n=>n.id===studio.session.snapshot().activeNodeId)!.fen,testMatch:match.report,boardActions,environment:{userAgent:navigator.userAgent,viewport:{width:innerWidth,height:innerHeight},fontScale:$<HTMLSelectElement>('font-scale').value},feedback:$('dialogue-feedback').textContent}));
 $('move-form').addEventListener('submit', event => { event.preventDefault(); move(input('move').value.trim()); });
 $('coach-show-plan').addEventListener('click',()=>{
