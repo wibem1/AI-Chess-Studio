@@ -27,3 +27,14 @@ test('invalid engine report blocks paid request rather than inventing a score',a
  const adapter:TacticalAdapter={async check(){return {...report,fen:'wrong'}}};
  await assert.rejects(withStockfishAssessment(base,adapter),/Ungültiger Stockfish-Befund/);
 });
+
+test('paid model transport receives verified Stockfish context only when enabled',async()=>{
+ const {ServerModelAdapter}=await import('../src/model-client.js');
+ let providerCalls=0;
+ const transport=(async(_url,options)=>{providerCalls++;const payload=JSON.parse(String(options!.body));assert.match(payload.context[0],/Stockfish-Faktencheck/);return new Response(JSON.stringify({message:'Geprüft'}));}) as typeof fetch;
+ const model=new ServerModelAdapter(transport,()=>'',request=>withStockfishAssessment(request,{async check(){return report;}}));
+ await model.respond(base);assert.equal(providerCalls,1);
+ const rejected=new ServerModelAdapter(transport,()=>'',request=>withStockfishAssessment(request,{async check(){return {...report,score:{...report.score,value:Number.NaN}};}}));
+ await assert.rejects(rejected.respond(base),/Ungültiger Stockfish-Befund/);
+ assert.equal(providerCalls,1);
+});
