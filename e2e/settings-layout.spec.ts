@@ -6,7 +6,7 @@ test('settings have separate functional sections and keep controls associated',a
  await expect(page.locator('#workspace')).not.toHaveAttribute('inert','');
  await page.locator('#open-settings').click();
  await expect(page.locator('#panel-settings')).toBeVisible();
- const items=page.locator('#panel-settings > details.panel > summary');
+ const items=page.locator('#panel-settings > details.panel:not([hidden]) > summary');
  await expect(items).toHaveText([
   'KI-Modell und Denkstufe',
   'KI-Kosten und Preisannahmen',
