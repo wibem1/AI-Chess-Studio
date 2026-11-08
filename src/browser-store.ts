@@ -34,6 +34,23 @@ export class BrowserStore {
    tx.oncomplete=()=>resolve();tx.onerror=tx.onabort=()=>reject(new Error('Lokale Daten konnten nicht gelöscht werden.'));
   });
  }
+ /** User-wide coaching preferences, independent of party exports and API credentials. */
+ async getGeneralInstructions():Promise<string>{
+  const db=await this.database();return new Promise((resolve,reject)=>{
+   const tx=db.transaction('session','readonly'),request=tx.objectStore('session').get('general-instructions');
+   request.onsuccess=()=>resolve(typeof request.result==='string'?request.result:'');
+   request.onerror=()=>reject(new Error('Allgemeine KI-Anweisungen konnten nicht gelesen werden.'));
+  });
+ }
+ async setGeneralInstructions(value:string):Promise<void>{
+  if(typeof value!=='string'||value.length>2000)throw new Error('Höchstens 2.000 Zeichen für allgemeine KI-Anweisungen.');
+  const db=await this.database();return new Promise((resolve,reject)=>{
+   const tx=db.transaction('session','readwrite'),store=tx.objectStore('session');
+   if(value.trim())store.put(value.trim(),'general-instructions');else store.delete('general-instructions');
+   tx.oncomplete=()=>resolve();
+   tx.onerror=tx.onabort=()=>reject(new Error('Allgemeine KI-Anweisungen konnten nicht gespeichert werden.'));
+  });
+ }
  /** Separate key in the existing store: no database upgrade or session replacement. */
  async savedGames(add?:SavedGame):Promise<SavedGame[]>{
   const db=await this.database();return new Promise((resolve,reject)=>{
