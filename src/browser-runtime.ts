@@ -144,7 +144,8 @@ export class BrowserRuntime {
   }catch(error){
    if(!started){trace.finish('failed','accounting');throw new ApiError(402,'Verbrauch konnte nicht gespeichert werden.');}
    const code=error instanceof CoachFailure?error.code:failureCode;trace.finish('failed',code,httpStatus,error instanceof ReviewValidationError?error.message:undefined);
-   throw new ApiError(502,(error instanceof ReviewValidationError?error.message:COACH_ERRORS[code])+' Keine neue Antwort gespeichert. Die Kostenschätzung bleibt bei unklarer Nutzung bestehen.',code);
+   const statusHint=code==='provider_http'&&httpStatus?` (HTTP ${httpStatus}${httpStatus===400||httpStatus===422?' · Anfrageparameter oder Modellunterstützung prüfen':httpStatus===404?' · Modell oder API-Endpunkt nicht gefunden':''})`:'';
+   throw new ApiError(502,(error instanceof ReviewValidationError?error.message:COACH_ERRORS[code])+statusHint+' Keine neue Antwort gespeichert. Die Kostenschätzung bleibt bei unklarer Nutzung bestehen.',code);
   }finally{this.busy=false;}
  }
 }
