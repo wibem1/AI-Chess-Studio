@@ -540,6 +540,7 @@ footer span{display:none}
 
 /* Compact Stockfish ribbon directly below the board: leave the learning chat in view. */
 #board-area #stockfish-assist-settings{order:0;display:flex;align-items:center;justify-content:flex-start;flex-wrap:wrap;gap:4px 12px;width:min(100%,560px);align-self:center;margin:-7px auto 5px;padding:5px 9px;border:1px solid var(--line);border-radius:9px;background:var(--paper);font-size:.78rem}
+#board-area #stockfish-assist-settings[hidden],#stockfish-assist-details[hidden],#stockfish-assist-status[hidden],#stockfish-assist-result[hidden]{display:none!important}
 #stockfish-assist-settings .stockfish-board-switch{margin:0;display:inline-flex;align-items:center;gap:6px;font-size:.78rem;cursor:pointer;white-space:nowrap}
 #stockfish-assist-settings input{width:16px;height:16px;flex:none}
 #stockfish-assist-status{margin:0;font-size:.75rem;line-height:1.3;flex:1 1 160px}
