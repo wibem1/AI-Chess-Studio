@@ -140,3 +140,24 @@ test('OpenRouter selection preserves optional password vault and can restore def
  const store=new MemoryStore(),runtime=new BrowserRuntime(store);await runtime.handle('/api/model-config','POST',{action:'connect',enabled:true,apiKey:'fixture-or-key',model:'openai/gpt-6.1-sol',provider:'openrouter',reasoning:'high',password,allowPaid:true});const vault=await store.get('vault');
  const changed=await runtime.handle('/api/model-config','POST',{action:'select-model',provider:'openrouter',model:'google/gemini-4-argon'});assert.equal(changed.selectionPersistent,false);assert.deepEqual(await store.get('vault'),vault);const d=await runtime.handle('/api/diagnostics','GET');assert.equal(d.model.reasoning,null);assert.equal(d.model.model,'google/gemini-4-argon');
 });
+
+test('temporary IndexedDB read failure does not permanently forget an encrypted saved key',async()=>{
+ const store=new MemoryStore();
+ const saved=new BrowserRuntime(store);
+ await saved.handle('/api/model-config','POST',{action:'connect',...config,allowPaid:true});
+ class OnceUnavailableStore extends MemoryStore {
+  reads=0;
+  override async get<T>(name:'vault'|'budget'|'session'):Promise<T|null>{
+   if(name==='vault'&&this.reads++===0)throw new Error('Temporary IndexedDB read failure');
+   return super.get<T>(name);
+  }
+ }
+ const unstable=new OnceUnavailableStore();
+ await unstable.put('vault',await store.get('vault'));
+ const runtime=new BrowserRuntime(unstable);
+ await assert.rejects(runtime.status(),/Temporary IndexedDB/);
+ // A subsequent status read must try the original encrypted record again.
+ assert.equal((await runtime.status()).available,true);
+ assert.equal((await runtime.status()).saved,true);
+ assert.deepEqual(await unstable.get('vault'),await store.get('vault'));
+});
