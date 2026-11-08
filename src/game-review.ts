@@ -29,7 +29,7 @@ export function asksForGameReview(question:string):boolean {
  return asksForKeyMoments(question)||/\b(?:analysier\w*|besprich|untersuch\w*|beurteil\w*)\s+(?:(?:bitte|mir)\s+)*(?:(?:das|die|mein(?:e)?|dieses?|gesamte|ganze|bisherige)\s+)*(?:spiel|partie)\b/iu.test(question);
 }
 export class ReviewValidationError extends Error {}
-export function validateGameReview(raw:unknown,history:{rootFen:string;moves:string[];truncated:boolean}|undefined):GameReview {
+export function validateGameReview(raw:unknown,history:{rootFen:string;moves:string[];truncated:boolean}|undefined,sanitizeInvalidAlternatives=false):GameReview {
  if(!history || history.truncated || !history.moves.length)throw new ReviewValidationError('Analyse verworfen: Die vollständige Zugfolge fehlt.');
  const r=raw as GameReview|undefined;
  const text=(s:unknown,max:number)=>typeof s==='string'&&s.trim().length>0&&s.length<=max;
@@ -37,17 +37,24 @@ export function validateGameReview(raw:unknown,history:{rootFen:string;moves:str
  const board=new Chess(history.rootFen),before:string[]=[];
  for(const san of history.moves){before.push(board.fen());board.move(san);}
  const problems:string[]=[];
+ const safeMoments:GameReview['moments']=[];
  let previous=0;
  for(const m of r.moments){
   if(!m||!Number.isInteger(m.ply)||m.ply<=previous||m.ply>before.length||m.played!==history.moves[m.ply-1]||!text(m.explanation,1000)||!text(m.reason,700)||typeof m.alternative!=='string'){problems.push('Eine Schlüsselstellung enthält einen ungültigen Bezug zur Zugfolge oder eine fehlende Beschreibung.');continue;}
   const position=new Chess(before[m.ply-1]!);
-  if(m.alternative && (m.alternative===m.played||!position.moves().includes(m.alternative))){const label=`${position.fen().split(' ')[5]}${position.turn()==='b'?'…':'.'} ${m.played}`;problems.push(`Bei ${label}: Der Alternativzug ${/^[a-zA-Z0-9=+#-]{1,16}$/.test(m.alternative)?m.alternative:'(ungültige Schreibweise)'} ist nicht legal oder entspricht dem gespielten Zug.`);}
+  if(m.alternative && (m.alternative===m.played||!position.moves().includes(m.alternative))){
+   const label=`${position.fen().split(' ')[5]}${position.turn()==='b'?'…':'.'} ${m.played}`;
+   if(sanitizeInvalidAlternatives){
+    // Keep the checked historic move and its description, never a bogus alternative or its rationale.
+    safeMoments.push({...m,alternative:'',reason:'Der KI-Vorschlag für einen Alternativzug war in dieser Stellung nicht legal und wurde entfernt. Ein anderer Zug wurde nicht geprüft.'});
+   }else problems.push(`Bei ${label}: Der Alternativzug ${/^[a-zA-Z0-9=+#-]{1,16}$/.test(m.alternative)?m.alternative:'(ungültige Schreibweise)'} ist nicht legal oder entspricht dem gespielten Zug.`);
+  }else safeMoments.push({...m});
   previous=m.ply;
  }
  if(problems.length)throw new ReviewValidationError('Analyse verworfen: '+problems.join(' '));
  // A retrospective must discuss the path to the result, not only the last move.
  if(history.moves.length>=8 && r.moments.every(m=>m.ply>history.moves.length-2))throw new ReviewValidationError('Analyse verworfen: Alle Schlüsselstellungen betreffen nur die Schlusszüge (letzten beiden Halbzüge).');
- return r;
+ return sanitizeInvalidAlternatives?{...r,moments:safeMoments}:r;
 }
 export function formatGameReview(r:GameReview,history:{rootFen:string;moves:string[]}):string {
  const board=new Chess(history.rootFen),labels:string[]=[];
