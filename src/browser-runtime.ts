@@ -145,7 +145,7 @@ export class BrowserRuntime {
    failureCode='reply_format';
    const reply=normalizeModelReply(decodeModelContent(envelope.choices[0].message.content,request.topic!=='chat'),request.legalMoves);
    if(!reply.message?.trim()||request.hintMode==='question'&&(!reply.openQuestions.length||reply.candidates.length))throw new Error();
-   failureCode='review_format';if(retrospective)validateGameReview(reply.gameReview,request.history);
+   failureCode='review_format';if(retrospective)reply.gameReview=validateGameReview(reply.gameReview,request.history,true);
    trace.finish('accepted');return taggedReply(reply,config,envelope,trace.id);
   }catch(error){
    if(!started){trace.finish('failed','accounting');throw new ApiError(402,'Verbrauch konnte nicht gespeichert werden.');}
