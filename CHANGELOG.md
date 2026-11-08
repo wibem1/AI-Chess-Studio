@@ -1,5 +1,13 @@
 # Änderungen
 
+## 1.0.4 – Sol 6.1: robuste Antwortfrist und Abbruchdiagnose (8. November 2026)
+
+- Direkte OpenAI-Sol-Responses-Aufrufe ohne eingestellte Denkstufe dürfen bis zu 45 statt 15 Sekunden dauern; bei eingestellter Denkstufe weiterhin 90 Sekunden.
+- Selbstausgelöste Zeitüberschreitungen nur bei tatsächlich abgebrochenen Aufrufen als solche benennen; Netzwerk-/Antwortfehler und manuelle Abbrüche unterscheiden.
+- Keine automatische Wiederholung fehlgeschlagener oder abgebrochener Modellanfragen; mögliche Kosten bleiben vorsichtshalber ungeklärt.
+- Schlüsselfach, Partien, Modellwahl und bestehende Anbietertransporte unverändert; zusätzliche Tests mit simulierten Abbrüchen, keine kostenpflichtigen Modellanfragen.
+
+
 ## 1.0.3 – Einstellungen neu geordnet und KI-Fehler besser erkannt (8. November 2026)
 
 - KI-Anbieter und API-Schlüssel, KI-Modell und Denkstufe, Kosten, Sitzungen, Updates und Diagnose als eigenständige Einstellungsbereiche.
