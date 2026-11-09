@@ -1,0 +1,39 @@
+name: Chess Studio 1.5 – verify strategy branch (no deployment)
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feat/human-strategic-analysis-1-5
+    paths:
+      - .github/workflows/chessstudio-1-5-verify.yml
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      CI: "true"
+      CHESS_ENABLE_PAID_API: "0"
+    steps:
+      - name: Checkout exact feature branch
+        uses: actions/checkout@v4
+      - name: Install Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+      - name: Install pinned dependencies
+        run: npm ci
+      - name: TypeScript check
+        run: npm run check
+      - name: Compile and run full Node test suite
+        run: npm test
+      - name: Build web app without publishing
+        run: npm run build:pages
+      - name: Install Chromium for browser tests
+        run: npx playwright install --with-deps chromium
+      - name: Browser regression tests (no deployment)
+        run: npx playwright test
