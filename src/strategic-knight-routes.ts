@@ -1,6 +1,7 @@
 import {Chess,type Square} from 'chess.js';
 import type {StrategicSide} from './strategic-features.js';
 import {localExchange} from './strategic-exchange.js';
+import {immediateReplyAlerts,type ImmediateReplyAlert} from './strategic-reply-alerts.js';
 
 /** Static knight regrouping only. Future moves are NOT a legal variation against resistance. */
 export interface KnightRoute {
@@ -12,6 +13,7 @@ export interface KnightRoute {
  hops:number;
  contestedSquares:string[]; // numerically covered, NOT tactically certified
  firstHopCaptureReplies?:string[]; // concrete legal capture moves on first hop
+ firstHopForcingReplies?:ImmediateReplyAlert[]; // concrete checks, major captures, promotion options (not an engine verdict)
  firstHopExchange?:{materialSwing:number;line:string[];maxCaptures:number}; // capture-only material bound, NOT position eval
  firstMove?:string; // legal SAN ONLY when this side is actually to move
  warning:'static_route_not_a_variation';
@@ -57,6 +59,7 @@ export function findKnightRoutes(fen:string):KnightRoute[] {
    const first=trial.moves({verbose:true}).find(m=>m.piece==='n'&&m.from===knightFrom&&m.to===to);
    if(!first)return {safe:false,captureReplies:[] as string[]};
    trial.move(first.san);
+   const forcing=immediateReplyAlerts(board.fen(),first.san);
    const immediateCaptures=trial.moves({verbose:true})
      .filter(m=>m.to===to&&m.captured==='n').map(m=>m.san);
    const result=localExchange(trial.fen(),to as Square,side,4);
@@ -64,6 +67,7 @@ export function findKnightRoutes(fen:string):KnightRoute[] {
    // can therefore be empty even when captures are perfectly legal.
    return {safe:result.materialSwing>=0,
      captureReplies:immediateCaptures.slice(0,3),
+     forcingReplies:forcing,
      exchange:result};
   };
   const targets=new Map<string,string>();
@@ -100,6 +104,7 @@ export function findKnightRoutes(fen:string):KnightRoute[] {
       const candidate:KnightRoute={side,from:knight.square,to:next,path:nextPath,supportingPawn:targets.get(next)!,hops:nextPath.length-1,contestedSquares,warning:'static_route_not_a_variation'};
       if(firstMove!==undefined)candidate.firstMove=firstMove;
       if(captureCheck.captureReplies.length)candidate.firstHopCaptureReplies=captureCheck.captureReplies;
+      if('forcingReplies' in captureCheck&&captureCheck.forcingReplies?.length)candidate.firstHopForcingReplies=captureCheck.forcingReplies;
       if('exchange' in captureCheck&&captureCheck.exchange)candidate.firstHopExchange={materialSwing:captureCheck.exchange.materialSwing,line:captureCheck.exchange.line,maxCaptures:captureCheck.exchange.maxCaptures};
       candidates.push(candidate);
      }

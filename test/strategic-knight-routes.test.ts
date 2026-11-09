@@ -85,3 +85,11 @@ test('no first-hop capture line is invented when the side to move is the opponen
  assert.equal(route.firstMove,undefined);
  assert.equal(route.firstHopCaptureReplies,undefined);
 });
+
+test('first-hop forcing checks are explicitly reported rather than conflated with captures on the knight square',()=>{
+ const fen='4k2r/8/8/8/2P5/8/8/1N2K3 w - - 0 1';
+ const route=findKnightRoutes(fen).find(r=>r.side==='w'&&r.path.join(',')==='b1,c3,d5');
+ assert.ok(route);
+ assert.ok(route.firstHopForcingReplies?.some(r=>r.san==='Rh1+'));
+ assert.equal(route.firstHopExchange?.status,undefined);
+});
