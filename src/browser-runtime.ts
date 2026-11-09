@@ -166,6 +166,6 @@ export function classifyRequestFailure(error:unknown,deadlineExpired:boolean,use
 }
 export function providerTimeoutMs(config:LocalModelConfig,retrospective=false):number{
  if(config.reasoning)return 90000;
- if(needsResponses(config))return retrospective?90000:45000;
+ if(needsResponses(config))return 90000;
  return 15000;
 }
