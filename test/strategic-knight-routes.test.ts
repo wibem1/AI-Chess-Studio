@@ -48,3 +48,22 @@ test('enemy bishop controls c3 as a transit square, so b1-c3-d5 is rejected',()=
  const fen='4k3/8/5b2/8/2P5/8/8/1N2K3 w - - 0 1';
  assert.equal(findKnightRoutes(fen).some(r=>r.side==='w'&&r.path.join(',')==='b1,c3,d5'),false);
 });
+
+test('a contested transit square with two independent defenders remains conditional, not automatically discarded',()=>{
+ const fen='4k3/8/5b2/8/2P5/8/3P4/1NR1K3 w - - 0 1';
+ const route=findKnightRoutes(fen).find(r=>r.side==='w'&&r.path.join(',')==='b1,c3,d5');
+ assert.ok(route);
+ assert.ok(route.contestedSquares.includes('c3'));
+ assert.equal(route.warning,'static_route_not_a_variation');
+ const plan=strategicPlans(fen).plans.find(p=>p.goal==='improve_knight_outpost'&&p.side==='w');
+ assert.ok(plan);
+ assert.ok(plan.prerequisites.some(p=>p.includes('Zählung allein')));
+});
+test('an equally contested transit square with only one independent defender is rejected',()=>{
+ const fen='4k3/8/5b2/8/2P5/8/8/1NR1K3 w - - 0 1';
+ assert.equal(findKnightRoutes(fen).some(r=>r.path.join(',')==='b1,c3,d5'),false);
+});
+test('pawn attacks remain a veto for a long-term knight outpost despite support',()=>{
+ const fen='4k3/8/2p5/8/2P5/8/3P4/1NR1K3 w - - 0 1';
+ assert.equal(findKnightRoutes(fen).some(r=>r.side==='w'&&r.to==='d5'),false);
+});

@@ -9,6 +9,7 @@ export interface KnightRoute {
  path:string[];
  supportingPawn:string;
  hops:number;
+ contestedSquares:string[]; // numerically covered, NOT tactically certified
  firstMove?:string; // legal SAN ONLY when this side is actually to move
  warning:'static_route_not_a_variation';
 }
@@ -30,9 +31,21 @@ export function findKnightRoutes(fen:string):KnightRoute[] {
  for(const side of ['w','b'] as const){
   const pawns=pieces.filter(p=>p.type==='p'&&p.color===side);
   const direction=side==='w'?1:-1;
-  // Unlike the earlier pawn-only screen, account for every opposing piece.
-  // This is a deliberately conservative static screen, not a tactical proof.
-  const contested=(sq:string)=>board.isAttacked(sq as Square,enemy(side));
+  // Count all attackers and defenders (chess.js uses pseudo-attacks, including
+  // pinned pieces). A contested field is admitted only with CLEARLY more
+  // independent defenders, excluding the knight that is itself traveling.
+  // Pawn attacks stay vetoes for a long-term knight home regardless of counts.
+  const pawnAttack=(sq:string)=>pieces.some(p=>p.color===enemy(side)&&p.type==='p'&&
+    Math.abs(file(p.square)-file(sq))===1&&rank(sq)===rank(p.square)-direction);
+  const contest=(sq:string,travellingKnight:string)=>{
+   const attackers=board.attackers(sq as Square,enemy(side));
+   const defenders=board.attackers(sq as Square,side).filter(from=>from!==travellingKnight);
+   return {attackers:attackers.length,defenders:defenders.length,enemyPawn:pawnAttack(sq)};
+  };
+  const eligible=(sq:string,travellingKnight:string)=>{
+   const c=contest(sq,travellingKnight);
+   return !c.enemyPawn&&(c.attackers===0||c.defenders>c.attackers);
+  };
   const targets=new Map<string,string>();
   for(const pawn of pawns){
    for(const delta of [-1,1]){
@@ -40,7 +53,7 @@ export function findKnightRoutes(fen:string):KnightRoute[] {
     if(f<0||f>7||r<1||r>8)continue;
     if(side==='w'?r<5:r>4)continue;
     const sq=square(f,r);
-    if(!occupied.has(sq)&&!contested(sq))targets.set(sq,pawn.square);
+    if(!occupied.has(sq))targets.set(sq,pawn.square);
    }
   }
   const knights=pieces.filter(p=>p.type==='n'&&p.color===side);
@@ -51,7 +64,7 @@ export function findKnightRoutes(fen:string):KnightRoute[] {
     const path=frontier[head]!.path,here=path[path.length-1]!;
     if(path.length>3)continue; // <=2 moves; no long static fantasy routes
     for(const next of knightSteps(here)){
-     if(path.includes(next)||occupied.has(next)||contested(next))continue;
+     if(path.includes(next)||occupied.has(next)||!eligible(next,knight.square))continue;
      const first=path.length===1?next:path[1]!;
      let firstMove:string|undefined;
      if(board.turn()===side){
@@ -61,7 +74,8 @@ export function findKnightRoutes(fen:string):KnightRoute[] {
      }
      const nextPath=[...path,next];
      if(targets.has(next)&&nextPath.length>=2){
-      const candidate:KnightRoute={side,from:knight.square,to:next,path:nextPath,supportingPawn:targets.get(next)!,hops:nextPath.length-1,warning:'static_route_not_a_variation'};
+      const contestedSquares=nextPath.slice(1).filter(sq=>contest(sq,knight.square).attackers>0);
+      const candidate:KnightRoute={side,from:knight.square,to:next,path:nextPath,supportingPawn:targets.get(next)!,hops:nextPath.length-1,contestedSquares,warning:'static_route_not_a_variation'};
       if(firstMove!==undefined)candidate.firstMove=firstMove;
       candidates.push(candidate);
      }
@@ -69,10 +83,9 @@ export function findKnightRoutes(fen:string):KnightRoute[] {
     }
    }
   }
-  // A static route deliberately avoids any currently attacked transit square.
- // Future enemy replies can still invalidate every step.
- // Among short routes, favor a central supported destination.
-  candidates.sort((a,b)=>a.hops-b.hops||Math.abs(file(a.to)-3.5)-Math.abs(file(b.to)-3.5)||a.to.localeCompare(b.to)||a.from.localeCompare(b.from));
+  // Prefer uncontested routes. An extra defender is not an exchange proof:
+  // defenders may be pinned, or an opponent may begin a tactical sequence.
+  candidates.sort((a,b)=>a.contestedSquares.length-b.contestedSquares.length||a.hops-b.hops||Math.abs(file(a.to)-3.5)-Math.abs(file(b.to)-3.5)||a.to.localeCompare(b.to)||a.from.localeCompare(b.from));
   if(candidates.length)output.push(candidates[0]!);
  }
  return output;

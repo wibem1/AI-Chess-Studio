@@ -124,13 +124,13 @@ export function strategicPlans(fen:string):StrategicPlanReport {
   for(const route of findKnightRoutes(board.fen()).filter(r=>r.side===side)){
    const via=route.path.join('–');
    out.push({side,goal:'improve_knight_outpost',target:route.to,evidence:[...route.path,route.supportingPawn],
-     supportingObservations:[`Springerweg ${via}`,`Eigener Bauer auf ${route.supportingPawn} kontrolliert ${route.to}`,`Keine gegnerische Bauernattacke auf ${route.to} in der aktuellen Stellung`],
+     supportingObservations:[`Springerweg ${via}`,`Eigener Bauer auf ${route.supportingPawn} kontrolliert ${route.to}`,`Keine gegnerische Bauernattacke auf ${route.to} in der aktuellen Stellung`,...(route.contestedSquares.length?[`Umkämpfte, rechnerisch stärker gedeckte Felder: ${route.contestedSquares.join(', ')}. Das ist keine taktische Sicherheitsgarantie.`]:[])],
      ...(route.firstMove?{candidateMove:route.firstMove}:{}),
      stages:[`Den von ${route.supportingPawn} gestützten Vorposten ${route.to} als mögliches Ziel erkennen.`,
        `Springer über ${via} heranführen, aber vor jeder Etappe neue Drohungen und gegnerische Antworten prüfen.`,
        `Erst nach sicherer Besetzung von ${route.to} untersuchen, welche gegnerischen Felder und Figuren der Springer tatsächlich einschränkt.`],
      prerequisites:[`Der Weg ${via} ist nur eine statische Feldfolge, nicht als vollständige Zugvariante gegen Gegenspiel geprüft.`,
-       'Zwischen den Springerzügen hat der Gegner eigene Züge; nach jedem Zug die Route erneut validieren.'],
+       'Zwischen den Springerzügen hat der Gegner eigene Züge; nach jedem Zug die Route erneut validieren.',...(route.contestedSquares.length?[`Angreifer, Verteidiger und mögliche Schlagfolgen auf ${route.contestedSquares.join(', ')} konkret prüfen. Die Zählung allein beweist keine Sicherheit.`]:[])]],
      possibleDefense:['Der Gegner kann Zwischenfelder kontrollieren, den Stützbauern angreifen oder die Stellung durch Abtausch verändern.'],
      practicalDifficulty:'Mehrere Züge mit unabhängigen gegnerischen Antworten; Vorposten kann unterwegs taktisch unbrauchbar werden.',
      status:'candidate_not_verified'});
