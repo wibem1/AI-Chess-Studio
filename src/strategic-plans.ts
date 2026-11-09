@@ -1,5 +1,5 @@
-import {Chess} from 'chess.js';
-import type {StrategicSide} from './strategic-features.js';
+import {Chess,type Square} from 'chess.js';
+import {strategicFeatures,type StrategicSide} from './strategic-features.js';
 
 /**
  * Human-scale planning inspired by the evidence -> plan -> scheme separation in
@@ -68,6 +68,7 @@ export function strategicPlans(fen:string):StrategicPlanReport {
  const board=new Chess(fen);
  const pieces=board.board().flat().filter((p):p is NonNullable<typeof p>=>p!==null) as Piece[];
  const out:HumanStrategicPlan[]=[];
+ const features=strategicFeatures(board.fen());
  const pawnPieces=pieces.filter(p=>p.type==='p');
  // Immediate king safety and forced game endings outrank long-range strategy.
  if(board.inCheck()||board.isGameOver())return {fen:board.fen(),method:'human_plan_hypotheses_v1',engineUsed:false,warning:'Akute Schachlage oder Spielende: keine ungesicherten langfristigen Pläne; zuerst die konkrete Königssicherheit beziehungsweise das Partieergebnis klären.',plans:[]};
@@ -80,7 +81,16 @@ export function strategicPlans(fen:string):StrategicPlanReport {
    const rook=pieces.find(p=>p.color===side&&p.type==='r'&&
      p.square[0]===target[0]&&directLineClear(pieces,p.square,target));
    if(!rook)continue;
+   // Synthesize related independent findings, following Kibitz's plan-clustering
+   // *idea*, but do not elevate this evidence to a tactical verdict.
    const supporters=[`Isolierter gegnerischer Bauer ${target}`,`Ungestörte Turmlinie ${rook.square}–${target}`];
+   if(features.observations.some(o=>o.side===side&&o.kind==='half_open_file'&&o.squares.includes(rook.square)))
+    supporters.push(`Halboffene ${target[0]}-Linie ohne eigenen Bauern`);
+   const defended=board.isAttacked(target as Square,enemy);
+   const defenderFact=defended
+      ?`Der Bauer ${target} wird durch mindestens eine gegnerische Figur oder einen gegnerischen Bauern gedeckt; deren Abtausch oder Ablenkung prüfen.`
+      :`Eine unmittelbare gegnerische Deckung des Bauern ${target} ist im statischen Angriffsbild nicht erkennbar; taktische Zwischenzüge trotzdem prüfen.`;
+   supporters.push(defenderFact);
    const friendlyAdditional=pieces.filter(p=>p.color===side&&p.type==='r'&&p.square!==rook.square).length;
    if(friendlyAdditional) supporters.push('Ein weiterer Turm ist für mögliche Verdopplung vorhanden');
    out.push({side,goal:'pressure_isolated_pawn',target,evidence:[rook.square,target],
@@ -88,8 +98,8 @@ export function strategicPlans(fen:string):StrategicPlanReport {
     stages:[`Den isolierten gegnerischen Bauern ${target} als mögliches langfristiges Ziel identifizieren; der Turm auf ${rook.square} hat eine freie Linie dorthin.`,
        `Die Verteidiger von ${target} untersuchen und erst danach zusätzliche Figuren in günstige Stellungen führen.`,
        `Nur bei ausreichender Deckung und sicherer Zugfolge den Angriff auf ${target} verstärken oder einen günstigen Abtausch anstreben.`],
-    prerequisites:['Aktuelle gegnerische Verteidiger, Gegenschlag und die Zugfolge prüfen.','Beachten, ob der Angriff auf den Bauern den eigenen König oder eine andere Figur gefährdet.'],
-    possibleDefense:[`Der Gegner kann ${target} durch Figuren verteidigen oder den Bauern vorrücken.`,'Aktive Drohungen auf der anderen Brettseite können die Vorbereitung überholen.'],
+    prerequisites:[defenderFact,'Gegenschläge, legale Zugfolge und mögliche Taktik prüfen.','Beachten, ob der Angriff auf den Bauern den eigenen König oder eine andere Figur gefährdet.'],
+    possibleDefense:[defended?`Der Bauer ${target} ist bereits gedeckt; der Gegner kann die Verteidigung verstärken oder abtauschen.`:`Der Gegner kann ${target} künftig decken oder den Bauern vorrücken.`,'Aktive Drohungen auf der anderen Brettseite können die Vorbereitung überholen.'],
     practicalDifficulty:'Langfristige Aufgabe mit möglichem Gegenspiel; ein offener Turmangriff ist kein garantierter Bauerngewinn.',
     status:'candidate_not_verified'});
   }

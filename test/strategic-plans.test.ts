@@ -85,3 +85,23 @@ test('in-check and terminal positions suppress speculative long-range plans',()=
  assert.equal(checked.inCheck(),true);
  assert.deepEqual(strategicPlans(checked.fen()).plans,[]);
 });
+
+test('Kibitz-inspired plan synthesis joins isolation, half-open file and actual target defense',()=>{
+ const fen='3rk3/8/8/3p4/8/8/8/3RK3 w - - 0 1';
+ const report=strategicPlans(fen);
+ const plan=report.plans.find(p=>p.side==='w'&&p.goal==='pressure_isolated_pawn');
+ assert.ok(plan);
+ assert.deepEqual(plan.evidence,['d1','d5']);
+ assert.ok(plan.supportingObservations?.some(s=>s.includes('Halboffene d-Linie')));
+ assert.ok(plan.supportingObservations?.some(s=>s.includes('gedeckt')));
+ assert.ok(plan.possibleDefense.some(s=>s.includes('bereits gedeckt')));
+ assert.equal(plan.status,'candidate_not_verified');
+});
+test('unprotected isolated pawn is described without inventing an automatic win',()=>{
+ const fen='4k3/8/8/3p4/8/8/8/3RK3 w - - 0 1';
+ const plan=strategicPlans(fen).plans.find(p=>p.goal==='pressure_isolated_pawn'&&p.side==='w');
+ assert.ok(plan);
+ assert.ok(plan.supportingObservations?.some(s=>s.includes('nicht erkennbar')));
+ assert.ok(plan.prerequisites.some(s=>s.includes('taktische')));
+ assert.equal(plan.status,'candidate_not_verified');
+});
