@@ -17,7 +17,7 @@ const corpus=[
  {id:'qgd-orthodox',description:'Abgelehntes Damengambit, Spannung im Zentrum',
   moves:['d4','d5','c4','e6','Nc3','Nf6','Bg5','Be7','e3','O-O','Nf3','h6','Bh4','b6','cxd5','exd5','Bd3','Bb7','O-O','Nbd7']},
  {id:'french-advance',description:'Französisch Vorstoß, Bauernketten',
-  moves:['e4','e6','d4','d5','e5','c5','c3','Nc6','Nf3','Qb6','Bd3','cxd4','cxd4','Bd7','O-O','Nxd4','Nxd4','Qxd4']},
+  moves:['e4','e6','d4','d5','e5','c5','c3','Nc6','Nf3','Qb6','Bd3','cxd4','cxd4','Bd7','O-O','Nxd4','Nxd4','Qxd4','Nc3','Qb6']},
  {id:'sicilian-najdorf-setup',description:'Sizilianische Najdorf-Struktur, Gegenangriff',
   moves:['e4','c5','Nf3','d6','d4','cxd4','Nxd4','Nf6','Nc3','a6','Be2','e5','Nb3','Be7','O-O','O-O','Be3','Be6','f4','Qc7']},
  {id:'caro-kann-classical',description:'Caro-Kann, klassische Struktur',
