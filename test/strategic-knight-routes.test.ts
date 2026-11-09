@@ -39,3 +39,12 @@ test('when opponent is to move the hypothetical knight route carries no claimed 
  const r=findKnightRoutes(fen).find(x=>x.side==='w');
  assert.ok(r);assert.equal(r.firstMove,undefined);
 });
+
+test('enemy rook control of the proposed outpost invalidates the knight route',()=>{
+ const fen='3rk3/8/8/8/2P5/8/8/1N2K3 w - - 0 1';
+ assert.equal(findKnightRoutes(fen).some(r=>r.side==='w'&&r.to==='d5'),false);
+});
+test('enemy bishop controls c3 as a transit square, so b1-c3-d5 is rejected',()=>{
+ const fen='4k3/8/5b2/8/2P5/8/8/1N2K3 w - - 0 1';
+ assert.equal(findKnightRoutes(fen).some(r=>r.side==='w'&&r.path.join(',')==='b1,c3,d5'),false);
+});

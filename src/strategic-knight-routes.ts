@@ -29,10 +29,10 @@ export function findKnightRoutes(fen:string):KnightRoute[] {
  const output:KnightRoute[]=[];
  for(const side of ['w','b'] as const){
   const pawns=pieces.filter(p=>p.type==='p'&&p.color===side);
-  const opposingPawns=pieces.filter(p=>p.type==='p'&&p.color===enemy(side));
   const direction=side==='w'?1:-1;
-  const attackedByEnemyPawn=(sq:string)=>opposingPawns.some(p=>
-    Math.abs(file(p.square)-file(sq))===1&&rank(sq)===rank(p.square)-direction);
+  // Unlike the earlier pawn-only screen, account for every opposing piece.
+  // This is a deliberately conservative static screen, not a tactical proof.
+  const contested=(sq:string)=>board.isAttacked(sq as Square,enemy(side));
   const targets=new Map<string,string>();
   for(const pawn of pawns){
    for(const delta of [-1,1]){
@@ -40,19 +40,18 @@ export function findKnightRoutes(fen:string):KnightRoute[] {
     if(f<0||f>7||r<1||r>8)continue;
     if(side==='w'?r<5:r>4)continue;
     const sq=square(f,r);
-    if(!occupied.has(sq)&&!attackedByEnemyPawn(sq))targets.set(sq,pawn.square);
+    if(!occupied.has(sq)&&!contested(sq))targets.set(sq,pawn.square);
    }
   }
   const knights=pieces.filter(p=>p.type==='n'&&p.color===side);
   const candidates:KnightRoute[]=[];
   for(const knight of knights){
    const frontier:Array<{path:string[]}>= [{path:[knight.square]}];
-   const visited=new Set<string>([knight.square]);
    for(let head=0;head<frontier.length;head++){
     const path=frontier[head]!.path,here=path[path.length-1]!;
     if(path.length>3)continue; // <=2 moves; no long static fantasy routes
     for(const next of knightSteps(here)){
-     if(visited.has(next)||occupied.has(next)||attackedByEnemyPawn(next))continue;
+     if(path.includes(next)||occupied.has(next)||contested(next))continue;
      const first=path.length===1?next:path[1]!;
      let firstMove:string|undefined;
      if(board.turn()===side){
@@ -66,12 +65,13 @@ export function findKnightRoutes(fen:string):KnightRoute[] {
       if(firstMove!==undefined)candidate.firstMove=firstMove;
       candidates.push(candidate);
      }
-     visited.add(next);
      if(nextPath.length<3)frontier.push({path:nextPath});
     }
    }
   }
-  // Longer routes are not stronger; favor an immediate and supported maneuver.
+  // A static route deliberately avoids any currently attacked transit square.
+ // Future enemy replies can still invalidate every step.
+ // Among short routes, favor a central supported destination.
   candidates.sort((a,b)=>a.hops-b.hops||Math.abs(file(a.to)-3.5)-Math.abs(file(b.to)-3.5)||a.to.localeCompare(b.to)||a.from.localeCompare(b.from));
   if(candidates.length)output.push(candidates[0]!);
  }
