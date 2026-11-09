@@ -1,4 +1,4 @@
-name: ChessStudio Stockfish in engine toolbar regression check (no deploy)
+name: ChessStudio engine toolbar verification after test correction (no deploy)
 on:
   workflow_dispatch:
   push:
