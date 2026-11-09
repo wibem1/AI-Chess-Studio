@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {Chess} from 'chess.js';
 import {strategicPlans} from '../src/strategic-plans.js';
 import {parseRequest} from '../src/model-contract.js';
+import {Studio,SimulationAdapter} from '../src/dialogue.js';
 
 test('initial position produces no fabricated strategic conquest or pawn lever',()=>{
  const r=strategicPlans(new Chess().fen());
@@ -52,4 +53,24 @@ test('model transport computes plans anew instead of trusting the sender',()=>{
  const r=parseRequest({nodeId:'n0',fen:c.fen(),question:'Plan?',legalMoves:c.moves(),context:[],strategicPlans:{plans:[{goal:'win_at_once'}]}});
  assert.deepEqual(r.strategicPlans?.plans,[]);
  assert.equal(r.strategicPlans?.engineUsed,false);
+});
+
+test('human-oriented plans are included in the real free dialogue request without an automatic engine score',async()=>{
+ const studio=new Studio();
+ await studio.ask('Welche langfristigen Pläne sind denkbar?',{
+  source:'simulation',respond:async request=>{
+   assert.equal(request.strategicPlans?.method,'human_plan_hypotheses_v1');
+   assert.equal(request.strategicPlans?.engineUsed,false);
+   assert.ok(new TextEncoder().encode(JSON.stringify(request)).byteLength<16000);
+   return new SimulationAdapter().respond(request);
+  }
+ },'chat');
+});
+test('candidate pawn move does not turn into a proven engine verdict',()=>{
+ const r=strategicPlans('4k3/8/8/3p4/8/8/4P3/4K3 w - - 0 1');
+ const p=r.plans.find(x=>x.goal==='prepare_pawn_break');
+ assert.ok(p);
+ assert.equal(p.status,'candidate_not_verified');
+ assert.equal('engineScore' in p,false);
+ assert.match(r.warning,/nicht auf taktische Sicherheit/);
 });
