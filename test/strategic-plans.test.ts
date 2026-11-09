@@ -40,7 +40,7 @@ test('a pawn-break proposal contains only a legal, unverified first move',()=>{
  assert.equal(p.candidateMove,'e4');
  assert.ok(new Chess(fen).moves().includes(p.candidateMove!));
  assert.equal(p.status,'candidate_not_verified');
- assert.match(p.prerequisites.join(' '),/nicht.*taktische Haltbarkeit/);
+ assert.match(p.prerequisites.join(' '),/weder auf taktische Haltbarkeit noch auf strategischen Nutzen geprüft/);
 });
 test('a plan remains symmetric and bounded for both players',()=>{
  const fen='4k2r/8/8/3p4/8/8/8/3RK3 w - - 0 1';

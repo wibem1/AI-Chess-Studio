@@ -78,7 +78,7 @@ export function strategicFeatures(fen:string):StrategicFeatures {
   }
  }
  // Keep evidence from BOTH sides, avoiding a first-player bias in complex pawn structures.
- const priority:Record<StrategicKind,number>={king_pawn_shield:0,passed_pawn:1,supported_knight:2,isolated_pawn:3,doubled_pawns:4,open_file:5,half_open_file:6,minor_pieces_on_home_squares:7,bishop_pair:8};
+ const priority:Record<StrategicKind,number>={king_pawn_shield:0,doubled_pawns:1,supported_knight:2,passed_pawn:3,isolated_pawn:4,open_file:5,half_open_file:6,minor_pieces_on_home_squares:7,bishop_pair:8};
  const selected=(['w','b'] as const).flatMap(side=>observations.filter(o=>o.side===side).sort((a,b)=>priority[a.kind]-priority[b.kind]).slice(0,6));
  return {fen:board.fen(),method:'static_human_features_v1',engineUsed:false,limitations:'Brettmerkmale ohne Zugtiefensuche. Pläne sind prüfbedürftige Hypothesen, keine Stellungsbewertung, keine taktische Freigabe und keine nachgewiesenen besten Züge.',observations:selected};
 }
