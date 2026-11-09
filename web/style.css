@@ -467,7 +467,7 @@ footer span{display:none}
 /* Stable two-line match status, independent of which side is thinking. */
 #board-area .board-actions #coach-match{width:100%;flex:0 0 100%;display:grid;grid-template-columns:auto auto auto minmax(0,1fr);align-items:center;gap:4px 6px}
 #coach-match strong{white-space:nowrap}
-#coach-match #match-status{display:block;min-width:0;max-width:none;margin:0;height:2.8em;min-height:2.8em;max-height:2.8em;line-height:1.4;overflow:auto;font-size:.72rem;overflow-wrap:anywhere}
+#coach-match #match-status{display:block;grid-column:1/-1;min-width:0;max-width:100%;margin:0;height:1.5em;min-height:1.5em;max-height:1.5em;line-height:1.5;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.72rem}
 #match-status:empty{display:block}
 #board-area .board-actions #learn-back,#board-area .board-actions #learn-next{order:-1;min-width:58px}
 #board-area .board-actions #transfer-position{font-size:.73rem}

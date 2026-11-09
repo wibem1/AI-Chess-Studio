@@ -301,7 +301,24 @@ function render() {
 installBoardToolbar();
 $('learn-back').textContent='Zurück';$('learn-next').textContent='Vor';
 const studyTools=document.createElement('details');studyTools.id='study-tools';studyTools.className='tool-section';const studySummary=document.createElement('summary');studySummary.textContent='Weitere Werkzeuge';studyTools.append(studySummary);$('panel-learn').append(studyTools);studyTools.append($('tactical-form').closest('details')!,$('panel-variants'));
-const match=new CoachMatch(()=>studio.session,()=>{render();$('match-status').textContent=match.report?.message??'';if(match.report)message('dialogue-feedback',match.running?'KI-Testpartie läuft.':'KI-Testpartie beendet. Details stehen unter dem Brett.');$<HTMLButtonElement>('match-start').disabled=!!match.running;$<HTMLButtonElement>('match-stop').disabled=!match.running;});
+// Status updates must not rebuild 64 board squares or move the user's viewport.
+let lastMatchNode=studio.session.snapshot().activeNodeId;
+const match=new CoachMatch(()=>studio.session,()=>{
+ const node=studio.session.snapshot().activeNodeId;
+ if(node!==lastMatchNode){
+  const oldScrollY=window.scrollY,oldScrollX=window.scrollX;
+  render();
+  window.scrollTo({left:oldScrollX,top:oldScrollY,behavior:'instant'});
+  lastMatchNode=node;
+ }else updateMode();
+ const status=$('match-status');
+ status.textContent=match.report?.message??'';
+ status.title=status.textContent;
+ $<HTMLButtonElement>('match-start').disabled=!!match.running;
+ $<HTMLButtonElement>('match-stop').disabled=!match.running;
+ // Do not change a second chat message on every engine/model thinking phase.
+ if(match.report&&!match.running)message('dialogue-feedback','KI-Testpartie beendet. Details stehen in der Statuszeile.');
+});
 $('match-start').addEventListener('click',async()=>{
  if(pending||!modelAvailable){message('match-status','Aktiven eigenen KI-Zugang wählen; keine Simulation.');return;}
  game.pause();const snapshot=studio.session.snapshot(),saved=snapshot.game,fen=snapshot.nodes.find(n=>n.id===snapshot.activeNodeId)!.fen;const adapter=new ServerModelAdapter(platformFetch,()=>generalAiInstructions,enrichWithStockfish),opponent=saved?.opponent??$<HTMLSelectElement>('game-opponent').value as 'stockfish'|'maia';
