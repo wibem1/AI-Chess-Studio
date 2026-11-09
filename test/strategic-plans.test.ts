@@ -74,3 +74,14 @@ test('candidate pawn move does not turn into a proven engine verdict',()=>{
  assert.equal('engineScore' in p,false);
  assert.match(r.warning,/nicht auf taktische Sicherheit/);
 });
+
+test('in-check and terminal positions suppress speculative long-range plans',()=>{
+ const game=new Chess();
+ for(const move of ['f3','e5','g4','Qh4#'])game.move(move);
+ const result=strategicPlans(game.fen());
+ assert.deepEqual(result.plans,[]);
+ assert.match(result.warning,/Spielende/);
+ const checked=new Chess('4k3/8/8/8/8/8/4r3/4K3 w - - 0 1');
+ assert.equal(checked.inCheck(),true);
+ assert.deepEqual(strategicPlans(checked.fen()).plans,[]);
+});

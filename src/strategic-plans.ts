@@ -69,6 +69,8 @@ export function strategicPlans(fen:string):StrategicPlanReport {
  const pieces=board.board().flat().filter((p):p is NonNullable<typeof p>=>p!==null) as Piece[];
  const out:HumanStrategicPlan[]=[];
  const pawnPieces=pieces.filter(p=>p.type==='p');
+ // Immediate king safety and forced game endings outrank long-range strategy.
+ if(board.inCheck()||board.isGameOver())return {fen:board.fen(),method:'human_plan_hypotheses_v1',engineUsed:false,warning:'Akute Schachlage oder Spielende: keine ungesicherten langfristigen Pläne; zuerst die konkrete Königssicherheit beziehungsweise das Partieergebnis klären.',plans:[]};
  for(const side of ['w','b'] as const){
   const enemy=other(side);
   // Use all actual pawns, not the transport-limited six observations per side.
