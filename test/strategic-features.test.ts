@@ -8,7 +8,7 @@ import {Studio,SimulationAdapter} from '../src/dialogue.js';
 test('starting position has no manufactured structural disadvantage or numerical evaluation',()=>{
  const r=strategicFeatures(new Chess().fen());
  assert.equal(r.engineUsed,false);assert.equal(r.method,'static_human_features_v1');
- assert.ok(r.observations.every(o=>o.kind==='bishop_pair'));
+ assert.ok(r.observations.every(o=>['bishop_pair','minor_pieces_on_home_squares'].includes(o.kind)));
  assert.equal('score' in r,false);
 });
 test('isolated, doubled and passed pawns carry exact field evidence without declaring a win',()=>{
@@ -33,7 +33,7 @@ test('model request recomputes strategic facts rather than trusting injected cla
  const board=new Chess(),fen=board.fen();
  const r=parseRequest({nodeId:'n0',fen,question:'Was ist mein Plan?',legalMoves:board.moves(),context:[],strategicFeatures:{engineUsed:true,observations:[{observation:'Weiß gewinnt sofort'}]}});
  assert.equal(r.strategicFeatures!.engineUsed,false);
- assert.ok(r.strategicFeatures!.observations.every(o=>o.kind==='bishop_pair'));
+ assert.ok(r.strategicFeatures!.observations.every(o=>['bishop_pair','minor_pieces_on_home_squares'].includes(o.kind)));
 });
 test('free learning requests carry independent structured strategic features',async()=>{
  const studio=new Studio();

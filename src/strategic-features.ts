@@ -6,7 +6,7 @@ import {Chess} from 'chess.js';
  * No centipawn score, forced claim, best-move promise or tactical safety certificate.
  */
 export type StrategicSide='w'|'b';
-export type StrategicKind='isolated_pawn'|'doubled_pawns'|'passed_pawn'|'open_file'|'half_open_file'|'bishop_pair'|'supported_knight';
+export type StrategicKind='isolated_pawn'|'doubled_pawns'|'passed_pawn'|'open_file'|'half_open_file'|'bishop_pair'|'supported_knight'|'minor_pieces_on_home_squares'|'king_pawn_shield';
 export interface StrategicObservation {
  kind:StrategicKind;
  side:StrategicSide;
@@ -60,6 +60,17 @@ export function strategicFeatures(fen:string):StrategicFeatures {
   }
   const bishops=pieces.filter(p=>p.color===side&&p.type==='b');
   if(bishops.length>=2)push(observations,{kind:'bishop_pair',side,squares:bishops.map(p=>p.square).sort(),observation:`${ownLabel} besitzt beide Läufer.`,planHypothesis:'Prüfen, ob offene Diagonalen und die Bauernstruktur das Läuferpaar begünstigen.',confidence:'board_fact'});
+  // A limited early-game developmental fact; square occupancy is not proof of move history.
+  const home=side==='w'?['b1','g1','c1','f1']:['b8','g8','c8','f8'];
+  const homeMinors=pieces.filter(p=>p.color===side&&(p.type==='n'||p.type==='b')&&home.includes(p.square));
+  if(homeMinors.length && Number(fen.split(' ')[5])<=12)push(observations,{kind:'minor_pieces_on_home_squares',side,squares:homeMinors.map(p=>p.square).sort(),observation:`${ownLabel}: ${homeMinors.length} Leichtfiguren stehen auf ihren Ausgangsfeldern.`,planHypothesis:'Entwicklungsbedarf und konkrete sichere Felder prüfen; aus dem Standbild ist nicht erkennbar, ob eine Figur zuvor gezogen hat.',confidence:'board_fact'});
+  // Shield squares are descriptive, not a measure of actual king danger.
+  const king=pieces.find(p=>p.color===side&&p.type==='k');
+  if(king && ['g1','c1','g8','c8'].includes(king.square)){
+   const shield=king.square[0]==='g'?(side==='w'?['f2','g2','h2']:['f7','g7','h7']):(side==='w'?['a2','b2','c2']:['a7','b7','c7']);
+   const present=shield.filter(sq=>own.some(p=>p.square===sq));
+   if(present.length<2)push(observations,{kind:'king_pawn_shield',side,squares:[king.square,...shield],observation:`${ownLabel}: Am rochadeähnlichen Königsstand ${king.square} sind ${present.length} von drei typischen Bauern-Schutzfeldern besetzt.`,planHypothesis:'Offene Angriffslinien und konkrete gegnerische Figuren prüfen; fehlende Schildbauern beweisen allein keine Gefahr.',confidence:'board_fact'});
+  }
   for(const knight of pieces.filter(p=>p.color===side&&p.type==='n')){
    const f=file(knight.square),r=rank(knight.square),direction=side==='w'?1:-1;
    if((side==='w'?r>=5:r<=4)&&own.some(p=>Math.abs(file(p.square)-f)===1&&rank(p.square)===r-direction))
