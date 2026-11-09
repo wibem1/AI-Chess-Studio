@@ -25,6 +25,7 @@ test('own king moving onto the attacking file interrupts a previously open rook 
  const p=r.changes.find(x=>x.goal==='pressure_isolated_pawn'&&x.side==='w');
  assert.ok(p);
  assert.equal(p.change,'reconsider');
+ assert.match(p.reason,/Turmlinie.*d5.*d2/);
  assert.equal(new Chess(r.toFen).get('d2')?.type,'k');
 });
 test('an opponent move that interrupts a rook line triggers reconsideration',()=>{
