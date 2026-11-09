@@ -1,8 +1,8 @@
 # AI-Chess-Studio
 
-Aktueller Entwicklungsstand: **1.5.1 – Sol-Timeout-Korrektur** (Veröffentlichung nach erfolgreichem Release-Gate). Aktuelle öffentliche Testversion bis dahin: **1.5.0**.
+Aktuelle öffentliche Testversion: **1.5.1 – Sol-Timeout-Korrektur**.
 [Web-App öffnen](https://wibem1.github.io/AI-Chess-Studio/).
-**GitHub Pages für 1.5.0 erfolgreich bereitgestellt.** [Release-Prüfung](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42664206224) und [Pages-Deployment](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42664702644) bestanden; echte KI-Lehrqualität und native Geräteabnahme bleiben offen.
+**GitHub Pages für 1.5.1 erfolgreich bereitgestellt.** [Release-Prüfung](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42678170104) und [Pages-Deployment](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42678980782) bestanden; echte Sol-Provider-Antwort, KI-Lehrqualität und native Geräteabnahme bleiben offen.
 Änderungen: [CHANGELOG.md](CHANGELOG.md).
 
 **Neu in 1.5.0 (Testversion):** Menschlich-strategische Lernanalyse mit begrenzten Planhypothesen und Prüfung gegnerischen Gegenspiels. Unter **Einstellungen → Diagnose und Fehlerberichte** lässt sich ein manueller Vergleich echter KI-Erklärungen zu fünf Originalstellungen durchführen. Der Qualitätsvergleich startet keine KI-Anfrage von selbst; echte Schach-Lehrqualität und native Geräteabnahme bleiben offen. Technischer Prüfstand und Einschränkungen: [CHANGELOG.md](CHANGELOG.md).

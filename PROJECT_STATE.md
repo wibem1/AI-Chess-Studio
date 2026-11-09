@@ -1,3 +1,9 @@
+# Chess Studio 1.5.1 – Öffentliche Bereitstellung bestätigt (9. November 2026)
+
+**Freigabe:** Pull Request [#6](https://github.com/wibem1/AI-Chess-Studio/pull/6) nach `work` gemergt (Quellcommit `7a2971319050bea0d6f5a95cb436bb9da20e0bf8`). Der finale Kandidatenlauf [42677721080](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42677721080) war SUCCESS. Der Release-Lauf [42678170104](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42678170104) hat Typprüfung, Node-Tests, Chromium-Regression, Paketvorbereitung, gh-pages-Übertragung und Deploymentstatusprüfung erfolgreich abgeschlossen. Der Pages-Deploylauf [42678980782](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42678980782) ist SUCCESS, Commit `2a49f3ac9b7b8f2b88e0c5f768fa60c3d7b48e4c`. `gh-pages/BUILD.json` belegt Version **1.5.1**, Basis `/AI-Chess-Studio/` und Quellcommit `7a2971319050bea0d6f5a95cb436bb9da20e0bf8`.
+
+**Offen:** Praktischer Test mit echten Sol-Anfragen (90-s-Verhalten und schachliche Erklärung zu 18. Sd6) und native Geräteabnahme. Keine automatische Wiederholung oder Kosten aus diesem Release-Gate. Öffentliche App: https://wibem1.github.io/AI-Chess-Studio/ .
+
 # Release-Kandidat 1.5.1 – Sol-Timeout (9. November 2026)
 
 **Befund und Korrektur:** Die direkte OpenAI-Sol-Responses-Frist ohne explizite Denkstufe beträgt nun 90 s statt 45 s. Sonstige Anbieterfristen unverändert; keine automatische Wiederholung. Die Version ist in package.json und package-lock.json 1.5.1. Keine reale kostenpflichtige Modellabnahme.
