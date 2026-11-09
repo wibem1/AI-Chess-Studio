@@ -18,6 +18,12 @@ test('manual strategic-quality comparison loads original game, validates grades 
  await expect(page.locator('#strategic-quality-status')).toContainText('Fünf Originalstellungen geladen');
  await expect(page.locator('#strategic-quality-case option')).toHaveCount(5);
  await expect(page.locator('#strategic-quality-question')).toContainText('menschlich-strategischer Sicht');
+ await page.locator('#strategic-quality-prepare').click();
+ await expect(page.locator('#question')).toHaveValue('Erkläre mir die Stellung aus menschlich-strategischer Sicht. Was sind die wichtigsten Pläne beider Seiten, warum, und welche konkreten Gegenmaßnahmen sind denkbar?');
+ await expect(page.locator('#position-status')).toContainText('n10');
+ expect(modelRequests).toBe(0);
+ await page.locator('#open-settings').click();
+ await page.locator('#settings-diagnosis > summary').click();
  await page.locator('#strategic-quality-model').fill('Testmodell (keine echte KI)');
  await page.locator('#strategic-quality-thinking').fill('Test');
  await page.locator('#strategic-quality-response').fill('Testantwort ohne Modellanfrage.');

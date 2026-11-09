@@ -24,7 +24,7 @@ const add=(parent:HTMLElement,tag:string,value:string)=>{
 const limit=120000;
 
 /** Optional, user-operated evaluation panel. Never starts an AI or engine request. */
-export function installStrategicQualityUI(getSession:()=>Session):void {
+export function installStrategicQualityUI(getSession:()=>Session,prepareQuestion:(fen:string,question:string)=>void):void {
  const host=document.getElementById('settings-diagnosis');
  if(!host)return;
  const details=el<HTMLDetailsElement>('details'),summary=el<HTMLElement>('summary','Schachliche KI-Qualität vergleichen (manuell)');
@@ -36,6 +36,7 @@ export function installStrategicQualityUI(getSession:()=>Session):void {
  const caseSelect=el<HTMLSelectElement>('select');caseSelect.id='strategic-quality-case';details.append(caseSelect);
  const question=add(details,'p','');question.className='hint';question.id='strategic-quality-question';
  const evidence=add(details,'p','');evidence.className='hint';
+ const prepare=el<HTMLButtonElement>('button','Stellung und Prüffrage vorbereiten');prepare.type='button';prepare.id='strategic-quality-prepare';details.append(prepare);
  const modelLabel=add(details,'label','Modellbezeichnung');modelLabel.setAttribute('for','strategic-quality-model');
  const model=el<HTMLInputElement>('input');model.id='strategic-quality-model';model.maxLength=160;details.append(model);
  const thinkingLabel=add(details,'label','Denkstufe');thinkingLabel.setAttribute('for','strategic-quality-thinking');
@@ -124,6 +125,13 @@ export function installStrategicQualityUI(getSession:()=>Session):void {
   }catch(e){current=[];caseSelect.replaceChildren();question.textContent='';evidence.textContent='';sourceSelect.replaceChildren();status.textContent=e instanceof Error?e.message:'Partie nicht lesbar.';}
  };
  refresh.onclick=reload;caseSelect.onchange=showSelected;
+ prepare.onclick=()=>{
+  try{
+   const item=selected();if(!item)throw Error('Bitte zuerst eine geprüfte Schlüsselstellung laden.');
+   prepareQuestion(item.fen,item.question);
+   status.textContent='Stellung und Frage sind im Lernmodus vorbereitet. Erst „Senden“ startet eine kostenpflichtige KI-Anfrage.';
+  }catch(error){status.textContent=error instanceof Error?error.message:'Stellung konnte nicht vorbereitet werden.';}
+ };
  save.onclick=()=>{
   try{
    const item=selected();if(!item)throw Error('Zuerst eine geprüfte Schlüsselstellung laden.');
