@@ -1,5 +1,6 @@
 import type {Session} from '../src/session.js';
 import {parsePgn} from '../src/review.js';
+import {recordedModelAnswer} from '../src/evaluation-provenance.js';
 import {recordStrategicEvaluation,strategicEvaluationCase,
  STRATEGIC_EVALUATION_DIMENSIONS,type EvaluationRatings,type StrategicEvaluationCase,
  type StrategicEvaluationRecord} from '../src/strategic-evaluation.js';
@@ -96,7 +97,16 @@ export function installStrategicQualityUI(getSession:()=>Session,prepareQuestion
   entries.forEach((a,i)=>{const opt=el<HTMLOptionElement>('option','Modellantwort '+(i+1)+' · '+a.nodeId);opt.value=String(i);sourceSelect.append(opt);});
   sourceSelect.onchange=()=>{
    const n=Number(sourceSelect.value);
-   if(sourceSelect.value!==''&&entries[n])response.value=entries[n]!.text.slice(0,20000);
+   if(sourceSelect.value!==''&&entries[n]){
+    const parsed=recordedModelAnswer(entries[n]!.text);
+    response.value=parsed.response.slice(0,20000);
+    if(parsed.receiptPresent){model.value=parsed.model!;thinking.value=parsed.thinkingLevel!;
+     status.textContent='Modell und Denkstufe aus dem gespeicherten App-Nachweis übernommen; Angaben vor dem Vergleich prüfen.';
+    }else{
+     model.value='';thinking.value='';
+     status.textContent='Antwort übernommen, aber ohne zuordenbaren App-Modellnachweis. Modell und Denkstufe bitte selbst prüfen und eintragen.';
+    }
+   }
   };
  };
  const showSelected=()=>{
