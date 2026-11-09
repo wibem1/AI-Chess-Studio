@@ -1,5 +1,15 @@
 # Änderungen
 
+## 1.5.0 – Öffentliche Testversion: menschlich-strategische Analyse (9. November 2026)
+
+- Neue regelgeprüfte Strategiemerkmale und begrenzte, als Hypothesen gekennzeichnete Langfristpläne für beide Seiten; der Lern-KI werden Belege, Voraussetzungen und gegnerische Gegenmaßnahmen geliefert.
+- Springerstützpunkte mit kurzen Routen, legalem ersten Zug, begrenzter Material-Schlagfolge (bis zu vier Schläge) und gesonderten Warnungen zu unmittelbarem Schach, Großfigurenschlag und Umwandlung. Keine Behauptung einer vollständigen taktischen Prüfung oder einer sicheren Fortsetzung.
+- Reproduzierbarer Prüfstand mit sechs legalen Eröffnungsstrukturen und fünf kritischen Positionen aus einer echten Lichess-Partie; originale PGN wird nicht verändert.
+- Manuell zu bedienender Qualitätsvergleich unter Einstellungen → Diagnose und Fehlerberichte: Originalstellung und identische Strategiefrage vorbereiten, gespeicherte Antworten zur genau gleichen Frage übernehmen, Modell/Denkstufe soweit belegt erkennen, fünf begründete Teilbewertungen und expliziter JSON-Export/-Import.
+- Keine automatische Anfrage an kostenpflichtige KI-Anbieter, keine ungefragte Stockfish-Analyse durch diese Erweiterung. Die tatsächliche Qualität von KI-Erklärungen mit realen Providern und native Gerätefunktionen sind noch nicht abschließend abgenommen; deshalb **Testversion**.
+- Technischer Release-Kandidat: 262 Node-Tests sowie 12 fokussierte Chromium-Tests erfolgreich; vollständige Veröffentlichungsprüfung und GitHub-Pages-Livekontrolle sind vor Freigabe durchzuführen.
+
+
 ## 1.1.3 – Stabile KI-gegen-Engine-Anzeige und Stockfish in gemeinsamer Bedienzeile (9. November 2026)
 
 - Stockfish-Ein/Aus-Schalter, Bewertung und aufklappbare Variante stehen in der vorhandenen Zeile „KI gegen Engine“ neben Start und Stop. Die bisher separate Leiste unter dem Schachbrett entfällt.

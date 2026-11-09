@@ -1,4 +1,4 @@
-name: ChessStudio 1.1.3 - Lern-KI mit Stockfish und Anweisungen veroeffentlichen
+name: ChessStudio 1.5.0 - strategische Analyse (oeffentliche Testversion)
 
 on:
   workflow_dispatch:
@@ -11,7 +11,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: chessstudio-1-0-release
+  group: chessstudio-1-5-release
   cancel-in-progress: false
 
 jobs:
@@ -37,7 +37,7 @@ jobs:
         run: npm ci
       - name: Chromium fuer Browsertests installieren
         run: npx playwright install --with-deps chromium
-      - name: Typpruefung fuer 1.1.3
+      - name: Typpruefung fuer 1.5.0
         run: npm run check
       - name: Build und Einzeltests
         run: npm test
@@ -58,7 +58,8 @@ jobs:
             e2e/game-review.spec.ts \
             e2e/position-transfer.spec.ts \
             e2e/maia.spec.ts \
-            e2e/pages.spec.ts
+            e2e/pages.spec.ts \
+            e2e/strategic-quality.spec.ts
       - name: Build-Metadaten und Dateien vorbereiten
         run: node scripts/publish-pages.mjs --prepare-only
       - name: Anlieferung an gh-pages autorisieren

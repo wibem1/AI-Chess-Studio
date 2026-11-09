@@ -1,9 +1,11 @@
 # AI-Chess-Studio
 
-Aktueller veröffentlichter Funktionsstand: **0.15.0**.
+Aktueller Funktionsstand der Veröffentlichung: **1.5.0 – öffentliche Testversion**.
 [Web-App öffnen](https://wibem1.github.io/AI-Chess-Studio/).
-GitHub-Pages-Bereitstellung und Live-Dateiprüfsummen bestätigt.
+GitHub-Pages-Bereitstellung und Live-Version erst nach erfolgreichem Release-Workflow bestätigen.
 Änderungen: [CHANGELOG.md](CHANGELOG.md).
+
+**Neu in 1.5.0 (Testversion):** Menschlich-strategische Lernanalyse mit begrenzten Planhypothesen und Prüfung gegnerischen Gegenspiels. Unter **Einstellungen → Diagnose und Fehlerberichte** lässt sich ein manueller Vergleich echter KI-Erklärungen zu fünf Originalstellungen durchführen. Der Qualitätsvergleich startet keine KI-Anfrage von selbst; echte Schach-Lehrqualität und native Geräteabnahme bleiben offen. Technischer Prüfstand und Einschränkungen: [CHANGELOG.md](CHANGELOG.md).
 
 **0.15.0** ist veröffentlicht und live geprüft. Fremde Einzelpartien im
 **PGN-Format (.pgn)** über **Partien speichern und laden → Partiedatei laden**
