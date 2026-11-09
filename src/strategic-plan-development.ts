@@ -36,8 +36,21 @@ export function strategicPlanDevelopment(beforeFen:string,san:string):{
   const same=updated.some(p=>p.side===plan.side&&p.goal===plan.goal&&p.target===plan.target);
   if(same)return {side:plan.side,goal:plan.goal,target:plan.target,change:'still_candidate' as const,
    reason:'Das strategische Ziel ist nach dem gespielten Zug weiterhin als ungeprüfte Hypothese erkennbar; gegnerische Antworten und Taktik bleiben zu prüfen.'};
+  // Give a concrete reason when the original rook's file becomes obstructed.
+  // Do not confuse a blocked ray with tactical refutation or an engine verdict.
+  if(plan.goal==='pressure_isolated_pawn'){
+   const rookFrom=plan.evidence[0];
+   if(rookFrom && rookFrom[0]===plan.target[0]){
+    const r0=Number(rookFrom[1]),r1=Number(plan.target[1]);
+    const blocker=before.board().flat().find(p=>p &&
+      p.square[0]===rookFrom[0] && Number(p.square[1])>Math.min(r0,r1) &&
+      Number(p.square[1])<Math.max(r0,r1));
+    if(blocker)return {side:plan.side,goal:plan.goal,target:plan.target,change:'reconsider' as const,
+      reason:`Die ursprünglich freie Turmlinie zum Ziel ${plan.target} ist nun durch eine Figur auf ${blocker.square} blockiert. Die ursprüngliche Angriffsabsicht muss neu geprüft werden.`};
+   }
+  }
   return {side:plan.side,goal:plan.goal,target:plan.target,change:'reconsider' as const,
-    reason:'Die bisherigen Voraussetzungen reichen in der neuen Stellung nicht für denselben Hauptplan; neu analysieren statt die alte Empfehlung fortzuschreiben.'};
+    reason:'Der bisherige Plan ist nicht mehr der führende statische Kandidat dieser Seite. Das beweist keine Widerlegung; Voraussetzungen und Alternativen neu untersuchen.'};
  }).slice(0,2);
  return {fromFen,toFen,played:mv.san,engineUsed:false,changes};
 }
