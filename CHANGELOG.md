@@ -1,5 +1,13 @@
 # Änderungen
 
+## 1.5.1 – Sol-Timeout korrigiert (9. November 2026)
+
+- Direkte OpenAI-Sol-Responses-Anfragen erhalten auch ohne ausdrücklich gesetzte Denkstufe 90 statt 45 Sekunden. Andere Anbieter-/Modellfristen und die separate 100-s-Clientfrist bleiben unverändert.
+- Keine automatische Wiederholung fehlgeschlagener Anfragen, kein zusätzlicher kostenpflichtiger Anbieter-Test.
+- Regressionstest für die Timeout-Auswahl ergänzt; TypeScript, Node-Tests, Web-Build, Chromium-Regression und Paketmanifest auf dem Korrekturbranch durch GitHub Actions 42677136225 erfolgreich überprüft.
+- Eine tatsächliche Antwort des Sol-Anbieters innerhalb von 90 Sekunden ist nicht garantiert und noch nicht real getestet.
+
+
 ## 1.5.0 – Öffentliche Testversion: menschlich-strategische Analyse (9. November 2026)
 
 - Neue regelgeprüfte Strategiemerkmale und begrenzte, als Hypothesen gekennzeichnete Langfristpläne für beide Seiten; der Lern-KI werden Belege, Voraussetzungen und gegnerische Gegenmaßnahmen geliefert.
