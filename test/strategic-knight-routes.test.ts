@@ -91,5 +91,5 @@ test('first-hop forcing checks are explicitly reported rather than conflated wit
  const route=findKnightRoutes(fen).find(r=>r.side==='w'&&r.path.join(',')==='b1,c3,d5');
  assert.ok(route);
  assert.ok(route.firstHopForcingReplies?.some(r=>r.san==='Rh1+'));
- assert.equal(route.firstHopExchange?.status,undefined);
+ assert.equal(route.firstHopExchange?.materialSwing,0);
 });
