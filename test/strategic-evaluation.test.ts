@@ -44,5 +44,5 @@ test('manual human grading requires original FEN, actual model response and reas
  assert.throws(()=>recordStrategicEvaluation(item,{...input,fen:'invalid'}));
  assert.throws(()=>recordStrategicEvaluation(item,{...input,response:' '}));
  assert.throws(()=>recordStrategicEvaluation(item,{...input,ratings:{...ratings,boardAccuracy:{score:3,reason:' '}}}));
- assert.throws(()=>recordStrategicEvaluation(item,{...input,ratings:{...ratings,boardAccuracy:{score:4,reason:'Nicht erlaubt'}} as typeof ratings}));
+ assert.throws(()=>recordStrategicEvaluation(item,{...input,ratings:{...ratings,boardAccuracy:{score:4,reason:'Nicht erlaubt'}} as unknown as typeof ratings}));
 });
