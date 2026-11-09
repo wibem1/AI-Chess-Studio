@@ -1,6 +1,7 @@
 import type {Session} from '../src/session.js';
 import {parsePgn} from '../src/review.js';
 import {recordedModelAnswer} from '../src/evaluation-provenance.js';
+import {matchingStrategyAnswers} from '../src/strategic-answer-matching.js';
 import {recordStrategicEvaluation,strategicEvaluationCase,
  STRATEGIC_EVALUATION_DIMENSIONS,type EvaluationRatings,type StrategicEvaluationCase,
  type StrategicEvaluationRecord} from '../src/strategic-evaluation.js';
@@ -93,7 +94,7 @@ export function installStrategicQualityUI(getSession:()=>Session,prepareQuestion
   const snap=getSession().snapshot();
   const match=snap.nodes.filter(n=>n.fen===point.fen);
   const names=new Set(match.map(n=>n.id));
-  const entries=snap.annotations.filter(a=>a.kind==='dialogue'&&a.source==='model'&&names.has(a.nodeId));
+  const entries=matchingStrategyAnswers(snap.annotations,names);
   entries.forEach((a,i)=>{const opt=el<HTMLOptionElement>('option','Modellantwort '+(i+1)+' · '+a.nodeId);opt.value=String(i);sourceSelect.append(opt);});
   sourceSelect.onchange=()=>{
    const n=Number(sourceSelect.value);
