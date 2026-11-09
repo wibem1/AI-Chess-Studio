@@ -498,6 +498,8 @@ footer span{display:none}
 #board-area .board-actions #coach-plan-bar{order:1}
 #board-area .board-actions #key-moment-nav{order:2;justify-content:flex-start}
 #board-area{overflow-anchor:none}
+/* Prevent browser scroll anchoring from moving the viewport as live match statuses update. */
+html:has(#workspace[data-active-view=learn]),body:has(#workspace[data-active-view=learn]){overflow-anchor:none}
 
 /* Branch navigation: only meaningful alternatives, not a button for every move. */
 .variant-choices{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 14px}
