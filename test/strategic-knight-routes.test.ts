@@ -67,3 +67,19 @@ test('pawn attacks remain a veto for a long-term knight outpost despite support'
  const fen='4k3/8/2p5/8/2P5/8/3P4/1NR1K3 w - - 0 1';
  assert.equal(findKnightRoutes(fen).some(r=>r.side==='w'&&r.to==='d5'),false);
 });
+
+test('the first legal knight hop is screened against immediate captures and recaptures',()=>{
+ const fen='4k3/8/p4b2/8/2P5/8/3P4/1NR1K3 w - - 0 1';
+ const route=findKnightRoutes(fen).find(r=>r.side==='w'&&r.path.join(',')==='b1,c3,d5');
+ assert.ok(route);
+ assert.equal(route.firstMove,'Nc3');
+ assert.ok(route.firstHopCaptureReplies?.includes('Bxc3+'));
+ assert.equal(route.warning,'static_route_not_a_variation');
+});
+test('no first-hop capture line is invented when the side to move is the opponent',()=>{
+ const fen='4k3/8/p4b2/8/2P5/8/3P4/1NR1K3 b - - 0 1';
+ const route=findKnightRoutes(fen).find(r=>r.side==='w');
+ assert.ok(route);
+ assert.equal(route.firstMove,undefined);
+ assert.equal(route.firstHopCaptureReplies,undefined);
+});

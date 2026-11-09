@@ -124,7 +124,7 @@ export function strategicPlans(fen:string):StrategicPlanReport {
   for(const route of findKnightRoutes(board.fen()).filter(r=>r.side===side)){
    const via=route.path.join('–');
    out.push({side,goal:'improve_knight_outpost',target:route.to,evidence:[...route.path,route.supportingPawn],
-     supportingObservations:[`Springerweg ${via}`,`Eigener Bauer auf ${route.supportingPawn} kontrolliert ${route.to}`,`Keine gegnerische Bauernattacke auf ${route.to} in der aktuellen Stellung`,...(route.contestedSquares.length?[`Umkämpfte, rechnerisch stärker gedeckte Felder: ${route.contestedSquares.join(', ')}. Das ist keine taktische Sicherheitsgarantie.`]:[])],
+     supportingObservations:[`Springerweg ${via}`,`Eigener Bauer auf ${route.supportingPawn} kontrolliert ${route.to}`,`Keine gegnerische Bauernattacke auf ${route.to} in der aktuellen Stellung`,...(route.contestedSquares.length?[`Umkämpfte, rechnerisch stärker gedeckte Felder: ${route.contestedSquares.join(', ')}. Das ist keine taktische Sicherheitsgarantie.`]:[]),...(route.firstHopCaptureReplies?.length?[`Gegnerische legale Schlagantworten auf den ersten Springerzug: ${route.firstHopCaptureReplies.join(', ')}; eine unmittelbare legale Rücknahme ist vorhanden, der Abtausch aber nicht bewertet.`]:[])],
      ...(route.firstMove?{candidateMove:route.firstMove}:{}),
      stages:[`Den von ${route.supportingPawn} gestützten Vorposten ${route.to} als mögliches Ziel erkennen.`,
        `Springer über ${via} heranführen, aber vor jeder Etappe neue Drohungen und gegnerische Antworten prüfen.`,
