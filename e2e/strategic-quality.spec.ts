@@ -23,7 +23,7 @@ test('manual strategic-quality comparison loads original game, validates grades 
  await expect(page.locator('#position-status')).toContainText('n10');
  expect(modelRequests).toBe(0);
  await page.locator('#open-settings').click();
- await page.locator('#settings-diagnosis > summary').click();
+ if(await page.locator('#settings-diagnosis').getAttribute('open')===null)await page.locator('#settings-diagnosis > summary').click();
  await page.locator('#strategic-quality-model').fill('Testmodell (keine echte KI)');
  await page.locator('#strategic-quality-thinking').fill('Test');
  await page.locator('#strategic-quality-response').fill('Testantwort ohne Modellanfrage.');
