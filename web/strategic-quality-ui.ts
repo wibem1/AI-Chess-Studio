@@ -48,7 +48,7 @@ export function installStrategicQualityUI(getSession:()=>Session):void {
  for(const key of STRATEGIC_EVALUATION_DIMENSIONS){
   const l=add(details,'label',names[key]);l.setAttribute('for','strategic-quality-score-'+key);
   const score=el<HTMLSelectElement>('select');score.id='strategic-quality-score-'+key;
-  for(const [v,label] of [['','Bewertung wählen'],['0','0 – mangelhaft'],['1','1 – schwach'],['2','2 – gut'],['3','3 – sehr gut']]){
+  for(const [v,label] of [['','Bewertung wählen'],['0','0 – mangelhaft'],['1','1 – schwach'],['2','2 – gut'],['3','3 – sehr gut']] as const){
    const o=el<HTMLOptionElement>('option',label);o.value=v;score.append(o);
   }
   details.append(score);
