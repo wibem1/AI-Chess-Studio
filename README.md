@@ -1,6 +1,6 @@
 # AI-Chess-Studio
 
-Aktueller Funktionsstand der Veröffentlichung: **1.5.0 – öffentliche Testversion**.
+Aktueller Entwicklungsstand: **1.5.1 – Sol-Timeout-Korrektur** (Veröffentlichung nach erfolgreichem Release-Gate). Aktuelle öffentliche Testversion bis dahin: **1.5.0**.
 [Web-App öffnen](https://wibem1.github.io/AI-Chess-Studio/).
 **GitHub Pages für 1.5.0 erfolgreich bereitgestellt.** [Release-Prüfung](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42664206224) und [Pages-Deployment](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42664702644) bestanden; echte KI-Lehrqualität und native Geräteabnahme bleiben offen.
 Änderungen: [CHANGELOG.md](CHANGELOG.md).

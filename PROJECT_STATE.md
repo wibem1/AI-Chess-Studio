@@ -1,3 +1,9 @@
+# Release-Kandidat 1.5.1 – Sol-Timeout (9. November 2026)
+
+**Befund und Korrektur:** Die direkte OpenAI-Sol-Responses-Frist ohne explizite Denkstufe beträgt nun 90 s statt 45 s. Sonstige Anbieterfristen unverändert; keine automatische Wiederholung. Die Version ist in package.json und package-lock.json 1.5.1. Keine reale kostenpflichtige Modellabnahme.
+
+**Prüfnachweis des isolierten Korrekturstands:** GitHub Actions [42677136225](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42677136225) SUCCESS: TypeScript, Node-Tests, Web-Build, Chromium-Regressionssuite, Produktionsmanifest. Die finale Versionierung und Release-Workflow-Metadaten folgen im Kandidatencommit und benötigen den nächsten grünen Prüflauf. Bis bestätigtem Pages-Deployment bleibt öffentlich 1.5.0. Pull Request #6 führt nach `work`.
+
 # Diagnose: Sol-Timeout in Chess Studio 1.5.0 – Korrektur zunächst nur im Branch (9. November 2026)
 
 **Realer Befund:** Der vom Nutzer hochgeladene KI-Diagnoseexport aus Version 1.5.0 enthält eine erfolgreiche Sol-Anfrage `n10` (direktes OpenAI-Modell `gpt-6.1-sol`, keine explizite Denkstufe, Antwort nach 34.899 ms) und eine fehlgeschlagene zweite Sol-Anfrage `n34` vor **18. Sd6** (Beginn 18:19:29.466 UTC, Abbruch 18:20:14.467 UTC, **45.001 ms**, Fehler `timeout`, keine neue Antwort). Der ebenfalls enthaltene vorangehende lokale Stockfish-Faktencheck zu n34 nannte `Rxf6 gxf6 Nxf6+ Kg7 Nxe8+ Rxe8 Bf5 b6` als begrenzte Hauptvariante; Stellungsdaten wurden korrekt versandt. Die Kosten einer abgebrochenen Anbieteranfrage sind ungewiss; keine automatische Wiederholung zulassen.
