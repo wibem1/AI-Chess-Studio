@@ -1,4 +1,4 @@
-name: ChessStudio two-line match stability corrected regression (no deploy)
+name: ChessStudio browser scroll anchoring viewport regression (no deploy)
 on:
   workflow_dispatch:
   push:
