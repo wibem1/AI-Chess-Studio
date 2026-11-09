@@ -1,5 +1,5 @@
 import {Chess} from 'chess.js';
-import {strategicFeatures,type StrategicSide} from './strategic-features.js';
+import type {StrategicSide} from './strategic-features.js';
 
 /**
  * Human-scale planning inspired by the evidence -> plan -> scheme separation in
@@ -29,7 +29,6 @@ export interface StrategicPlanReport {
  plans:HumanStrategicPlan[];
 }
 type Piece={square:string;color:StrategicSide;type:string};
-const sideLabel=(side:StrategicSide)=>side==='w'?'Weiß':'Schwarz';
 const other=(side:StrategicSide):StrategicSide=>side==='w'?'b':'w';
 const number=(square:string)=>Number(square[1]);
 const fileNumber=(square:string)=>square.charCodeAt(0)-97;
@@ -68,7 +67,6 @@ function pawnLevers(board:Chess,pieces:Piece[],side:StrategicSide):Array<{san:st
 export function strategicPlans(fen:string):StrategicPlanReport {
  const board=new Chess(fen);
  const pieces=board.board().flat().filter((p):p is NonNullable<typeof p>=>p!==null) as Piece[];
- const features=strategicFeatures(board.fen());
  const out:HumanStrategicPlan[]=[];
  const pawnPieces=pieces.filter(p=>p.type==='p');
  for(const side of ['w','b'] as const){
@@ -127,10 +125,11 @@ export function strategicPlans(fen:string):StrategicPlanReport {
  }
  const plans=(['w','b'] as const).flatMap(side=>{
   const own=out.filter(p=>p.side===side);
-  // Reserve two places per side, favoring observable pressure and pawn levers
+  // Reserve one leading plan per side to preserve the free chat context budget,
+  // favoring observable pressure and pawn levers
   // over speculative promotion plans in complicated positions.
   return own.sort((a,b)=>({pressure_isolated_pawn:0,prepare_pawn_break:1,support_passed_pawn:2}[a.goal]-
-                            {pressure_isolated_pawn:0,prepare_pawn_break:1,support_passed_pawn:2}[b.goal])).slice(0,2);
+                            {pressure_isolated_pawn:0,prepare_pawn_break:1,support_passed_pawn:2}[b.goal])).slice(0,1);
  });
  return {fen:board.fen(),method:'human_plan_hypotheses_v1',engineUsed:false,
   warning:'Geordnete Ziele statt erzwungener Züge: statische Planung ohne Engine, ohne Prognose menschlicher Fehlerwahrscheinlichkeit. Lediglich candidateMove ist auf aktuelle Zuglegalität geprüft; nicht auf taktische Sicherheit oder Vorteil.',plans};
