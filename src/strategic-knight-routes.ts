@@ -25,7 +25,7 @@ export function findKnightRoutes(fen:string):KnightRoute[] {
  const board=new Chess(fen);
  if(board.isGameOver()||board.inCheck())return [];
  const pieces=board.board().flat().filter((p):p is NonNullable<typeof p>=>p!==null);
- const occupied=new Set(pieces.map(p=>p.square));
+ const occupied=new Set<string>(pieces.map(p=>p.square));
  const output:KnightRoute[]=[];
  for(const side of ['w','b'] as const){
   const pawns=pieces.filter(p=>p.type==='p'&&p.color===side);
@@ -46,8 +46,8 @@ export function findKnightRoutes(fen:string):KnightRoute[] {
   const knights=pieces.filter(p=>p.type==='n'&&p.color===side);
   const candidates:KnightRoute[]=[];
   for(const knight of knights){
-   const frontier=[{path:[knight.square]}];
-   const visited=new Set([knight.square]);
+   const frontier:Array<{path:string[]}>= [{path:[knight.square]}];
+   const visited=new Set<string>([knight.square]);
    for(let head=0;head<frontier.length;head++){
     const path=frontier[head]!.path,here=path[path.length-1]!;
     if(path.length>3)continue; // <=2 moves; no long static fantasy routes
