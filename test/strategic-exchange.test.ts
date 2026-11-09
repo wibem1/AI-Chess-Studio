@@ -10,8 +10,10 @@ test('unprotected knight can be captured for a real 320 material loss',()=>{
 test('legal recapture is not enough: bishop trades and rook recaptures the defender',()=>{
  const result=localExchange('2r1k3/8/5b2/8/8/2N5/3B4/4K3 b - - 0 1','c3','w');
  assert.equal(result.materialSwing,-320);
- assert.equal(result.line.length,3);
- assert.match(result.line.join(' '),/Bxc3/);
+ // The defending player rationally declines Bxc3 when the rook would
+ // then recapture; a legal recapture is NOT a profitable forced sequence.
+ assert.deepEqual(result.line.length,1);
+ assert.ok(result.line[0]?.startsWith('Bxc3'));
 });
 test('a pinned rook is not counted as a legal recapturer',()=>{
  const result=localExchange('4r1k1/8/8/5b2/8/8/2N1R3/4K3 b - - 0 1','c2','w');

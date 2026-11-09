@@ -57,11 +57,13 @@ export function findKnightRoutes(fen:string):KnightRoute[] {
    const first=trial.moves({verbose:true}).find(m=>m.piece==='n'&&m.from===knightFrom&&m.to===to);
    if(!first)return {safe:false,captureReplies:[] as string[]};
    trial.move(first.san);
+   const immediateCaptures=trial.moves({verbose:true})
+     .filter(m=>m.to===to&&m.captured==='n').map(m=>m.san);
    const result=localExchange(trial.fen(),to as Square,side,4);
-   // Negative means the opponent has a concrete sequence of legal captures
-   // yielding material advantage, even if an intermediate recapture exists.
+   // The adversary may choose NOT to capture. The worst-material line
+   // can therefore be empty even when captures are perfectly legal.
    return {safe:result.materialSwing>=0,
-     captureReplies:result.line.length?[result.line[0]!]:[],
+     captureReplies:immediateCaptures.slice(0,3),
      exchange:result};
   };
   const targets=new Map<string,string>();
