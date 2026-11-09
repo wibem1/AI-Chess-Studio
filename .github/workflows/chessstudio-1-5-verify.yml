@@ -1,0 +1,64 @@
+name: Chess Studio 1.5 – release candidate verification (no deployment)
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feat/human-strategic-analysis-1-5
+    paths:
+      - .github/workflows/chessstudio-1-5-verify.yml
+      - src/**
+      - web/**
+      - e2e/**
+      - test/**
+      - package.json
+      - package-lock.json
+      - .github/workflows/chessstudio-1.0-release.yml
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      CI: "true"
+      CHESS_ENABLE_PAID_API: "0"
+    steps:
+      - name: Checkout exact feature branch
+        uses: actions/checkout@v4
+      - name: Install Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+      - name: Install pinned dependencies
+        run: npm ci
+      - name: TypeScript check
+        run: npm run check
+      - name: Compile and run full Node test suite
+        run: npm test
+      - name: Build web app without publishing
+        run: npm run build:pages
+      - name: Install Chromium for browser tests
+        run: npx playwright install --with-deps chromium
+      - name: Full release browser regression (no deployment)
+        timeout-minutes: 18
+        run: |
+          npx playwright test \
+            e2e/settings-layout.spec.ts \
+            e2e/stockfish-assist.spec.ts \
+            e2e/coach-tools.spec.ts \
+            e2e/rejected-ai-request.spec.ts \
+            e2e/provider-recovery.spec.ts \
+            e2e/simplified-workflow.spec.ts \
+            e2e/stable-toolbar.spec.ts \
+            e2e/model-diagnostics.spec.ts \
+            e2e/pgn-file.spec.ts \
+            e2e/game-review.spec.ts \
+            e2e/position-transfer.spec.ts \
+            e2e/maia.spec.ts \
+            e2e/pages.spec.ts \
+            e2e/strategic-quality.spec.ts
+      - name: Validate production file manifest without deployment
+        run: node scripts/publish-pages.mjs --prepare-only

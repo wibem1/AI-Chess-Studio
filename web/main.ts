@@ -34,6 +34,7 @@ import { APP_VERSION } from '../src/version.js';
 import { installBoardDrag } from './board-drag.js';
 import {installGameLibrary} from './game-library.js';
 import {installFontScale} from './font-scale.js';
+import {installStrategicQualityUI} from './strategic-quality-ui.js';
 
 document.getElementById('app-version')!.textContent = `Version ${APP_VERSION}`;
 document.title = `AI-Chess-Studio ${APP_VERSION}`;
@@ -435,6 +436,18 @@ $<HTMLButtonElement>('save-general-ai-instructions').addEventListener('click',as
 $<HTMLButtonElement>('clear-general-ai-instructions').addEventListener('click',async()=>{
  try{await browserRuntime.store.setGeneralInstructions('');generalAiInstructions='';instructionsEditor.value='';instructionsStatus.textContent='Allgemeine KI-Anweisungen gelöscht.';}
  catch(error){instructionsStatus.textContent=error instanceof Error?error.message:'Löschen fehlgeschlagen.';}
+});
+installStrategicQualityUI(()=>studio.session,(fen,question)=>{
+ const snapshot=studio.session.snapshot();
+ const target=snapshot.nodes.find(node=>node.fen===fen);
+ if(!target)throw new Error('Die Schlüsselstellung ist im aktuellen Partieverlauf nicht vorhanden.');
+ if(pending||match.running)throw new Error('Zuerst die laufende KI-Anfrage oder KI-Partie beenden.');
+ game.analyse(target.id);
+ illustration=undefined;selected=null;
+ text('question').value=question;
+ navigation.select('learn',false,true,false);
+ render();
+ text('question').focus();
 });
 const modelControls=installModelControls(localPost,async()=>{updateMode();await refreshModelStatus();await refreshCosts();},()=>({nodeId:studio.session.snapshot().activeNodeId,fen:studio.session.snapshot().nodes.find(n=>n.id===studio.session.snapshot().activeNodeId)!.fen,testMatch:match.report,boardActions,environment:{userAgent:navigator.userAgent,viewport:{width:innerWidth,height:innerHeight},fontScale:$<HTMLSelectElement>('font-scale').value},feedback:$('dialogue-feedback').textContent}));
 $('move-form').addEventListener('submit', event => { event.preventDefault(); move(input('move').value.trim()); });

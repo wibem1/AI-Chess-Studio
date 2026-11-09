@@ -4,6 +4,9 @@ import {asksForKeyMoments,asksForGameReview,validateGameReview,formatGameReview,
 import {Chess} from 'chess.js';
 import {MAIA_PROFILES} from './maia-files.js';
 import {positionFacts,describeFacts,historyFacts,type PositionFacts} from './position-facts.js';
+import {strategicFeatures,type StrategicFeatures} from './strategic-features.js';
+import {strategicPlans,type StrategicPlanReport} from './strategic-plans.js';
+import {strategicPlanDevelopmentFromHistory,type PlanDevelopment} from './strategic-plan-development.js';
 import {reviewLocked,visibleReviewNodes,REVIEW_QUESTIONS} from './review.js';
 import {validateHumanFactors,type HumanFactors,type HintMode} from './learning.js';
 import { pathTo } from './game.js';
@@ -11,7 +14,7 @@ import { Session } from './session.js';
 
 export type DialogueTopic='chat'|'position'|'comparison'|'review';
 export interface DialogueTurn {role:'user'|'assistant';nodeId:string;text:string;fen?:string}
-export interface DialogueRequest {generalInstructions?:string;expectedModel?:string;matchTest?:{runId:string;color:'w'|'b';turn:number}; nodeId: string; fen: string; question: string; legalMoves: string[]; positionFacts?:PositionFacts;historyFacts?:ReturnType<typeof historyFacts>;toolsEnabled?:boolean;toolExchanges?:CoachExchange[];conversationTruncated?:boolean;gameHistory?:{rootFen:string;moves:string[];truncated:boolean;human:'w'|'b'|null};context?: string[];hintMode?:HintMode;topic?:DialogueTopic;turns?:DialogueTurn[];history?:{rootFen:string;moves:string[];truncated:boolean} }
+export interface DialogueRequest {generalInstructions?:string;expectedModel?:string;matchTest?:{runId:string;color:'w'|'b';turn:number}; nodeId: string; fen: string; question: string; legalMoves: string[]; positionFacts?:PositionFacts;strategicFeatures?:StrategicFeatures;strategicPlans?:StrategicPlanReport;planDevelopment?:PlanDevelopment[];historyFacts?:ReturnType<typeof historyFacts>;toolsEnabled?:boolean;toolExchanges?:CoachExchange[];conversationTruncated?:boolean;gameHistory?:{rootFen:string;moves:string[];truncated:boolean;human:'w'|'b'|null};context?: string[];hintMode?:HintMode;topic?:DialogueTopic;turns?:DialogueTurn[];history?:{rootFen:string;moves:string[];truncated:boolean} }
 export interface StrategicReply {
   provenance?:{provider:string;model:string;requestedModel:string;reasoning:string|null;costUsd:number|null;traceId:number};
   message?:string;
@@ -105,7 +108,7 @@ export class Studio {
     const gameEnd=snapshot.game?.cursor??snapshot.review?.original.at(-1)??nodeId;
     const gamePath=pathTo(snapshot,gameEnd).filter(n=>allowed.has(n.id)),gameStart=Math.max(0,gamePath.length-501);
     const gameHistory={rootFen:gamePath[gameStart]!.fen,moves:gamePath.slice(gameStart+1).map(n=>n.san!),truncated:gameStart>0,human:snapshot.game?.human??(snapshot.review?.browsing?null:snapshot.review?.human??null)};
-    const request = { nodeId, fen, question: question.trim(), legalMoves: new Chess(fen).moves(), positionFacts:positionFacts(fen),...(topic==='chat'?{gameHistory,conversationTruncated:availableTurns>turns.length,toolsEnabled:!!execute,toolExchanges:[] as CoachExchange[]}:{}), context,hintMode,topic,turns,history,...(topic==='review'?{historyFacts:historyFacts(history)}:{}) };
+    const request = { nodeId, fen, question: question.trim(), legalMoves: new Chess(fen).moves(), positionFacts:positionFacts(fen),strategicFeatures:strategicFeatures(fen),strategicPlans:strategicPlans(fen),...(history.moves.length?{planDevelopment:strategicPlanDevelopmentFromHistory(history)!.changes}:{}),...(topic==='chat'?{gameHistory,conversationTruncated:availableTurns>turns.length,toolsEnabled:!!execute,toolExchanges:[] as CoachExchange[]}:{}), context,hintMode,topic,turns,history,...(topic==='review'?{historyFacts:historyFacts(history)}:{}) };
     while(new TextEncoder().encode(JSON.stringify(request)).byteLength>(execute?9000:16000) && (turns.length || context.length)){
       if(turns.length)turns.splice(0,2);else context.shift();
     }
