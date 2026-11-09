@@ -1,3 +1,14 @@
+# Chess Studio 1.5 – erstmals echte GitHub Actions Prüfung (9. November 2026)
+
+Auf ausdrücklichen Nutzerauftrag wurde im isolierten Entwicklungsbranch ein ausschließlich testender Workflow `.github/workflows/chessstudio-1-5-verify.yml` eingerichtet (Node 24, `npm ci`, `npm run check`, `npm test`, `npm run build:pages`, Chromium Playwright). **Keine Deploy-, Release- oder kostenpflichtigen KI-Schritte**. Der Workflow wird auf diesem Branch durch passende Quell-/Teständerungen ausgelöst, `work` bleibt unberührt.
+
+Verifizierter Verlauf:
+- Erstlauf [42601575122](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42601575122) schlug wegen TS2379/TS2375 (optional `planDevelopment` mit `undefined`) fehl; Ursache korrigiert in Commit `c73fe5e`.
+- Zweitlauf [42601740100](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42601740100): **TypeScript erfolgreich**, 221/223 Node-Tests bestanden; zwei präzise Fehler in neuen Tests: Priorisierung verdrängte Doppelbauernbefund; Testregex entsprach nicht der korrekten Warnformulierung. Beides in Commit `0812435` korrigiert.
+- Drittlauf [42601930856](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42601930856), Quellcommit `0812435d6dea5adc3e7f4cbc1c5e2103818c1f9d`: **`npm ci`, TypeScript-Typprüfung, vollständige Node-Tests und Web-Build bestanden**. Chromium installiert; **Browsertests zum Zeitpunkt der letzten Abfrage noch in Arbeit**. Kein vollständiger Workflow-Gesamterfolg beansprucht, solange dieser Schritt nicht abgeschlossen ist.
+
+Nächster Schritt: Browser-Laufergebnis prüfen, gegebenenfalls Fehler gezielt korrigieren und erst bei komplett erfolgreich durchgelaufenem Workflow die technische Regression als bestanden dokumentieren. Danach verbleibt ein eigener, bisher nicht durchgeführter qualitativer KI-Schachtest. Live-Version 1.1.3 unverändert.
+
 # Chess Studio 1.5 – Gezielte statische Fehlerkorrektur und Testpräzisierung (9. November 2026)
 
 Prüfung des isolierten Entwicklungsbranches: vollständiger `npm`-Build und reale `chess.js`-Tests **noch nicht möglich** im verfügbaren Container (kein GitHub-DNS, npm-Projektabhängigkeiten nicht vorhanden). Die bestehenden automatisierten Tests deshalb weiterhin **nicht als bestanden melden**. Bei Quellcode- und Fixtureprüfung wurde ein fachlicher Widerspruch entdeckt: Ein bisheriger Test erwartete eine unveränderte Turmlinie nach `Kd2`, obwohl der weiße König von e1 nach d2 den eigenen Turm d1 gegen Bauer d5 abschirmt. Dieser Fall ist korrigiert: `Kf2` prüft den weiterhin freien Turmplan, `Kd2` prüft ausdrücklich `reconsider`. Die tatsächliche Blockade auf d2 wird nun in `src/strategic-plan-development.ts` als konkreter Grund genannt, statt eine unbestimmte Planänderung oder taktische Widerlegung zu behaupten. Gezielter Regressionsfall ergänzt. Commits: `fde1497`, `6dcdb9b`, `0185d96`.
