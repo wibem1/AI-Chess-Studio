@@ -130,7 +130,7 @@ export function strategicPlans(fen:string):StrategicPlanReport {
        `Springer über ${via} heranführen, aber vor jeder Etappe neue Drohungen und gegnerische Antworten prüfen.`,
        `Erst nach sicherer Besetzung von ${route.to} untersuchen, welche gegnerischen Felder und Figuren der Springer tatsächlich einschränkt.`],
      prerequisites:[`Der Weg ${via} ist nur eine statische Feldfolge, nicht als vollständige Zugvariante gegen Gegenspiel geprüft.`,
-       'Zwischen den Springerzügen hat der Gegner eigene Züge; nach jedem Zug die Route erneut validieren.',...(route.contestedSquares.length?[`Angreifer, Verteidiger und mögliche Schlagfolgen auf ${route.contestedSquares.join(', ')} konkret prüfen. Die Zählung allein beweist keine Sicherheit.`]:[])]],
+       'Zwischen den Springerzügen hat der Gegner eigene Züge; nach jedem Zug die Route erneut validieren.',...(route.contestedSquares.length?[`Angreifer, Verteidiger und mögliche Schlagfolgen auf ${route.contestedSquares.join(', ')} konkret prüfen. Die Zählung allein beweist keine Sicherheit.`]:[])],
      possibleDefense:['Der Gegner kann Zwischenfelder kontrollieren, den Stützbauern angreifen oder die Stellung durch Abtausch verändern.'],
      practicalDifficulty:'Mehrere Züge mit unabhängigen gegnerischen Antworten; Vorposten kann unterwegs taktisch unbrauchbar werden.',
      status:'candidate_not_verified'});
