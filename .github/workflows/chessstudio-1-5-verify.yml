@@ -6,6 +6,8 @@ on:
       - feat/human-strategic-analysis-1-5
     paths:
       - .github/workflows/chessstudio-1-5-verify.yml
+      - src/**
+      - test/**
 
 permissions:
   contents: read

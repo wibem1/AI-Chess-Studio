@@ -108,7 +108,7 @@ export class Studio {
     const gameEnd=snapshot.game?.cursor??snapshot.review?.original.at(-1)??nodeId;
     const gamePath=pathTo(snapshot,gameEnd).filter(n=>allowed.has(n.id)),gameStart=Math.max(0,gamePath.length-501);
     const gameHistory={rootFen:gamePath[gameStart]!.fen,moves:gamePath.slice(gameStart+1).map(n=>n.san!),truncated:gameStart>0,human:snapshot.game?.human??(snapshot.review?.browsing?null:snapshot.review?.human??null)};
-    const request = { nodeId, fen, question: question.trim(), legalMoves: new Chess(fen).moves(), positionFacts:positionFacts(fen),strategicFeatures:strategicFeatures(fen),strategicPlans:strategicPlans(fen),...(history.moves.length?{planDevelopment:strategicPlanDevelopmentFromHistory(history)?.changes}:{}),...(topic==='chat'?{gameHistory,conversationTruncated:availableTurns>turns.length,toolsEnabled:!!execute,toolExchanges:[] as CoachExchange[]}:{}), context,hintMode,topic,turns,history,...(topic==='review'?{historyFacts:historyFacts(history)}:{}) };
+    const request = { nodeId, fen, question: question.trim(), legalMoves: new Chess(fen).moves(), positionFacts:positionFacts(fen),strategicFeatures:strategicFeatures(fen),strategicPlans:strategicPlans(fen),...(history.moves.length?{planDevelopment:strategicPlanDevelopmentFromHistory(history)!.changes}:{}),...(topic==='chat'?{gameHistory,conversationTruncated:availableTurns>turns.length,toolsEnabled:!!execute,toolExchanges:[] as CoachExchange[]}:{}), context,hintMode,topic,turns,history,...(topic==='review'?{historyFacts:historyFacts(history)}:{}) };
     while(new TextEncoder().encode(JSON.stringify(request)).byteLength>(execute?9000:16000) && (turns.length || context.length)){
       if(turns.length)turns.splice(0,2);else context.shift();
     }
