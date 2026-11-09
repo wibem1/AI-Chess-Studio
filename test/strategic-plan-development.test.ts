@@ -39,3 +39,20 @@ test('history reconstruction is legal, single move scoped and empty history is e
  assert.equal(strategicPlanDevelopmentFromHistory({rootFen:c.fen(),moves:[]}),undefined);
  assert.throws(()=>strategicPlanDevelopmentFromHistory({rootFen:c.fen(),moves:['e5']}),/Ungültiger Zug/);
 });
+
+test('capture of the strategic target retires the old pawn-pressure plan',()=>{
+ const fen='4k3/8/8/3p4/8/8/8/3RK3 w - - 0 1';
+ const r=strategicPlanDevelopment(fen,'Rxd5');
+ const p=r.changes.find(x=>x.goal==='pressure_isolated_pawn'&&x.side==='w');
+ assert.ok(p);
+ assert.equal(p.change,'goal_obsolete');
+ assert.equal(new Chess(r.toFen).get('d5')?.type,'r');
+});
+test('a pawn retreat or advance forces a new plan instead of treating the original square as permanent',()=>{
+ const fen='4k3/8/8/3p4/8/8/8/3RK3 b - - 0 1';
+ const r=strategicPlanDevelopment(fen,'d4');
+ const p=r.changes.find(x=>x.goal==='pressure_isolated_pawn'&&x.side==='w');
+ assert.ok(p);
+ assert.equal(p.change,'goal_obsolete');
+ assert.equal(new Chess(r.toFen).get('d4')?.type,'p');
+});
