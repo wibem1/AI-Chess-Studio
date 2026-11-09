@@ -1,4 +1,4 @@
-name: ChessStudio stable match viewport regression verification (no deploy)
+name: ChessStudio fixed two-line match status verification (no deploy)
 on:
   workflow_dispatch:
   push:
