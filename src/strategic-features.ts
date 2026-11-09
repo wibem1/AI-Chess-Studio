@@ -26,7 +26,7 @@ type BoardPiece={square:string;type:string;color:StrategicSide};
 const file=(sq:string)=>sq.charCodeAt(0)-97;
 const rank=(sq:string)=>Number(sq[1]);
 const sideName=(side:StrategicSide)=>side==='w'?'Weiß':'Schwarz';
-const push=(items:StrategicObservation[],fact:StrategicObservation)=>{if(items.length<12)items.push(fact);};
+const push=(items:StrategicObservation[],fact:StrategicObservation)=>{items.push(fact);};
 
 /** Recompute from FEN. Never trust externally supplied observations. */
 export function strategicFeatures(fen:string):StrategicFeatures {
@@ -77,5 +77,8 @@ export function strategicFeatures(fen:string):StrategicFeatures {
     push(observations,{kind:'supported_knight',side,squares:[knight.square],observation:`${ownLabel}: Springer ${knight.square} in der gegnerischen Hälfte durch einen eigenen Bauern gedeckt.`,planHypothesis:'Prüfen, ob dieser Springer dauerhaft stehen kann oder durch gegnerische Bauern vertrieben wird.',confidence:'board_fact'});
   }
  }
- return {fen:board.fen(),method:'static_human_features_v1',engineUsed:false,limitations:'Brettmerkmale ohne Zugtiefensuche. Pläne sind prüfbedürftige Hypothesen, keine Stellungsbewertung, keine taktische Freigabe und keine nachgewiesenen besten Züge.',observations};
+ // Keep evidence from BOTH sides, avoiding a first-player bias in complex pawn structures.
+ const priority:Record<StrategicKind,number>={king_pawn_shield:0,passed_pawn:1,supported_knight:2,isolated_pawn:3,doubled_pawns:4,open_file:5,half_open_file:6,minor_pieces_on_home_squares:7,bishop_pair:8};
+ const selected=(['w','b'] as const).flatMap(side=>observations.filter(o=>o.side===side).sort((a,b)=>priority[a.kind]-priority[b.kind]).slice(0,6));
+ return {fen:board.fen(),method:'static_human_features_v1',engineUsed:false,limitations:'Brettmerkmale ohne Zugtiefensuche. Pläne sind prüfbedürftige Hypothesen, keine Stellungsbewertung, keine taktische Freigabe und keine nachgewiesenen besten Züge.',observations:selected};
 }

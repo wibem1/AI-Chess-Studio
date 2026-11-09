@@ -43,3 +43,19 @@ test('free learning requests carry independent structured strategic features',as
   return new SimulationAdapter().respond(r);
  }});
 });
+
+test('findings are bounded and reserved for both sides even in crowded pawn structures',()=>{
+ const r=strategicFeatures('4k3/p1p1p1p1/8/8/8/P1P1P1P1/P1P1P1P1/4K3 w - - 0 1');
+ assert.ok(r.observations.length<=12);
+ assert.ok(r.observations.some(o=>o.side==='w'));
+ assert.ok(r.observations.some(o=>o.side==='b'));
+ assert.ok(r.observations.every(o=>o.squares.length>0));
+});
+test('king shield and starting-square features are observations, not proof of danger or bad play',()=>{
+ const r=strategicFeatures('4k3/8/8/8/8/8/8/6K1 w - - 0 1');
+ const shield=r.observations.find(o=>o.kind==='king_pawn_shield');
+ assert.ok(shield);
+ assert.match(shield!.planHypothesis,/beweisen allein keine Gefahr/);
+ const start=strategicFeatures(new Chess().fen());
+ assert.ok(start.observations.some(o=>o.kind==='minor_pieces_on_home_squares'));
+});
