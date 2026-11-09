@@ -111,23 +111,23 @@ test('general AI instructions persist independently and appear in future model r
  await expect(page.locator('#general-ai-instructions-status')).toContainText('gelöscht');
 });
 
-test('Stockfish switch is directly below learning board and remembered on restart',async({page})=>{
+test('Stockfish switch shares KI gegen Engine row and is remembered on restart',async({page})=>{
  let modelCalls=0;
  await page.route('https://api.openai.com/**',async route=>{modelCalls++;await route.abort();});
  await page.goto('/?platform=web#lernen');
  await expect(page.locator('#workspace')).not.toHaveAttribute('inert','');
  const panel=page.locator('#stockfish-assist-settings'),toggle=page.locator('#stockfish-assist-enabled');
  await expect(panel).toBeVisible();
- expect(await panel.evaluate(el=>el.parentElement?.id)).toBe('board-area');
+ expect(await panel.evaluate(el=>el.parentElement?.id)).toBe('coach-match');
  await expect(toggle).not.toBeChecked();
  const boxes=await page.locator('#board').boundingBox(),scores=await panel.boundingBox();
  expect(boxes&&scores&&scores.y>=boxes.y+boxes.height-1).toBeTruthy();
  await toggle.check();
- await expect(page.locator('#stockfish-assist-status')).toContainText(/berechnet|Bewertung/,{timeout:15000});
+ await expect(page.locator('#stockfish-assist-result')).toBeVisible({timeout:30000});
  await page.reload();
  await expect(toggle).toBeChecked();
  await toggle.uncheck();
- await expect(page.locator('#stockfish-assist-status')).toContainText('ausgeschaltet');
+ await expect(page.locator('#stockfish-assist-result')).toBeHidden();
  await page.reload();
  await expect(toggle).not.toBeChecked();
  expect(modelCalls).toBe(0);
