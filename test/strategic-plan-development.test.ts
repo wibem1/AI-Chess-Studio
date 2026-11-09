@@ -15,9 +15,17 @@ test('refuses illegal or fabricated move when updating a human plan',()=>{
 });
 test('a maintained rook attack remains an unverified candidate, never a proven win',()=>{
  const fen='4k3/8/8/3p4/8/8/8/3RK3 w - - 0 1';
- const r=strategicPlanDevelopment(fen,'Kd2');
+ const r=strategicPlanDevelopment(fen,'Kf2');
  const p=r.changes.find(x=>x.goal==='pressure_isolated_pawn'&&x.side==='w');
  assert.ok(p);assert.equal(p.change,'still_candidate');assert.match(p.reason,/ungeprüfte Hypothese/);
+});
+test('own king moving onto the attacking file interrupts a previously open rook plan',()=>{
+ const fen='4k3/8/8/3p4/8/8/8/3RK3 w - - 0 1';
+ const r=strategicPlanDevelopment(fen,'Kd2');
+ const p=r.changes.find(x=>x.goal==='pressure_isolated_pawn'&&x.side==='w');
+ assert.ok(p);
+ assert.equal(p.change,'reconsider');
+ assert.equal(new Chess(r.toFen).get('d2')?.type,'k');
 });
 test('an opponent move that interrupts a rook line triggers reconsideration',()=>{
  const fen='4k3/8/8/3p4/8/8/8/3RK3 b - - 0 1';
