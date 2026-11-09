@@ -25,11 +25,11 @@ test('a blocker interrupts rook pressure and must suppress the misleading plan',
  assert.equal(r.plans.some(p=>p.goal==='pressure_isolated_pawn'&&p.side==='w'),false);
 });
 test('passed pawn blocked by an enemy piece is not sold as a won pawn',()=>{
- const r=strategicPlans('4k3/3r4/8/3P4/8/8/8/4K3 w - - 0 1');
+ const r=strategicPlans('4k3/8/3r4/3P4/8/8/8/4K3 w - - 0 1');
  const p=r.plans.find(p=>p.goal==='support_passed_pawn'&&p.side==='w');
  assert.ok(p);
  assert.equal(p.target,'d5');
- assert.ok(p.prerequisites.some(t=>t.includes('d6')===false)||p.stages.length===3);
+ assert.ok(p.prerequisites.some(t=>t.includes('d6')&&t.includes('belegt')));
  assert.ok(p.practicalDifficulty.includes('beweist allein'));
 });
 test('a pawn-break proposal contains only a legal, unverified first move',()=>{
