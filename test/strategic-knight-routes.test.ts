@@ -50,7 +50,7 @@ test('enemy bishop controls c3 as a transit square, so b1-c3-d5 is rejected',()=
 });
 
 test('a contested transit square with two independent defenders remains conditional, not automatically discarded',()=>{
- const fen='4k3/8/5b2/8/2P5/8/3P4/1NR1K3 w - - 0 1';
+ const fen='4k3/8/p4b2/8/2P5/8/3P4/1NR1K3 w - - 0 1';
  const route=findKnightRoutes(fen).find(r=>r.side==='w'&&r.path.join(',')==='b1,c3,d5');
  assert.ok(route);
  assert.ok(route.contestedSquares.includes('c3'));
@@ -60,7 +60,7 @@ test('a contested transit square with two independent defenders remains conditio
  assert.ok(plan.prerequisites.some(p=>p.includes('Zählung allein')));
 });
 test('an equally contested transit square with only one independent defender is rejected',()=>{
- const fen='4k3/8/5b2/8/2P5/8/8/1NR1K3 w - - 0 1';
+ const fen='4k3/8/p4b2/8/2P5/8/8/1NR1K3 w - - 0 1';
  assert.equal(findKnightRoutes(fen).some(r=>r.path.join(',')==='b1,c3,d5'),false);
 });
 test('pawn attacks remain a veto for a long-term knight outpost despite support',()=>{
