@@ -26,7 +26,6 @@ type BoardPiece={square:string;type:string;color:StrategicSide};
 const file=(sq:string)=>sq.charCodeAt(0)-97;
 const rank=(sq:string)=>Number(sq[1]);
 const sideName=(side:StrategicSide)=>side==='w'?'Weiß':'Schwarz';
-const other=(side:StrategicSide):StrategicSide=>side==='w'?'b':'w';
 const push=(items:StrategicObservation[],fact:StrategicObservation)=>{if(items.length<12)items.push(fact);};
 
 /** Recompute from FEN. Never trust externally supplied observations. */

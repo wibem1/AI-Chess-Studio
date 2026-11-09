@@ -24,7 +24,7 @@ test('enemy pawn ahead on adjacent file prevents false passed-pawn assertion',()
  assert.ok(!r.observations.some(o=>o.kind==='passed_pawn'&&o.squares.includes('d5')));
 });
 test('open and half-open rook files are facts, not engine evidence',()=>{
- const r=strategicFeatures('4k3/6p1/8/8/8/8/8/R3K2R w KQ - 0 1');
+ const r=strategicFeatures('4k3/7p/8/8/8/8/8/R3K2R w KQ - 0 1');
  assert.ok(r.observations.some(o=>o.kind==='open_file'&&o.squares.includes('a1')));
  assert.ok(r.observations.some(o=>o.kind==='half_open_file'&&o.squares.includes('h1')));
  assert.ok(r.observations.every(o=>o.confidence==='board_fact'));
