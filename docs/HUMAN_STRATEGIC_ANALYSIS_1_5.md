@@ -69,3 +69,9 @@ Gezielte neue Tests (noch nicht in der Node-/TypeScript-Laufzeit ausgeführt) pr
 ## Statische Konsistenzkorrektur der Planfortschreibung (9. November 2026)
 
 Die erste Regressionsprüfung enthielt einen falschen positiven Fall: `Kd2` blockiert als eigener König die Linie des Turms d1 zum Bauern d5; ein bestehender Test verlangte dennoch `still_candidate`. Korrigiert: `Kf2` belässt die Linie frei, `Kd2` verursacht `reconsider` mit belegbarer Blockade auf d2. Die Planfortschreibung benennt bei solchen Fällen nun das konkrete Hindernis statt lediglich die alte Planidee pauschal zu verwerfen. **Keine abgeschlossene Laufzeitprüfung; die Tests wurden ergänzt, nicht erfolgreich ausgeführt.**
+
+## Mehrfach belegte Pläne – erste erfolgreiche Integration (9. November 2026)
+
+Der Planer bezieht neben der Isolierung eines gegnerischen Bauern und einer freien Turmlinie nun auch die halboffene Linie (falls in den begrenzten strategischen Merkmalen enthalten) sowie die **tatsächliche statische Deckung des angegriffenen Bauern** aus `chess.js` ein. Die KI bekommt damit zusammengehörige Belege in einem einzigen Plan, ergänzt um den konkreten Hinweis, ob der Bauer bereits gedeckt ist oder eine aktuelle Deckung nicht erkennbar ist. Ein bloß ungedeckter Bauer gilt dennoch nicht als gewonnen. Die Implementierung übernimmt **keinen fremden Rust-Quellcode**, sondern das Prinzip der Kibitz-Planverknüpfung in eigenständigem TypeScript.
+
+**Technische Prüfung:** GitHub Actions [42604214281](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42604214281) erfolgreich (TypeScript, Node-Tests, Web-Build, fokussierte Chromium-Regressionen); vorgelagerter Basislauf [42603767332](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42603767332) ebenso erfolgreich. Der umfassende, zuvor nicht abschließende Browsertest wurde für die Entwicklungsprüfung auf wichtige, zeitbegrenzte Regressionen umgestellt. Schachliche Praxistests mit realen LLM-Antworten bleiben offen.
