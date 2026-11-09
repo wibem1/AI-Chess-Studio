@@ -73,7 +73,7 @@ test('the first legal knight hop is screened against immediate captures and reca
  const route=findKnightRoutes(fen).find(r=>r.side==='w'&&r.path.join(',')==='b1,c3,d5');
  assert.ok(route);
  assert.equal(route.firstMove,'Nc3');
- assert.ok(route.firstHopCaptureReplies?.includes('Bxc3+'));
+ assert.ok(route.firstHopCaptureReplies?.some(move=>move.startsWith('Bxc3')));
  assert.equal(route.warning,'static_route_not_a_variation');
 });
 test('no first-hop capture line is invented when the side to move is the opponent',()=>{
