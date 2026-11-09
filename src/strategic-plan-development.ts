@@ -41,3 +41,15 @@ export function strategicPlanDevelopment(beforeFen:string,san:string):{
  }).slice(0,2);
  return {fromFen,toFen,played:mv.san,engineUsed:false,changes};
 }
+
+/** Reconstruct the predecessor position only from a verified legal history. */
+export function strategicPlanDevelopmentFromHistory(history:{rootFen:string;moves:string[]}){
+ if(!history.moves.length)return undefined;
+ const chess=new Chess(history.rootFen);
+ for(const move of history.moves.slice(0,-1)){
+  if(!chess.moves().includes(move))throw new Error('Ungültige Vorgeschichte für Strategie.');
+  chess.move(move);
+ }
+ const last=history.moves.at(-1)!;
+ return strategicPlanDevelopment(chess.fen(),last);
+}
