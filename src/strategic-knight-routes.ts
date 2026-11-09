@@ -1,5 +1,6 @@
 import {Chess,type Square} from 'chess.js';
 import type {StrategicSide} from './strategic-features.js';
+import {localExchange} from './strategic-exchange.js';
 
 /** Static knight regrouping only. Future moves are NOT a legal variation against resistance. */
 export interface KnightRoute {
@@ -10,7 +11,8 @@ export interface KnightRoute {
  supportingPawn:string;
  hops:number;
  contestedSquares:string[]; // numerically covered, NOT tactically certified
- firstHopCaptureReplies?:string[]; // legal immediate captures that have a legal recapture; NOT a full variation
+ firstHopCaptureReplies?:string[]; // concrete legal capture moves on first hop
+ firstHopExchange?:{materialSwing:number;line:string[];maxCaptures:number}; // capture-only material bound, NOT position eval
  firstMove?:string; // legal SAN ONLY when this side is actually to move
  warning:'static_route_not_a_variation';
 }
@@ -55,16 +57,12 @@ export function findKnightRoutes(fen:string):KnightRoute[] {
    const first=trial.moves({verbose:true}).find(m=>m.piece==='n'&&m.from===knightFrom&&m.to===to);
    if(!first)return {safe:false,captureReplies:[] as string[]};
    trial.move(first.san);
-   const opponentCaptures=trial.moves({verbose:true}).filter(m=>m.to===to&&m.captured==='n');
-   const replyNames:string[]=[];
-   for(const capture of opponentCaptures){
-    const afterCapture=new Chess(trial.fen());
-    afterCapture.move(capture.san);
-    const legalRecapture=afterCapture.moves({verbose:true}).some(m=>m.to===to&&!!m.captured);
-    if(!legalRecapture)return {safe:false,captureReplies:[] as string[]};
-    replyNames.push(capture.san);
-   }
-   return {safe:true,captureReplies:replyNames.slice(0,3)};
+   const result=localExchange(trial.fen(),to as Square,side,4);
+   // Negative means the opponent has a concrete sequence of legal captures
+   // yielding material advantage, even if an intermediate recapture exists.
+   return {safe:result.materialSwing>=0,
+     captureReplies:result.line.length?[result.line[0]!]:[],
+     exchange:result};
   };
   const targets=new Map<string,string>();
   for(const pawn of pawns){
@@ -100,6 +98,7 @@ export function findKnightRoutes(fen:string):KnightRoute[] {
       const candidate:KnightRoute={side,from:knight.square,to:next,path:nextPath,supportingPawn:targets.get(next)!,hops:nextPath.length-1,contestedSquares,warning:'static_route_not_a_variation'};
       if(firstMove!==undefined)candidate.firstMove=firstMove;
       if(captureCheck.captureReplies.length)candidate.firstHopCaptureReplies=captureCheck.captureReplies;
+      if('exchange' in captureCheck&&captureCheck.exchange)candidate.firstHopExchange={materialSwing:captureCheck.exchange.materialSwing,line:captureCheck.exchange.line,maxCaptures:captureCheck.exchange.maxCaptures};
       candidates.push(candidate);
      }
      if(nextPath.length<3)frontier.push({path:nextPath});
