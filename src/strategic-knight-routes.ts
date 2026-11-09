@@ -72,7 +72,7 @@ export function findKnightRoutes(fen:string):KnightRoute[] {
    }
   }
   // Longer routes are not stronger; favor an immediate and supported maneuver.
-  candidates.sort((a,b)=>a.hops-b.hops||a.to.localeCompare(b.to)||a.from.localeCompare(b.from));
+  candidates.sort((a,b)=>a.hops-b.hops||Math.abs(file(a.to)-3.5)-Math.abs(file(b.to)-3.5)||a.to.localeCompare(b.to)||a.from.localeCompare(b.from));
   if(candidates.length)output.push(candidates[0]!);
  }
  return output;
