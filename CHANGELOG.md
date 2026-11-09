@@ -1,5 +1,13 @@
 # Änderungen
 
+## 1.1.3 – Stabile KI-gegen-Engine-Anzeige und Stockfish in gemeinsamer Bedienzeile (9. November 2026)
+
+- Stockfish-Ein/Aus-Schalter, Bewertung und aufklappbare Variante stehen in der vorhandenen Zeile „KI gegen Engine“ neben Start und Stop. Die bisher separate Leiste unter dem Schachbrett entfällt.
+- Engine- und Modellmeldungen reservieren dauerhaft zwei Zeilen; kurze und lange Texte verändern die Höhe der Bedienung nicht.
+- Reine Statuswechsel bauen das Schachbrett nicht neu auf. Bei Stellungswechseln bleibt die Scrollposition erhalten; Browser-Scroll-Anker im Lernmodus deaktiviert. Keine wiederholten zusätzlichen Statusmeldungen im Chat während des Testspiels.
+- Verifiziert mit Typprüfung, Produktions-Web-Build, 196 Einzeltests und 27 Chromium-Browsertests auf 390 und 1600 Pixel einschließlich echter lokaler Stockfish-Komponente. Keine echte kostenpflichtige KI-Provider- oder native Geräteabnahme.
+
+
 ## 1.1.2 – Kompakte Stockfish-Bewertung im Lernmodus (8. November 2026)
 
 - Direkt unter dem Lernbrett die Stockfish-Anzeige auf eine platzsparende Leiste mit Ein/Aus-Schalter, Bewertung und erreichter Tiefe reduziert. Der Chat beginnt wieder deutlich näher am Brett.
