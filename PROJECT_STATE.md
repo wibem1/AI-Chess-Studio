@@ -1,3 +1,11 @@
+# Maia-Diagnoseexport: echter Browsertest bestanden (10. November 2026)
+
+**Verifiziert:** GitHub Actions [42891932264](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42891932264) **SUCCESS**, Quellcommit `c10519de6938c97ce638bfe4f8e2185f116df682`. Node-Tests `fail 0`; TypeScript, Web-Build, Produktionsmanifest erfolgreich; **38/38 Chromium-Browsertests** bestanden. Insbesondere `e2e/maia.spec.ts:37` „diagnostic download contains the real Maia move even without an AI provider request“ **PASS**. Test spielt mit realem Maia-2-Browsermodell, prüft exportierte Zugfolge und rekonstruiert die FEN aus dem tatsächlich gespeicherten Maia-Zug. Ein bezahlter KI-Anbieter wird nicht aufgerufen.
+
+**Grenzen und nächster Schritt:** Die ursprüngliche schlechte Maia-Partie aus der Nutzerdiagnose enthält weiterhin keine Zugliste; diese kann rückwirkend aus dem alten Export nicht rekonstruiert werden. Noch keine Telemetrie für das direkte Modell-UCI-Ergebnis unabhängig vom ausgeführten Spielzug. Änderung liegt nur auf `fix/diagnostic-complete-move-history-20261110`, **keine Veröffentlichung**, öffentlich weiter 1.5.2. Nächstes Ziel: Maiazugspezifisches Modell- und Übertragungsprotokoll, danach ggf. Freigabekandidat und Veröffentlichung nur auf ausdrücklichen Auftrag.
+
+---
+
 # Realer Maia-Diagnoseexport: Browser-Regression ergänzt (10. November 2026)
 
 **Implementiert:** In `e2e/maia.spec.ts` startet ein zusätzlicher Test den echten Maia-2-Browsergegner, wartet auf den Enginezug, lädt die KI-Diagnose und validiert `extra.current.gameHistory` einschließlich aktiver Halbzugfolge, Variantenbaum, Knoten-ID und durch `chess.js` rekonstruierter Folge-FEN. Wichtig: `requests=[]` bleibt dabei zulässig und führt nicht zu einer fehlenden Partiezugliste. Keine bezahlte KI-Anfrage und kein Deployment.
