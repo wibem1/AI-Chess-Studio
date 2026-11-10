@@ -21,6 +21,6 @@ test('Maia game identity persists and cannot silently accept a Stockfish substit
  const s=new Session(),game=new LearningGame(()=>s);game.start('b',3,'browser','maia');
  assert.equal(Session.import(s.export()).snapshot().game!.opponent,'maia');
  await assert.rejects(game.reply({move:async()=>({san:'e4',level:3,engine:'Stockfish fixture'})}),/falsche Engineantwort/);assert.equal(s.snapshot().nodes.length,1);
- game.resume();await game.reply({move:async()=>({san:'e4',level:3,engine:'Maia-2 fixture'})});assert.equal(s.snapshot().nodes.length,2);
+ game.resume();await game.reply({move:async()=>({san:'e4',level:3,engine:'Maia-2 fixture',uci:'e2e4',modelFen:s.snapshot().nodes[0]!.fen})});assert.equal(s.snapshot().nodes.length,2);
  const invalid=JSON.parse(s.export());invalid.game.opponent='other';assert.throws(()=>Session.import(JSON.stringify(invalid)));
 });
