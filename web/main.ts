@@ -21,7 +21,7 @@ import { ServerModelAdapter } from '../src/model-client.js';
 import { checkTactics, ServerTacticalAdapter, validateTacticalReport, type TacticalReport } from '../src/tactics.js';
 import {BrowserTacticalAdapter} from '../src/browser-tactics.js';
 import {withStockfishAssessment} from '../src/stockfish-assist.js';
-import { LearningGame, ServerPlayingEngine, pathTo } from '../src/game.js';
+import { LearningGame, ServerPlayingEngine, pathTo, type AppliedEngineMove } from '../src/game.js';
 import type {HintMode} from '../src/learning.js';
 import './style.css';
 import {BrowserPlayingEngine} from '../src/browser-engine.js';
@@ -49,7 +49,8 @@ let stockfishSearch:{fen:string;promise:Promise<TacticalReport>;cancel:(()=>void
 let stockfishSearchGeneration=0;
 let initialized=false;
 const autosave=new AutoSave(browserRuntime.store,()=>({json:studio.session.export(),question:text('question').value}),value=>message('autosave-status',value));
-const game=new LearningGame(()=>studio.session);
+const maiaMoveTrace:AppliedEngineMove[]=[];
+const game=new LearningGame(()=>studio.session,event=>{if(event.opponent==='maia'){maiaMoveTrace.push(event);if(maiaMoveTrace.length>150)maiaMoveTrace.shift();}});
 const browserEngine=new BrowserPlayingEngine();
 const maiaEngine=new MaiaPlayingEngine(value=>message('game-feedback',value));
 function updatePlayingChoice(){
@@ -450,7 +451,7 @@ installStrategicQualityUI(()=>studio.session,(fen,question)=>{
  render();
  text('question').focus();
 });
-const modelControls=installModelControls(localPost,async()=>{updateMode();await refreshModelStatus();await refreshCosts();},()=>({nodeId:studio.session.snapshot().activeNodeId,fen:studio.session.snapshot().nodes.find(n=>n.id===studio.session.snapshot().activeNodeId)!.fen,gameHistory:diagnosticGameHistory(studio.session.snapshot()),testMatch:match.report,boardActions,environment:{userAgent:navigator.userAgent,viewport:{width:innerWidth,height:innerHeight},fontScale:$<HTMLSelectElement>('font-scale').value},feedback:$('dialogue-feedback').textContent}));
+const modelControls=installModelControls(localPost,async()=>{updateMode();await refreshModelStatus();await refreshCosts();},()=>({nodeId:studio.session.snapshot().activeNodeId,fen:studio.session.snapshot().nodes.find(n=>n.id===studio.session.snapshot().activeNodeId)!.fen,gameHistory:diagnosticGameHistory(studio.session.snapshot()),maiaMoves:maiaMoveTrace.filter(event=>event.gameId===studio.session.snapshot().game?.id),testMatch:match.report,boardActions,environment:{userAgent:navigator.userAgent,viewport:{width:innerWidth,height:innerHeight},fontScale:$<HTMLSelectElement>('font-scale').value},feedback:$('dialogue-feedback').textContent}));
 $('move-form').addEventListener('submit', event => { event.preventDefault(); move(input('move').value.trim()); });
 $('coach-show-plan').addEventListener('click',()=>{
  if($<HTMLButtonElement>('coach-show-plan').disabled)return;
