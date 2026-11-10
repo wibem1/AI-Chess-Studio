@@ -8,7 +8,7 @@ test('diagnosis includes complete moves even with zero model requests',()=>{
  const game=new Session();
  const first=game.play('e4');
  game.play('e5');
- game.play('Nf6');
+ game.play('Nf3');
  const history=diagnosticGameHistory(game.snapshot());
  const report=new ModelDiagnostics().export({current:{gameHistory:history}});
  assert.equal(report.requests.length,0);
@@ -23,7 +23,7 @@ test('diagnosis preserves branches without mistaking them for the active line',(
  const first=game.play('d4');
  game.play('d5');
  game.select(first);
- game.play('Nf3');
+ game.play('Nf6');
  const history=diagnosticGameHistory(game.snapshot());
  assert.deepEqual(history.activeLine.map(move=>move.san),['d4','Nf6']);
  assert.equal(history.nodes.length,4);
