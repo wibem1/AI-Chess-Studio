@@ -9,10 +9,11 @@ export function pathTo(data:SessionData,id:string) {
  return path;
 }
 export interface PlayingEngine { move(rootFen:string,moves:string[],level:number):Promise<unknown>;cancel?():void }
+export interface AppliedEngineMove {gameId:string;opponent:'stockfish'|'maia';profile:number;nodeBefore:string;nodeAfter:string;fenBefore:string;fenAfter:string;uci:string;san:string;modelUci?:string;modelFen?:string}
 export class LearningGame {
  private inFlight:PlayingEngine|undefined;
  private study:{session:Session;gameId:string;cursor:string;node:string}|undefined;
- constructor(private current:()=>Session){}
+ constructor(private current:()=>Session,private onEngineMove:(event:AppliedEngineMove)=>void=()=>{}){}
  start(human:'w'|'b',level:number,engine?:'server'|'browser',opponent?:'stockfish'|'maia'):void {
   const s=this.current(),d=s.snapshot();
   if(d.review?.guiding)throw new Error('Der geführte Rückblick startet keinen Enginegegner. Zum freien Spiel den Rückblick ausdrücklich verlassen.');
@@ -54,9 +55,14 @@ export class LearningGame {
   try{
    const raw=await engine.move(path[0]!.fen,path.slice(1).map(n=>n.san!),g.level);
    if(!stillCurrent())return 'discarded';
-   const r=raw as {san?:unknown;level?:unknown;engine?:unknown};
+   const r=raw as {san?:unknown;level?:unknown;engine?:unknown;uci?:unknown;modelFen?:unknown};
    if(!r || typeof r.san!=='string' || r.level!==g.level || typeof r.engine!=='string' || !r.engine.startsWith(g.opponent==='maia'?'Maia-2':'Stockfish') || !s.legalMoves().includes(r.san))throw new Error('Illegale oder falsche Engineantwort verworfen.');
-   const cursor=s.play(r.san);s.setGame({...g,cursor,revision:g.revision+1});return 'stored';
+   const fenBefore=path[path.length-1]!.fen,verificationBoard=new Chess(fenBefore),verified=verificationBoard.move(r.san);
+   const appliedUci=verified.from+verified.to+(verified.promotion??'');
+   if(g.opponent==='maia'&&(typeof r.uci!=='string'||r.uci!==appliedUci||r.modelFen!==fenBefore))throw new Error('Maia-Zug stimmt nicht mit Modellstellung und Antwort überein. Partie pausiert.');
+   const cursor=s.play(r.san);s.setGame({...g,cursor,revision:g.revision+1});
+   try{this.onEngineMove({gameId:g.id,opponent:g.opponent??'stockfish',profile:g.level,nodeBefore:g.cursor,nodeAfter:cursor,fenBefore,fenAfter:verificationBoard.fen(),uci:appliedUci,san:r.san,...(g.opponent==='maia'?{modelUci:r.uci as string,modelFen:r.modelFen as string}:{})});}catch{}
+   return 'stored';
   }catch(error){if(!stillCurrent())return 'discarded';this.pause();throw error;}
   finally{if(this.inFlight===engine)this.inFlight=undefined;}
  }

@@ -1,3 +1,35 @@
+# Maia-Diagnoseexport: echter Browsertest bestanden (10. November 2026)
+
+**Verifiziert:** GitHub Actions [42891932264](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42891932264) **SUCCESS**, Quellcommit `c10519de6938c97ce638bfe4f8e2185f116df682`. Node-Tests `fail 0`; TypeScript, Web-Build, Produktionsmanifest erfolgreich; **38/38 Chromium-Browsertests** bestanden. Insbesondere `e2e/maia.spec.ts:37` „diagnostic download contains the real Maia move even without an AI provider request“ **PASS**. Test spielt mit realem Maia-2-Browsermodell, prüft exportierte Zugfolge und rekonstruiert die FEN aus dem tatsächlich gespeicherten Maia-Zug. Ein bezahlter KI-Anbieter wird nicht aufgerufen.
+
+**Grenzen und nächster Schritt:** Die ursprüngliche schlechte Maia-Partie aus der Nutzerdiagnose enthält weiterhin keine Zugliste; diese kann rückwirkend aus dem alten Export nicht rekonstruiert werden. Noch keine Telemetrie für das direkte Modell-UCI-Ergebnis unabhängig vom ausgeführten Spielzug. Änderung liegt nur auf `fix/diagnostic-complete-move-history-20261110`, **keine Veröffentlichung**, öffentlich weiter 1.5.2. Nächstes Ziel: Maiazugspezifisches Modell- und Übertragungsprotokoll, danach ggf. Freigabekandidat und Veröffentlichung nur auf ausdrücklichen Auftrag.
+
+---
+
+# Realer Maia-Diagnoseexport: Browser-Regression ergänzt (10. November 2026)
+
+**Implementiert:** In `e2e/maia.spec.ts` startet ein zusätzlicher Test den echten Maia-2-Browsergegner, wartet auf den Enginezug, lädt die KI-Diagnose und validiert `extra.current.gameHistory` einschließlich aktiver Halbzugfolge, Variantenbaum, Knoten-ID und durch `chess.js` rekonstruierter Folge-FEN. Wichtig: `requests=[]` bleibt dabei zulässig und führt nicht zu einer fehlenden Partiezugliste. Keine bezahlte KI-Anfrage und kein Deployment.
+
+**Prüfstatus:** GitHub Actions [42891932264](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42891932264): TypeScript-Prüfung, vollständige Node-Tests und Web-Build bereits SUCCESS; Chromium-Regression zum Zeitpunkt des Eintrags noch in Arbeit. Ein Erfolg des neuen echten Maia-Tests ist bis zum Abschluss des Workflows nicht belegt. Der Entwicklungsbranch wurde nicht veröffentlicht. **Nächster Schritt:** Abschluss und Protokoll der Browserprüfung kontrollieren, bei grünem Lauf den Stand als browsergetestet dokumentieren; die Maia-Modellausgabe im Vergleich zum gespielten Zug wird bisher nicht separat protokolliert.
+
+---
+
+# Diagnoseexport: CI-Prüfung erfolgreich (10. November 2026)
+
+**Verifiziert:** Der isolierte Entwicklungsbranch `fix/diagnostic-complete-move-history-20261110` bestand GitHub Actions [42840738362](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42840738362) vollständig (**SUCCESS**) auf Quellcommit `c6413bda4bd0bbdc145808caddc8bb82a545219b`. Erfolgreich waren Node.js-24-TypeScript-Prüfung, vollständige Node-Tests einschließlich der beiden neuen Zuglisten-/Varianten-Regressionen, Pages-Web-Build, Chromium-Browserregression und Manifestvorbereitung (ohne Deployment). Zwei vorherige Testläufe scheiterten wegen vertauschter Zugfolgen in den neuen Testfixtures; die Testeingaben wurden explizit für Weiß (`1.e4 e5 2.Nf3`) und Schwarz (`1.d4 d5`, Alternative `1...Nf6`) getrennt korrigiert.
+
+**Grenzen:** Neue Exportfelder werden im Browser durch die reguläre Regression nur indirekt abgedeckt; ein echter Maia-Partieexport und die stichprobenartige Überprüfung der Züge im gespeicherten JSON stehen aus. Keine Engine-Telemetrie (Maia-Modellausgabe vs. ausgeführter Zug) implementiert, keine neue Version und keine Veröffentlichung. Nächster Schritt: gezielter Browserexport mit tatsächlichen Zügen, danach bei explizitem Veröffentlichungsauftrag Kandidatenversionierung und Release-Gate.
+
+---
+
+# Diagnoseexport: vollständiger Zugverlauf (10. November 2026)
+
+**Stand: implementiert und auf separatem Branch gesichert; Ausführungstests offen, nicht veröffentlicht.** Branch `fix/diagnostic-complete-move-history-20261110` ergänzt `src/diagnostic-game-history.ts`. Beim Export in `web/main.ts` wird jetzt `extra.current.gameHistory` mit aktivem Zugpfad (SAN, Halbzugnummer, Knoten-ID und FEN nach dem Zug), vollständigem Variantenbaum samt Elternknoten und gegebenenfalls Original-PGN der importierten Partie ausgegeben. Das geschieht unabhängig davon, ob `requests` leer ist. Zwei gezielte Regressionstests in `test/diagnostic-game-history.test.ts` decken einen Export ohne KI-Aufruf und eine verzweigte Partie ab.
+
+**Prüfstatus:** Code in GitHub gesichert, nicht durch TypeScript, Node-Tests oder Browserlauf bestätigt (Container kann GitHub wegen fehlender DNS-Verbindung nicht klonen; Node lokal v22 statt der geforderten v24). Keine Versionserhöhung und keine Veröffentlichung. Nächster einzelner Schritt: Tests/Build auf Node 24 ausführen, Diagnose im Browser exportieren und Zugliste mit der tatsächlich gespielten Maia-Partie vergleichen. Zusätzliches Maia-Protokoll pro Engine-Antwort wäre ein eigener Entwicklungsschritt.
+
+---
+
 # Chess Studio 1.5.2 – Pages-Veröffentlichung erfolgreich (10. November 2026)
 
 **Bestätigt:** Der zuvor fehlgeschlagene GitHub-Pages-Deploy wurde ohne Änderung am App-Code durch einen frischen, inhaltlich identischen Commit `2c07903c24fae3006e0daeab90490c31b52b30c8` auf `gh-pages` neu angestoßen. [Pages-Lauf 42806924461](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42806924461) ist **SUCCESS** (Build, Statusmeldung und Deployment). Das ausgelieferte Repositorymanifest `gh-pages/BUILD.json` bestätigt weiterhin **Version 1.5.2**, Basis `/AI-Chess-Studio/`, Quellcommit `1557e45a0f1f3b652b9c23e217bea8e74c2301c1`. Zuvor hatte der vollständig grüne Kandidatenlauf [42802558260](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42802558260) den Anwendungscode geprüft; im Veröffentlichungsworkflow bestanden zudem Typprüfung, Node-Tests, Build und 37 Chromium-Tests. Browser-Livetest und reale Sol-Antwort auf dem Nutzergerät bleiben getrennt ungeprüft. **Öffentliche Adresse:** https://wibem1.github.io/AI-Chess-Studio/ .
