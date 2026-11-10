@@ -60,6 +60,14 @@ test('diagnostic download contains the real Maia move even without an AI provide
  expect(history.activeLine[0].ply).toBe(1);
  expect(history.activeLine[0].san).toBe(history.nodes[1].san);
  expect(history.activeLine[0].fenAfter).toBe(history.nodes[1].fen);
+ expect(report.extra.current.maiaMoves).toHaveLength(1);
+ const recorded=report.extra.current.maiaMoves[0];
+ expect(recorded.gameId).toBeTruthy();
+ expect(recorded.opponent).toBe('maia');
+ expect(recorded.modelUci).toBe(recorded.uci);
+ expect(recorded.modelFen).toBe(history.rootFen);
+ expect(recorded.san).toBe(history.activeLine[0].san);
+ expect(recorded.fenAfter).toBe(history.activeLine[0].fenAfter);
  const {Chess}=await import('chess.js');
  const board=new Chess(history.rootFen);
  board.move(history.activeLine[0].san);
