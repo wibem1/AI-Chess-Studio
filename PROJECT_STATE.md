@@ -1,3 +1,11 @@
+# Diagnoseexport: vollständiger Zugverlauf (10. November 2026)
+
+**Stand: implementiert und auf separatem Branch gesichert; Ausführungstests offen, nicht veröffentlicht.** Branch `fix/diagnostic-complete-move-history-20261110` ergänzt `src/diagnostic-game-history.ts`. Beim Export in `web/main.ts` wird jetzt `extra.current.gameHistory` mit aktivem Zugpfad (SAN, Halbzugnummer, Knoten-ID und FEN nach dem Zug), vollständigem Variantenbaum samt Elternknoten und gegebenenfalls Original-PGN der importierten Partie ausgegeben. Das geschieht unabhängig davon, ob `requests` leer ist. Zwei gezielte Regressionstests in `test/diagnostic-game-history.test.ts` decken einen Export ohne KI-Aufruf und eine verzweigte Partie ab.
+
+**Prüfstatus:** Code in GitHub gesichert, nicht durch TypeScript, Node-Tests oder Browserlauf bestätigt (Container kann GitHub wegen fehlender DNS-Verbindung nicht klonen; Node lokal v22 statt der geforderten v24). Keine Versionserhöhung und keine Veröffentlichung. Nächster einzelner Schritt: Tests/Build auf Node 24 ausführen, Diagnose im Browser exportieren und Zugliste mit der tatsächlich gespielten Maia-Partie vergleichen. Zusätzliches Maia-Protokoll pro Engine-Antwort wäre ein eigener Entwicklungsschritt.
+
+---
+
 # Chess Studio 1.5.2 – Pages-Veröffentlichung erfolgreich (10. November 2026)
 
 **Bestätigt:** Der zuvor fehlgeschlagene GitHub-Pages-Deploy wurde ohne Änderung am App-Code durch einen frischen, inhaltlich identischen Commit `2c07903c24fae3006e0daeab90490c31b52b30c8` auf `gh-pages` neu angestoßen. [Pages-Lauf 42806924461](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42806924461) ist **SUCCESS** (Build, Statusmeldung und Deployment). Das ausgelieferte Repositorymanifest `gh-pages/BUILD.json` bestätigt weiterhin **Version 1.5.2**, Basis `/AI-Chess-Studio/`, Quellcommit `1557e45a0f1f3b652b9c23e217bea8e74c2301c1`. Zuvor hatte der vollständig grüne Kandidatenlauf [42802558260](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42802558260) den Anwendungscode geprüft; im Veröffentlichungsworkflow bestanden zudem Typprüfung, Node-Tests, Build und 37 Chromium-Tests. Browser-Livetest und reale Sol-Antwort auf dem Nutzergerät bleiben getrennt ungeprüft. **Öffentliche Adresse:** https://wibem1.github.io/AI-Chess-Studio/ .
