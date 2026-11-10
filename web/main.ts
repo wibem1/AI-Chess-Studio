@@ -35,6 +35,7 @@ import { installBoardDrag } from './board-drag.js';
 import {installGameLibrary} from './game-library.js';
 import {installFontScale} from './font-scale.js';
 import {installStrategicQualityUI} from './strategic-quality-ui.js';
+import {diagnosticGameHistory} from '../src/diagnostic-game-history.js';
 
 document.getElementById('app-version')!.textContent = `Version ${APP_VERSION}`;
 document.title = `AI-Chess-Studio ${APP_VERSION}`;
@@ -449,7 +450,7 @@ installStrategicQualityUI(()=>studio.session,(fen,question)=>{
  render();
  text('question').focus();
 });
-const modelControls=installModelControls(localPost,async()=>{updateMode();await refreshModelStatus();await refreshCosts();},()=>({nodeId:studio.session.snapshot().activeNodeId,fen:studio.session.snapshot().nodes.find(n=>n.id===studio.session.snapshot().activeNodeId)!.fen,testMatch:match.report,boardActions,environment:{userAgent:navigator.userAgent,viewport:{width:innerWidth,height:innerHeight},fontScale:$<HTMLSelectElement>('font-scale').value},feedback:$('dialogue-feedback').textContent}));
+const modelControls=installModelControls(localPost,async()=>{updateMode();await refreshModelStatus();await refreshCosts();},()=>({nodeId:studio.session.snapshot().activeNodeId,fen:studio.session.snapshot().nodes.find(n=>n.id===studio.session.snapshot().activeNodeId)!.fen,gameHistory:diagnosticGameHistory(studio.session.snapshot()),testMatch:match.report,boardActions,environment:{userAgent:navigator.userAgent,viewport:{width:innerWidth,height:innerHeight},fontScale:$<HTMLSelectElement>('font-scale').value},feedback:$('dialogue-feedback').textContent}));
 $('move-form').addEventListener('submit', event => { event.preventDefault(); move(input('move').value.trim()); });
 $('coach-show-plan').addEventListener('click',()=>{
  if($<HTMLButtonElement>('coach-show-plan').disabled)return;
