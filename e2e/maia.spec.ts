@@ -32,3 +32,36 @@ test('real Maia also plays from phone and tablet touch layouts without a backend
   }finally{await context.close();}
  }
 });
+
+
+test('diagnostic download contains the real Maia move even without an AI provider request',async({page})=>{
+ test.setTimeout(120000);
+ await page.goto('/?platform=web');
+ await expect(page.locator('#workspace')).not.toHaveAttribute('inert','');
+ await page.locator('#game-opponent').selectOption('maia');
+ await page.locator('#game-color').selectOption('b');
+ await page.locator('#game-level').selectOption('3');
+ await page.locator('#open-game-setup').click();
+ await expect(page.locator('#game-feedback')).toContainText('Maia hat gezogen',{timeout:30000});
+ await expect(page.locator('#position-status')).toContainText('n1 · Schwarz');
+ await page.locator('#open-settings').click();
+ await page.locator('#settings-diagnosis > summary').click();
+ if(await page.locator('#ai-diagnosis').getAttribute('open')===null)await page.locator('#ai-diagnosis > summary').click();
+ const downloading=page.waitForEvent('download');
+ await page.locator('#ai-diagnose-export').click();
+ const download=await downloading;
+ const fs=await import('node:fs/promises');
+ const report=JSON.parse(await fs.readFile((await download.path())!,'utf8'));
+ const history=report.extra.current.gameHistory;
+ expect(report.requests).toEqual([]);
+ expect(history.nodes).toHaveLength(2);
+ expect(history.activeLine).toHaveLength(1);
+ expect(history.activeNodeId).toBe('n1');
+ expect(history.activeLine[0].ply).toBe(1);
+ expect(history.activeLine[0].san).toBe(history.nodes[1].san);
+ expect(history.activeLine[0].fenAfter).toBe(history.nodes[1].fen);
+ const {Chess}=await import('chess.js');
+ const board=new Chess(history.rootFen);
+ board.move(history.activeLine[0].san);
+ expect(board.fen()).toBe(history.activeLine[0].fenAfter);
+});
