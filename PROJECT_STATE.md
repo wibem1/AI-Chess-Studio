@@ -1,3 +1,11 @@
+# Diagnoseexport: CI-Prüfung erfolgreich (10. November 2026)
+
+**Verifiziert:** Der isolierte Entwicklungsbranch `fix/diagnostic-complete-move-history-20261110` bestand GitHub Actions [42840738362](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42840738362) vollständig (**SUCCESS**) auf Quellcommit `c6413bda4bd0bbdc145808caddc8bb82a545219b`. Erfolgreich waren Node.js-24-TypeScript-Prüfung, vollständige Node-Tests einschließlich der beiden neuen Zuglisten-/Varianten-Regressionen, Pages-Web-Build, Chromium-Browserregression und Manifestvorbereitung (ohne Deployment). Zwei vorherige Testläufe scheiterten wegen vertauschter Zugfolgen in den neuen Testfixtures; die Testeingaben wurden explizit für Weiß (`1.e4 e5 2.Nf3`) und Schwarz (`1.d4 d5`, Alternative `1...Nf6`) getrennt korrigiert.
+
+**Grenzen:** Neue Exportfelder werden im Browser durch die reguläre Regression nur indirekt abgedeckt; ein echter Maia-Partieexport und die stichprobenartige Überprüfung der Züge im gespeicherten JSON stehen aus. Keine Engine-Telemetrie (Maia-Modellausgabe vs. ausgeführter Zug) implementiert, keine neue Version und keine Veröffentlichung. Nächster Schritt: gezielter Browserexport mit tatsächlichen Zügen, danach bei explizitem Veröffentlichungsauftrag Kandidatenversionierung und Release-Gate.
+
+---
+
 # Diagnoseexport: vollständiger Zugverlauf (10. November 2026)
 
 **Stand: implementiert und auf separatem Branch gesichert; Ausführungstests offen, nicht veröffentlicht.** Branch `fix/diagnostic-complete-move-history-20261110` ergänzt `src/diagnostic-game-history.ts`. Beim Export in `web/main.ts` wird jetzt `extra.current.gameHistory` mit aktivem Zugpfad (SAN, Halbzugnummer, Knoten-ID und FEN nach dem Zug), vollständigem Variantenbaum samt Elternknoten und gegebenenfalls Original-PGN der importierten Partie ausgegeben. Das geschieht unabhängig davon, ob `requests` leer ist. Zwei gezielte Regressionstests in `test/diagnostic-game-history.test.ts` decken einen Export ohne KI-Aufruf und eine verzweigte Partie ab.
