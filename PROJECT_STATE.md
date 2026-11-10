@@ -1,3 +1,11 @@
+# Chess Studio 1.5.3 – Maia-Zugdiagnose veröffentlicht (10. November 2026)
+
+**Freigabe:** Pull Request [#8](https://github.com/wibem1/AI-Chess-Studio/pull/8) wurde nach `work` gemergt, Quellcommit `09f813309e9e4b65253c4e3960d3552a90667d0b`. Der Kandidatenlauf [42897623238](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42897623238) bestand TypeScript, Node-Tests einschließlich Prüfung bei UCI/FEN-Widerspruch, Web-Build und **38/38 Chromium-Tests** mit echter Maia-2 ONNX-Browserengine und Diagnose-Download. Die Veröffentlichungspipeline [42898210279](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42898210279) lieferte die Webdateien erfolgreich an `gh-pages`; `gh-pages/BUILD.json` meldet Version **1.5.3** mit dem Quellcommit `09f8133...`. Offizieller Pages-Lauf [42898745168](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42898745168) **SUCCESS**. Webseite: https://wibem1.github.io/AI-Chess-Studio/ .
+
+**Funktionsnachweis:** Export enthält Partiezugfolge und Varianten auch ohne Provideranfragen. Maia-Ausgabe liefert das ursprüngliche UCI und Modell-FEN, die vor Übernahme mit dem tatsächlich ausgeführten Zug abgeglichen werden; abweichende Daten pausieren die Partie. Diagnose umfasst für erfolgreiche Maia-Züge Modell-FEN und -UCI sowie angewendete SAN/UCI/Folge-FEN, Game-ID und Profil. Der alte Export ohne Zugfolge bleibt nicht nachträglich rekonstruierbar. Das Protokoll beweist die korrekte Übernahme, nicht Maia-Spielstärke oder deren fachliche Qualität. Praxisprüfung mit einer echten Problem-Partie durch den Nutzer steht aus; es erfolgten keine bezahlten KI-Anfragen.
+
+---
+
 # Maia-Diagnoseexport: echter Browsertest bestanden (10. November 2026)
 
 **Verifiziert:** GitHub Actions [42891932264](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42891932264) **SUCCESS**, Quellcommit `c10519de6938c97ce638bfe4f8e2185f116df682`. Node-Tests `fail 0`; TypeScript, Web-Build, Produktionsmanifest erfolgreich; **38/38 Chromium-Browsertests** bestanden. Insbesondere `e2e/maia.spec.ts:37` „diagnostic download contains the real Maia move even without an AI provider request“ **PASS**. Test spielt mit realem Maia-2-Browsermodell, prüft exportierte Zugfolge und rekonstruiert die FEN aus dem tatsächlich gespeicherten Maia-Zug. Ein bezahlter KI-Anbieter wird nicht aufgerufen.
