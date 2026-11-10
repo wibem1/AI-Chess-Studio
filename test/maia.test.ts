@@ -24,3 +24,17 @@ test('Maia game identity persists and cannot silently accept a Stockfish substit
  game.resume();await game.reply({move:async()=>({san:'e4',level:3,engine:'Maia-2 fixture',uci:'e2e4',modelFen:s.snapshot().nodes[0]!.fen})});assert.equal(s.snapshot().nodes.length,2);
  const invalid=JSON.parse(s.export());invalid.game.opponent='other';assert.throws(()=>Session.import(JSON.stringify(invalid)));
 });
+
+test('Maia mismatch is rejected before a board move and diagnostic event',async()=>{
+ const s=new Session(),events:unknown[]=[],game=new LearningGame(()=>s,event=>events.push(event));
+ game.start('b',3,'browser','maia');
+ const before=s.snapshot().nodes[0]!.fen;
+ await assert.rejects(game.reply({move:async()=>({san:'e4',level:3,engine:'Maia-2 fixture',uci:'d2d4',modelFen:before})}),/Maia-Zug stimmt nicht/);
+ assert.equal(s.snapshot().nodes.length,1);
+ assert.equal(events.length,0);
+ assert.equal(s.snapshot().game?.paused,true);
+ game.resume();
+ await assert.rejects(game.reply({move:async()=>({san:'e4',level:3,engine:'Maia-2 fixture',uci:'e2e4',modelFen:'incorrect'})}),/Maia-Zug stimmt nicht/);
+ assert.equal(s.snapshot().nodes.length,1);
+ assert.equal(events.length,0);
+});
