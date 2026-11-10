@@ -57,11 +57,11 @@ export class LearningGame {
    if(!stillCurrent())return 'discarded';
    const r=raw as {san?:unknown;level?:unknown;engine?:unknown;uci?:unknown;modelFen?:unknown};
    if(!r || typeof r.san!=='string' || r.level!==g.level || typeof r.engine!=='string' || !r.engine.startsWith(g.opponent==='maia'?'Maia-2':'Stockfish') || !s.legalMoves().includes(r.san))throw new Error('Illegale oder falsche Engineantwort verworfen.');
-   const fenBefore=path[path.length-1]!.fen,verified=new Chess(fenBefore).move(r.san);
+   const fenBefore=path[path.length-1]!.fen,verificationBoard=new Chess(fenBefore),verified=verificationBoard.move(r.san);
    const appliedUci=verified.from+verified.to+(verified.promotion??'');
    if(g.opponent==='maia'&&(typeof r.uci!=='string'||r.uci!==appliedUci||r.modelFen!==fenBefore))throw new Error('Maia-Zug stimmt nicht mit Modellstellung und Antwort überein. Partie pausiert.');
    const cursor=s.play(r.san);s.setGame({...g,cursor,revision:g.revision+1});
-   try{this.onEngineMove({gameId:g.id,opponent:g.opponent??'stockfish',profile:g.level,nodeBefore:g.cursor,nodeAfter:cursor,fenBefore,fenAfter:verified.fen(),uci:appliedUci,san:r.san,...(g.opponent==='maia'?{modelUci:r.uci as string,modelFen:r.modelFen as string}:{})});}catch{}
+   try{this.onEngineMove({gameId:g.id,opponent:g.opponent??'stockfish',profile:g.level,nodeBefore:g.cursor,nodeAfter:cursor,fenBefore,fenAfter:verificationBoard.fen(),uci:appliedUci,san:r.san,...(g.opponent==='maia'?{modelUci:r.uci as string,modelFen:r.modelFen as string}:{})});}catch{}
    return 'stored';
   }catch(error){if(!stillCurrent())return 'discarded';this.pause();throw error;}
   finally{if(this.inFlight===engine)this.inFlight=undefined;}
