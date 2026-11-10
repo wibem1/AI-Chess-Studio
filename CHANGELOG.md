@@ -1,5 +1,13 @@
 # Änderungen
 
+## 1.5.3 – Maia-Diagnose und vollständiger Partieverlauf (Veröffentlichungskandidat, 10. November 2026)
+
+- KI-Diagnose enthält nun die vollständige Hauptzugfolge und den Variantenbaum mit Zugnotation und FEN, auch wenn kein KI-Anbieter kontaktiert wurde.
+- Bei Maia-Enginezügen werden Modellstellung, ursprünglicher UCI-Zug, tatsächlich gespielter Zug und Folge-FEN mit dem jeweiligen Partiebezug protokolliert. Widersprüche halten die Partie an; kein Ersatzgegner.
+- Tests: Varianten, Zugfolge ohne KI-Anfragen, echte lokale Maia-Berechnung und Browser-Download; keine bezahlten Modellaufrufe.
+- Hinweis: Diese Diagnose belegt korrekte Übertragung von Enginezügen, nicht die schachliche Güte von Maia; alte Diagnosen ohne Zugliste lassen sich rückwirkend nicht vervollständigen.
+
+
 ## 1.5.2 – Strategische Planpriorisierung (Veröffentlichungskandidat, 10. November 2026)
 
 - Die Lern-KI soll in strategischen Analysen einen vorläufig bevorzugten Plan empfehlen, mit konkreten Stellungsmerkmalen begründen, Alternativen vergleichen und nächste Schritte einschließlich Gegenspiel und Umplan-Kriterium nennen.
