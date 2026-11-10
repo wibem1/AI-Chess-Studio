@@ -23,9 +23,9 @@ test('diagnosis preserves branches without mistaking them for the active line',(
  const first=game.play('d4');
  game.play('d5');
  game.select(first);
- game.play('Nf6');
+ game.play('Nf3');
  const history=diagnosticGameHistory(game.snapshot());
- assert.deepEqual(history.activeLine.map(move=>move.san),['d4','Nf6']);
+ assert.deepEqual(history.activeLine.map(move=>move.san),['d4','Nf3']);
  assert.equal(history.nodes.length,4);
- assert.deepEqual(history.nodes.filter(node=>node.parentId===first).map(node=>node.san),['d5','Nf6']);
+ assert.deepEqual(history.nodes.filter(node=>node.parentId===first).map(node=>node.san),['d5','Nf3']);
 });
