@@ -1,3 +1,11 @@
+# Realer Maia-Diagnoseexport: Browser-Regression ergänzt (10. November 2026)
+
+**Implementiert:** In `e2e/maia.spec.ts` startet ein zusätzlicher Test den echten Maia-2-Browsergegner, wartet auf den Enginezug, lädt die KI-Diagnose und validiert `extra.current.gameHistory` einschließlich aktiver Halbzugfolge, Variantenbaum, Knoten-ID und durch `chess.js` rekonstruierter Folge-FEN. Wichtig: `requests=[]` bleibt dabei zulässig und führt nicht zu einer fehlenden Partiezugliste. Keine bezahlte KI-Anfrage und kein Deployment.
+
+**Prüfstatus:** GitHub Actions [42891932264](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42891932264): TypeScript-Prüfung, vollständige Node-Tests und Web-Build bereits SUCCESS; Chromium-Regression zum Zeitpunkt des Eintrags noch in Arbeit. Ein Erfolg des neuen echten Maia-Tests ist bis zum Abschluss des Workflows nicht belegt. Der Entwicklungsbranch wurde nicht veröffentlicht. **Nächster Schritt:** Abschluss und Protokoll der Browserprüfung kontrollieren, bei grünem Lauf den Stand als browsergetestet dokumentieren; die Maia-Modellausgabe im Vergleich zum gespielten Zug wird bisher nicht separat protokolliert.
+
+---
+
 # Diagnoseexport: CI-Prüfung erfolgreich (10. November 2026)
 
 **Verifiziert:** Der isolierte Entwicklungsbranch `fix/diagnostic-complete-move-history-20261110` bestand GitHub Actions [42840738362](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42840738362) vollständig (**SUCCESS**) auf Quellcommit `c6413bda4bd0bbdc145808caddc8bb82a545219b`. Erfolgreich waren Node.js-24-TypeScript-Prüfung, vollständige Node-Tests einschließlich der beiden neuen Zuglisten-/Varianten-Regressionen, Pages-Web-Build, Chromium-Browserregression und Manifestvorbereitung (ohne Deployment). Zwei vorherige Testläufe scheiterten wegen vertauschter Zugfolgen in den neuen Testfixtures; die Testeingaben wurden explizit für Weiß (`1.e4 e5 2.Nf3`) und Schwarz (`1.d4 d5`, Alternative `1...Nf6`) getrennt korrigiert.
