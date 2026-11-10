@@ -1,6 +1,8 @@
 # AI-Chess-Studio
 
 Aktuelle öffentliche Testversion: **1.5.1 – Sol-Timeout-Korrektur**.
+
+**Veröffentlichungskandidat 1.5.2:** Die KI soll strategische Pläne künftig priorisieren und eine praktische Empfehlung mit Gegenspiel, Alternative und Umplan-Kriterium geben. Technische Prüfung und Veröffentlichung stehen noch aus.
 [Web-App öffnen](https://wibem1.github.io/AI-Chess-Studio/).
 **GitHub Pages für 1.5.1 erfolgreich bereitgestellt.** [Release-Prüfung](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42678170104) und [Pages-Deployment](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42678980782) bestanden; echte Sol-Provider-Antwort, KI-Lehrqualität und native Geräteabnahme bleiben offen.
 Änderungen: [CHANGELOG.md](CHANGELOG.md).

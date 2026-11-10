@@ -5,6 +5,7 @@ on:
     branches:
       - feat/human-strategic-analysis-1-5
       - fix/sol-browser-timeout-90s-20261109
+      - feat/prioritized-human-plans-20261110
     paths:
       - .github/workflows/chessstudio-1-5-verify.yml
       - src/**

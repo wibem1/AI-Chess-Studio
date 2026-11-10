@@ -1,5 +1,12 @@
 # Änderungen
 
+## 1.5.2 – Strategische Planpriorisierung (Veröffentlichungskandidat, 10. November 2026)
+
+- Die Lern-KI soll in strategischen Analysen einen vorläufig bevorzugten Plan empfehlen, mit konkreten Stellungsmerkmalen begründen, Alternativen vergleichen und nächste Schritte einschließlich Gegenspiel und Umplan-Kriterium nennen.
+- Bei unklarer Beweislage Unsicherheit statt künstlicher Rangfolge; freiwillige neutrale Übersichten, kurze Faktenfragen, Hinweis-Modi und Partierückblicke behalten ihre eigenen Regeln.
+- Änderungen in beiden Systemprompts und neue Prompt-Regressionstests. Reale Modellqualität ist damit nicht nachgewiesen; sie muss anhand der zweiten Referenzstellung geprüft werden.
+
+
 ## 1.5.1 – Sol-Timeout korrigiert (9. November 2026)
 
 - Direkte OpenAI-Sol-Responses-Anfragen erhalten auch ohne ausdrücklich gesetzte Denkstufe 90 statt 45 Sekunden. Andere Anbieter-/Modellfristen und die separate 100-s-Clientfrist bleiben unverändert.
