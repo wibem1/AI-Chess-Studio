@@ -18,3 +18,20 @@ test('structured explanations prioritize without weakening hint and review rules
  assert.match(SYSTEM_PROMPT,/Partierückblicken/);
  assert.match(SYSTEM_PROMPT,/hintMode: question bedeutet nur eine weiterführende Leitfrage/);
 });
+
+test('free chat compares distinct strategic concepts instead of superficial capture alternatives',()=>{
+ assert.match(FREE_CHAT_PROMPT,/unterschiedliche strategische Konzepte/);
+ assert.match(FREE_CHAT_PROMPT,/positionelle Figurenverbesserung\/Vorposten/);
+ assert.match(FREE_CHAT_PROMPT,/nicht bloß eine zweite Abtauschreihenfolge/);
+ assert.match(FREE_CHAT_PROMPT,/nach dessen Abwicklung/);
+ assert.match(FREE_CHAT_PROMPT,/taktischer Gewinn hat Vorrang/);
+ assert.match(FREE_CHAT_PROMPT,/mitgegebenen Stockfish-Faktencheck/);
+ assert.match(FREE_CHAT_PROMPT,/ohne zu behaupten, der Zug sei unabhängig entdeckt/);
+});
+test('structured mode preserves tactic priority while comparing different plans',()=>{
+ assert.match(SYSTEM_PROMPT,/andersartigen strategischen Ziel/);
+ assert.match(SYSTEM_PROMPT,/nicht lediglich zwei ähnliche Schlagfolgen/);
+ assert.match(SYSTEM_PROMPT,/über den ersten Zug hinaus/);
+ assert.match(SYSTEM_PROMPT,/Unmittelbare taktische Zwänge haben Vorrang/);
+ assert.match(SYSTEM_PROMPT,/externer, begrenzter Befund/);
+});
