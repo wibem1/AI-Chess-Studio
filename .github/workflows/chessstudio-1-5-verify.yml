@@ -7,6 +7,7 @@ on:
       - fix/sol-browser-timeout-90s-20261109
       - feat/prioritized-human-plans-20261110
       - fix/diagnostic-complete-move-history-20261110
+      - fix/stockfish-silent-navigation-20261111
     paths:
       - .github/workflows/chessstudio-1-5-verify.yml
       - src/**

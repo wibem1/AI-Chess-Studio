@@ -1,5 +1,13 @@
 # Änderungen
 
+## 1.5.4 – Ruhige Stockfish-Bewertung beim Stellungswechsel (11. November 2026)
+
+- Während des Vor- und Zurückblätterns erscheint die Meldung „Stockfish berechnet die aktuelle Stellung …“ nicht mehr. Die Bewertung wird erst angezeigt, wenn ein Ergebnis vorliegt.
+- Der Anzeigebereich bleibt während der Berechnung räumlich reserviert, damit die darunterliegende Oberfläche beim Wechsel der Stellung nicht springt.
+- Die eigentliche Stockfish-Analyse und die Anzeige von Fehlern bleiben unverändert.
+- Neuer Chromium-Regressionstest für Vorwärts-/Rückwärtsnavigation und stabile Anzeigehöhe; 39/39 Browsertests im Entwicklungsbranch erfolgreich (GitHub Actions 42988018298).
+
+
 ## 1.5.3 – Maia-Diagnose und vollständiger Partieverlauf (Veröffentlichungskandidat, 10. November 2026)
 
 - KI-Diagnose enthält nun die vollständige Hauptzugfolge und den Variantenbaum mit Zugnotation und FEN, auch wenn kein KI-Anbieter kontaktiert wurde.

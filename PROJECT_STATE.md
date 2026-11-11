@@ -1,3 +1,11 @@
+# Stockfish: keine Statusmeldung beim Vor-/Zurückspringen (11. November 2026)
+
+**Gezielt korrigiert und geprüft, noch nicht veröffentlicht.** Auf Branch `fix/stockfish-silent-navigation-20261111` wurde die vorübergehende Meldung „Stockfish berechnet die aktuelle Stellung …“ in `web/main.ts` beim Stellungswechsel entfernt. Während der Berechnung bleiben die Flächen für Bewertung und Details unsichtbar reserviert, damit der untere Bereich seine Höhe behält. Nach Abschluss wird ausschließlich die echte Bewertung eingeblendet. Die Berechnung selbst, ihre begrenzte Suche und die Fehleranzeige bleiben erhalten. `e2e/stockfish-assist.spec.ts` prüft die Meldungsfreiheit und die konstante Höhe beim Vorwärts-/Rückwärtsnavigieren.
+
+**Prüfbeleg:** GitHub Actions [42988018298](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42988018298) **SUCCESS** (Node.js 24 TypeScript, alle Node-Tests, Web-Build, **39/39 Chromium-Tests**, Paketmanifest ohne Deployment). Der gezielte neue Test „Stockfish navigation has no calculating message or height jump“ bestand. Kein Merge, keine Versionsänderung, kein Release/Deployment und keine bezahlten KI-Anfragen. Nächster Schritt: Veröffentlichung nur auf ausdrücklichen Auftrag; vorher Version/Paketmanifest/Changelog synchronisieren und Release-Gate erneut prüfen.
+
+---
+
 # Chess Studio 1.5.3 – Maia-Zugdiagnose veröffentlicht (10. November 2026)
 
 **Freigabe:** Pull Request [#8](https://github.com/wibem1/AI-Chess-Studio/pull/8) wurde nach `work` gemergt, Quellcommit `09f813309e9e4b65253c4e3960d3552a90667d0b`. Der Kandidatenlauf [42897623238](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42897623238) bestand TypeScript, Node-Tests einschließlich Prüfung bei UCI/FEN-Widerspruch, Web-Build und **38/38 Chromium-Tests** mit echter Maia-2 ONNX-Browserengine und Diagnose-Download. Die Veröffentlichungspipeline [42898210279](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42898210279) lieferte die Webdateien erfolgreich an `gh-pages`; `gh-pages/BUILD.json` meldet Version **1.5.3** mit dem Quellcommit `09f8133...`. Offizieller Pages-Lauf [42898745168](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42898745168) **SUCCESS**. Webseite: https://wibem1.github.io/AI-Chess-Studio/ .

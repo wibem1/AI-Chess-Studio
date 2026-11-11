@@ -75,3 +75,32 @@ test('Stockfish display shares the KI gegen Engine row and does not create an ex
  await page.getByRole('tab',{name:'Spielmodus',exact:true}).click();
  await expect(stockfish).toBeHidden();
 });
+
+test('Stockfish navigation has no calculating message or height jump',async({page})=>{
+ test.setTimeout(60000);
+ await page.setViewportSize({width:1440,height:900});
+ await page.goto('/?platform=web#lernen');
+ await expect(page.locator('#workspace')).not.toHaveAttribute('inert','');
+ await page.locator('#stockfish-assist-enabled').check();
+ const score=page.locator('#stockfish-assist-result');
+ const status=page.locator('#stockfish-assist-status');
+ const row=page.locator('#coach-match');
+ await expect(score).toBeVisible({timeout:30000});
+ const height=await row.evaluate(el=>el.getBoundingClientRect().height);
+ await page.locator('#board [data-square=e2]').click();
+ await page.locator('#board [data-square=e4]').click();
+ await expect(page.locator('#position-status')).toContainText('n1');
+ await expect(status).toBeHidden();
+ await expect(page.locator('#stockfish-assist-settings')).not.toContainText('Stockfish berechnet');
+ expect(Math.abs((await row.evaluate(el=>el.getBoundingClientRect().height))-height)).toBeLessThan(2);
+ await expect(score).toBeVisible({timeout:30000});
+ await page.locator('#learn-back').click();
+ await expect(page.locator('#position-status')).toContainText('n0');
+ await expect(status).toBeHidden();
+ expect(Math.abs((await row.evaluate(el=>el.getBoundingClientRect().height))-height)).toBeLessThan(2);
+ await page.locator('#learn-next').click();
+ await expect(page.locator('#position-status')).toContainText('n1');
+ await expect(status).toBeHidden();
+ await expect(score).toBeVisible({timeout:30000});
+ expect(Math.abs((await row.evaluate(el=>el.getBoundingClientRect().height))-height)).toBeLessThan(2);
+});
