@@ -148,3 +148,35 @@ test('Stockfish Variante disclosure stays visible while navigating between posit
  await page.locator('#learn-back').click();
  await expect(details).not.toHaveAttribute('open','');
 });
+
+test('Variante remains on its own fixed row even when the Stockfish score changes length',async({page})=>{
+ test.setTimeout(60000);
+ await page.goto('/?platform=web#lernen');
+ await expect(page.locator('#workspace')).not.toHaveAttribute('inert','');
+ await page.locator('#stockfish-assist-enabled').check();
+ const score=page.locator('#stockfish-assist-result');
+ const details=page.locator('#stockfish-assist-details');
+ const summary=page.locator('#stockfish-assist-details > summary');
+ await expect(score).toBeVisible({timeout:30000});
+ await expect(details).toBeVisible();
+ await summary.click();
+ await expect(details).toHaveAttribute('open','');
+ const position=()=>page.locator('#stockfish-assist-settings').evaluate(el=>{
+  const root=el.getBoundingClientRect(),summary=el.querySelector('details > summary')!.getBoundingClientRect();
+  return {top:summary.top-root.top,height:root.height,summaryHeight:summary.height};
+ });
+ for(const width of [1440,390]){
+  await page.setViewportSize({width,height:900});
+  const before=await position();
+  for(const sample of ['Stockfish: +0.03 (Weiß) · T12','Stockfish: Matt für Schwarz in 123456789 · T12','Stockfish: +123.45 (Weiß) · T12']){
+   await score.evaluate((el,value)=>{el.textContent=value;},sample);
+   const after=await position();
+   expect(Math.abs(after.top-before.top)).toBeLessThan(2);
+   expect(Math.abs(after.height-before.height)).toBeLessThan(2);
+   expect(after.summaryHeight).toBe(before.summaryHeight);
+   await expect(details).toHaveAttribute('open','');
+  }
+ }
+ await page.locator('#learn-back').click();
+ await expect(details).toHaveAttribute('open','');
+});
