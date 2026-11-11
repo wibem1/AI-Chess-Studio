@@ -378,7 +378,7 @@ function syncStockfishBoard(){
   if(stockfishVisibleFen){stockfishVisibleFen='';stopStockfishSearch();}
   stockfishResult.hidden=true;
   stockfishDetails.hidden=true;
-  stockfishDetails.open=false;
+  // Preserve the expanded/collapsed preference even across a temporary view change.
   stockfishStatus.hidden=!stockfishAssistEnabled;
   return;
  }
@@ -407,7 +407,7 @@ function syncStockfishBoard(){
   if(stockfishAssistEnabled&&$('workspace').dataset.activeView==='learn'&&stockfishVisibleFen===fen&&generation<=stockfishSearchGeneration)showStockfishReport(result);
  }).catch(error=>{
   if(stockfishAssistEnabled&&$('workspace').dataset.activeView==='learn'&&stockfishVisibleFen===fen)
-   {stockfishResult.style.visibility='hidden';stockfishStatus.hidden=false;stockfishStatus.textContent='Stockfish-Bewertung fehlgeschlagen: '+(error instanceof Error?error.message:'Engine nicht verfügbar.');}
+   {stockfishDetails.removeAttribute('aria-busy');stockfishResult.style.visibility='hidden';stockfishStatus.hidden=false;stockfishStatus.textContent='Stockfish-Bewertung fehlgeschlagen: '+(error instanceof Error?error.message:'Engine nicht verfügbar.');}
  });
 }
 void browserRuntime.store.getStockfishAssistEnabled().then(enabled=>{
