@@ -543,7 +543,7 @@ html:has(#workspace[data-active-view=learn]),body:has(#workspace[data-active-vie
 /* Optional Stockfish control shares the KI gegen Engine row, not its own board row. */
 /* A fixed, independent slot for Stockfish. The variable-length score must never
    move the "Variante" disclosure between the score row and the next row. */
-#board-area #coach-match #stockfish-assist-settings{display:grid;grid-column:1/-1;grid-template-columns:max-content minmax(0,1fr);align-items:center;justify-content:stretch;column-gap:8px;row-gap:3px;min-width:0;width:100%;margin:0;padding:0;border:0;border-radius:0;background:transparent;font-size:.78rem}
+#board-area #coach-match #stockfish-assist-settings{display:grid;grid-column:4;grid-row:1;grid-template-columns:max-content minmax(0,1fr);align-items:center;justify-content:stretch;column-gap:8px;row-gap:3px;min-width:0;width:100%;margin:0;padding:0;border:0;border-radius:0;background:transparent;font-size:.78rem}
 #board-area #coach-match #stockfish-assist-settings .stockfish-board-switch{grid-column:1;grid-row:1}
 #board-area #coach-match #stockfish-assist-result{grid-column:2;grid-row:1;min-width:0;max-width:100%;overflow-x:auto;overflow-y:hidden;white-space:nowrap;scrollbar-width:none}
 #board-area #coach-match #stockfish-assist-result::-webkit-scrollbar{display:none}
@@ -560,5 +560,5 @@ html:has(#workspace[data-active-view=learn]),body:has(#workspace[data-active-vie
 #stockfish-assist-line{margin:4px 0 0;overflow-wrap:anywhere}
 #coach-match #stockfish-assist-settings .stockfish-limits{margin:3px 0 0;font-size:.69rem;color:var(--muted)}
 #board-area #learning-chat{order:2}
-@media(max-width:600px){#board-area #coach-match #stockfish-assist-settings{margin-left:0;grid-column:1/-1}}
+@media(max-width:600px){#board-area #coach-match #stockfish-assist-settings{margin-left:0;grid-column:1/-1;grid-row:auto}}
 .workspace[data-active-view=play] #stockfish-assist-settings{display:none}
