@@ -1,5 +1,13 @@
 # Änderungen
 
+## 1.5.5 – Stockfish-Variante bleibt beim Blättern geöffnet (11. November 2026)
+
+- Die Überschrift „Variante“ bleibt bei jeder Stockfish-Neuberechnung dauerhaft sichtbar, ohne Flackern.
+- Das aufklappbare Feld behält seinen vom Nutzer gewählten Zustand beim Wechsel zwischen Stellungen bei und schließt sich nur durch ausdrückliche Bedienung.
+- Bis zur neuen Berechnung bleibt die bisherige Hauptvariante im Feld sichtbar und wird unmittelbar aktualisiert; solange wird der Bereich für Hilfstechnik als beschäftigt gekennzeichnet.
+- Eigenständiger Browser-Regressionsfall für Vor/Zurück, Aufklappen, manuelles Schließen und stabile Position im Bedienbereich. Quellstand zunächst mit 40/40 Chromium-Tests in GitHub Actions 42992021667 geprüft.
+
+
 ## 1.5.4 – Ruhige Stockfish-Bewertung beim Stellungswechsel (11. November 2026)
 
 - Während des Vor- und Zurückblätterns erscheint die Meldung „Stockfish berechnet die aktuelle Stellung …“ nicht mehr. Die Bewertung wird erst angezeigt, wenn ein Ergebnis vorliegt.

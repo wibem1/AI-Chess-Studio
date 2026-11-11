@@ -1,4 +1,4 @@
-name: ChessStudio 1.5.4 - Prioritized Strategic Plans
+name: ChessStudio 1.5.5 - Prioritized Strategic Plans
 
 on:
   workflow_dispatch:
@@ -37,7 +37,7 @@ jobs:
         run: npm ci
       - name: Chromium fuer Browsertests installieren
         run: npx playwright install --with-deps chromium
-      - name: Typpruefung fuer 1.5.4
+      - name: Typpruefung fuer 1.5.5
         run: npm run check
       - name: Build und Einzeltests
         run: npm test
