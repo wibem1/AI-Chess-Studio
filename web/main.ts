@@ -389,9 +389,12 @@ function syncStockfishBoard(){
  if(!stockfishResult.textContent)stockfishResult.textContent='Stockfish: +0.00 (Weiß) · T12';
  stockfishResult.hidden=false;
  stockfishResult.style.visibility='hidden';
+ // Keep the "Variante" disclosure visible throughout navigation; only its
+ // actual move line changes when the new Stockfish report is ready.
  stockfishDetails.hidden=false;
- stockfishDetails.style.visibility='hidden';
+ stockfishDetails.style.visibility='visible';
  stockfishDetails.open=false;
+ stockfishLine.textContent='';
  stockfishStatus.hidden=true;
  const board=new Chess(fen);
  if(board.isGameOver()){stopStockfishSearch();stockfishResult.textContent='Stockfish: keine Bewertung (Partie beendet)';stockfishResult.style.visibility='visible';return;}
