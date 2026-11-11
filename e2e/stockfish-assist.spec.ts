@@ -177,6 +177,11 @@ test('Variante remains on its own fixed row even when the Stockfish score change
    await expect(details).toHaveAttribute('open','');
   }
  }
+ await page.locator('#board [data-square=e2]').click();
+ await page.locator('#board [data-square=e4]').click();
+ await expect(page.locator('#position-status')).toContainText('n1');
+ await expect(details).toHaveAttribute('open','');
  await page.locator('#learn-back').click();
+ await expect(page.locator('#position-status')).toContainText('n0');
  await expect(details).toHaveAttribute('open','');
 });
