@@ -1,3 +1,13 @@
+# Chess Studio 1.5.5 – Freigabekandidat erfolgreich geprüft (11. November 2026)
+
+**Quellstand:** Auf `fix/stockfish-variation-heading-stable-20261111` ist die Stockfish-Variantenanzeige korrigiert: Die Überschrift bleibt beim Blättern sichtbar, geöffnete Details bleiben geöffnet, bis der Nutzer sie selbst schließt; eine neue Hauptvariante ersetzt den bisherigen Inhalt im bestehenden Feld. Die Version ist in `package.json`, `package-lock.json`, `CHANGELOG.md` und Release-Workflow einheitlich als **1.5.5** vorbereitet. Pull Request [#10](https://github.com/wibem1/AI-Chess-Studio/pull/10) nach `work` ist **offen**, nicht gemergt.
+
+**Prüfbeleg:** GitHub Actions [42999537174](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42999537174), getesteter Quellcommit `d2d6cc689a7e5a2cf498523d8480b4fe87d57f2d`, **SUCCESS**: TypeScript, vollständige Node-Tests, Web-Build, **40/40 Chromium-Browsertests** (einschließlich Aufklappzustand und Vor-/Zurücknavigieren), Manifestprüfung ohne Deployment. Keine bezahlten KI-Anfragen. Ein anschließender Dokumentationscommit ändert ausschließlich `PROJECT_STATE.md`.
+
+**Freigabegrenze:** **Noch keine Veröffentlichung.** Die öffentliche App bleibt Version **1.5.4**, bis ein ausdrücklicher Auftrag für Merge und Deployment vorliegt. Nächster einzelner Schritt: Nach Veröffentlichungsauftrag PR #10 mergen, den automatisch gestarteten Release-Workflow abwarten, das `gh-pages/BUILD.json` auf 1.5.5 prüfen und den offiziellen Pages-Deploy auf SUCCESS bestätigen.
+
+---
+
 # Stockfish-Variante: Aufklappzustand bleibt bei Stellungswechsel erhalten (11. November 2026)
 
 **Implementiert und browsergetestet – nicht veröffentlicht.** Auf Branch `fix/stockfish-variation-heading-stable-20261111` bleibt der Stockfish-Bereich „Variante“ beim Rechnen sichtbar und dessen `details.open`-Zustand bei jeder Navigation unverändert. Ein vom Nutzer geöffnetes Feld bleibt offen, bis es ausdrücklich geschlossen wird; eine neue Berechnung ersetzt die bisherige Hauptvariante direkt im selben Feld. Die vorherige Zugfolge bleibt als platzstabiler Text während der kurzen Berechnung erhalten und wird danach aktualisiert; dies ist ausdrücklich keine neue Stellungsbewertung, solange `aria-busy=true` gesetzt ist. Bei Partieende erscheint ein entsprechender Hinweis, bei Enginefehlern wird `aria-busy` zurückgesetzt.
