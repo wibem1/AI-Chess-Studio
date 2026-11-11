@@ -117,7 +117,11 @@ test('Stockfish Variante disclosure stays visible while navigating between posit
  await summary.click();
  await expect(details).toHaveAttribute('open','');
  await expect(page.locator('#stockfish-assist-line')).toContainText('Hauptvariante:');
- const before=await summary.boundingBox();
+ const positionInRow=async()=>page.locator('#coach-match').evaluate(el=>{
+   const item=el.querySelector('#stockfish-assist-details > summary')!.getBoundingClientRect();
+   return item.top-el.getBoundingClientRect().top;
+ });
+ const before=await positionInRow();
  await page.locator('#board [data-square=e2]').click();
  await page.locator('#board [data-square=e4]').click();
  await expect(page.locator('#position-status')).toContainText('n1');
@@ -126,8 +130,8 @@ test('Stockfish Variante disclosure stays visible while navigating between posit
  await expect(details).toHaveCSS('visibility','visible');
  await expect(details).toHaveAttribute('open','');
  await expect(page.locator('#stockfish-assist-result')).toBeVisible({timeout:30000});
- const after=await summary.boundingBox();
- expect(Math.abs((after?.y??0)-(before?.y??0))).toBeLessThan(2);
+ const after=await positionInRow();
+ expect(Math.abs(after-before)).toBeLessThan(2);
  await page.locator('#learn-back').click();
  await expect(page.locator('#position-status')).toContainText('n0');
  await expect(details).toBeVisible();
