@@ -1,3 +1,11 @@
+# Chess Studio 1.5.4 – Stockfish-Navigation veröffentlicht (11. November 2026)
+
+**Veröffentlichung bestätigt:** Pull Request [#9](https://github.com/wibem1/AI-Chess-Studio/pull/9) nach `work` gemergt, Quellcommit `e573317aa15f6d48753a30c713b011767c4ec3e3`. Isolierter Freigabekandidat [42989576288](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42989576288) **SUCCESS** mit TypeScript, Node-Tests, Web-Build, **39/39 Chromium-Tests** und Manifestprüfung. Der neue Browser-Test prüft, dass beim Vor-/Zurücknavigieren keine vorübergehende Stockfish-Meldung erscheint und die Anzeigehöhe stabil bleibt. Veröffentlichungsworkflow [42989976011](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42989976011) **SUCCESS**; offizieller GitHub-Pages-Deploy [42990329277](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42990329277) **SUCCESS**. `gh-pages/BUILD.json` bestätigt Version **1.5.4**, Basis `/AI-Chess-Studio/` und den exakten Quellcommit `e573317aa15f6d48753a30c713b011767c4ec3e3`. Öffentliche Adresse: https://wibem1.github.io/AI-Chess-Studio/ .
+
+**Wirkung:** Die temporäre Meldung „Stockfish berechnet die aktuelle Stellung …“ entfällt; die Größe des Bereichs für Bewertung/Details bleibt beim Wechsel reserviert. Die Engineberechnung und Fehlerbehandlung bleiben aktiv. Automatisierter Browsertest erfolgreich, individuelle Nutzer-Geräteabnahme weiterhin offen. Keine kostenpflichtigen KI-Anfragen.
+
+---
+
 # Stockfish: keine Statusmeldung beim Vor-/Zurückspringen (11. November 2026)
 
 **Gezielt korrigiert und geprüft, noch nicht veröffentlicht.** Auf Branch `fix/stockfish-silent-navigation-20261111` wurde die vorübergehende Meldung „Stockfish berechnet die aktuelle Stellung …“ in `web/main.ts` beim Stellungswechsel entfernt. Während der Berechnung bleiben die Flächen für Bewertung und Details unsichtbar reserviert, damit der untere Bereich seine Höhe behält. Nach Abschluss wird ausschließlich die echte Bewertung eingeblendet. Die Berechnung selbst, ihre begrenzte Suche und die Fehleranzeige bleiben erhalten. `e2e/stockfish-assist.spec.ts` prüft die Meldungsfreiheit und die konstante Höhe beim Vorwärts-/Rückwärtsnavigieren.
