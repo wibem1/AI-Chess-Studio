@@ -1,3 +1,13 @@
+# Chess Studio 1.5.6 – feste Stockfish-Variantenzeile veröffentlicht (11. November 2026)
+
+**Release bestätigt.** PR [#11](https://github.com/wibem1/AI-Chess-Studio/pull/11) wurde nach `work` gemergt (Merge-Commit `b095e57c395bb0c939399b3ecd4ff91d15986bbb`). Der zunächst ausgelöste Release-Lauf [43032939262](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43032939262) scheiterte einschließlich einer einmaligen Wiederholung ausschließlich an der Namensauflösung `azure.archive.ubuntu.com` bei der Chromium-Abhängigkeitsinstallation; Anwendungstests wurden dort nicht gestartet. Mit PR [#12](https://github.com/wibem1/AI-Chess-Studio/pull/12) wurde die Release-Pipeline für `npx playwright install chromium` ohne externe Ubuntu-apt-Paketinstallation angepasst (Source-Commit `e28ff8530b66ebd5d6a3bcba3e4d0047e8f1cf88`), ohne Änderung des Chess-Studio-Anwendungscodes.
+
+**Freigabeprüfung und Deployment:** Der letzte isolierte Kandidat [43004203405](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43004203405) bestand Typprüfung, Node-Tests, Web-Build, Produktionsmanifest und **41/41 Chromium-Browsertests** einschließlich kurzer/langer Bewertungstexte auf schmalen und breiten Bildschirmen. Der endgültige Release-Lauf [43035961203](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43035961203) **SUCCESS**, einschließlich Browserintegration und Deploymentkontrolle. Der offizielle Pages-Lauf [43036484278](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43036484278) **SUCCESS**. `gh-pages/BUILD.json` meldet Version **1.5.6**, Basis `/AI-Chess-Studio/` und Source-Commit `e28ff8530b66ebd5d6a3bcba3e4d0047e8f1cf88`. Öffentliche App: https://wibem1.github.io/AI-Chess-Studio/ .
+
+**Ergebnis:** Die Stockfish-Überschrift „Variante“ liegt auch bei wechselnder Bewertungslänge in einer eigenen, festen Grid-Zeile und bleibt bis zum manuellen Schließen geöffnet. Praxisbestätigung durch den Nutzer steht noch aus. Keine bezahlten KI-Anfragen.
+
+---
+
 # Chess Studio 1.5.6 – Kandidat geprüft, Pull Request offen (11. November 2026)
 
 **Releasekandidat bereit, ausdrücklich noch nicht veröffentlicht.** Die Korrektur des von Bewertungslänge abhängigen Zeilenumbruchs der Stockfish-Variante liegt auf Branch `fix/stockfish-variation-fixed-row-20261111`. Version `1.5.6` ist in `package.json`, `package-lock.json`, `CHANGELOG.md` und Release-Workflow synchronisiert. Pull Request [#11](https://github.com/wibem1/AI-Chess-Studio/pull/11) nach `work` ist **offen** und darf ohne ausdrücklichen Freigabeauftrag nicht gemergt werden.
