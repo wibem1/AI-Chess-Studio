@@ -366,7 +366,9 @@ function showStockfishReport(report:TacticalReport){
  stockfishResult.textContent='Stockfish: '+score+(report.score.unit==='cp'?' (Weiß)':'')+' · T'+report.depth;
  stockfishLine.textContent='Hauptvariante: '+report.line.slice(0,8).join(' ')+' · '+report.nodes+' Knoten';
  stockfishDetails.hidden=false;
+ stockfishDetails.style.visibility='visible';
  stockfishResult.hidden=false;
+ stockfishResult.style.visibility='visible';
  stockfishStatus.hidden=true;
 }
 function syncStockfishBoard(){
@@ -382,21 +384,26 @@ function syncStockfishBoard(){
  const data=studio.session.snapshot(),fen=data.nodes.find(n=>n.id===data.activeNodeId)!.fen;
  if(stockfishVisibleFen===fen)return;
  stockfishVisibleFen=fen;
- stockfishResult.hidden=true;
- stockfishDetails.hidden=true;
+ // Keep the score and details' layout slots, but show no transient computing message.
+ // This avoids shifting the content below the board at every navigation step.
+ if(!stockfishResult.textContent)stockfishResult.textContent='Stockfish: +0.00 (Weiß) · T12';
+ stockfishResult.hidden=false;
+ stockfishResult.style.visibility='hidden';
+ stockfishDetails.hidden=false;
+ stockfishDetails.style.visibility='hidden';
  stockfishDetails.open=false;
- stockfishStatus.hidden=false;
+ stockfishStatus.hidden=true;
  const board=new Chess(fen);
- if(board.isGameOver()){stopStockfishSearch();stockfishStatus.textContent='Partie beendet. Für diese Stellung ist keine begrenzte Stockfish-Suche verfügbar.';return;}
+ if(board.isGameOver()){stopStockfishSearch();stockfishResult.textContent='Stockfish: keine Bewertung (Partie beendet)';stockfishResult.style.visibility='visible';return;}
  const report=stockfishCache.get(fen);
  if(report){showStockfishReport(report);return;}
- stockfishStatus.textContent='Stockfish berechnet die aktuelle Stellung …';
+ // No transient text while Stockfish calculates; only the final score is displayed.
  const generation=++stockfishSearchGeneration;
  void getStockfishReport(fen).then(result=>{
   if(stockfishAssistEnabled&&$('workspace').dataset.activeView==='learn'&&stockfishVisibleFen===fen&&generation<=stockfishSearchGeneration)showStockfishReport(result);
  }).catch(error=>{
   if(stockfishAssistEnabled&&$('workspace').dataset.activeView==='learn'&&stockfishVisibleFen===fen)
-   stockfishStatus.textContent='Stockfish-Bewertung fehlgeschlagen: '+(error instanceof Error?error.message:'Engine nicht verfügbar.');
+   {stockfishResult.style.visibility='hidden';stockfishStatus.hidden=false;stockfishStatus.textContent='Stockfish-Bewertung fehlgeschlagen: '+(error instanceof Error?error.message:'Engine nicht verfügbar.');}
  });
 }
 void browserRuntime.store.getStockfishAssistEnabled().then(enabled=>{
