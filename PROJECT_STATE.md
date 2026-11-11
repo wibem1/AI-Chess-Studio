@@ -1,3 +1,13 @@
+# Chess Studio 1.5.6 – Kandidat geprüft, Pull Request offen (11. November 2026)
+
+**Releasekandidat bereit, ausdrücklich noch nicht veröffentlicht.** Die Korrektur des von Bewertungslänge abhängigen Zeilenumbruchs der Stockfish-Variante liegt auf Branch `fix/stockfish-variation-fixed-row-20261111`. Version `1.5.6` ist in `package.json`, `package-lock.json`, `CHANGELOG.md` und Release-Workflow synchronisiert. Pull Request [#11](https://github.com/wibem1/AI-Chess-Studio/pull/11) nach `work` ist **offen** und darf ohne ausdrücklichen Freigabeauftrag nicht gemergt werden.
+
+**Prüfbeleg:** Kandidatenlauf [43004203405](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43004203405) **SUCCESS** mit TypeScript, vollständigen Node-Tests, Web-Build, **41/41 Chromium-Browsertests** und Produktionsmanifest-Prüfung ohne Deployment. Der neue Browsertest zur festen Variantenzeile auch bei langen Mattangaben wurde bestanden. Alle Tests ohne kostenpflichtige KI-Anfragen.
+
+**Nächster einzelner Schritt:** Erst bei ausdrücklicher Veröffentlichungserlaubnis PR #11 mergen, den Release-Workflow und den offiziellen Pages-Deploy auf SUCCESS prüfen und `gh-pages/BUILD.json` auf die Version 1.5.6 sowie den korrekten Source-Commit abgleichen. Öffentliche Web-App bis dahin **1.5.5**; Praxisabnahme des Layouts auf dem Nutzergerät steht aus.
+
+---
+
 # Stockfish: Variante auf fester Zeile unabhängig von Bewertungslänge (11. November 2026)
 
 **Implementiert und browsergetestet, nicht veröffentlicht.** Nutzer meldete, dass die in Version 1.5.5 offen bleibende Stockfish-Überschrift „Variante“ beim Blättern dennoch zwischen derselben Zeile wie die Bewertung und der Folgezeile springt. Ursache war der `flex-wrap`-Umbruch in `#stockfish-assist-settings`: unterschiedlich lange Bewertungszeichenfolgen änderten die Platzierung des `details`-Elements. Auf Branch `fix/stockfish-variation-fixed-row-20261111` ist dieses Element nun ein zweizeiliges inneres Grid mit fester Variante-Zeile (Zeile 2); die einzeilige Bewertungsfläche kann horizontal überlaufen, ohne die Variante zu versetzen. Auf breiten Bildschirmen bleibt das Stockfish-Feld neben den KI-gegen-Engine-Bedienelementen, auf schmalen nutzt es die volle Zeile. Der Nutzer-Aufklappzustand und die Engineberechnung bleiben unverändert.
