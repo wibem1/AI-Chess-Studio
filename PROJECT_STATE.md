@@ -1,3 +1,23 @@
+# Chess Studio 1.5.5 – Freigabekandidat erfolgreich geprüft (11. November 2026)
+
+**Quellstand:** Auf `fix/stockfish-variation-heading-stable-20261111` ist die Stockfish-Variantenanzeige korrigiert: Die Überschrift bleibt beim Blättern sichtbar, geöffnete Details bleiben geöffnet, bis der Nutzer sie selbst schließt; eine neue Hauptvariante ersetzt den bisherigen Inhalt im bestehenden Feld. Die Version ist in `package.json`, `package-lock.json`, `CHANGELOG.md` und Release-Workflow einheitlich als **1.5.5** vorbereitet. Pull Request [#10](https://github.com/wibem1/AI-Chess-Studio/pull/10) nach `work` ist **offen**, nicht gemergt.
+
+**Prüfbeleg:** GitHub Actions [42999537174](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42999537174), getesteter Quellcommit `d2d6cc689a7e5a2cf498523d8480b4fe87d57f2d`, **SUCCESS**: TypeScript, vollständige Node-Tests, Web-Build, **40/40 Chromium-Browsertests** (einschließlich Aufklappzustand und Vor-/Zurücknavigieren), Manifestprüfung ohne Deployment. Keine bezahlten KI-Anfragen. Ein anschließender Dokumentationscommit ändert ausschließlich `PROJECT_STATE.md`.
+
+**Freigabegrenze:** **Noch keine Veröffentlichung.** Die öffentliche App bleibt Version **1.5.4**, bis ein ausdrücklicher Auftrag für Merge und Deployment vorliegt. Nächster einzelner Schritt: Nach Veröffentlichungsauftrag PR #10 mergen, den automatisch gestarteten Release-Workflow abwarten, das `gh-pages/BUILD.json` auf 1.5.5 prüfen und den offiziellen Pages-Deploy auf SUCCESS bestätigen.
+
+---
+
+# Stockfish-Variante: Aufklappzustand bleibt bei Stellungswechsel erhalten (11. November 2026)
+
+**Implementiert und browsergetestet – nicht veröffentlicht.** Auf Branch `fix/stockfish-variation-heading-stable-20261111` bleibt der Stockfish-Bereich „Variante“ beim Rechnen sichtbar und dessen `details.open`-Zustand bei jeder Navigation unverändert. Ein vom Nutzer geöffnetes Feld bleibt offen, bis es ausdrücklich geschlossen wird; eine neue Berechnung ersetzt die bisherige Hauptvariante direkt im selben Feld. Die vorherige Zugfolge bleibt als platzstabiler Text während der kurzen Berechnung erhalten und wird danach aktualisiert; dies ist ausdrücklich keine neue Stellungsbewertung, solange `aria-busy=true` gesetzt ist. Bei Partieende erscheint ein entsprechender Hinweis, bei Enginefehlern wird `aria-busy` zurückgesetzt.
+
+**Prüfbeleg:** GitHub Actions [42992021667](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42992021667) **SUCCESS** mit Typprüfung, vollständigen Node-Tests, Web-Build, **40/40 Browser-Tests** und Manifestvorbereitung ohne Deployment. Neuer Regressionstest „Stockfish Variante disclosure stays visible while navigating between positions“ erfolgreich, einschließlich Offenbleiben, manuellem Schließen und stabilem Header-Layout. Der erste Testlauf [42991478573](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42991478573) scheiterte unter anderem an einem ungeeigneten viewport-relativen Positionsvergleich trotz Browser-Autoscrolling und einem separaten Pages-Testtimeout; der Messwert wird nun relativ zur Bedienzeile ermittelt.
+
+**Nächster Schritt:** Veröffentlichung auf ausdrücklichen Auftrag als Patchversion 1.5.5 (mit Versionsdateien, Changelog, erneutem Release-Gate). Aktuell öffentlich weiter 1.5.4. Die echte Nutzer-Geräteabnahme ist offen; keine bezahlten KI-Anfragen.
+
+---
+
 # Chess Studio 1.5.4 – Stockfish-Navigation veröffentlicht (11. November 2026)
 
 **Veröffentlichung bestätigt:** Pull Request [#9](https://github.com/wibem1/AI-Chess-Studio/pull/9) nach `work` gemergt, Quellcommit `e573317aa15f6d48753a30c713b011767c4ec3e3`. Isolierter Freigabekandidat [42989576288](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42989576288) **SUCCESS** mit TypeScript, Node-Tests, Web-Build, **39/39 Chromium-Tests** und Manifestprüfung. Der neue Browser-Test prüft, dass beim Vor-/Zurücknavigieren keine vorübergehende Stockfish-Meldung erscheint und die Anzeigehöhe stabil bleibt. Veröffentlichungsworkflow [42989976011](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42989976011) **SUCCESS**; offizieller GitHub-Pages-Deploy [42990329277](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42990329277) **SUCCESS**. `gh-pages/BUILD.json` bestätigt Version **1.5.4**, Basis `/AI-Chess-Studio/` und den exakten Quellcommit `e573317aa15f6d48753a30c713b011767c4ec3e3`. Öffentliche Adresse: https://wibem1.github.io/AI-Chess-Studio/ .

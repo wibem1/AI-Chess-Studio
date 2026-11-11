@@ -365,6 +365,7 @@ function showStockfishReport(report:TacticalReport){
   :report.score.value===0?'Mattbewertung 0':(report.score.value>0?'Matt für Weiß in ':'Matt für Schwarz in ')+Math.abs(report.score.value);
  stockfishResult.textContent='Stockfish: '+score+(report.score.unit==='cp'?' (Weiß)':'')+' · T'+report.depth;
  stockfishLine.textContent='Hauptvariante: '+report.line.slice(0,8).join(' ')+' · '+report.nodes+' Knoten';
+ stockfishDetails.removeAttribute('aria-busy');
  stockfishDetails.hidden=false;
  stockfishDetails.style.visibility='visible';
  stockfishResult.hidden=false;
@@ -377,7 +378,7 @@ function syncStockfishBoard(){
   if(stockfishVisibleFen){stockfishVisibleFen='';stopStockfishSearch();}
   stockfishResult.hidden=true;
   stockfishDetails.hidden=true;
-  stockfishDetails.open=false;
+  // Preserve the expanded/collapsed preference even across a temporary view change.
   stockfishStatus.hidden=!stockfishAssistEnabled;
   return;
  }
@@ -389,12 +390,15 @@ function syncStockfishBoard(){
  if(!stockfishResult.textContent)stockfishResult.textContent='Stockfish: +0.00 (Weiß) · T12';
  stockfishResult.hidden=false;
  stockfishResult.style.visibility='hidden';
+ // Keep the "Variante" disclosure visible and preserve the user's open state.
+ // Retain the previous line as an in-place placeholder until the new result is
+ // ready; clearing it or collapsing the details would shift the lower panel.
  stockfishDetails.hidden=false;
- stockfishDetails.style.visibility='hidden';
- stockfishDetails.open=false;
+ stockfishDetails.style.visibility='visible';
+ stockfishDetails.setAttribute('aria-busy','true');
  stockfishStatus.hidden=true;
  const board=new Chess(fen);
- if(board.isGameOver()){stopStockfishSearch();stockfishResult.textContent='Stockfish: keine Bewertung (Partie beendet)';stockfishResult.style.visibility='visible';return;}
+ if(board.isGameOver()){stopStockfishSearch();stockfishResult.textContent='Stockfish: keine Bewertung (Partie beendet)';stockfishResult.style.visibility='visible';stockfishLine.textContent='Keine Hauptvariante: Partie beendet.';stockfishDetails.removeAttribute('aria-busy');return;}
  const report=stockfishCache.get(fen);
  if(report){showStockfishReport(report);return;}
  // No transient text while Stockfish calculates; only the final score is displayed.
@@ -403,7 +407,7 @@ function syncStockfishBoard(){
   if(stockfishAssistEnabled&&$('workspace').dataset.activeView==='learn'&&stockfishVisibleFen===fen&&generation<=stockfishSearchGeneration)showStockfishReport(result);
  }).catch(error=>{
   if(stockfishAssistEnabled&&$('workspace').dataset.activeView==='learn'&&stockfishVisibleFen===fen)
-   {stockfishResult.style.visibility='hidden';stockfishStatus.hidden=false;stockfishStatus.textContent='Stockfish-Bewertung fehlgeschlagen: '+(error instanceof Error?error.message:'Engine nicht verfügbar.');}
+   {stockfishDetails.removeAttribute('aria-busy');stockfishResult.style.visibility='hidden';stockfishStatus.hidden=false;stockfishStatus.textContent='Stockfish-Bewertung fehlgeschlagen: '+(error instanceof Error?error.message:'Engine nicht verfügbar.');}
  });
 }
 void browserRuntime.store.getStockfishAssistEnabled().then(enabled=>{
