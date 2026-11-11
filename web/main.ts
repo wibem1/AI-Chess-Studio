@@ -365,6 +365,7 @@ function showStockfishReport(report:TacticalReport){
   :report.score.value===0?'Mattbewertung 0':(report.score.value>0?'Matt für Weiß in ':'Matt für Schwarz in ')+Math.abs(report.score.value);
  stockfishResult.textContent='Stockfish: '+score+(report.score.unit==='cp'?' (Weiß)':'')+' · T'+report.depth;
  stockfishLine.textContent='Hauptvariante: '+report.line.slice(0,8).join(' ')+' · '+report.nodes+' Knoten';
+ stockfishDetails.removeAttribute('aria-busy');
  stockfishDetails.hidden=false;
  stockfishDetails.style.visibility='visible';
  stockfishResult.hidden=false;
@@ -389,15 +390,15 @@ function syncStockfishBoard(){
  if(!stockfishResult.textContent)stockfishResult.textContent='Stockfish: +0.00 (Weiß) · T12';
  stockfishResult.hidden=false;
  stockfishResult.style.visibility='hidden';
- // Keep the "Variante" disclosure visible throughout navigation; only its
- // actual move line changes when the new Stockfish report is ready.
+ // Keep the "Variante" disclosure visible and preserve the user's open state.
+ // Retain the previous line as an in-place placeholder until the new result is
+ // ready; clearing it or collapsing the details would shift the lower panel.
  stockfishDetails.hidden=false;
  stockfishDetails.style.visibility='visible';
- stockfishDetails.open=false;
- stockfishLine.textContent='';
+ stockfishDetails.setAttribute('aria-busy','true');
  stockfishStatus.hidden=true;
  const board=new Chess(fen);
- if(board.isGameOver()){stopStockfishSearch();stockfishResult.textContent='Stockfish: keine Bewertung (Partie beendet)';stockfishResult.style.visibility='visible';return;}
+ if(board.isGameOver()){stopStockfishSearch();stockfishResult.textContent='Stockfish: keine Bewertung (Partie beendet)';stockfishResult.style.visibility='visible';stockfishLine.textContent='Keine Hauptvariante: Partie beendet.';stockfishDetails.removeAttribute('aria-busy');return;}
  const report=stockfishCache.get(fen);
  if(report){showStockfishReport(report);return;}
  // No transient text while Stockfish calculates; only the final score is displayed.
