@@ -1,3 +1,11 @@
+# Chess Studio 1.5.5 – Stockfish-Variante veröffentlicht (11. November 2026)
+
+**Veröffentlichung bestätigt:** Pull Request [#10](https://github.com/wibem1/AI-Chess-Studio/pull/10) nach `work` gemergt, Quellcommit `3d69782092695926f350110356121c035e852aba`. Kandidatenprüfung [42999537174](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42999537174) **SUCCESS** mit TypeScript, Node-Tests, Web-Build, **40/40 Chromium-Browsertests** einschließlich geöffnet bleibender Stockfish-Variante und Manifestprüfung ohne Deployment. Veröffentlichungspipeline [43000493830](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43000493830) **SUCCESS**, offizielles GitHub-Pages-Deployment [43001036845](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43001036845) **SUCCESS**. `gh-pages/BUILD.json` bestätigt **Version 1.5.5**, Basis `/AI-Chess-Studio/` und exakten Quellcommit `3d69782092695926f350110356121c035e852aba`. Öffentliche App: https://wibem1.github.io/AI-Chess-Studio/ .
+
+**Wirkung und Grenzen:** Die Überschrift „Variante“ bleibt beim Vor-/Zurückblättern sichtbar; eine geöffnete Stockfish-Hauptvariante bleibt geöffnet, bis sie der Nutzer manuell schließt. Während der Neuberechnung bleibt der letzte Varianteninhalt für stabile Höhe bestehen und wird nach dem Ergebnis aktualisiert; laufende Berechnung mit `aria-busy` gekennzeichnet. Automated Browser-Test bestanden, Praxisabnahme auf Nutzergerät offen. Keine kostenpflichtigen KI-Anfragen.
+
+---
+
 # Chess Studio 1.5.5 – Freigabekandidat erfolgreich geprüft (11. November 2026)
 
 **Quellstand:** Auf `fix/stockfish-variation-heading-stable-20261111` ist die Stockfish-Variantenanzeige korrigiert: Die Überschrift bleibt beim Blättern sichtbar, geöffnete Details bleiben geöffnet, bis der Nutzer sie selbst schließt; eine neue Hauptvariante ersetzt den bisherigen Inhalt im bestehenden Feld. Die Version ist in `package.json`, `package-lock.json`, `CHANGELOG.md` und Release-Workflow einheitlich als **1.5.5** vorbereitet. Pull Request [#10](https://github.com/wibem1/AI-Chess-Studio/pull/10) nach `work` ist **offen**, nicht gemergt.
