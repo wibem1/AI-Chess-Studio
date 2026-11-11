@@ -104,3 +104,32 @@ test('Stockfish navigation has no calculating message or height jump',async({pag
  await expect(score).toBeVisible({timeout:30000});
  expect(Math.abs((await row.evaluate(el=>el.getBoundingClientRect().height))-height)).toBeLessThan(2);
 });
+
+test('Stockfish Variante disclosure stays visible while navigating between positions',async({page})=>{
+ test.setTimeout(60000);
+ await page.goto('/?platform=web#lernen');
+ await expect(page.locator('#workspace')).not.toHaveAttribute('inert','');
+ await page.locator('#stockfish-assist-enabled').check();
+ const details=page.locator('#stockfish-assist-details');
+ const summary=page.locator('#stockfish-assist-details > summary');
+ await expect(details).toBeVisible({timeout:30000});
+ await expect(summary).toHaveText('Variante');
+ const before=await summary.boundingBox();
+ await page.locator('#board [data-square=e2]').click();
+ await page.locator('#board [data-square=e4]').click();
+ await expect(page.locator('#position-status')).toContainText('n1');
+ await expect(details).toBeVisible();
+ await expect(summary).toHaveText('Variante');
+ await expect(details).toHaveCSS('visibility','visible');
+ await expect(page.locator('#stockfish-assist-result')).toBeVisible({timeout:30000});
+ const after=await summary.boundingBox();
+ expect(Math.abs((after?.y??0)-(before?.y??0))).toBeLessThan(2);
+ await page.locator('#learn-back').click();
+ await expect(page.locator('#position-status')).toContainText('n0');
+ await expect(details).toBeVisible();
+ await expect(details).toHaveCSS('visibility','visible');
+ await page.locator('#learn-next').click();
+ await expect(page.locator('#position-status')).toContainText('n1');
+ await expect(details).toBeVisible();
+ await expect(details).toHaveCSS('visibility','visible');
+});
