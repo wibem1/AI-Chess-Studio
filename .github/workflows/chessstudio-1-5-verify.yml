@@ -8,6 +8,7 @@ on:
       - feat/prioritized-human-plans-20261110
       - fix/diagnostic-complete-move-history-20261110
       - fix/stockfish-variation-heading-stable-20261111
+      - fix/stockfish-variation-fixed-row-20261111
       - fix/stockfish-silent-navigation-20261111
     paths:
       - .github/workflows/chessstudio-1-5-verify.yml

@@ -1,5 +1,13 @@
 # Änderungen
 
+## 1.5.6 – Feste Zeile für die Stockfish-Hauptvariante (11. November 2026)
+
+- Die Stockfish-Bewertung erhält eine separate einzeilige Fläche; die Überschrift „Variante“ steht fest in der folgenden Zeile und springt nicht mehr bei unterschiedlich langen Bewertungen.
+- Der Stockfish-Bereich bleibt auf breiten Bildschirmen neben „KI gegen Engine“; auf schmalen Bildschirmen erhält er die nötige Breite.
+- Öffnen und Schließen der Variante bleiben ausschließlich unter Nutzerkontrolle. Die Engineberechnung und ihre Ergebnisse ändern sich nicht.
+- Browserregression mit kurzen Bewertungen, langen Mattangaben und Bildschirmbreiten 1440/390 Pixel; 41/41 Chromium-Tests im Entwicklungsbranch erfolgreich (GitHub Actions 43002600385).
+
+
 ## 1.5.5 – Stockfish-Variante bleibt beim Blättern geöffnet (11. November 2026)
 
 - Die Überschrift „Variante“ bleibt bei jeder Stockfish-Neuberechnung dauerhaft sichtbar, ohne Flackern.

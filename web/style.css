@@ -541,17 +541,24 @@ html:has(#workspace[data-active-view=learn]),body:has(#workspace[data-active-vie
 #general-ai-instructions-status{min-height:1.4em}
 
 /* Optional Stockfish control shares the KI gegen Engine row, not its own board row. */
-#board-area #coach-match #stockfish-assist-settings{display:inline-flex;align-items:center;justify-content:flex-start;flex-wrap:wrap;gap:4px 8px;flex:0 1 auto;min-width:0;width:auto;align-self:center;margin:0 0 0 8px;padding:0;border:0;border-radius:0;background:transparent;font-size:.78rem}
+/* A fixed, independent slot for Stockfish. The variable-length score must never
+   move the "Variante" disclosure between the score row and the next row. */
+#board-area #coach-match #stockfish-assist-settings{display:grid;grid-column:4;grid-row:1;grid-template-columns:max-content minmax(0,1fr);align-items:center;justify-content:stretch;column-gap:8px;row-gap:3px;min-width:0;width:100%;margin:0;padding:0;border:0;border-radius:0;background:transparent;font-size:.78rem}
+#board-area #coach-match #stockfish-assist-settings .stockfish-board-switch{grid-column:1;grid-row:1}
+#board-area #coach-match #stockfish-assist-result{grid-column:2;grid-row:1;min-width:0;max-width:100%;overflow-x:auto;overflow-y:hidden;white-space:nowrap;scrollbar-width:none}
+#board-area #coach-match #stockfish-assist-result::-webkit-scrollbar{display:none}
+#board-area #coach-match #stockfish-assist-details{grid-column:1/-1;grid-row:2;min-width:0;width:100%}
+#board-area #coach-match #stockfish-assist-status:not([hidden]){grid-column:1/-1;grid-row:3}
 #coach-match #stockfish-assist-settings[hidden],#stockfish-assist-details[hidden],#stockfish-assist-status[hidden],#stockfish-assist-result[hidden]{display:none!important}
 #stockfish-assist-settings .stockfish-board-switch{margin:0;display:inline-flex;align-items:center;gap:5px;font-size:.76rem;cursor:pointer;white-space:nowrap}
 #stockfish-assist-settings input{width:16px;height:16px;flex:none}
 #stockfish-assist-status{margin:0;font-size:.73rem;line-height:1.25}
 #stockfish-assist-result{margin:0;font-size:.76rem;line-height:1.25;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
 #stockfish-assist-details{margin:0;font-size:.75rem;flex:0 1 auto}
-#stockfish-assist-details[open]{flex-basis:100%}
+#stockfish-assist-details[open]{min-width:0}
 #stockfish-assist-details summary{cursor:pointer;color:var(--muted)}
 #stockfish-assist-line{margin:4px 0 0;overflow-wrap:anywhere}
 #coach-match #stockfish-assist-settings .stockfish-limits{margin:3px 0 0;font-size:.69rem;color:var(--muted)}
 #board-area #learning-chat{order:2}
-@media(max-width:600px){#board-area #coach-match #stockfish-assist-settings{margin-left:0;flex-basis:100%}}
+@media(max-width:600px){#board-area #coach-match #stockfish-assist-settings{margin-left:0;grid-column:1/-1;grid-row:auto}}
 .workspace[data-active-view=play] #stockfish-assist-settings{display:none}
