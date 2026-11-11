@@ -36,7 +36,7 @@ jobs:
       - name: Abhaengigkeiten installieren
         run: npm ci
       - name: Chromium fuer Browsertests installieren
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install chromium
       - name: Typpruefung fuer 1.5.6
         run: npm run check
       - name: Build und Einzeltests
