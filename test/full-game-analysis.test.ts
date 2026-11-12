@@ -38,3 +38,12 @@ test('incomplete and aborted scans do not claim a complete player-quality report
  await assert.rejects(scanFullGame(root,['f3','e5'],{async check(){calls++;throw new Error();}},()=>{},c.signal),/abgebrochen/);
  assert.equal(calls,0);
 });
+
+test('KI context contains every move evaluation, with the largest swing explicitly prioritized',()=>{
+ const report=makeFullGameAnalysis(new Chess().fen(),['f3','e5','g4','Qh4#'],[0,-180,-160,-570,-1500]);
+ const summary=fullGameSummary(report,1);
+ assert.match(summary,/Wichtigste Fehler nach Bewertungsverlust: 2\.g4: grober Fehler/);
+ assert.match(summary,/Vollständiger chronologischer Verlauf aller 4 Halbzüge/);
+ for(const move of ['1.f3','1…e5','2.g4','2…Qh4#'])assert.ok(summary.includes(move),move);
+ assert.match(summary,/ANALYSEAUFTRAG: Identifiziere zuerst die größten/);
+});
