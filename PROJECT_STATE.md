@@ -1,3 +1,15 @@
+# Entwicklungsstand: Vollständige Stockfish-Bewertungen im KI-Kontext (12. November 2026)
+
+**Branch:** `feat/stockfish-whole-game-analysis-20261112`. **Nicht gemergt, nicht veröffentlicht.** Öffentliche Version laut `work`: 1.5.8.
+
+**Diese Sitzung – implementiert, noch nicht in CI getestet:** In `src/full-game-analysis.ts` übergibt `fullGameSummary()` der KI nun eine vollständige zeitliche Liste aller Halbzüge mit jeweiliger Stockfish-Bewertung aus Weißsicht. Die schwersten Bewertungsverluste werden zusätzlich priorisiert und mit Ausgangsstellung genannt. Ein ausdrücklicher Analyseauftrag fordert die Erklärung großer Wendepunkte vor nachrangigen strategischen Kommentaren. Regressionstest in `test/full-game-analysis.test.ts` ergänzt. Dokumentiert in `docs/FULL_GAME_STOCKFISH.md`. Commits: `22161ac0`, `3479fe78`, `147c080a`.
+
+**Prüfstand:** Quelltext und Test geschrieben; weder TypeScript/Node-Tests noch Chromium-/Maia-/Stockfish-Integrationstests in dieser Sitzung ausgeführt. Netzwerkzugriff auf GitHub per lokaler Git-CLI nicht möglich. Der bereits zuvor fehlgeschlagene Full-Game-Browsertest ist weiterhin ein Blocker. Keine kostenpflichtige Modellanfrage.
+
+**Nächster einzelner Schritt:** Integrationstest zur vollständigen Partieanalyse reproduzieren, Ursache beheben und vollständige Tests ausführen. Danach erst bewerten, ob die KI tatsächlich den großen Maia-Fehler erkennt. Zukünftig separate Schritte: höhere Stockfish-Suchtiefe bei Wendepunkten und Maia-Kaltstartzeiten messen/verbessern.
+
+---
+
 # Chess Studio 1.5.7 – Maia-2-Zugauswahl veröffentlicht (12. November 2026)
 
 **Release und GitHub Pages erfolgreich abgeschlossen.** PR [#14](https://github.com/wibem1/AI-Chess-Studio/pull/14) mit Maia-2-Auswahlkorrektur wurde in `work` gemergt; Merge-Commit `de76cca1216c4498cefc87f201963f8ef60ab311`. Der zuvor geprüfte Kandidatenlauf [43207378274](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43207378274) bestand Typprüfung, Node-Tests samt echtem Maia-2-ONNX-Modell, Produktions-Build, 42/42 Browsertests (einschließlich der echten Maia-Antwort auf `1.d4`) und Manifestkontrolle. Offizieller Release-Lauf [43221408627](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43221408627) **SUCCESS**, einschließlich Browserintegration und Deploymentkontrolle. Offizieller GitHub-Pages-Lauf [43221848440](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43221848440) **SUCCESS**. `gh-pages/BUILD.json` meldet `version: 1.5.7`, `base: /AI-Chess-Studio/` und `sourceCommit: de76cca1216c4498cefc87f201963f8ef60ab311`. Öffentliche App: https://wibem1.github.io/AI-Chess-Studio/ .
