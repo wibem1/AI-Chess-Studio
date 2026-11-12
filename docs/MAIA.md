@@ -13,13 +13,25 @@ konditioniert das Modell, misst nicht die Stärke des Nutzers und ist keine
 Elo-Zusage. Für beide Modell-Elo-Eingaben wird dasselbe gewählte Profil benutzt;
 keine heimliche Schätzung der menschlichen Spielstärke.
 
-Maia sagt menschliche Züge voraus. Aus ihrer legalen Zugverteilung wird mit
-Temperatur 1 gewählt; Züge unter 1 % Wahrscheinlichkeit werden ausgeschlossen,
-der wahrscheinlichste bleibt immer verfügbar. Keine absichtlich eingebauten
-Stockfish-Fehler und keine Stockfish-Suche hinter der Maia-Auswahl. Die ersten
-Eröffnungszüge sind in Maia-2s Trainingsdaten unterrepräsentiert; natürliches
-Spiel in jeder Stellung ist nicht garantiert. Keine zusätzliche Eröffnungs-
-bibliothek oder versteckte Ersatzengine eingebaut.
+Maia sagt menschliche Züge voraus. Die unveränderte ONNX-Zugverteilung
+bleibt die Grundlage; die **Chess-Studio-Auswahlpolitik** begrenzt inzwischen
+die Kandidaten: In den ersten 30 Halbzügen höchstens vier Kandidaten mit
+mindestens 18 % der Wahrscheinlichkeit des besten *zulässigen* Kandidaten;
+danach höchstens acht Kandidaten und mindestens 8 % des besten Kandidaten.
+Innerhalb dieser Menge wird weiter gewichtet zufällig gezogen. Ein direkter
+Rückzug derselben Figur auf ihr vorheriges Feld wird nur aus der Auswahl
+entfernt, wenn die Figur nicht angegriffen ist, der König nicht im Schach steht
+und eine andere ausreichend wahrscheinliche Möglichkeit existiert. Bei Schach,
+Angriff auf die Figur oder fehlenden Alternativen bleibt der Rückzug möglich.
+Dieser Filter ist eine praktische Trainingsheuristik, **kein Beweis für den
+besten Zug** und keine Garantie für die angezeigte Spielstärke.
+
+Grund: Maia-2 Blitz bevorzugte im echten Modelltest nach `1.d4 Sc6 2.e3`
+den unsinnigen Rückzug `...Sb8` mit 87 %, während der ebenfalls beobachtete
+Anfangszug `...Sa6` nach `1.d4` nur 1,3 % besaß. Die Eröffnungszüge sind
+in Maia-2s Trainingsdaten unterrepräsentiert. Es gibt weiterhin keine
+Stockfish-Suche, keinen Stockfish-Fallback und keine zusätzliche
+Eröffnungsbibliothek hinter dem Maia-Gegner.
 
 Lernmodus pausiert den Gegner; eigene Varianten, Kommentare, Rücknahme,
 Fortsetzen und gespeicherte Partien behalten die gewählte Engineidentität.
