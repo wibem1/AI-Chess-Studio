@@ -404,9 +404,7 @@ function syncStockfishBoard(){
  stockfishDetails.setAttribute('aria-busy','true');
  stockfishStatus.hidden=true;
  const board=new Chess(fen);
- if(board.isGameOver()){stopStockfishSearch();stockfishResult.textContent='Stockfish: keine Bewertung (Partie beendet)';stockfishResult.style.visibility='visible';stockfishLine.textContent='Keine Hauptvariante: Partie beendet.';stockfishDetails.removeAttribute('aria-busy');return;}
- const report=stockfishCache.get(fen);
- if(report){showStockfishReport(report);return;}
+ if(board.isGameOver()){stopStockfishSearch();stockfishResult.textContent='Stockfish: Partie beendet';stockfishResult.style.visibility='visible';stockfishLine.textContent='Die Endstellung wird regelgeprüft und automatisch gespeichert.';stockfishDetails.removeAttribute('aria-busy');return;}
  // Visibility is presentation only: never start an engine search here.
  const record=data.positionScores?.[data.activeNodeId];
  if(record?.fen===fen){
@@ -422,7 +420,7 @@ function syncStockfishBoard(){
 }
 void browserRuntime.store.getStockfishAssistEnabled().then(enabled=>{
  stockfishAssistEnabled=enabled;stockfishToggle.checked=enabled;
- stockfishStatus.textContent=enabled?'Stockfish ist eingeschaltet.':'Stockfish ist ausgeschaltet.';
+ stockfishStatus.textContent=enabled?'Stockfish-Bewertung sichtbar.':'Stockfish-Bewertung verborgen; die Berechnung läuft weiter.';
  syncStockfishBoard();
 }).catch(()=>{stockfishStatus.hidden=false;stockfishStatus.textContent='Einstellung nicht lesbar; Stockfish bleibt aus.';});
 stockfishToggle.addEventListener('change',async()=>{
@@ -430,7 +428,7 @@ stockfishToggle.addEventListener('change',async()=>{
  try{
   await browserRuntime.store.setStockfishAssistEnabled(chosen);
   stockfishAssistEnabled=chosen;
-  stockfishStatus.textContent=chosen?'Stockfish wird gestartet …':'Stockfish ist ausgeschaltet.';
+  stockfishStatus.textContent=chosen?'Stockfish-Bewertung sichtbar.':'Stockfish-Bewertung verborgen; die Berechnung läuft weiter.';
   stockfishVisibleFen='';
   if(!chosen)stopStockfishSearch();
   syncStockfishBoard();
@@ -456,7 +454,10 @@ const enrichWithStockfish=async(request:import('../src/dialogue.js').DialogueReq
  if(request.matchTest||request.toolExchanges?.length)return request;
  const session=studio.session,data=session.snapshot(),position=data.nodes.find(n=>n.id===request.nodeId);
  if(!position||position.fen!==request.fen)throw new Error('Stellung während der Prüfung gewechselt. Keine KI-Anfrage gesendet.');
- if(!matchingFullGameAnalysis(session))await automaticScores?.ensure();
+ if(!matchingFullGameAnalysis(session)&&asksAboutGameQuality(request.question)){
+   message('dialogue-feedback','Stockfish stellt die noch fehlenden Partiebewertungen zusammen …');
+   await automaticScores?.ensure();
+ }
  const whole=matchingFullGameAnalysis(session);
  const reportContexts=whole?fullGameContext(whole):[];
  const reportPositions=whole?new Set([whole.rootFen,...whole.records.map(r=>r.after)]):undefined;
