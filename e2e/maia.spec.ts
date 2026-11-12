@@ -73,3 +73,31 @@ test('diagnostic download contains the real Maia move even without an AI provide
  board.move(history.activeLine[0].san);
  expect(board.fen()).toBe(history.activeLine[0].fenAfter);
 });
+
+test('real Maia-2 opening move after 1.d4 excludes the reported 1-percent ...Na6 outlier',async({page})=>{
+ test.setTimeout(120000);
+ await page.goto('/?platform=web');
+ await expect(page.locator('#workspace')).not.toHaveAttribute('inert','');
+ await page.locator('#game-opponent').selectOption('maia');
+ await page.locator('#game-color').selectOption('w');
+ await page.locator('#game-level').selectOption('3');
+ await page.locator('#open-game-setup').click();
+ await page.locator('#board [data-square=d2]').click();
+ await page.locator('#board [data-square=d4]').click();
+ await expect(page.locator('#game-feedback')).toContainText('Maia hat gezogen',{timeout:30000});
+ await page.locator('#open-settings').click();
+ await page.locator('#settings-diagnosis > summary').click();
+ if(await page.locator('#ai-diagnosis').getAttribute('open')===null)await page.locator('#ai-diagnosis > summary').click();
+ const downloading=page.waitForEvent('download');
+ await page.locator('#ai-diagnose-export').click();
+ const download=await downloading;
+ const fs=await import('node:fs/promises');
+ const report=JSON.parse(await fs.readFile((await download.path())!,'utf8'));
+ const history=report.extra.current.gameHistory.activeLine;
+ expect(history.slice(0,2).map((m:{san:string})=>m.san)[0]).toBe('d4');
+ expect(history.slice(0,2)).toHaveLength(2);
+ const maia=report.extra.current.maiaMoves.at(-1);
+ expect(maia.modelFen).toBe(history[0].fenAfter);
+ expect(maia.modelUci).toBe(maia.uci);
+ expect(maia.uci).not.toBe('b8a6');
+});
