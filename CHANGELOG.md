@@ -1,5 +1,15 @@
 # Änderungen
 
+## 1.7.0 – automatische Stockfish-Bewertungen während des Spiels (Releasekandidat, 12. November 2026)
+
+- Kein zusätzlicher Button oder Bereich „Partie prüfen“ unter dem Brett.
+- Stockfish berechnet fehlende Stellungen aus der aktuellen Hauptpartie im lokalen Hintergrund, speichert die Bewertung und die geprüfte Hauptvariante zu jedem Knoten mit der Partiedatei und stellt daraus eine vollständige Fehlerstatistik zusammen. Keine KI-API-Kosten für Enginebewertungen. Während Enginegegner/Match aktiv sind wird Arbeit zurückgestellt, damit Spielen Vorrang hat.
+- Der bestehende Stockfish-Schalter betrifft ausschließlich die Darstellung. Er startet oder stoppt keine Analyse und kann laufende Faktenchecks des KI-Lernchats nicht mehr abbrechen.
+- Beim KI-Partierückblick wird ein bereits gespeicherter Gesamtbericht verwendet oder gegebenenfalls die laufende Hintergrundprüfung zu Ende geführt. Diagnose zeigt den letzten KI-Fehler sowie den Status/Fehler der automatischen Stockfish-Berechnung.
+- Vor Versionsvergabe im nicht veröffentlichenden GitHub-Workflow [43304852452](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43304852452) vollständig geprüft: **284/284 Node-Tests und 47/47 Chromium-Browsertests**, darunter 49 reale Maia-Halbzüge bei ausgeschalteter Stockfish-Anzeige sowie gespeicherte Bewertungen während tatsächlich ausgeführter Brettzüge.
+- Keine Veröffentlichung, keine bezahlten Modellaufrufe und noch keine reale Android- oder KI-Antwortqualitätsabnahme.
+
+
 ## 1.6.1 – Stockfish-Partieprüfung direkt unter dem Brett und verlässliche KI-Fakten (Releasekandidat, 12. November 2026)
 
 - „Partie prüfen (Stockfish)“ befindet sich unmittelbar unter der Brettsteuerung im Lernmodus, nicht mehr versteckt in einem Aufklappbereich des Chats. Ausführliche Ergebnisse bleiben optional aufklappbar.
