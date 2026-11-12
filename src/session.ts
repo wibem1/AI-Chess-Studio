@@ -144,6 +144,11 @@ export class Session {
     if(path[0]?.fen!==report.rootFen || JSON.stringify(path.slice(1).map(n=>n.san))!==JSON.stringify(report.moves)||
       JSON.stringify(canonical)!==JSON.stringify(report))throw new Error('Partieanalyse gehört nicht zu dieser Zugfolge.');
     this.data.fullGameAnalysis=structuredClone(canonical);
+    this.data.positionScores??={};
+    for(const [index,node] of path.entries()){
+      const cp=index===0?canonical.records[0]?.beforeCp:canonical.records[index-1]?.afterCp;
+      if(cp!==null&&cp!==undefined)this.data.positionScores[node.id]={fen:node.fen,cp,depth:canonical.limits.depth};
+    }
   }
   dialogueRevision():number{return this.chatRevision;}
   /** Clear only the current session's conversations, including other branches. */
