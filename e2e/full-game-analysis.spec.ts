@@ -54,4 +54,10 @@ test('real Stockfish whole-game report is stored, restored and can be given to a
  await page.locator('#ask').click();
  await expect.poll(()=>calls).toBe(2);
  await expect(page.locator('#dialogue-feedback')).toContainText('gespeichert',{timeout:45000});
+ // The saved game report must also reach the model for an ordinary, non-keyword
+ // follow-up, rather than depending on the wording of the user's message.
+ await page.locator('#question').fill('Kannst du das genauer erklären?');
+ await page.locator('#ask').click();
+ await expect.poll(()=>calls).toBe(3);
+ await expect(page.locator('#dialogue-feedback')).toContainText('gespeichert',{timeout:45000});
 });
