@@ -1,3 +1,11 @@
+# Version 1.6.0 – Releasekandidat vorbereitet (12. November 2026)
+
+Der Featureumfang wurde vor der Versionsvergabe durch [GitHub Actions 43273692685](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43273692685) geprüft: **276/276 Node-Tests, 44/44 Chromium-Tests**, einschließlich echter Stockfish-Gesamtpartieprüfung und Maia-Neustartregression. Der neue Browser-Integrationsfall ist jetzt in beiden Prüfläufen enthalten. Ein zusätzlicher Test nutzt den realen Maia-Spielverlauf bis 25. Dxf3, aber **simulierte** sechs Bauerneinheiten Bewertungsänderung bei 23…Sxd4. Keine reale Neuberechnung des tatsächlichen Bewertungssprungs und keine kostenpflichtige KI-Anfrage.
+
+Version **1.6.0** in package.json, package-lock.json, CHANGELOG und Release-Workflow vorbereitet. Eine erneute CI-Prüfung des versionierten Kandidaten ist erforderlich. **Nicht gemergt, nicht veröffentlicht; Entwurfs-PR #16.** Öffentliche Version weiterhin 1.5.8.
+
+---
+
 # Integrationsprüfung gegen ChessStudio 1.5.8 erfolgreich (12. November 2026)
 
 **Aktueller Entwicklungsbranch:** `feat/stockfish-whole-game-analysis-20261112`, Merge-Commit `86fdaab7b850a7008c48ab04c3ad0209c09a1b53` (mit `work` vereinigt, ohne `work` zu verändern). **Entwurfs-PR #16**, konfliktfrei, nicht gemergt und nicht veröffentlicht.
