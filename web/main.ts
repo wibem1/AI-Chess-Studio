@@ -381,7 +381,7 @@ function showStockfishReport(report:TacticalReport){
 function syncStockfishBoard(){
  const active=$('workspace').dataset.activeView==='learn'&&stockfishAssistEnabled;
  if(!active){
-  if(stockfishVisibleFen){stockfishVisibleFen='';stopStockfishSearch();}
+  if(stockfishVisibleFen)stockfishVisibleFen='';
   stockfishResult.hidden=true;
   stockfishDetails.hidden=true;
   // Preserve the expanded/collapsed preference even across a temporary view change.
@@ -404,7 +404,7 @@ function syncStockfishBoard(){
  stockfishDetails.setAttribute('aria-busy','true');
  stockfishStatus.hidden=true;
  const board=new Chess(fen);
- if(board.isGameOver()){stopStockfishSearch();stockfishResult.textContent='Stockfish: Partie beendet';stockfishResult.style.visibility='visible';stockfishLine.textContent='Die Endstellung wird regelgeprüft und automatisch gespeichert.';stockfishDetails.removeAttribute('aria-busy');return;}
+ if(board.isGameOver()){ stockfishResult.textContent='Stockfish: Partie beendet';stockfishResult.style.visibility='visible';stockfishLine.textContent='Die Endstellung wird regelgeprüft und automatisch gespeichert.';stockfishDetails.removeAttribute('aria-busy');return;}
  // Visibility is presentation only: never start an engine search here.
  const record=data.positionScores?.[data.activeNodeId];
  if(record?.fen===fen){
@@ -431,7 +431,7 @@ stockfishToggle.addEventListener('change',async()=>{
   stockfishAssistEnabled=chosen;
   stockfishStatus.textContent=chosen?'Stockfish-Bewertung sichtbar.':'Stockfish-Bewertung verborgen; die Berechnung läuft weiter.';
   stockfishVisibleFen='';
-  if(!chosen)stopStockfishSearch();
+  // The display switch must never cancel an analysis used by the learning AI.
   syncStockfishBoard();
  }catch(error){
   stockfishToggle.checked=stockfishAssistEnabled;
