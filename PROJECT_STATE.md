@@ -1,3 +1,13 @@
+# Chess Studio 1.5.7 – Maia-2-Zugauswahl veröffentlicht (12. November 2026)
+
+**Release und GitHub Pages erfolgreich abgeschlossen.** PR [#14](https://github.com/wibem1/AI-Chess-Studio/pull/14) mit Maia-2-Auswahlkorrektur wurde in `work` gemergt; Merge-Commit `de76cca1216c4498cefc87f201963f8ef60ab311`. Der zuvor geprüfte Kandidatenlauf [43207378274](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43207378274) bestand Typprüfung, Node-Tests samt echtem Maia-2-ONNX-Modell, Produktions-Build, 42/42 Browsertests (einschließlich der echten Maia-Antwort auf `1.d4`) und Manifestkontrolle. Offizieller Release-Lauf [43221408627](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43221408627) **SUCCESS**, einschließlich Browserintegration und Deploymentkontrolle. Offizieller GitHub-Pages-Lauf [43221848440](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43221848440) **SUCCESS**. `gh-pages/BUILD.json` meldet `version: 1.5.7`, `base: /AI-Chess-Studio/` und `sourceCommit: de76cca1216c4498cefc87f201963f8ef60ab311`. Öffentliche App: https://wibem1.github.io/AI-Chess-Studio/ .
+
+**Geprüfte Änderung:** Das Originalmodell Maia-2 Blitz bleibt der Gegner. Die neue Auswahlpolitik begrenzt unwahrscheinliche Zugkandidaten, besonders in der Eröffnung, und vermeidet unnötige Rückzüge derselben Figur; taktisch begründete Rückzüge bleiben möglich (u.a. bei angegriffener Figur, schlagendem/schachgebendem Zug, Schach oder fehlenden Alternativen). Kein Stockfish-Fallback. Die zuvor beobachteten Modellwahrscheinlichkeiten (z.B. `...Sa6` ca. 1,3 % nach `1.d4`, `...Sb8` ca. 87 % nach `1.d4 Sc6 2.e3`) sind in Issue [#13](https://github.com/wibem1/AI-Chess-Studio/issues/13) dokumentiert.
+
+**Offen:** Praxistest einer längeren Partie mit Maia 2, Profil 1500, insbesondere die ersten 15–20 Züge. Die Heuristik ist keine Elo- oder Qualitätsgarantie. Issue #13 bis zur Nutzerabnahme offen lassen. Keine kostenpflichtigen KI-Aufrufe für den Release.
+
+---
+
 # Chess Studio 1.5.7 – Maia-2-Zugauswahl verbessert, Kandidat geprüft (12. November 2026)
 
 **Implementiert, mit echtem Maia-2-Modell und Chromium geprüft; noch NICHT veröffentlicht.** Der Nutzer meldete in 1.5.6 unplausible Springerpendel, z. B. `1.d4 Na6 2.f4 d6 3.e3 Nb8` und `1.d4 Nc6 2.e3 Nb8`. Der Diagnoselauf [43202443569](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43202443569) bestätigte beim Originalmodell Profil 1500: `1...Na6` nur 1,265 % Wahrscheinlichkeit und `...Nb8` nach `1.d4 Nc6 2.e3` 87,009 %; reine Top-1-Auswahl behebt das nicht.
