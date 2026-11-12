@@ -52,6 +52,7 @@ let stockfishSearch:{fen:string;promise:Promise<TacticalReport>;cancel:(()=>void
 let stockfishSearchGeneration=0;
 let automaticScores:AutomaticStockfish|undefined;
 let lastAiError='';
+let lastAiStage='idle';
 let initialized=false;
 const autosave=new AutoSave(browserRuntime.store,()=>({json:studio.session.export(),question:text('question').value}),value=>message('autosave-status',value));
 const maiaMoveTrace:AppliedEngineMove[]=[];
@@ -453,6 +454,7 @@ automaticScores=new AutomaticStockfish(
  */
 const enrichWithStockfish=async(request:import('../src/dialogue.js').DialogueRequest)=>{
  if(request.matchTest||request.toolExchanges?.length)return request;
+ lastAiStage='stockfish_context';
  const session=studio.session,data=session.snapshot(),position=data.nodes.find(n=>n.id===request.nodeId);
  if(!position||position.fen!==request.fen)throw new Error('Stellung während der Prüfung gewechselt. Keine KI-Anfrage gesendet.');
  if(!matchingFullGameAnalysis(session)&&asksAboutGameQuality(request.question)){
@@ -479,6 +481,7 @@ const enrichWithStockfish=async(request:import('../src/dialogue.js').DialogueReq
  // is not already part of the report; existing learning notes fill free slots.
  const extra=[...(positionContext?[positionContext]:[]),...(qualityNotice?[qualityNotice]:[])];
  const context=[...reportContexts,...extra,...(request.context??[])].slice(0,6);
+ lastAiStage='context_prepared';
  return {...request,context};
 };
 const instructionsEditor=$<HTMLTextAreaElement>('general-ai-instructions');
@@ -505,7 +508,7 @@ installStrategicQualityUI(()=>studio.session,(fen,question)=>{
  render();
  text('question').focus();
 });
-const modelControls=installModelControls(localPost,async()=>{updateMode();await refreshModelStatus();await refreshCosts();},()=>({nodeId:studio.session.snapshot().activeNodeId,fen:studio.session.snapshot().nodes.find(n=>n.id===studio.session.snapshot().activeNodeId)!.fen,gameHistory:diagnosticGameHistory(studio.session.snapshot()),automaticStockfishError:automaticScores?.error??'',lastAiError,fullGameStockfish:(()=>{
+const modelControls=installModelControls(localPost,async()=>{updateMode();await refreshModelStatus();await refreshCosts();},()=>({nodeId:studio.session.snapshot().activeNodeId,fen:studio.session.snapshot().nodes.find(n=>n.id===studio.session.snapshot().activeNodeId)!.fen,gameHistory:diagnosticGameHistory(studio.session.snapshot()),automaticStockfishError:automaticScores?.error??'',lastAiError,lastAiStage,fullGameStockfish:(()=>{
  const report=matchingFullGameAnalysis(studio.session);
  const issue=report?.records.filter(m=>m.lossCp!==null&&m.grade!=='gut').sort((a,b)=>b.lossCp!-a.lossCp!)[0];
  return report?{state:'stored',plies:report.records.length,critical:issue?{ply:issue.ply,san:issue.san,grade:issue.grade,lossCp:issue.lossCp}:null}:{state:'missing_or_other_game'};
@@ -530,17 +533,17 @@ $('dialogue-form').addEventListener('submit', async event => {
   game.pause();
   const question = text('question').value,hintOverride=directAnalysisHint;directAnalysisHint=undefined;
   const session = studio.session,chatRevision=session.dialogueRevision();
-  chatStopped=false;pending = true;updateMode();
+  chatStopped=false;pending = true;lastAiStage='request_started';lastAiError='';updateMode();
   message('dialogue-feedback', 'Modellanfrage läuft … Stellungswechsel ist weiterhin möglich.');
   try {
     activeAdapter=new ServerModelAdapter(platformFetch,()=>generalAiInstructions,enrichWithStockfish);let toolStarted=false;
     const result = await studio.ask(question, activeAdapter!,'chat',hintOverride,async(call,node)=>{if(!toolStarted){pendingCoachAnchor={session,node};toolStarted=true;}message('dialogue-feedback',call.function.name==='play_engine'?'Spielengine antwortet …':call.function.name==='show_line'?'Variante wird vorgeführt …':'Brettdarstellung wird aufgebaut …');if(call.function.name==='show_line'||call.function.name==='play_engine')illustration=undefined;
       const result=await coachBoard.execute(call,node);boardActions.push({at:new Date().toISOString(),call,result});if(boardActions.length>20)boardActions.shift();if(!chatStopped)message('dialogue-feedback','Brettergebnis liegt vor; die Lernengine erläutert es …');return result;});
-    lastAskFailed=false;lastAiError='';
+    lastAskFailed=false;lastAiError='';lastAiStage=result==='stored'?'answer_saved':'answer_discarded';
     message('dialogue-feedback', result === 'stored' ? 'Modellantwort an der angefragten Stellung gespeichert.' : chatStopped?'Angehalten. Gezeigte Züge bleiben als Lernvariante erhalten.':'Veraltete Antwort nach Sitzungs- oder Chatwechsel verworfen.');
     render();
   } catch (error) {
-    lastAskFailed=true;lastAiError=error instanceof Error?error.message:'Anfrage fehlgeschlagen';
+    lastAskFailed=true;lastAiError=error instanceof Error?error.message:'Anfrage fehlgeschlagen';lastAiStage=lastAiStage==='stockfish_context'?'stockfish_preparation_failed':lastAiStage==='context_prepared'?'request_or_provider_failed':'request_failed';
     render();
     message('dialogue-feedback', chatStopped?'Angehalten. Gezeigte Züge bleiben als Lernvariante erhalten.':studio.session !== session ? 'Veraltete Anfrage nach Sitzungswechsel verworfen.' : session.dialogueRevision()!==chatRevision ? 'Chatverlauf gelöscht; die frühere Anfrage wurde nicht übernommen.' : (error instanceof Error ? error.message : 'Anfrage fehlgeschlagen.')+' Die bisherigen Chatbeiträge stammen von früheren Anfragen.');
   } finally { pending = false;activeAdapter=undefined; updateMode(); void refreshModelStatus();void refreshCosts(); }
