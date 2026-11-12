@@ -31,9 +31,9 @@ test('Stockfish result appears under learning board immediately and reaches the 
  await expect(page.locator('#stockfish-assist-result')).toContainText('Stockfish:');
  await expect(page.locator('#stockfish-assist-details')).toBeVisible();
  await expect(page.locator('#stockfish-assist-details')).not.toHaveAttribute('open','');
- await expect(page.locator('#stockfish-assist-result')).not.toContainText('Hauptvariante:');
+ await expect(page.locator('#stockfish-assist-result')).not.toContainText('Bewertungen entstehen automatisch');
  await page.locator('#stockfish-assist-details > summary').click();
- await expect(page.locator('#stockfish-assist-line')).toContainText('Hauptvariante:');
+ await expect(page.locator('#stockfish-assist-line')).toContainText('Bewertungen entstehen automatisch');
  await expect(page.locator('#stockfish-assist-status')).toBeHidden();
  expect(calls).toBe(0);
  await page.locator('#question').fill('Bewerte die aktuelle Ausgangsstellung mit begrenzter Stockfish-Prüfung.');
@@ -116,7 +116,7 @@ test('Stockfish Variante disclosure stays visible while navigating between posit
  await expect(summary).toHaveText('Variante');
  await summary.click();
  await expect(details).toHaveAttribute('open','');
- await expect(page.locator('#stockfish-assist-line')).toContainText('Hauptvariante:');
+ await expect(page.locator('#stockfish-assist-line')).toContainText('Bewertungen entstehen automatisch');
  const positionInRow=async()=>page.locator('#coach-match').evaluate(el=>{
    const item=el.querySelector('#stockfish-assist-details > summary')!.getBoundingClientRect();
    return item.top-el.getBoundingClientRect().top;

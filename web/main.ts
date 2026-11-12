@@ -22,7 +22,8 @@ import { checkTactics, ServerTacticalAdapter, validateTacticalReport, type Tacti
 import {BrowserTacticalAdapter} from '../src/browser-tactics.js';
 import {withStockfishAssessment} from '../src/stockfish-assist.js';
 import {fullGameContext,asksAboutGameQuality} from '../src/full-game-analysis.js';
-import {installFullGameUI,matchingFullGameAnalysis} from './full-game-ui.js';
+import {matchingFullGameAnalysis} from './full-game-ui.js';
+import {AutomaticStockfish} from './automatic-stockfish.js';
 import { LearningGame, ServerPlayingEngine, pathTo, type AppliedEngineMove } from '../src/game.js';
 import type {HintMode} from '../src/learning.js';
 import './style.css';
@@ -49,7 +50,9 @@ const stockfishCache=new Map<string,TacticalReport>();
 let stockfishVisibleFen='';
 let stockfishSearch:{fen:string;promise:Promise<TacticalReport>;cancel:(()=>void)|undefined}|undefined;
 let stockfishSearchGeneration=0;
-let fullGameUI:ReturnType<typeof installFullGameUI>|undefined;
+let automaticScores:AutomaticStockfish|undefined;
+let lastAiError='';
+let lastAiStage='idle';
 let initialized=false;
 const autosave=new AutoSave(browserRuntime.store,()=>({json:studio.session.export(),question:text('question').value}),value=>message('autosave-status',value));
 const maiaMoveTrace:AppliedEngineMove[]=[];
@@ -154,7 +157,7 @@ function render() {
   if(coachBoard.checkSelection()){studio.cancelAsk();activeAdapter?.cancel();}
   cancelBoardDrag();
   const data = studio.session.snapshot();
-  fullGameUI?.render();
+  if(initialized)automaticScores?.sync();
   const current = data.nodes.find(n => n.id === data.activeNodeId)!;
   const learningView=$('workspace').dataset.activeView==='learn';
   $('stockfish-assist-settings').hidden=!learningView;
@@ -169,7 +172,7 @@ function render() {
   $('game-undo').hidden=$('workspace').dataset.activeView!=='play';
   $<HTMLButtonElement>('game-undo').disabled=!game.canTakeBack();
   const learning=$('workspace').dataset.activeView==='learn';
-  $('learning-controls').hidden=!learning;$('learning-chat').hidden=!learning;document.getElementById('full-game-analysis')?.toggleAttribute('hidden',!learning);
+  $('learning-controls').hidden=!learning;$('learning-chat').hidden=!learning;
   for(const id of ['learn-back','learn-next'])$(id).hidden=!learning;
   $('transfer-position').textContent=learning?'Stellung spielen':'Stellung lernen';
   $('transfer-position').setAttribute('aria-label',learning?'Im Spielmodus fortsetzen':'Im Lernmodus öffnen');
@@ -379,7 +382,7 @@ function showStockfishReport(report:TacticalReport){
 function syncStockfishBoard(){
  const active=$('workspace').dataset.activeView==='learn'&&stockfishAssistEnabled;
  if(!active){
-  if(stockfishVisibleFen){stockfishVisibleFen='';stopStockfishSearch();}
+  if(stockfishVisibleFen)stockfishVisibleFen='';
   stockfishResult.hidden=true;
   stockfishDetails.hidden=true;
   // Preserve the expanded/collapsed preference even across a temporary view change.
@@ -402,21 +405,24 @@ function syncStockfishBoard(){
  stockfishDetails.setAttribute('aria-busy','true');
  stockfishStatus.hidden=true;
  const board=new Chess(fen);
- if(board.isGameOver()){stopStockfishSearch();stockfishResult.textContent='Stockfish: keine Bewertung (Partie beendet)';stockfishResult.style.visibility='visible';stockfishLine.textContent='Keine Hauptvariante: Partie beendet.';stockfishDetails.removeAttribute('aria-busy');return;}
- const report=stockfishCache.get(fen);
- if(report){showStockfishReport(report);return;}
- // No transient text while Stockfish calculates; only the final score is displayed.
- const generation=++stockfishSearchGeneration;
- void getStockfishReport(fen).then(result=>{
-  if(stockfishAssistEnabled&&$('workspace').dataset.activeView==='learn'&&stockfishVisibleFen===fen&&generation<=stockfishSearchGeneration)showStockfishReport(result);
- }).catch(error=>{
-  if(stockfishAssistEnabled&&$('workspace').dataset.activeView==='learn'&&stockfishVisibleFen===fen)
-   {stockfishDetails.removeAttribute('aria-busy');stockfishResult.style.visibility='hidden';stockfishStatus.hidden=false;stockfishStatus.textContent='Stockfish-Bewertung fehlgeschlagen: '+(error instanceof Error?error.message:'Engine nicht verfügbar.');}
- });
+ if(board.isGameOver()){ stockfishResult.textContent='Stockfish: Partie beendet';stockfishResult.style.visibility='visible';stockfishLine.textContent='Die Endstellung wird regelgeprüft und automatisch gespeichert.';stockfishDetails.removeAttribute('aria-busy');return;}
+ // Visibility is presentation only: never start an engine search here.
+ const record=data.positionScores?.[data.activeNodeId];
+ if(record?.fen===fen){
+  const value=(record.cp>=0?'+':'')+(record.cp/100).toFixed(2);
+  stockfishResult.textContent='Stockfish: '+value+' (Weiß) · T'+record.depth;
+  stockfishResult.style.visibility='visible';stockfishDetails.removeAttribute('aria-busy');
+  stockfishLine.textContent=record.line?.length?'Hauptvariante: '+record.line.slice(0,8).join(' '):'Stockfish-Bewertung gespeichert; keine Hauptvariante verfügbar.';
+ }else{
+  const started=!!data.game||!!data.review||data.nodes.length>1;
+  stockfishResult.textContent=started?'Stockfish: Bewertung wird gespeichert …':'Stockfish: – (noch keine Partie)';
+  stockfishResult.style.visibility='visible';stockfishDetails.removeAttribute('aria-busy');
+  stockfishLine.textContent=started?'Lokale Hintergrundprüfung; der Anzeigeschalter startet keine Berechnung.':'Bewertungen entstehen automatisch ab dem ersten gespielten Zug.';
+ }
 }
 void browserRuntime.store.getStockfishAssistEnabled().then(enabled=>{
  stockfishAssistEnabled=enabled;stockfishToggle.checked=enabled;
- stockfishStatus.textContent=enabled?'Stockfish ist eingeschaltet.':'Stockfish ist ausgeschaltet.';
+ stockfishStatus.textContent=enabled?'Stockfish-Bewertung sichtbar.':'Stockfish-Bewertung verborgen; die Berechnung läuft weiter.';
  syncStockfishBoard();
 }).catch(()=>{stockfishStatus.hidden=false;stockfishStatus.textContent='Einstellung nicht lesbar; Stockfish bleibt aus.';});
 stockfishToggle.addEventListener('change',async()=>{
@@ -424,9 +430,9 @@ stockfishToggle.addEventListener('change',async()=>{
  try{
   await browserRuntime.store.setStockfishAssistEnabled(chosen);
   stockfishAssistEnabled=chosen;
-  stockfishStatus.textContent=chosen?'Stockfish wird gestartet …':'Stockfish ist ausgeschaltet.';
+  stockfishStatus.textContent=chosen?'Stockfish-Bewertung sichtbar.':'Stockfish-Bewertung verborgen; die Berechnung läuft weiter.';
   stockfishVisibleFen='';
-  if(!chosen)stopStockfishSearch();
+  // The display switch must never cancel an analysis used by the learning AI.
   syncStockfishBoard();
  }catch(error){
   stockfishToggle.checked=stockfishAssistEnabled;
@@ -434,7 +440,13 @@ stockfishToggle.addEventListener('change',async()=>{
   stockfishStatus.textContent=error instanceof Error?error.message:'Einstellung konnte nicht gespeichert werden.';
  }
 });
-fullGameUI=installFullGameUI(document.querySelector<HTMLElement>('.board-heading')!,()=>studio.session,id=>{game.analyse(id);selected=null;render();},question=>{text('question').value=question;if(!modelAvailable||!accessReady){message('dialogue-feedback','Für eine KI-Bewertung zuerst unter Einstellungen einen verfügbaren KI-Zugang auswählen. Die Stockfish-Prüfung bleibt gespeichert.');text('question').focus();return;}if(pending||match.running){message('dialogue-feedback','Laufende KI-Anfrage oder Partie zuerst beenden.');return;}$<HTMLFormElement>('dialogue-form').requestSubmit();},()=>autosave.save(),isWebPlatform,platformFetch,()=>pending||match.running);
+automaticScores=new AutomaticStockfish(
+ ()=>studio.session,
+ ()=>isWebPlatform()?new BrowserTacticalAdapter():new ServerTacticalAdapter(platformFetch),
+ ()=>enginePending||match.running,
+ ()=>initialized&&isWebPlatform()?autosave.save():Promise.resolve(),
+ ()=>{if(stockfishAssistEnabled){stockfishVisibleFen='';syncStockfishBoard();}}
+);
 /** Every free learning answer receives existing whole-game evidence when available.
  * Position-specific facts are calculated when the requested FEN is not in that
  * completed report. The UI's Stockfish switch controls its display, not whether
@@ -442,8 +454,13 @@ fullGameUI=installFullGameUI(document.querySelector<HTMLElement>('.board-heading
  */
 const enrichWithStockfish=async(request:import('../src/dialogue.js').DialogueRequest)=>{
  if(request.matchTest||request.toolExchanges?.length)return request;
+ lastAiStage='stockfish_context';
  const session=studio.session,data=session.snapshot(),position=data.nodes.find(n=>n.id===request.nodeId);
  if(!position||position.fen!==request.fen)throw new Error('Stellung während der Prüfung gewechselt. Keine KI-Anfrage gesendet.');
+ if(!matchingFullGameAnalysis(session)&&asksAboutGameQuality(request.question)){
+   message('dialogue-feedback','Stockfish stellt die noch fehlenden Partiebewertungen zusammen …');
+   await automaticScores?.ensure();
+ }
  const whole=matchingFullGameAnalysis(session);
  const reportContexts=whole?fullGameContext(whole):[];
  const reportPositions=whole?new Set([whole.rootFen,...whole.records.map(r=>r.after)]):undefined;
@@ -459,11 +476,12 @@ const enrichWithStockfish=async(request:import('../src/dialogue.js').DialogueReq
  if(session!==studio.session||session.snapshot().activeNodeId!==request.nodeId)
   throw new Error('Stellung während der Stockfish-Prüfung gewechselt. Keine KI-Anfrage gesendet.');
  const qualityNotice=!whole&&asksAboutGameQuality(request.question)?
-  'Keine vollständige Stockfish-Zug-für-Zug-Prüfung dieser Partie gespeichert: Nur die aktuelle Stellung wurde geprüft. Keine Fehlerstatistik oder objektiv belegten Partie-Wendepunkte behaupten; auf die ausdrücklich zu startende Gesamtpartieprüfung hinweisen.':'';
+  'Noch keine vollständige Stockfish-Bewertungsreihe verfügbar. Keine erfundene Fehlerstatistik behaupten. Lokale Hintergrundberechnung kann noch laufen; falls sie scheitert, die genaue Diagnose prüfen.':'';
  // The report is primary evidence. The current position is added only when it
  // is not already part of the report; existing learning notes fill free slots.
  const extra=[...(positionContext?[positionContext]:[]),...(qualityNotice?[qualityNotice]:[])];
  const context=[...reportContexts,...extra,...(request.context??[])].slice(0,6);
+ lastAiStage='context_prepared';
  return {...request,context};
 };
 const instructionsEditor=$<HTMLTextAreaElement>('general-ai-instructions');
@@ -490,7 +508,7 @@ installStrategicQualityUI(()=>studio.session,(fen,question)=>{
  render();
  text('question').focus();
 });
-const modelControls=installModelControls(localPost,async()=>{updateMode();await refreshModelStatus();await refreshCosts();},()=>({nodeId:studio.session.snapshot().activeNodeId,fen:studio.session.snapshot().nodes.find(n=>n.id===studio.session.snapshot().activeNodeId)!.fen,gameHistory:diagnosticGameHistory(studio.session.snapshot()),fullGameStockfish:(()=>{
+const modelControls=installModelControls(localPost,async()=>{updateMode();await refreshModelStatus();await refreshCosts();},()=>({nodeId:studio.session.snapshot().activeNodeId,fen:studio.session.snapshot().nodes.find(n=>n.id===studio.session.snapshot().activeNodeId)!.fen,gameHistory:diagnosticGameHistory(studio.session.snapshot()),automaticStockfishError:automaticScores?.error??'',lastAiError,lastAiStage,fullGameStockfish:(()=>{
  const report=matchingFullGameAnalysis(studio.session);
  const issue=report?.records.filter(m=>m.lossCp!==null&&m.grade!=='gut').sort((a,b)=>b.lossCp!-a.lossCp!)[0];
  return report?{state:'stored',plies:report.records.length,critical:issue?{ply:issue.ply,san:issue.san,grade:issue.grade,lossCp:issue.lossCp}:null}:{state:'missing_or_other_game'};
@@ -515,17 +533,17 @@ $('dialogue-form').addEventListener('submit', async event => {
   game.pause();
   const question = text('question').value,hintOverride=directAnalysisHint;directAnalysisHint=undefined;
   const session = studio.session,chatRevision=session.dialogueRevision();
-  chatStopped=false;pending = true;updateMode();
+  chatStopped=false;pending = true;lastAiStage='request_started';lastAiError='';updateMode();
   message('dialogue-feedback', 'Modellanfrage läuft … Stellungswechsel ist weiterhin möglich.');
   try {
     activeAdapter=new ServerModelAdapter(platformFetch,()=>generalAiInstructions,enrichWithStockfish);let toolStarted=false;
     const result = await studio.ask(question, activeAdapter!,'chat',hintOverride,async(call,node)=>{if(!toolStarted){pendingCoachAnchor={session,node};toolStarted=true;}message('dialogue-feedback',call.function.name==='play_engine'?'Spielengine antwortet …':call.function.name==='show_line'?'Variante wird vorgeführt …':'Brettdarstellung wird aufgebaut …');if(call.function.name==='show_line'||call.function.name==='play_engine')illustration=undefined;
       const result=await coachBoard.execute(call,node);boardActions.push({at:new Date().toISOString(),call,result});if(boardActions.length>20)boardActions.shift();if(!chatStopped)message('dialogue-feedback','Brettergebnis liegt vor; die Lernengine erläutert es …');return result;});
-    lastAskFailed=false;
+    lastAskFailed=false;lastAiError='';lastAiStage=result==='stored'?'answer_saved':'answer_discarded';
     message('dialogue-feedback', result === 'stored' ? 'Modellantwort an der angefragten Stellung gespeichert.' : chatStopped?'Angehalten. Gezeigte Züge bleiben als Lernvariante erhalten.':'Veraltete Antwort nach Sitzungs- oder Chatwechsel verworfen.');
     render();
   } catch (error) {
-    lastAskFailed=true;
+    lastAskFailed=true;lastAiError=error instanceof Error?error.message:'Anfrage fehlgeschlagen';lastAiStage=lastAiStage==='stockfish_context'?'stockfish_preparation_failed':lastAiStage==='context_prepared'?'request_or_provider_failed':'request_failed';
     render();
     message('dialogue-feedback', chatStopped?'Angehalten. Gezeigte Züge bleiben als Lernvariante erhalten.':studio.session !== session ? 'Veraltete Anfrage nach Sitzungswechsel verworfen.' : session.dialogueRevision()!==chatRevision ? 'Chatverlauf gelöscht; die frühere Anfrage wurde nicht übernommen.' : (error instanceof Error ? error.message : 'Anfrage fehlgeschlagen.')+' Die bisherigen Chatbeiträge stammen von früheren Anfragen.');
   } finally { pending = false;activeAdapter=undefined; updateMode(); void refreshModelStatus();void refreshCosts(); }
@@ -795,7 +813,7 @@ $('transfer-position').addEventListener('click',async()=>{
  finally{transferring=false;$<HTMLButtonElement>('transfer-position').disabled=false;}
 });
 $('learn-origin').addEventListener('click',()=>attempt(()=>{const d=studio.session.snapshot();game.analyse(d.game?.cursor??d.nodes[0]!.id);},'move-feedback','Zur Ausgangsstellung der Analyse zurück.'));
-installGameLibrary(browserRuntime.store,()=>studio.session.export(),json=>{restoreSession(json);navigation.select('learn');render();},()=>{match.stop('Partie laden.');studio.cancelAsk();coachBoard.cancel();activeAdapter?.cancel();game.pause();});
+installGameLibrary(browserRuntime.store,()=>studio.session.export(),json=>{restoreSession(json);navigation.select('learn');render();},()=>{automaticScores?.suspend();match.stop('Partie laden.');studio.cancelAsk();coachBoard.cancel();activeAdapter?.cancel();game.pause();return ()=>automaticScores?.resume();});
 void(async()=>{
  let loaded=false;
  try{
