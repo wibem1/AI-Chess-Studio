@@ -38,7 +38,12 @@ export class BrowserUciProcess {
        if(phase!=='thinking'||!engine.startsWith('Stockfish')||engine.length>120)throw new Error();
        finish(undefined,search.complete(line.split(' ')[1]!,engine));
       }
-     }catch{finish(new Error('Browser-Spielengine: illegale oder falsche Zugantwort.'));}
+     }catch(error){
+      // Only expose our own fixed, non-provider messages; never reflect raw
+      // UCI output into the interface or downloaded diagnostics.
+      const reason=error instanceof Error&&error.message.startsWith('Stockfish-Prüfung: ')?error.message:'Browser-Spielengine: illegale oder falsche Zugantwort.';
+      finish(new Error(reason));
+     }
     }
    };send('uci');
   });
