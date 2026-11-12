@@ -4,6 +4,7 @@ import {validateReflection,type Reflection} from './learning.js';
 import { pathTo, type GameState } from './game.js';
 import { Chess, DEFAULT_POSITION } from 'chess.js';
 import { validateTacticalReport, type TacticalReport } from './tactics.js';
+import {makeFullGameAnalysis,type FullGameAnalysis} from './full-game-analysis.js';
 
 export type MoveInput = string | { from: string; to: string; promotion?: string };
 export interface PositionNode { id: string; parentId: string | null; san: string | null; fen: string }
@@ -29,6 +30,7 @@ export interface SessionData {
   game?: GameState;
   labels?: Record<string,string>;
   comparison?: {a:string;b:string};
+  fullGameAnalysis?:FullGameAnalysis;
 }
 
 /** Branch identity is retained even when two nodes share the same FEN. */
@@ -118,6 +120,13 @@ export class Session {
     }
     this.data.annotations.push(structuredClone(annotation));
   }
+  storeFullGameAnalysis(report:FullGameAnalysis):void{
+    const path=pathTo(this.data,report.records.at(-1)?.nodeId??'');
+    const canonical=makeFullGameAnalysis(report.rootFen,report.moves,[report.records[0]?.beforeCp??null,...report.records.map(r=>r.afterCp)],path.slice(1).map(n=>n.id));
+    if(path[0]?.fen!==report.rootFen || JSON.stringify(path.slice(1).map(n=>n.san))!==JSON.stringify(report.moves)||
+      JSON.stringify(canonical)!==JSON.stringify(report))throw new Error('Partieanalyse gehört nicht zu dieser Zugfolge.');
+    this.data.fullGameAnalysis=structuredClone(canonical);
+  }
   dialogueRevision():number{return this.chatRevision;}
   /** Clear only the current session's conversations, including other branches. */
   clearDialogue():void{
@@ -139,8 +148,8 @@ export class Session {
   }
   compare(a:string,b:string):void {this.node(a);this.node(b);if(a===b)throw new Error('Zwei unterschiedliche Stellungen wählen.');this.data.comparison={a,b};}
   export(): string {
-    const {schemaVersion,activeNodeId,nodes,annotations,game,labels,comparison,reflections,orientation,review}=this.data;
-    return JSON.stringify({schemaVersion,activeNodeId,nodes,annotations,game,labels,comparison,reflections,orientation,review},null,2);
+    const {schemaVersion,activeNodeId,nodes,annotations,game,labels,comparison,reflections,orientation,review,fullGameAnalysis}=this.data;
+    return JSON.stringify({schemaVersion,activeNodeId,nodes,annotations,game,labels,comparison,reflections,orientation,review,fullGameAnalysis},null,2);
   }
 
   static import(json: string): Session {
@@ -170,6 +179,7 @@ export class Session {
     if(d.comparison!==undefined){const c=record(d.comparison);if(typeof c.a!=='string' || typeof c.b!=='string')throw new Error('Ungültiger Vergleich.');session.compare(c.a,c.b);}
     if(d.reflections!==undefined){const values=record(d.reflections);session.data.reflections={};for(const [id,value] of Object.entries(values))session.reflect(id,validateReflection(value));}
     if(d.game!==undefined)session.setGame(d.game as GameState);
+    if(d.fullGameAnalysis!==undefined)session.storeFullGameAnalysis(d.fullGameAnalysis as FullGameAnalysis);
     if(d.orientation!==undefined)session.orient(d.orientation as PlayerColor);else if(session.data.review)session.orient(session.data.review.human);
     session.select(d.activeNodeId);
     return session;
