@@ -1,3 +1,15 @@
+# ChessStudio 1.6.1 – veröffentlicht und GitHub Pages bestätigt (12. November 2026)
+
+**Nutzerauftrag „veröffentlichen“ ausgeführt.** [PR #17](https://github.com/wibem1/AI-Chess-Studio/pull/17) erfolgreich in `work` gemergt (Merge-Commit `422ee8f32b6bb9cdfa0586f450831b65d5f6d840`). Offizieller Release-Lauf [43297559350](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43297559350) **SUCCESS**, einschließlich Browserintegration und Checks; GitHub-Pages-Deployment [43298044912](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43298044912) **SUCCESS**.
+
+**Veröffentlichte Manifestdaten:** `gh-pages/BUILD.json` mit `version=1.6.1`, `base=/AI-Chess-Studio/`, `sourceCommit=422ee8f32b6bb9cdfa0586f450831b65d5f6d840`. Live: https://wibem1.github.io/AI-Chess-Studio/ .
+
+**Bestätigte Änderung:** Button „Partie prüfen (Stockfish)“ unter dem Lernbrett, korrigierte Verarbeitung von Stockfish-UCI-Hauptvarianten, priorisierte Stockfish-Partiebewertungen in KI-Anfragen. Vor der Freigabe durch [43293060402](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43293060402) mit 281/281 Node- und 46/46 Browserprüfungen getestet, einschließlich echter 49-halbzügiger Maia-Partie mit Stockfish-Anzeige. Ein realer bezahlter Modellqualitäts- und Android-Gerätetest ist **nicht** nachgewiesen.
+
+**Nächster Schritt:** gezielter Praxistest des Nutzers auf Android mit vollständiger Gesamtpartieprüfung, anschließend echte KI-Interpretation der kritischen Stellung prüfen. Keine weitere Veröffentlichung ohne Auftrag.
+
+---
+
 # ChessStudio 1.6.1 – tatsächlicher Maia-Stockfish-Fehler behoben und vollständig getestet (12. November 2026)
 
 **Beleg:** GitHub Actions [43293060402](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43293060402) **SUCCESS** auf Commit `528cd86a19187e52a8238848f5111646f0214a3f`: 281/281 Node-Tests und 46/46 Chromium-Browsertests. Der reale Browsertest nutzt den authentischen Maia-Partieverlauf von `1.d4` bis `25.Qxf3` (49 Halbzüge einschließlich `23…Nxd4`) und hat die vollständige Stockfish-Prüfung bei eingeschalteter Stockfish-Stellungsanzeige abgeschlossen und gespeichert. Kein bezahlter KI-Test und keine Android-Geräteabnahme.
