@@ -10,6 +10,7 @@ on:
       - fix/stockfish-variation-heading-stable-20261111
       - fix/stockfish-variation-fixed-row-20261111
       - fix/maia2-opening-selection-20261112
+      - fix/maia-new-game-after-analysis-20261112
       - fix/stockfish-silent-navigation-20261111
     paths:
       - .github/workflows/chessstudio-1-5-verify.yml
