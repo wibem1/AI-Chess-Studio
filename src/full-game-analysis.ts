@@ -18,7 +18,7 @@ export interface FullGameAnalysis {
 }
 
 export function gameResultCp(board:Chess):number|null{
- if(board.isCheckmate())return board.turn()==='w'?-10000:10000;
+ if(board.isCheckmate())return board.turn()==='w'?-1500:1500;
  if(board.isDraw())return 0;
  return null;
 }
