@@ -55,3 +55,23 @@ test('auto scanner does not evaluate while playing engine is busy; error remains
  assert.equal(await problem.ensure(),false);
  assert.match(problem.error,/Testfehler Engine/);
 });
+
+test('suspending an in-flight Stockfish response cannot mutate an import source; scoring resumes afterward',async()=>{
+ const s=new Session();s.play('e4');
+ let release!:()=>void,calls=0;
+ const gate=new Promise<void>(resolve=>{release=resolve;});
+ const delayed:TacticalAdapter={async check(fen,candidate){
+  calls++;if(calls===1)await gate;
+  return mock().check(fen,candidate);
+ }};
+ const queue=new AutomaticStockfish(()=>s,()=>delayed,()=>false,async()=>{});
+ const inFlight=queue.ensure();
+ queue.suspend();
+ release();
+ assert.equal(await inFlight,false);
+ assert.equal(Object.keys(s.snapshot().positionScores??{}).length,0,'in-flight response must not write after import begins');
+ queue.resume();
+ assert.equal(await queue.ensure(),false);
+ assert.equal(Object.keys(s.snapshot().positionScores??{}).length,2);
+ assert.equal(calls,3,'one discarded in-flight value is recalculated');
+});
