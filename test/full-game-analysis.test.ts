@@ -2,7 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {Chess} from 'chess.js';
 import {Session} from '../src/session.js';
-import {scanFullGame,makeFullGameAnalysis,fullGameSummary} from '../src/full-game-analysis.js';
+import {scanFullGame,makeFullGameAnalysis,fullGameSummary,fullGameContext} from '../src/full-game-analysis.js';
 import {TACTICAL_LIMITS,type TacticalAdapter} from '../src/tactics.js';
 
 test('full game analysis computes separate, explicitly approximate White and Black error counts',()=>{
@@ -46,4 +46,13 @@ test('KI context contains every move evaluation, with the largest swing explicit
  assert.match(summary,/Vollständiger chronologischer Verlauf aller 4 Halbzüge/);
  for(const move of ['1.f3','1…e5','2.g4','2…Qh4#'])assert.ok(summary.includes(move),move);
  assert.match(summary,/ANALYSEAUFTRAG: Identifiziere zuerst die größten/);
+});
+
+test('complete AI context is split within provider limits without dropping scored moves',()=>{
+ const moves=['f3','e5','g4','Qh4#'];
+ const analysis=makeFullGameAnalysis(new Chess().fen(),moves,[0,-180,-160,-570,-1500]);
+ const fragments=fullGameContext(analysis);
+ assert.ok(fragments.every(value=>value.length<=2700));
+ assert.equal(fragments.join(''),fullGameSummary(analysis));
+ assert.match(fragments.join(''),/2…Qh4#/);
 });
