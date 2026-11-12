@@ -58,6 +58,7 @@ jobs:
             e2e/game-review.spec.ts \
             e2e/position-transfer.spec.ts \
             e2e/maia.spec.ts \
+            e2e/full-game-analysis.spec.ts \
             e2e/pages.spec.ts \
             e2e/strategic-quality.spec.ts
       - name: Build-Metadaten und Dateien vorbereiten
