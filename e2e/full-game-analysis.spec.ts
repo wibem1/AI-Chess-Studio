@@ -34,7 +34,7 @@ test('real Stockfish whole-game report is stored, restored and can be given to a
  await page.route('https://api.openai.com/v1/chat/completions',route=>{
   calls++;
   const data=route.request().postDataJSON();
-  const user=JSON.parse(data.messages.find((m:{role:string})=>m.role==='user').content);
+  const user=JSON.parse(data.messages.filter((m:{role:string})=>m.role==='user').at(-1).content);
   const context=user.context.join('');
   expect(context).toContain('Lokal geprüfte Stockfish-Partieanalyse');
   expect(context).toContain('Vollständiger chronologischer Verlauf aller 4 Halbzüge');
