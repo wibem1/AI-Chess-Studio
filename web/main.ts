@@ -649,6 +649,9 @@ async function startNewGame(){
  startingGame=true;$('workspace').inert=true;
  try{
   game.pause();
+  // Release the old WASM runtime after a completed game or analysis. A new
+  // Maia game must never inherit a stale or memory-heavy previous worker.
+  maiaEngine.cancel();
   const current=studio.session.snapshot();
   if(current.nodes.length>1||current.annotations.length||current.game||current.review){
    await browserRuntime.store.savedGames({id:crypto.randomUUID(),title:'Sicherung vor neuer Partie',date:new Date().toISOString(),json:studio.session.export()});
