@@ -17,7 +17,7 @@ export class BrowserTacticalAdapter implements TacticalAdapter {
    if(!line.startsWith('info ')||/lowerbound|upperbound/.test(line))return;
    const depth=/\bdepth (\d+)/.exec(line),nodes=/\bnodes (\d+)/.exec(line),score=/\bscore (cp|mate) (-?\d+)/.exec(line),pv=/\bpv (.+)$/.exec(line);
    if(depth&&nodes&&score&&pv){
-    const sequence=pv[1]!.trim().split(/\\s+/),probe=new Chess(fen);
+    const sequence=pv[1]!.trim().split(/\s+/),probe=new Chess(fen);
     // UCI can report incomplete or stale interim PV lines. Discard them
     // instead of letting one transient line poison the final engine response.
     try{
