@@ -67,9 +67,22 @@ export async function scanFullGame(
   if(signal?.aborted)throw new Error('Partieanalyse abgebrochen.');
   const position=new Chess(fen),terminal=gameResultCp(position);
   if(terminal!==null){scores.push(terminal);update(i+1,positions.length);continue;}
-  const report=validateTacticalReport(await adapter.check(fen,null,{rootFen,moves:moves.slice(0,i)}),fen);
+  let report:TacticalReport|undefined;
+  for(let attempt=0;attempt<2;attempt++){
+   try {
+    report=validateTacticalReport(await adapter.check(fen,null,{rootFen,moves:moves.slice(0,i)}),fen);
+    break;
+   }catch(error){
+    if(signal?.aborted)throw new Error('Partieanalyse abgebrochen.');
+    const reason=error instanceof Error?error.message:'Unbekannter Stockfish-Fehler';
+    const transient=/Stockfish-Prüfung: (Keine gültige Hauptvariante|Abschließender Zug)|Browser-Spielengine: illegale oder falsche Zugantwort/u.test(reason);
+    if(attempt===0&&transient)continue; // Exactly one new-worker attempt for a malformed search response.
+    const at=i===0?'Ausgangsstellung':`${Math.ceil(i/2)}${i%2===0?'…':'.'}${moves[i-1]}`;
+    throw new Error(`Stockfish-Gesamtprüfung bei Stellung ${i+1}/${positions.length} (nach ${at}) fehlgeschlagen: ${reason}. FEN: ${fen}`);
+   }
+  }
   if(signal?.aborted)throw new Error('Partieanalyse abgebrochen.');
-  if(report.candidate!==null)throw new Error('Unerwartete Kandidatenprüfung.');
+  if(report?.candidate!==null||!report)throw new Error('Unerwartete Kandidatenprüfung.');
   scores.push(scoreToCp(report));update(i+1,positions.length);
  }
  return makeFullGameAnalysis(rootFen,moves,scores,nodeIds);
@@ -98,4 +111,14 @@ export function fullGameContext(report:FullGameAnalysis):string[]{
  for(let i=0;i<characters.length;i+=2700)parts.push(characters.slice(i,i+2700).join(''));
  if(parts.length>5)throw new Error('Stockfish-Partiebericht überschreitet das KI-Kontextlimit. Keine unvollständige Partieanalyse versendet.');
  return parts;
+}
+
+/** Intent gate for factual whole-game reviews. Do not depend on one exact
+ * phrasing; otherwise even a saved report can be silently omitted.
+ */
+export function asksAboutGameQuality(question:string):boolean{
+ const q=question.toLocaleLowerCase('de-DE');
+ if(/partie|spielverlauf|spielqualität|spielstärke|schlüsselstell|wendepunkt|partieanalyse|partiebewert/u.test(q))return true;
+ const issue=/fehler|patzer|blunder|verlust|schlecht|entscheid|kritisch|bewert|analyse|analys|stärke|qualität|leistung|zug|züge|gespielt|spielte|spielt|gut/u.test(q);
+ return issue&&/schwarz|weiß|weiss|maia|spiel|züge|zug|fehler/u.test(q);
 }

@@ -21,7 +21,7 @@ import { ServerModelAdapter } from '../src/model-client.js';
 import { checkTactics, ServerTacticalAdapter, validateTacticalReport, type TacticalReport } from '../src/tactics.js';
 import {BrowserTacticalAdapter} from '../src/browser-tactics.js';
 import {withStockfishAssessment} from '../src/stockfish-assist.js';
-import {fullGameContext} from '../src/full-game-analysis.js';
+import {fullGameContext,asksAboutGameQuality} from '../src/full-game-analysis.js';
 import {installFullGameUI,matchingFullGameAnalysis} from './full-game-ui.js';
 import { LearningGame, ServerPlayingEngine, pathTo, type AppliedEngineMove } from '../src/game.js';
 import type {HintMode} from '../src/learning.js';
@@ -169,7 +169,7 @@ function render() {
   $('game-undo').hidden=$('workspace').dataset.activeView!=='play';
   $<HTMLButtonElement>('game-undo').disabled=!game.canTakeBack();
   const learning=$('workspace').dataset.activeView==='learn';
-  $('learning-controls').hidden=!learning;$('learning-chat').hidden=!learning;
+  $('learning-controls').hidden=!learning;$('learning-chat').hidden=!learning;document.getElementById('full-game-analysis')?.toggleAttribute('hidden',!learning);
   for(const id of ['learn-back','learn-next'])$(id).hidden=!learning;
   $('transfer-position').textContent=learning?'Stellung spielen':'Stellung lernen';
   $('transfer-position').setAttribute('aria-label',learning?'Im Spielmodus fortsetzen':'Im Lernmodus öffnen');
@@ -434,22 +434,37 @@ stockfishToggle.addEventListener('change',async()=>{
   stockfishStatus.textContent=error instanceof Error?error.message:'Einstellung konnte nicht gespeichert werden.';
  }
 });
-fullGameUI=installFullGameUI($('learning-chat'),()=>studio.session,id=>{game.analyse(id);selected=null;render();},question=>{text('question').value=question;text('question').focus();},()=>autosave.save(),isWebPlatform,platformFetch,()=>pending||match.running);
+fullGameUI=installFullGameUI(document.querySelector<HTMLElement>('.board-heading')!,()=>studio.session,id=>{game.analyse(id);selected=null;render();},question=>{text('question').value=question;if(!modelAvailable||!accessReady){message('dialogue-feedback','Für eine KI-Bewertung zuerst unter Einstellungen einen verfügbaren KI-Zugang auswählen. Die Stockfish-Prüfung bleibt gespeichert.');text('question').focus();return;}if(pending||match.running){message('dialogue-feedback','Laufende KI-Anfrage oder Partie zuerst beenden.');return;}$<HTMLFormElement>('dialogue-form').requestSubmit();},()=>autosave.save(),isWebPlatform,platformFetch,()=>pending||match.running);
+/** Every free learning answer receives existing whole-game evidence when available.
+ * Position-specific facts are calculated when the requested FEN is not in that
+ * completed report. The UI's Stockfish switch controls its display, not whether
+ * the AI is allowed to ignore available chess evidence.
+ */
 const enrichWithStockfish=async(request:import('../src/dialogue.js').DialogueRequest)=>{
- if(request.topic!=='chat'||request.matchTest||request.toolExchanges?.length)return request;
- const session=studio.session,position=session.snapshot().nodes.find(n=>n.id===request.nodeId);
+ if(request.matchTest||request.toolExchanges?.length)return request;
+ const session=studio.session,data=session.snapshot(),position=data.nodes.find(n=>n.id===request.nodeId);
  if(!position||position.fen!==request.fen)throw new Error('Stellung während der Prüfung gewechselt. Keine KI-Anfrage gesendet.');
- const wholeGameQuestion=/\b(?:partie|spiel(?:er|qualität|stärke)?|wei(?:ß|ss)|schwarz|fehler|genauigkeit|schlüsselstellen)\b/iu.test(request.question)&&/(gesamt|ganz|qualit|bewert|analys|fehler|vergleich|rückblick|schlüsselstell|stärke)/iu.test(request.question);
- if(wholeGameQuestion){
-  const report=matchingFullGameAnalysis(session);
-  const facts=report?fullGameContext(report):['Es liegt für die gesamte Partie noch keine vollständige Stockfish-Prüfung vor. Keine objektive Fehlerstatistik, Genauigkeit oder Spieler-Elo behaupten. Der Nutzer kann „Gesamte Partie mit Stockfish prüfen“ ausdrücklich starten.'];
-  return {...request,context:[...facts,...(request.context??[])].slice(0,6)};
+ const whole=matchingFullGameAnalysis(session);
+ const reportContexts=whole?fullGameContext(whole):[];
+ const reportPositions=whole?new Set([whole.rootFen,...whole.records.map(r=>r.after)]):undefined;
+ const needsCurrent=!reportPositions?.has(request.fen);
+ let positionContext:string|undefined;
+ if(needsCurrent){
+  if(new Chess(request.fen).isGameOver())positionContext='Die angefragte Stellung ist beendet; dort gibt es keine weitere Stockfish-Hauptvariante. Matt/Remis ist regelgeprüft, nicht numerisch aus einer Suche abgeleitet.';
+  else {
+   const checked=await withStockfishAssessment({...request,topic:'chat',context:[]},{check:(fen)=>getStockfishReport(fen)});
+   positionContext=checked.context?.[0];
+  }
  }
- if(!stockfishAssistEnabled)return request;
- if(new Chess(request.fen).isGameOver())return {...request,context:['Die aktuelle Stellung ist beendet und erhält keine weitere Engine-Hauptvariante. Die KI-Frage ist trotzdem zulässig.',...(request.context??[])].slice(0,6)};
- const enriched=await withStockfishAssessment(request,{check:(fen)=>getStockfishReport(fen)});
- if(session!==studio.session||session.snapshot().activeNodeId!==request.nodeId)throw new Error('Stellung während der Stockfish-Prüfung gewechselt. Keine KI-Anfrage gesendet.');
- return enriched;
+ if(session!==studio.session||session.snapshot().activeNodeId!==request.nodeId)
+  throw new Error('Stellung während der Stockfish-Prüfung gewechselt. Keine KI-Anfrage gesendet.');
+ const qualityNotice=!whole&&asksAboutGameQuality(request.question)?
+  'Keine vollständige Stockfish-Zug-für-Zug-Prüfung dieser Partie gespeichert: Nur die aktuelle Stellung wurde geprüft. Keine Fehlerstatistik oder objektiv belegten Partie-Wendepunkte behaupten; auf die ausdrücklich zu startende Gesamtpartieprüfung hinweisen.':'';
+ // The report is primary evidence. The current position is added only when it
+ // is not already part of the report; existing learning notes fill free slots.
+ const extra=[...(positionContext?[positionContext]:[]),...(qualityNotice?[qualityNotice]:[])];
+ const context=[...reportContexts,...extra,...(request.context??[])].slice(0,6);
+ return {...request,context};
 };
 const instructionsEditor=$<HTMLTextAreaElement>('general-ai-instructions');
 const instructionsStatus=$('general-ai-instructions-status');
@@ -475,7 +490,11 @@ installStrategicQualityUI(()=>studio.session,(fen,question)=>{
  render();
  text('question').focus();
 });
-const modelControls=installModelControls(localPost,async()=>{updateMode();await refreshModelStatus();await refreshCosts();},()=>({nodeId:studio.session.snapshot().activeNodeId,fen:studio.session.snapshot().nodes.find(n=>n.id===studio.session.snapshot().activeNodeId)!.fen,gameHistory:diagnosticGameHistory(studio.session.snapshot()),maiaMoves:maiaMoveTrace.filter(event=>event.gameId===studio.session.snapshot().game?.id),testMatch:match.report,boardActions,environment:{userAgent:navigator.userAgent,viewport:{width:innerWidth,height:innerHeight},fontScale:$<HTMLSelectElement>('font-scale').value},feedback:$('dialogue-feedback').textContent}));
+const modelControls=installModelControls(localPost,async()=>{updateMode();await refreshModelStatus();await refreshCosts();},()=>({nodeId:studio.session.snapshot().activeNodeId,fen:studio.session.snapshot().nodes.find(n=>n.id===studio.session.snapshot().activeNodeId)!.fen,gameHistory:diagnosticGameHistory(studio.session.snapshot()),fullGameStockfish:(()=>{
+ const report=matchingFullGameAnalysis(studio.session);
+ const issue=report?.records.filter(m=>m.lossCp!==null&&m.grade!=='gut').sort((a,b)=>b.lossCp!-a.lossCp!)[0];
+ return report?{state:'stored',plies:report.records.length,critical:issue?{ply:issue.ply,san:issue.san,grade:issue.grade,lossCp:issue.lossCp}:null}:{state:'missing_or_other_game'};
+})(),maiaMoves:maiaMoveTrace.filter(event=>event.gameId===studio.session.snapshot().game?.id),testMatch:match.report,boardActions,environment:{userAgent:navigator.userAgent,viewport:{width:innerWidth,height:innerHeight},fontScale:$<HTMLSelectElement>('font-scale').value},feedback:$('dialogue-feedback').textContent}));
 $('move-form').addEventListener('submit', event => { event.preventDefault(); move(input('move').value.trim()); });
 $('coach-show-plan').addEventListener('click',()=>{
  if($<HTMLButtonElement>('coach-show-plan').disabled)return;

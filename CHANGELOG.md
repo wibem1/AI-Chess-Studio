@@ -1,5 +1,17 @@
 # Änderungen
 
+## 1.6.1 – Stockfish-Partieprüfung direkt unter dem Brett und verlässliche KI-Fakten (Releasekandidat, 12. November 2026)
+
+- „Partie prüfen (Stockfish)“ befindet sich unmittelbar unter der Brettsteuerung im Lernmodus, nicht mehr versteckt in einem Aufklappbereich des Chats. Ausführliche Ergebnisse bleiben optional aufklappbar.
+- Ein vorhandener vollständiger Stockfish-Bericht wird bei Fragen im KI-Lernchat unabhängig von Schlüsselwörtern mitgegeben; ohne Gesamtbericht wird die aktuelle Stellung regelgeprüft und lokal mit Stockfish bewertet, ohne die ganze Partie ungefragt zu berechnen. Schachliche Qualität bleibt gesondert zu prüfen.
+- „KI zur Spielqualität befragen“ löst nach dem Anklicken tatsächlich die Frage aus; Diagnose zeigt, ob ein Gesamtbericht zur aktuellen Partie vorliegt.
+- Neue KI-Anweisungen priorisieren den größten belegten Bewertungsumschwung vor allgemeinen Aussagen.
+- Stockfish-UCI: Die abschließende legale Zugantwort darf bei begrenzter Suche von der letzten gültigen Hauptvariante abweichen; Zwischenvarianten werden auf legale Züge geprüft und korrekt an Leerzeichen getrennt. Ein einziger Wiederholungsversuch und Fehlermeldung mit Stellung/FEN bei tatsächlichem Fehlschlag. Originaler Android-Fehler durch realen Browserlauf mit der Maia-Partie reproduziert und behoben.
+- Abschließender nicht veröffentlichender Lauf [43293060402](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43293060402): **281/281 Node- und 46/46 Browsertests erfolgreich**, einschließlich aller 49 Halbzüge der originalen Maia-Partie bis 25. Dxf3 bei gleichzeitig eingeblendeter Stockfish-Einzelstellungsanzeige. Keine kostenpflichtige KI-Abnahme.
+- Zuvor nachgewiesen im nicht veröffentlichenden Testlauf [43287356997](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43287356997): 277/277 Node-Tests, 45/45 Chromium-Browsertests, einschließlich echter lokaler Stockfish-Prüfung sowie sichtbarem Board-Button bei 390/820/1440 px. Keine echte kostenpflichtige Modellqualitätsprüfung.
+- Nicht veröffentlicht; für die veröffentlichte Version ist eine neue Freigabe nötig.
+
+
 ## 1.6.0 – Vollständige Stockfish-Partieanalyse (Releasekandidat, 12. November 2026)
 
 - Vollständige, ausdrücklich angeforderte Stockfish-Prüfung der Hauptpartie mit Speicherung aller Stellungsbewertungen und Fehlerstatistik für beide Seiten.

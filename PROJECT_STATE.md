@@ -1,3 +1,35 @@
+# ChessStudio 1.6.1 – tatsächlicher Maia-Stockfish-Fehler behoben und vollständig getestet (12. November 2026)
+
+**Beleg:** GitHub Actions [43293060402](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43293060402) **SUCCESS** auf Commit `528cd86a19187e52a8238848f5111646f0214a3f`: 281/281 Node-Tests und 46/46 Chromium-Browsertests. Der reale Browsertest nutzt den authentischen Maia-Partieverlauf von `1.d4` bis `25.Qxf3` (49 Halbzüge einschließlich `23…Nxd4`) und hat die vollständige Stockfish-Prüfung bei eingeschalteter Stockfish-Stellungsanzeige abgeschlossen und gespeichert. Kein bezahlter KI-Test und keine Android-Geräteabnahme.
+
+**Ursachenanalyse:** Ein erster realer Browserlauf [43290232369](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43290232369) belegte, dass der abschließende Stockfish-`bestmove` schon nach `1.d4` vom ersten Zug der zuletzt gemeldeten gültigen `info pv` abweichen konnte; die App brach fälschlich ab. Die zugehörige Korrektur enthielt zunächst einen fehlerhaft escapten Whitespace-Split, durch den bei der Stellung vor `23…Nxd4` ([43291526108](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43291526108)) mehrzügige PVs nicht getrennt wurden. Beide Fehler wurden korrigiert, und entsprechende UCI-Regressionsfälle prüfen legale unterschiedliche Endzüge, illegale Endzüge und mehrzügige Hauptvarianten. Der gesamte Browserdurchlauf wird nicht mehr wegen dieser Fälle abgebrochen. Ein einzelner gezielter Wiederholungsversuch ist für fehlerhafte Suchantworten vorhanden; verbleibende Fehler werden mit Zugnummer und FEN angezeigt. Keine belastbare Evidenz für gleichzeitige Worker-Kollisionen.
+
+**Weitere Änderungen des Releasekandidaten:** Stockfish-Gesamtprüfungsbutton direkt unter dem Lernbrett; gespeicherte vollständige Bewertungsreihe geht unabhängig von Schlüsselwörtern in die KI-Anfrage; ohne Gesamtbericht nur aktuelle Stockfish-Stellungsprüfung, keine erfundene Fehlerstatistik; Diagnose zeigt Berichtsstatus; Button „KI zur Spielqualität befragen“ sendet die Frage. Diese Funktionen wurden mit echten lokalen Engines und simulierten Providerantworten geprüft, **nicht** hinsichtlich tatsächlich guter KI-Erklärungsqualität.
+
+**Status:** Version 1.6.1 im Entwurfs-PR #17, nicht gemergt, nicht veröffentlicht. Öffentlich weiterhin Version 1.6.0. `BUILD.json` wurde für Commit `528cd86...` mit `version=1.6.1` und `published=false` vorbereitet.
+
+**Nächster Schritt:** Ausdrückliche Benutzerfreigabe zum Merge und GitHub-Pages-Release; danach auf Android praktische Gesamtanalyse und Qualität der tatsächlichen KI-Interpretation prüfen.
+
+---
+
+# Version 1.6.1 – finaler Releasekandidat vollständig geprüft (12. November 2026)
+
+**GitHub Actions [43288203089](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43288203089): SUCCESS** für Commit `a9667bf2312479c4190f17f947d027e96afeaf85`: **277/277 Node-Tests und 45/45 Chromium-Browsertests**, einschließlich realem lokalen Stockfish und dem nachgewiesenen direkt sichtbaren Button unter dem Brett bei 390/820/1440 px. Das Produktionsmanifest wurde als Version **1.6.1** mit dem korrekten Quellcommit vorbereitet (`published=false`). Auch der zugehörige Funktionsstand war zuvor unter [43287356997](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43287356997) erfolgreich geprüft.
+
+**Entwurfs-PR #17:** https://github.com/wibem1/AI-Chess-Studio/pull/17 . Nicht gemergt, nicht veröffentlicht. Öffentliche Version bleibt 1.6.0. Ein tatsächlicher KI-Schachqualitätsnachweis oder Android-Gerätetest ist damit nicht ersetzt. **Nächster Schritt:** ausdrückliche Nutzerfreigabe zur Veröffentlichung, danach Merge/Release/Pages-Manifest prüfen.
+
+---
+
+# ChessStudio 1.6.1 – UI- und KI-Faktenkorrektur vorbereitet (12. November 2026)
+
+**Nutzerforderung:** Der Startknopf „Partie prüfen“ gehört unmittelbar unter das Brett. Im Entwicklungsbranch `fix/stockfish-game-context-and-review-send-20261112` wurde die vollständige Stockfish-Partieprüfung aus dem tiefen Chatbereich direkt hinter die Brettsteuerung verschoben; sichtbar ohne Aufklappen nur im Lernmodus. Bei gespeicherten Analysen können die ausführlichen Ergebnisse nach Bedarf aufgerufen werden. Der KI-Lernchat verwendet vorhandene Gesamtpartie-Bewertungen ohne Schlüsselwortfilter, ansonsten eine lokale Stellungsprüfung (keine ungefragte Gesamtpartieberechnung); der Qualitätsknopf sendet seine Frage tatsächlich ab. Diagnose meldet Vorhandensein und schwersten Fehler des gespeicherten Berichts.
+
+**Beleg:** GitHub Actions [43287356997](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43287356997) **SUCCESS**, 277/277 Node-Tests, 45/45 Chromium-Browsertests, inklusive realer Stockfish-Integration, falscher früherer Provider-Erkennung und Position des direkten Brettknopfs bei 390/820/1440 px. Keine reale bezahlte KI-Abnahme. **Version 1.6.1 als Releasekandidat vorbereitet, noch nicht gemergt/veröffentlicht.** Nach Versionsvergabe erneute CI-Prüfung nötig. Öffentliche Version bleibt 1.6.0.
+
+**Nächster Schritt:** versionierten Kandidaten verifizieren und in einem Entwurfs-PR sichern; Veröffentlichung nur mit neuer ausdrücklicher Freigabe.
+
+---
+
 # ChessStudio 1.6.0 – veröffentlicht und bestätigt (12. November 2026)
 
 **Nutzerfreigabe „freigeben“ ausdrücklich erteilt.** [PR #16](https://github.com/wibem1/AI-Chess-Studio/pull/16) in `work` gemergt, Merge-Commit `1f02ed2f07b5537797587ed56ce6cc950c107691`. Offizieller Release-GitHub-Actions-Lauf [43282445722](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43282445722) **SUCCESS** mit **276/276 Node-Tests und 44/44 Chromium-Browsertests** (einschließlich der echten Stockfish-Gesamtpartieprüfung und der Maia-Neustartregression). Veröffentlichung in `gh-pages` erfolgt; GitHub-Pages-Deployment [43282885628](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43282885628) **SUCCESS**.

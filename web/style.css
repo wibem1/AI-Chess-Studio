@@ -562,3 +562,12 @@ html:has(#workspace[data-active-view=learn]),body:has(#workspace[data-active-vie
 #board-area #learning-chat{order:2}
 @media(max-width:600px){#board-area #coach-match #stockfish-assist-settings{margin-left:0;grid-column:1/-1;grid-row:auto}}
 .workspace[data-active-view=play] #stockfish-assist-settings{display:none}
+
+/* Whole-game scan belongs to the board, not in the chat or a hidden tools menu. */
+.full-game-board-panel{width:100%;margin:4px 0 12px;padding:10px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.full-game-board-panel .full-game-buttons{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.full-game-board-panel .full-game-buttons button{min-height:44px;white-space:normal}
+.full-game-board-panel #full-game-start{flex:1 1 170px}
+.full-game-board-panel #full-game-status{margin:6px 0;font-size:.79rem;color:var(--muted)}
+.full-game-board-panel #full-game-result-details{margin:2px 0}
+.full-game-board-panel #full-game-results button{margin:3px;min-height:38px;padding:8px 10px;font-size:.78rem}
