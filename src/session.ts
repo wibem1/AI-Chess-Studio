@@ -31,7 +31,7 @@ export interface SessionData {
   labels?: Record<string,string>;
   comparison?: {a:string;b:string};
   fullGameAnalysis?:FullGameAnalysis;
-  positionScores?:Record<string,{fen:string;cp:number;depth:number}>;
+  positionScores?:Record<string,{fen:string;cp:number;depth:number;line?:string[]}>;
 }
 
 /** Branch identity is retained even when two nodes share the same FEN. */
@@ -122,12 +122,17 @@ export class Session {
     this.data.annotations.push(structuredClone(annotation));
   }
   /** Persistent, individually verified positions; independent of the Stockfish display switch. */
-  storePositionScore(nodeId:string,fen:string,cp:number,depth:number):void{
+  storePositionScore(nodeId:string,fen:string,cp:number,depth:number,line?:string[]):void{
     const node=this.node(nodeId);
     if(node.fen!==fen||!Number.isSafeInteger(cp)||Math.abs(cp)>1500||!Number.isSafeInteger(depth)||depth<0||depth>12)
      throw new Error('Ungültige gespeicherte Stockfish-Stellungsbewertung.');
     this.data.positionScores??={};
-    this.data.positionScores[nodeId]={fen,cp,depth};
+    if(line!==undefined){
+      if(!Array.isArray(line)||line.length>64)throw new Error('Ungültige gespeicherte Stockfish-Hauptvariante.');
+      const variation=new Chess(fen);
+      for(const san of line){if(typeof san!=='string'||!variation.moves().includes(san))throw new Error('Illegale gespeicherte Stockfish-Hauptvariante.');variation.move(san);}
+    }
+    this.data.positionScores[nodeId]={fen,cp,depth,...(line?{line:[...line]}:{})};
   }
   /** Rebuild the complete main-line report only when every position has a measured score. */
   refreshFullGameFromScores(endId:string):boolean{
@@ -147,7 +152,10 @@ export class Session {
     this.data.positionScores??={};
     for(const [index,node] of path.entries()){
       const cp=index===0?canonical.records[0]?.beforeCp:canonical.records[index-1]?.afterCp;
-      if(cp!==null&&cp!==undefined)this.data.positionScores[node.id]={fen:node.fen,cp,depth:canonical.limits.depth};
+      if(cp!==null&&cp!==undefined){
+        const existing=this.data.positionScores[node.id];
+        this.data.positionScores[node.id]={fen:node.fen,cp,depth:existing?.depth??canonical.limits.depth,...(existing?.line?{line:existing.line}:{})};
+      }
     }
   }
   dialogueRevision():number{return this.chatRevision;}
@@ -208,7 +216,7 @@ export class Session {
       for(const [id,rawScore] of Object.entries(entries)){
         const score=record(rawScore);
         if(typeof score.fen!=='string'||typeof score.cp!=='number'||typeof score.depth!=='number')throw new Error('Ungültige gespeicherte Stockfish-Bewertung.');
-        session.storePositionScore(id,score.fen,score.cp,score.depth);
+        session.storePositionScore(id,score.fen,score.cp,score.depth,score.line as string[]|undefined);
       }
     }
     if(d.fullGameAnalysis!==undefined)session.storeFullGameAnalysis(d.fullGameAnalysis as FullGameAnalysis);
