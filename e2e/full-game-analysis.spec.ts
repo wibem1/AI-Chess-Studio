@@ -150,5 +150,5 @@ test('actual complete 109-ply Maia game gets its saved Stockfish evidence into a
  await page.locator('#question').fill('Warum war 23…Sxd4 der entscheidende Fehler von Schwarz?');
  await page.locator('#ask').click();
  await expect(page.locator('#dialogue-feedback')).toContainText('gespeichert',{timeout:45000});
- expect(calls).toBe(1,'Provider must actually receive the full 109-ply Stockfish report');
+ expect(calls).toBe(1);
 });
