@@ -813,7 +813,7 @@ $('transfer-position').addEventListener('click',async()=>{
  finally{transferring=false;$<HTMLButtonElement>('transfer-position').disabled=false;}
 });
 $('learn-origin').addEventListener('click',()=>attempt(()=>{const d=studio.session.snapshot();game.analyse(d.game?.cursor??d.nodes[0]!.id);},'move-feedback','Zur Ausgangsstellung der Analyse zurück.'));
-installGameLibrary(browserRuntime.store,()=>studio.session.export(),json=>{restoreSession(json);navigation.select('learn');render();},()=>{match.stop('Partie laden.');studio.cancelAsk();coachBoard.cancel();activeAdapter?.cancel();game.pause();});
+installGameLibrary(browserRuntime.store,()=>studio.session.export(),json=>{restoreSession(json);navigation.select('learn');render();},()=>{automaticScores?.suspend();match.stop('Partie laden.');studio.cancelAsk();coachBoard.cancel();activeAdapter?.cancel();game.pause();return ()=>automaticScores?.resume();});
 void(async()=>{
  let loaded=false;
  try{
