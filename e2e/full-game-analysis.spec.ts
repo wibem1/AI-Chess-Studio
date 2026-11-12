@@ -35,7 +35,11 @@ test('real Stockfish whole-game report is stored, restored and can be given to a
   calls++;
   const data=route.request().postDataJSON();
   const user=JSON.parse(data.messages.find((m:{role:string})=>m.role==='user').content);
-  expect(user.context.some((c:string)=>c.includes('Lokal geprüfte Stockfish-Partieanalyse'))).toBeTruthy();
+  const context=user.context.join('');
+  expect(context).toContain('Lokal geprüfte Stockfish-Partieanalyse');
+  expect(context).toContain('Vollständiger chronologischer Verlauf aller 4 Halbzüge');
+  for(const move of ['1.f3','1…e5','2.g4','2…Qh4#'])expect(context).toContain(move);
+  expect(context).toContain('Wichtigste Fehler nach Bewertungsverlust:');
   return route.fulfill({json:{choices:[{finish_reason:'stop',message:{content:'Weiß machte kritische Fehler; Schwarz nutzte die offenen Diagonalen.'}}],usage:{prompt_tokens:100,completion_tokens:25}}});
  });
  await page.getByRole('tab',{name:'Lernmodus',exact:true}).click();
