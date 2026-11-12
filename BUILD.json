@@ -1,14 +1,14 @@
 {
   "kind": "github-pages-static-site",
   "project": "AI-Chess-Studio",
-  "version": "1.6.1",
+  "version": "1.7.0",
   "base": "/AI-Chess-Studio/",
-  "sourceCommit": "422ee8f32b6bb9cdfa0586f450831b65d5f6d840",
+  "sourceCommit": "bd6731ca54d9c9e2a10818f9ff00e1613580a986",
   "files": {
     ".nojekyll": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "_headers": "e85fa3d2710ecc531d0cf7f6450e98b0f13897d95e3bd1a257044a0297307007",
+    "assets/index-B7pPx51l.js": "0c013536eae12ff6738a87972e03bdc46f6ed0c09bc425d72e3f13980abed998",
     "assets/index-BApQJz5W.css": "7e0f99eb028b1b630af63e633d79733ecbdeb12aaa21b563b6b17d1d61043b15",
-    "assets/index-ByQeFeyi.js": "2a639e8f354a05700c8f0e7d2bed0fac632cd237b68160132bdcc2beaf23011d",
     "assets/maia-worker-DeKSBr_z.js": "ed1de335d2c51f2e1ebfef265dbd11b797c24bd30ea3ee824202ba86539f27b5",
     "engine/maia2-blitz-ort1.31.1/LICENSES.txt": "7afe8181443f89ea89e57757aa1d27d105d0641eab569f91c02ff90ab83b7cf2",
     "engine/maia2-blitz-ort1.31.1/SOURCE.txt": "c2d6dc6e7938f5706275da6e0904dbbbc01388c18a6d8e068b9ff67e1785ce81",
@@ -22,10 +22,10 @@
     "icons/apple-touch-icon.png": "2f9e9df0e5c58ad5b29049dfb41bdbce823fcde3ec8bc8bbfc7a81b5194ebb31",
     "icons/icon-192.png": "b77a807d34977ba014cb045c48da4b1042e5a5cf60e260a7e3ec1c1098d52d85",
     "icons/icon-512.png": "8371b7a98f6ba5a86361cfef65f8124a79c3a0404bf387cebdb1a9ca8ba14a8c",
-    "index.html": "dcd0b4eb55bf65e037ff08aade54698bc2d8caf90806aa223a82145c3c9df551",
+    "index.html": "9e40759b89c464f31d446eda4f17eaaf2518d39b35208aec98ae64905f2233a1",
     "licenses/chess.js-LICENSE.txt": "0b3a3c2b4432a26bb18f9d06f5bba4de015bcc980306b7db28b06025495e2186",
     "licenses.html": "3b1f1198910aa3d7ee518633ab3f5d12796361decbc7bb6930dab38aa3a0dd6e",
     "manifest.webmanifest": "d23e56f8e2a5b47841765210084aca9cd86e2b80e14c6e7d1a7aacc1f56b32fa",
-    "service-worker.js": "f64bb814f4c98c27200911bc8203802778aea2ad374de1d28d1380c1480bb040"
+    "service-worker.js": "9872c4b7771c5d37dc3993f5277af9eb3f9ee66167090fcb4f8201992874f594"
   }
 }
