@@ -21,6 +21,12 @@ export class AutomaticStockfish {
   private changed:()=>void=()=>{}
  ){}
  get error(){return this.lastError;}
+ private pending():boolean{
+  const session=this.current(),data=session.snapshot();
+  const end=data.game?.cursor??data.review?.original.at(-1)??data.activeNodeId;
+  const path=pathTo(data,end),failed=this.failures.get(session);
+  return path.length>=2&&path.length<=301&&path.some(node=>!data.positionScores?.[node.id]&&!failed?.has(node.id));
+ }
  /** Invoked after moves, imports, page reload or entering learning view. */
  sync():void{
   if(this.running||this.retryTimer)return;
@@ -29,7 +35,9 @@ export class AutomaticStockfish {
    if(this.running)return;
    const task=this.scan();
    this.running=task;
-   void task.finally(()=>{if(this.running===task)this.running=undefined;});
+   void task.finally(()=>{
+    if(this.running===task){this.running=undefined;if(this.pending())this.sync();}
+   });
   },350);
  }
  /** Await any missing scores before a full-game KI question. */
@@ -85,7 +93,7 @@ export class AutomaticStockfish {
   if(this.current()===session){
    const now=session.snapshot(),currentEnd=now.game?.cursor??now.review?.original.at(-1)??now.activeNodeId;
    const currentPath=pathTo(now,currentEnd);
-   if(currentPath.some(n=>!now.positionScores?.[n.id]&&!failed.has(n.id)))this.sync();
+   if(currentPath.some(n=>!now.positionScores?.[n.id]&&!failed.has(n.id))){/* next pass scheduled after running task settles */}
   }
  }
 }
