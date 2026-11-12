@@ -46,5 +46,10 @@ test('failed pre-import backup keeps the complete session and pasted PGN',async(
  await page.getByText('PGN-Text einfügen',{exact:true}).click();await page.locator('#game-pgn-text').fill('1. d4 d5 *');await page.locator('#load-pgn-text').click();
  await expect(page.locator('#games-status')).toContainText('100 Partien');await expect(page.locator('#game-pgn-text')).toHaveValue('1. d4 d5 *');await expect(page.locator('#position-status')).toContainText('n1');
  const pending=page.waitForEvent('download');await page.locator('#download-game').click();const download=await pending,fs=await import('node:fs/promises');
- expect(JSON.parse(await fs.readFile((await download.path())!,'utf8'))).toEqual(JSON.parse(original.export()));
+ // Automatic Stockfish scores are allowed to appear in the same original
+ // session while the failed import is being rejected. User-authored moves,
+ // annotations and existing game state must remain unchanged.
+ const downloaded=JSON.parse(await fs.readFile((await download.path())!,'utf8'));
+ delete downloaded.positionScores;delete downloaded.fullGameAnalysis;
+ expect(downloaded).toEqual(JSON.parse(original.export()));
 });
