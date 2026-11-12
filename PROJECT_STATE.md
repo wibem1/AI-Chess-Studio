@@ -1,3 +1,17 @@
+# Entwicklungsstand: Vollständiger Stockfish-KI-Kontext erfolgreich integriert (12. November 2026)
+
+**Branch:** `feat/stockfish-whole-game-analysis-20261112`; öffentliche Version bleibt **1.5.8**. **Nicht gemergt, nicht veröffentlicht.**
+
+**Ursache des roten Integrationstests:** `web/main.ts` sendete einen Stockfish-Bericht als Kontexttext von bis zu 1.800 Zeichen; `src/model-contract.ts` erlaubte pro Eintrag nur 800. Die Anfrage wurde lokal vor Erreichen des KI-Anbieters abgewiesen (`calls=0`). Ein zusätzliches `.slice(0,1800)` hätte die vollständige Bewertung ohnehin abgeschnitten.
+
+**Korrektur:** `fullGameContext()` übergibt die gesamte Zeitreihe aller tatsächlich geprüften Halbzüge in maximal fünf Abschnitten von je 2.700 Zeichen; überschreitet ein Bericht diese Grenze, wird der Fehler ausdrücklich gemeldet statt eine unvollständige Analyse zu versenden. `src/model-contract.ts` erlaubt diese begrenzten Abschnitte bei maximal 15.000 Zeichen insgesamt. Der KI-Kontext priorisiert gleichzeitig die größten Bewertungsverluste. Relevante Dateien: `src/full-game-analysis.ts`, `web/main.ts`, `src/model-contract.ts`, Node-/Browser-Regressionstests.
+
+**Nachgewiesen:** GitHub-Actions Kandidatenprüfung (ohne Deployment) [43271240795](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43271240795), Commit `c6e08bd056ec7f0fed71e4f956c627f5c04b127d`, **SUCCESS**: TypeScript/Build, **275/275 Node-Tests**, **43/43 Chromium-Browsertests** einschließlich echter Stockfish-Partieprüfung mit Speicherung/Import und Provider-Fake, der nachweist, dass alle vier Züge der Referenzpartie mit Bewertungsreihe und Fehlerpriorisierung ankommen. **Kein kostenpflichtiger KI-Aufruf, keine reale Android-Abnahme, keine echte KI-Qualitätsprüfung.**
+
+**Nächster einzelner Schritt:** Schachliche Praxisprüfung anhand der vom Nutzer hochgeladenen Maia-Partie mit besonders großem Bewertungssprung (inklusive Alternativzug und verständlicher Begründung) vor einer Versionsfreigabe. Zweitrangig: gezielte Nachsuche großer Bewertungsumschwünge; Maia-Kaltstart separat optimieren. Keine automatische Veröffentlichung.
+
+---
+
 # Entwicklungsstand: Vollständige Stockfish-Bewertungen im KI-Kontext (12. November 2026)
 
 **Branch:** `feat/stockfish-whole-game-analysis-20261112`. **Nicht gemergt, nicht veröffentlicht.** Öffentliche Version laut `work`: 1.5.8.
