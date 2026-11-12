@@ -14,7 +14,7 @@ test('real Stockfish whole-game report is stored, restored and can be given to a
  await page.locator('#games-menu > summary').click();
  await page.locator('#game-file').setInputFiles({name:'whole-game.json',mimeType:'application/json',buffer:Buffer.from(studio.session.export())});
  await expect(page.locator('#games-status')).toContainText('Partie geladen');
- await page.locator('#full-game-analysis > summary').click();
+ await expect(page.locator('#full-game-start')).toBeVisible();
  await page.locator('#full-game-start').click();
  await expect(page.locator('#full-game-status')).toContainText('Vollständige Prüfung gespeichert',{timeout:60000});
  await expect(page.locator('#full-game-results')).toContainText('Weiß:');
@@ -22,7 +22,7 @@ test('real Stockfish whole-game report is stored, restored and can be given to a
  await expect(page.locator('#full-game-ask')).toBeVisible();
  await page.reload();await expect(page.locator('#workspace')).not.toHaveAttribute('inert','');
  await page.getByRole('tab',{name:'Lernmodus',exact:true}).click();
- await page.locator('#full-game-analysis > summary').click();
+ await page.locator('#full-game-result-details > summary').click();
  await expect(page.locator('#full-game-results')).toContainText('bewertete Züge');
  await expect(page.locator('#full-game-ask')).toBeVisible();
  await page.locator('#open-settings').click();await page.locator('#api-settings > summary').click();
@@ -60,4 +60,22 @@ test('real Stockfish whole-game report is stored, restored and can be given to a
  await page.locator('#ask').click();
  await expect.poll(()=>calls).toBe(3);
  await expect(page.locator('#dialogue-feedback')).toContainText('gespeichert',{timeout:45000});
+});
+
+test('Stockfish Partie prüfen button is directly under the board and requires no disclosure on small and wide screens',async({page})=>{
+ for(const width of [390,820,1440]){
+  await page.setViewportSize({width,height:900});
+  await page.goto('/?platform=web');
+  await expect(page.locator('#workspace')).not.toHaveAttribute('inert','');
+  await page.getByRole('tab',{name:'Lernmodus',exact:true}).click();
+  const button=page.locator('#full-game-start'),panel=page.locator('#full-game-analysis'),board=page.locator('#board'),chat=page.locator('#learning-chat');
+  await expect(button).toBeVisible();
+  expect(await panel.evaluate(el=>el.parentElement?.id)).toBe('board-area');
+  expect(await panel.evaluate(el=>el.previousElementSibling?.classList.contains('board-heading'))).toBe(true);
+  const b=await board.boundingBox(),p=await panel.boundingBox(),q=await chat.boundingBox();
+  expect(p!.y).toBeGreaterThan(b!.y+b!.height);
+  expect(p!.y+p!.height).toBeLessThan(q!.y);
+  await page.getByRole('tab',{name:'Spielmodus',exact:true}).click();
+  await expect(button).toBeHidden();
+ }
 });
