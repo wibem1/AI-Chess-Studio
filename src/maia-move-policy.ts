@@ -13,7 +13,7 @@ export function selectMaiaMove(
  random:()=>number=Math.random
 ):string{
  const board=new Chess(fen);
- const legal=new Set(board.moves({verbose:true}).map(m=>m.from+m.to+(m.promotion??'')));
+ const legal=new Map(board.moves({verbose:true}).map(m=>[m.from+m.to+(m.promotion??''),m]));
  const ranked=predictions.filter(m=>legal.has(m.uci)&&Number.isFinite(m.p)&&m.p>0)
    .sort((a,b)=>b.p-a.p);
  if(!ranked.length)throw new Error('Maia hat keine gültigen Zugkandidaten geliefert.');
@@ -27,8 +27,9 @@ export function selectMaiaMove(
   const from=candidate.uci.slice(0,2),to=candidate.uci.slice(2,4);
   const previous=[...history].reverse().find(move=>move.to===from);
   if(!previous||previous.from!==to)return true;
-  // A retreat from an attacked square may be tactically necessary.
-  return board.isAttacked(from as 'a1',opponent);
+  // Protect tactical retreats: threatened pieces, captures and checks.
+  const move=legal.get(candidate.uci);
+  return board.isAttacked(from as 'a1',opponent)||!!move?.captured||!!move?.san.includes('+')||!!move?.san.includes('#');
  }):ranked;
  // If every other move is unusable, keep the model's original legal choices.
  const alternatives=eligible.length&&eligible[0]!.p>=0.015?eligible:ranked;
