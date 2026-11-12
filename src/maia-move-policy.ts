@@ -9,7 +9,7 @@ export interface MaiaPriorMove {from:string;to:string;color:'w'|'b'}
 export function selectMaiaMove(
  fen:string,
  predictions:readonly MaiaCandidate[],
- context:{plies:number;lastOwnMove?:MaiaPriorMove|undefined},
+ context:{plies:number;recentOwnMoves?:readonly MaiaPriorMove[]|undefined},
  random:()=>number=Math.random
 ):string{
  const board=new Chess(fen);
@@ -18,13 +18,18 @@ export function selectMaiaMove(
    .sort((a,b)=>b.p-a.p);
  if(!ranked.length)throw new Error('Maia hat keine gültigen Zugkandidaten geliefert.');
  const isEarly=context.plies<30;
- const previous=context.lastOwnMove;
- // A non-forced reversal is dubious when the moving piece is not under attack.
- // Never suppress a retreat from check, an attacked piece, or the sole option.
+ // Check the last move of the specific piece, not just Maia's last move:
+ // a pawn move may occur between ...Na6 and ...Nb8.
  const opponent=board.turn()==='w'?'b':'w';
- const reverse=previous&&!board.isCheck()&&!board.isAttacked(previous.to as 'a1',opponent)
-  ?previous:undefined;
- const eligible=reverse?ranked.filter(m=>!(m.uci.slice(0,2)===reverse.to&&m.uci.slice(2,4)===reverse.from)):ranked;
+ const canFilter=!board.isCheck();
+ const history=context.recentOwnMoves??[];
+ const eligible=canFilter?ranked.filter(candidate=>{
+  const from=candidate.uci.slice(0,2),to=candidate.uci.slice(2,4);
+  const previous=[...history].reverse().find(move=>move.to===from);
+  if(!previous||previous.from!==to)return true;
+  // A retreat from an attacked square may be tactically necessary.
+  return board.isAttacked(from as 'a1',opponent);
+ }):ranked;
  // If every other move is unusable, keep the model's original legal choices.
  const alternatives=eligible.length&&eligible[0]!.p>=0.015?eligible:ranked;
  const best=alternatives[0]!.p;
