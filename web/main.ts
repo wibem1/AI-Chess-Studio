@@ -169,7 +169,7 @@ function render() {
   $('game-undo').hidden=$('workspace').dataset.activeView!=='play';
   $<HTMLButtonElement>('game-undo').disabled=!game.canTakeBack();
   const learning=$('workspace').dataset.activeView==='learn';
-  $('learning-controls').hidden=!learning;$('learning-chat').hidden=!learning;
+  $('learning-controls').hidden=!learning;$('learning-chat').hidden=!learning;document.getElementById('full-game-analysis')?.toggleAttribute('hidden',!learning);
   for(const id of ['learn-back','learn-next'])$(id).hidden=!learning;
   $('transfer-position').textContent=learning?'Stellung spielen':'Stellung lernen';
   $('transfer-position').setAttribute('aria-label',learning?'Im Spielmodus fortsetzen':'Im Lernmodus öffnen');
@@ -434,7 +434,7 @@ stockfishToggle.addEventListener('change',async()=>{
   stockfishStatus.textContent=error instanceof Error?error.message:'Einstellung konnte nicht gespeichert werden.';
  }
 });
-fullGameUI=installFullGameUI($('learning-chat'),()=>studio.session,id=>{game.analyse(id);selected=null;render();},question=>{text('question').value=question;if(!modelAvailable||!accessReady){message('dialogue-feedback','Für eine KI-Bewertung zuerst unter Einstellungen einen verfügbaren KI-Zugang auswählen. Die Stockfish-Prüfung bleibt gespeichert.');text('question').focus();return;}if(pending||match.running){message('dialogue-feedback','Laufende KI-Anfrage oder Partie zuerst beenden.');return;}$<HTMLFormElement>('dialogue-form').requestSubmit();},()=>autosave.save(),isWebPlatform,platformFetch,()=>pending||match.running);
+fullGameUI=installFullGameUI(document.querySelector<HTMLElement>('.board-heading')!,()=>studio.session,id=>{game.analyse(id);selected=null;render();},question=>{text('question').value=question;if(!modelAvailable||!accessReady){message('dialogue-feedback','Für eine KI-Bewertung zuerst unter Einstellungen einen verfügbaren KI-Zugang auswählen. Die Stockfish-Prüfung bleibt gespeichert.');text('question').focus();return;}if(pending||match.running){message('dialogue-feedback','Laufende KI-Anfrage oder Partie zuerst beenden.');return;}$<HTMLFormElement>('dialogue-form').requestSubmit();},()=>autosave.save(),isWebPlatform,platformFetch,()=>pending||match.running);
 /** Every free learning answer receives existing whole-game evidence when available.
  * Position-specific facts are calculated when the requested FEN is not in that
  * completed report. The UI's Stockfish switch controls its display, not whether
