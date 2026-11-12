@@ -72,7 +72,7 @@ test('real Maia-game move sequence: a hypothetical 6-pawn swing on 23…Nxd4 is 
  assert.equal(mistake.lossCp,600);
  assert.equal(report.players.black.blunders,1);
  const context=fullGameContext(report).join('');
- assert.match(context,/Wichtigste Fehler nach Bewertungsverlust: 23…Nxd4: grober Fehler \\(Verlust 600 cp/);
+ assert.match(context,/Wichtigste Fehler nach Bewertungsverlust: 23…Nxd4: grober Fehler \(Verlust 600 cp/);
  assert.match(context,/Vollständiger chronologischer Verlauf aller 49 Halbzüge/);
  for(const move of ['23…Nxd4','24.Qxd5','24…Nxf3+','25.Qxf3'])assert.ok(context.includes(move),move);
 });
