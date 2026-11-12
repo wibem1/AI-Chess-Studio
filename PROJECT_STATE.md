@@ -1,3 +1,15 @@
+# Maia-2 – Ursache schlechter Eröffnungszüge mit echtem Modell gemessen (12. November 2026)
+
+**Ursachenanalyse nach Nutzerbefund abgeschlossen, Spielverhalten noch NICHT korrigiert.** Zur aktuellen Maia-Partie bei Profil 1500 zeigt die hochgeladene Diagnose `1.d4 Na6 2.f4 d6 3.e3 Nb8`; eine andere im KI-Review enthaltene Partie zeigt wiederholt `Nc6–Nb8` und `Nf6–Ng8`. Die Zugübernahme ist in den drei protokollierten aktuellen Maia-Antworten korrekt (`modelUci===uci`).
+
+Im Diagnosebranch `diagnose/maia2-opening-probabilities-20261112` wurden genau diese FENs mit dem tatsächlich eingebetteten Maia-2-ONNX/WASM-Modell und Rating 1500 geprüft. **Modellbefunde:** Nach `1.d4` hat `Nf6` Wahrscheinlichkeit 0,461576 und `Na6` nur 0,0126525 (aber `minP:0.01` im heutigen Sampler). Nach `1.d4 Na6 2.f4 d6 3.e3` hat `Nb8` Wahrscheinlichkeit 0,365319 und ist Top-1. Nach `1.d4 Nc6 2.e3` hat `Nb8` sogar 0,870088 (Top-1), `Nf6` nur 0,0529822. **Folge:** Die große Zufallsstichprobe lässt extrem seltene schwache Anfangszüge zu; das Originalmodell selbst bevorzugt bei frühen Zügen teils sinnlose Rückzüge. Nur Top-1 statt Sampling würde diese Schwäche nicht beheben.
+
+**Beleg:** [Actions 43202443569](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43202443569) **SUCCESS**: echte ONNX/WASM-Inferenz mit `MAIA_OPENING_DIAG`-Top-10-Listen, TypeScript, Node-Tests, Web-Build, **41/41 Chromium-Tests**. Keine bezahlten KI-Aufrufe; kein Merge und kein Deployment dieses Debugbranches. [Issue #13](https://github.com/wibem1/AI-Chess-Studio/issues/13) mit Befunden und Prüfplan aktualisiert.
+
+**Nächster Schritt:** Mit diesem nachgewiesenen Befund eine transparente, qualitätssichernde Maia-Eröffnungszugauswahl konzipieren (engere Kandidaten und Schutz vor nicht erzwungenem unmittelbarem Rückzug, ggf. separate Eröffnungsabdeckung), konkrete FENs sowie mehrzügige Partien mit echtem Modell testen, dann Korrektur als isolierten Patch vorbereiten. Keine stillen Stockfish-Züge, keine Elo-Versprechen. **Öffentliche Version bleibt 1.5.6 und ist hinsichtlich Maia-Spielqualität fehlerhaft.**
+
+---
+
 # Maia-2: Unplausible Springerrückzüge in Spielpartien – Fehlersuche (12. November 2026)
 
 **Nutzerbefund bestätigt, Ursache noch nicht ausreichend eingegrenzt.** Ein hochgeladener Diagnoseexport aus Chess Studio 1.5.6 zeigt in einer aktuellen Maia-2-Partie (Profil 1500) `1. d4 Na6 2. f4 d6 3. e3 Nb8`; `extra.current.maiaMoves` protokolliert für alle drei Maia-Antworten identische `modelUci`- und tatsächlich ausgeführte `uci`-Züge. Eine zweite, ältere Partie im Review-Kontext desselben Diagnoseexports enthält `1. d4 Nc6 2. e3 Nb8 3. f4 Nf6 4. Nf3 Ng8 5. Be2 Nf6 6. O-O Ng8` und später weitere unplausible Figurenzüge. Es handelt sich um **zwei unterschiedliche Spielhistorien**.
