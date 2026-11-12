@@ -1,3 +1,17 @@
+# Chess Studio 1.5.7 – Maia-2-Zugauswahl verbessert, Kandidat geprüft (12. November 2026)
+
+**Implementiert, mit echtem Maia-2-Modell und Chromium geprüft; noch NICHT veröffentlicht.** Der Nutzer meldete in 1.5.6 unplausible Springerpendel, z. B. `1.d4 Na6 2.f4 d6 3.e3 Nb8` und `1.d4 Nc6 2.e3 Nb8`. Der Diagnoselauf [43202443569](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43202443569) bestätigte beim Originalmodell Profil 1500: `1...Na6` nur 1,265 % Wahrscheinlichkeit und `...Nb8` nach `1.d4 Nc6 2.e3` 87,009 %; reine Top-1-Auswahl behebt das nicht.
+
+**Technische Änderung auf Branch `fix/maia2-opening-selection-20261112`:** Neue `src/maia-move-policy.ts` behält das echte Maia-2-ONNX-Modell und filtert die Auswahlliste. Erste 30 Halbzüge: maximal vier Kandidaten ab 18 % relativer Wahrscheinlichkeit des besten zulässigen Zugs; danach maximal acht ab 8 %. Auswahl weiterhin proportional zu Maia-Wahrscheinlichkeiten. Eigene jüngere Zughistorie wird in `web/maia-engine.ts` an den Worker übergeben, sodass `web/maia-worker.ts` unbegründete Rückzüge derselben Figur auch nach dazwischenliegenden Zügen erkennen kann. Ein Rückzug bleibt möglich bei Schach, Angriff auf die Figur, schlagendem oder schachgebendem Zug und fehlenden ausreichend wahrscheinlichen Alternativen. Dadurch wird auch der nach e3 auf a6 vom Läufer f1 angegriffene Springer nicht taktisch unvernünftig festgehalten. Keine Stockfish-Alternative, keine Eröffnungsbibliothek und keine Elo-Garantie. Dokumentation: `docs/MAIA.md`.
+
+**Verifiziert:** Releasekandidat 1.5.7 mit `package.json`, `package-lock.json`, `CHANGELOG.md` und Release-Workflow synchronisiert. Actions [43207378274](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43207378274) **SUCCESS**: TypeScript, vollständige Node-Tests mit echtem Maia-2-ONNX, Produktions-Build, **42/42 Chromium-Browsertests** inklusive echtem Maia-Zug nach `1.d4` und Manifestprüfung **ohne Deployment**. Vorläufige Tests derselben Enginekorrektur [43206756393](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43206756393) ebenfalls **SUCCESS**. Kein kostenpflichtiger KI-Aufruf.
+
+**Freigabestatus:** [PR #14](https://github.com/wibem1/AI-Chess-Studio/pull/14) nach `work` ist offen. Nicht ohne ausdrücklichen Auftrag mergen oder veröffentlichen. Öffentliche App bleibt **1.5.6**. Praxisabnahme einer längeren Maia-Partie auf Nutzergerät noch offen; Heuristiken beseitigen nicht sämtliche modellbedingten Qualitätsschwächen. Issue [#13](https://github.com/wibem1/AI-Chess-Studio/issues/13) bleibt bis zur Praxisabnahme offen.
+
+**Nächster einzelner Schritt:** Bei Freigabe PR #14 mergen, Release-Gate inkl. realer Maia-/Stockfish-Browsertests und Pages-Deployment prüfen, `gh-pages/BUILD.json` mit Version 1.5.7 sowie exaktem Source-Commit abgleichen. Anschließend gezielter Nutzer-Test einer vollständigen Partie (insbesondere 10–20 Eröffnungszüge und unplausible Rückzüge).
+
+---
+
 # Maia-2 – Ursache schlechter Eröffnungszüge mit echtem Modell gemessen (12. November 2026)
 
 **Ursachenanalyse nach Nutzerbefund abgeschlossen, Spielverhalten noch NICHT korrigiert.** Zur aktuellen Maia-Partie bei Profil 1500 zeigt die hochgeladene Diagnose `1.d4 Na6 2.f4 d6 3.e3 Nb8`; eine andere im KI-Review enthaltene Partie zeigt wiederholt `Nc6–Nb8` und `Nf6–Ng8`. Die Zugübernahme ist in den drei protokollierten aktuellen Maia-Antworten korrekt (`modelUci===uci`).
