@@ -411,7 +411,7 @@ function syncStockfishBoard(){
   const value=(record.cp>=0?'+':'')+(record.cp/100).toFixed(2);
   stockfishResult.textContent='Stockfish: '+value+' (Weiß) · T'+record.depth;
   stockfishResult.style.visibility='visible';stockfishDetails.removeAttribute('aria-busy');
-  stockfishLine.textContent='Automatisch geprüfte und mit der Partie gespeicherte Stellung.';
+  stockfishLine.textContent=record.line?.length?'Hauptvariante: '+record.line.slice(0,8).join(' '):'Stockfish-Bewertung gespeichert; keine Hauptvariante verfügbar.';
  }else{
   const started=!!data.game||!!data.review||data.nodes.length>1;
   stockfishResult.textContent=started?'Stockfish: Bewertung wird gespeichert …':'Stockfish: – (noch keine Partie)';
