@@ -99,3 +99,13 @@ export function fullGameContext(report:FullGameAnalysis):string[]{
  if(parts.length>5)throw new Error('Stockfish-Partiebericht überschreitet das KI-Kontextlimit. Keine unvollständige Partieanalyse versendet.');
  return parts;
 }
+
+/** Intent gate for factual whole-game reviews. Do not depend on one exact
+ * phrasing; otherwise even a saved report can be silently omitted.
+ */
+export function asksAboutGameQuality(question:string):boolean{
+ const q=question.toLocaleLowerCase('de-DE');
+ if(/partie|spielverlauf|spielqualität|spielstärke|schlüsselstell|wendepunkt|partieanalyse|partiebewert/u.test(q))return true;
+ const issue=/fehler|patzer|blunder|verlust|schlecht|entscheid|kritisch|bewert|analyse|analys|stärke|qualität|leistung|zug|züge/u.test(q);
+ return issue&&/schwarz|weiß|weiss|maia|spiel|züge|zug|fehler/u.test(q);
+}
