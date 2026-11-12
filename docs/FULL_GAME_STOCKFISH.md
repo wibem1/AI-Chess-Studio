@@ -7,7 +7,7 @@ Im Lernmodus unter dem Brett `Gesamte Partie mit Stockfish prüfen` aufklappen u
 
 Angezeigt werden für beide Seiten die Anzahl geprüfter Züge, der durchschnittliche angenäherte Centipawn-Bewertungsverlust sowie die Zahl der Ungenauigkeiten, Fehler und groben Fehler. Maximal 16 auffällige Entscheidungen sind direkt anspringbar (Stellung *vor* dem fraglichen Zug). Beim Speichern der Partie als Sitzungs-JSON und im Browser-Autosave bleiben die Befunde erhalten; sie werden beim Import gegen die ursprüngliche Zugfolge geprüft. Ein neue Partie erhält nicht automatisch den alten Bericht.
 
-`KI zur Spielqualität befragen` bereitet nur eine Frage vor, es startet noch **keine** kostenpflichtige KI-Anfrage. Der Lernchat erhält bei passenden Fragen eine **begrenzte faktische Zusammenfassung** des gespeicherten Stockfish-Berichts; unabhängig davon, ob die letzte Stellung Schachmatt ist. Ohne vollständigen Bericht darf die KI keine angeblich objektive Fehlerstatistik erfinden. Ein abgeschlossener Spielstand hindert weder die Partiebewertung noch die KI-Frage.
+`KI zur Spielqualität befragen` bereitet nur eine Frage vor, es startet noch **keine** kostenpflichtige KI-Anfrage. Der Lernchat erhält bei passenden Fragen die **vollständige chronologische Stellungsbewertung nach jedem Zug** sowie eine priorisierte Liste der größten Bewertungsverluste aus dem gespeicherten Stockfish-Bericht; unabhängig davon, ob die letzte Stellung Schachmatt ist. Ohne vollständigen Bericht darf die KI keine angeblich objektive Fehlerstatistik erfinden. Ein abgeschlossener Spielstand hindert weder die Partiebewertung noch die KI-Frage.
 
 ## Technische Grenzen
 - Die lokale Stockfish-Suche ist pro Stellung begrenzt auf maximal Tiefe 12, 20.000 Knoten oder eine Sekunde. Die Partie wird seriell abgearbeitet (bei 145 Halbzügen bis zu 146 Stellungsprüfungen). Nur ausdrücklich angeforderte Scans rechnen in dieser Größenordnung; kein regelmäßiger Hintergrundlauf.
@@ -16,3 +16,8 @@ Angezeigt werden für beide Seiten die Anzahl geprüfter Züge, der durchschnitt
 - Kein Stockfish-Fallback in Maia-Partien: Maia bleibt der Spielgegner. Für die nachträgliche Partieanalyse wird der unabhängig gestartete, lokal laufende Stockfish benutzt. Modellzug und Stockfish-Befund dürfen nicht verwechselt werden.
 - Die Ergebnisse werden an die KI nur bei einer **ausdrücklichen** Frage zum gesamten Spiel gesendet. Sie dienen als taktisch begrenzte Faktenbasis, nicht als strategische Wahrheit.
 - Browser-/automatisierte Tests belegen Funktion und korrekte Datenübergabe; eine weitergehende schachliche Kalibrierung und Praxisabnahme sind getrennt offen.
+
+## KI-Priorisierung – Entwicklungsstand (12. November 2026)
+Die Übergabe `fullGameSummary()` enthält nun alle Halbzüge mit der jeweiligen Bewertung aus Weißsicht in Bauerneinheiten, ergänzend einen nach Bewertungsverlust priorisierten Fehlerindex mit Ausgangs-FEN. Der Analyseauftrag verlangt, zuerst die entscheidenden Wendepunkte samt Bewertungsänderung und Ursache zu erläutern; eine rein strategische Allgemeinbesprechung soll grobe Fehler nicht überdecken. Die vollständige Zeitreihe wird aus den gespeicherten `records` erzeugt, nicht durch zusätzliche Stockfish-Abfragen.
+
+**Noch nicht nachgewiesen:** automatisierter Testlauf dieser Änderung und reale Provider-Antwort. Vor Freigabe weiterhin den bestehenden fehlgeschlagenen Browser-Integrationstest beheben und die Eingabe-/Tokenlänge bei langen Partien prüfen. Eine vertiefte Suche an kritischen Stellungen sowie präzise Mattwert-Behandlung sind separate Nacharbeiten.
