@@ -30,7 +30,14 @@ export class BrowserTacticalAdapter implements TacticalAdapter {
    }
   },complete:(uci,engine)=>{
    if(!info)throw new Error('Stockfish-Prüfung: Keine gültige Hauptvariante im Suchergebnis.');
-   if(info.pv[0]!==uci)throw new Error('Stockfish-Prüfung: Abschließender Zug stimmt nicht mit der letzten gültigen Hauptvariante überein.');
+   // The final bestmove may differ from the last valid info PV on bounded
+   // searches (time/node stop). This is not an illegal engine response:
+   // retain the validated PV together with its own score and independently
+   // verify that the final bestmove is legal for the requested FEN.
+   if(!/^[a-h][1-8][a-h][1-8][qrbn]?$/.test(uci))throw new Error('Stockfish-Prüfung: Ungültiger abschließender Zug.');
+   const finalBoard=new Chess(fen);
+   try{finalBoard.move({from:uci.slice(0,2),to:uci.slice(2,4),...(uci[4]?{promotion:uci[4]}:{})});}
+   catch{throw new Error('Stockfish-Prüfung: Illegaler abschließender Zug.');}
    const replay=new Chess(fen),line:string[]=[];
    for(const uci of info.pv.slice(0,64)){if(!/^[a-h][1-8][a-h][1-8][qrbn]?$/.test(uci))throw new Error('Stockfish-Prüfung: Ungültiger Zug in der Hauptvariante.');const move=replay.move({from:uci.slice(0,2),to:uci.slice(2,4),...(uci[4]?{promotion:uci[4]}:{})});line.push(move.san);}
    return validateTacticalReport({fen,engine,...(history?{history}:{}),depth:info.depth,nodes:info.nodes,elapsedMs:Math.round(performance.now()-start),score:{unit:info.unit,value:info.value*(board.turn()==='w'?1:-1),perspective:'white'},line,candidate,limits:TACTICAL_LIMITS},fen);
