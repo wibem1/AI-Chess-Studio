@@ -25,7 +25,10 @@ export class MaiaPlayingEngine implements PlayingEngine{
      clearTimeout(timer);this.pending=undefined;resolve({san:result.san,level,engine:'Maia-2 Blitz (ONNX, Browser)',uci,modelFen});
     }catch{fail(new Error('Illegale Maia-Antwort verworfen.'));}
    };
-   worker.postMessage({base:new URL(appPath(MAIA_ASSET_BASE),location.origin).href,fen:request.board.fen(),rating:MAIA_PROFILES[level-1]});
+   const history=request.board.history({verbose:true});
+   const previous=history.at(-2);
+   const lastOwnMove=previous?.color===request.board.turn()?{from:previous.from,to:previous.to,color:previous.color}:undefined;
+   worker.postMessage({base:new URL(appPath(MAIA_ASSET_BASE),location.origin).href,fen:request.board.fen(),rating:MAIA_PROFILES[level-1],plies:history.length,lastOwnMove});
   });
  }
 }
