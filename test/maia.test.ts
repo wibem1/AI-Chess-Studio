@@ -71,14 +71,15 @@ test('Maia-2 real ONNX predictions no longer produce reported opening shuttles',
   }}});
   const scenarios=[
    {fen:'rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b KQkq - 0 1',plies:1,prior:[] as {from:string;to:string;color:'b'}[],bad:'b8a6'},
-   {fen:'r1bqkbnr/ppp1pppp/n2p4/8/3P1P2/4P3/PPP3PP/RNBQKBNR b KQkq - 0 3',plies:5,prior:[{from:'b8',to:'a6',color:'b' as const},{from:'d7',to:'d6',color:'b' as const}],bad:'a6b8'},
+   {fen:'r1bqkbnr/ppp1pppp/n2p4/8/3P1P2/4P3/PPP3PP/RNBQKBNR b KQkq - 0 3',plies:5,prior:[{from:'b8',to:'a6',color:'b' as const},{from:'d7',to:'d6',color:'b' as const}],bad:'a6b8',attacked:true},
    {fen:'r1bqkbnr/pppppppp/2n5/8/3P4/4P3/PPP2PPP/RNBQKBNR b KQkq - 0 2',plies:3,prior:[{from:'b8',to:'c6',color:'b' as const}],bad:'c6b8'}
   ];
   for(const item of scenarios){
    const prediction=await model.predict(item.fen,1500,1500);
    for(const random of [0,0.25,0.5,0.75,0.9999]){
     const selected=selectMaiaMove(item.fen,prediction.moves,{plies:item.plies,recentOwnMoves:item.prior},()=>random);
-    assert.notEqual(selected,item.bad,item.fen);
+    if('attacked' in item){assert.equal(new Chess(item.fen).isAttacked('a6','w'),true);if(random===0)assert.equal(selected,item.bad,'Attack on the knight permits necessary retreat');}
+    else assert.notEqual(selected,item.bad,item.fen);
    }
   }
  }finally{await session.release();}
