@@ -67,15 +67,15 @@ export class AutomaticStockfish {
    if(failed.has(node.id))return;
    try{
     const position=new Chess(node.fen),terminal=gameResultCp(position);
-    let cp:number,depth:number;
+    let cp:number,depth:number,line:string[]|undefined;
     if(terminal!==null){cp=terminal;depth=0;}
     else{
      const raw=await this.adapter().check(node.fen,null,{rootFen:path[0]!.fen,moves:path.slice(1,index+1).map(n=>n.san!)});
      const report=validateTacticalReport(raw,node.fen);
-     cp=scoreToCp(report);depth=report.depth;
+     cp=scoreToCp(report);depth=report.depth;line=report.line;
     }
     if(this.current()!==session)return;
-    session.storePositionScore(node.id,node.fen,cp,depth);
+    session.storePositionScore(node.id,node.fen,cp,depth,line);
     const latest=session.snapshot(),currentEnd=latest.game?.cursor??latest.review?.original.at(-1)??latest.activeNodeId;
     const currentPath=pathTo(latest,currentEnd);
     if(currentPath.length>=3&&currentPath.length<=301)session.refreshFullGameFromScores(currentEnd);
