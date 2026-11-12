@@ -60,7 +60,7 @@ export class AutomaticStockfish {
   if(path.length<2||path.length>301)return;
   const failed=this.failures.get(session)??new Set<string>();
   this.failures.set(session,failed);
-  for(const node of path){
+  for(const [index,node] of path.entries()){
    if(this.current()!==session)return;
    if(!priority&&this.engineBusy()){this.sync();return;}
    if(session.snapshot().positionScores?.[node.id]?.fen===node.fen)continue;
@@ -70,7 +70,7 @@ export class AutomaticStockfish {
     let cp:number,depth:number;
     if(terminal!==null){cp=terminal;depth=0;}
     else{
-     const raw=await this.adapter().check(node.fen,null);
+     const raw=await this.adapter().check(node.fen,null,{rootFen:path[0]!.fen,moves:path.slice(1,index+1).map(n=>n.san!)});
      const report=validateTacticalReport(raw,node.fen);
      cp=scoreToCp(report);depth=report.depth;
     }
