@@ -83,3 +83,13 @@ test('game-wide intent recognizes natural decisive-mistake questions and exclude
  for(const q of ['Erkläre mir das Feld e4.','Wie ändere ich den API-Schlüssel?','Zeichne einen Pfeil auf dem Brett.'])
   assert.equal(asksAboutGameQuality(q),false,q);
 });
+
+test('one malformed browser answer is retried exactly once; repeated failure identifies ply and FEN',async()=>{
+ const root=new Chess().fen(),moves=['e4','e5'];let calls=0;
+ const good=(fen:string,history:unknown)=>({fen,engine:'Stockfish 19 Lite',depth:12,nodes:20000,elapsedMs:1,score:{unit:'cp' as const,value:0,perspective:'white' as const},line:[new Chess(fen).moves()[0]!],candidate:null,limits:TACTICAL_LIMITS,history});
+ const recovered=await scanFullGame(root,moves,{async check(fen,_candidate,history){calls++;if(calls===2)throw new Error('Stockfish-Prüfung: Keine gültige Hauptvariante im Suchergebnis.');return good(fen,history);}});
+ assert.equal(recovered.records.length,2);assert.equal(calls,4);
+ let attempts=0;
+ await assert.rejects(scanFullGame(root,moves,{async check(){attempts++;throw new Error('Browser-Spielengine: illegale oder falsche Zugantwort.');}}),/Stellung 1\/3 \(nach Ausgangsstellung\).*FEN: rnbqkbnr/u);
+ assert.equal(attempts,2);
+});
