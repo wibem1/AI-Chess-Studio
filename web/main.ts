@@ -21,6 +21,8 @@ import { ServerModelAdapter } from '../src/model-client.js';
 import { checkTactics, ServerTacticalAdapter, validateTacticalReport, type TacticalReport } from '../src/tactics.js';
 import {BrowserTacticalAdapter} from '../src/browser-tactics.js';
 import {withStockfishAssessment} from '../src/stockfish-assist.js';
+import {fullGameSummary} from '../src/full-game-analysis.js';
+import {installFullGameUI,matchingFullGameAnalysis} from './full-game-ui.js';
 import { LearningGame, ServerPlayingEngine, pathTo, type AppliedEngineMove } from '../src/game.js';
 import type {HintMode} from '../src/learning.js';
 import './style.css';
@@ -47,6 +49,7 @@ const stockfishCache=new Map<string,TacticalReport>();
 let stockfishVisibleFen='';
 let stockfishSearch:{fen:string;promise:Promise<TacticalReport>;cancel:(()=>void)|undefined}|undefined;
 let stockfishSearchGeneration=0;
+let fullGameUI:ReturnType<typeof installFullGameUI>|undefined;
 let initialized=false;
 const autosave=new AutoSave(browserRuntime.store,()=>({json:studio.session.export(),question:text('question').value}),value=>message('autosave-status',value));
 const maiaMoveTrace:AppliedEngineMove[]=[];
@@ -151,6 +154,7 @@ function render() {
   if(coachBoard.checkSelection()){studio.cancelAsk();activeAdapter?.cancel();}
   cancelBoardDrag();
   const data = studio.session.snapshot();
+  fullGameUI?.render();
   const current = data.nodes.find(n => n.id === data.activeNodeId)!;
   const learningView=$('workspace').dataset.activeView==='learn';
   $('stockfish-assist-settings').hidden=!learningView;
@@ -430,10 +434,19 @@ stockfishToggle.addEventListener('change',async()=>{
   stockfishStatus.textContent=error instanceof Error?error.message:'Einstellung konnte nicht gespeichert werden.';
  }
 });
+fullGameUI=installFullGameUI($('learning-chat'),()=>studio.session,id=>{game.analyse(id);selected=null;render();},question=>{text('question').value=question;text('question').focus();},()=>autosave.save(),isWebPlatform,platformFetch,()=>pending||match.running);
 const enrichWithStockfish=async(request:import('../src/dialogue.js').DialogueRequest)=>{
- if(!stockfishAssistEnabled||request.topic!=='chat'||request.matchTest||request.toolExchanges?.length)return request;
+ if(request.topic!=='chat'||request.matchTest||request.toolExchanges?.length)return request;
  const session=studio.session,position=session.snapshot().nodes.find(n=>n.id===request.nodeId);
- if(!position||position.fen!==request.fen)throw new Error('Stellung während der Stockfish-Prüfung gewechselt. Keine KI-Anfrage gesendet.');
+ if(!position||position.fen!==request.fen)throw new Error('Stellung während der Prüfung gewechselt. Keine KI-Anfrage gesendet.');
+ const wholeGameQuestion=/\\b(?:partie|spiel(?:er|qualität|stärke)?|wei(?:ß|ss)|schwarz|fehler|genauigkeit|schlüsselstellen)\\b/iu.test(request.question)&&/(gesamt|ganz|qualit|bewert|analys|fehler|vergleich|rückblick|schlüsselstell|stärke)/iu.test(request.question);
+ if(wholeGameQuestion){
+  const report=matchingFullGameAnalysis(session);
+  const fact=report?fullGameSummary(report):'Es liegt für die gesamte Partie noch keine vollständige Stockfish-Prüfung vor. Keine objektive Fehlerstatistik, Genauigkeit oder Spieler-Elo behaupten. Der Nutzer kann „Gesamte Partie mit Stockfish prüfen“ ausdrücklich starten.';
+  return {...request,context:[fact.slice(0,1800),...(request.context??[])].slice(0,6)};
+ }
+ if(!stockfishAssistEnabled)return request;
+ if(new Chess(request.fen).isGameOver())return {...request,context:['Die aktuelle Stellung ist beendet und erhält keine weitere Engine-Hauptvariante. Die KI-Frage ist trotzdem zulässig.',...(request.context??[])].slice(0,6)};
  const enriched=await withStockfishAssessment(request,{check:(fen)=>getStockfishReport(fen)});
  if(session!==studio.session||session.snapshot().activeNodeId!==request.nodeId)throw new Error('Stellung während der Stockfish-Prüfung gewechselt. Keine KI-Anfrage gesendet.');
  return enriched;
