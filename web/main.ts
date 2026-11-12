@@ -413,9 +413,10 @@ function syncStockfishBoard(){
   stockfishResult.style.visibility='visible';stockfishDetails.removeAttribute('aria-busy');
   stockfishLine.textContent='Automatisch geprüfte und mit der Partie gespeicherte Stellung.';
  }else{
-  stockfishResult.textContent='Stockfish: Bewertung wird gespeichert …';
+  const started=!!data.game||!!data.review||data.nodes.length>1;
+  stockfishResult.textContent=started?'Stockfish: Bewertung wird gespeichert …':'Stockfish: – (noch keine Partie)';
   stockfishResult.style.visibility='visible';stockfishDetails.removeAttribute('aria-busy');
-  stockfishLine.textContent='Lokale Hintergrundprüfung; der Anzeigeschalter startet keine Berechnung.';
+  stockfishLine.textContent=started?'Lokale Hintergrundprüfung; der Anzeigeschalter startet keine Berechnung.':'Bewertungen entstehen automatisch ab dem ersten gespielten Zug.';
  }
 }
 void browserRuntime.store.getStockfishAssistEnabled().then(enabled=>{
