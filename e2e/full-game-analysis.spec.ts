@@ -46,7 +46,12 @@ test('real Stockfish whole-game report is stored, restored and can be given to a
  await page.locator('#stockfish-assist-enabled').check();
  await page.locator('#full-game-ask').click();
  await expect(page.locator('#question')).toHaveValue(/Vergleiche die schachliche Qualität/);
- await page.locator('#ask').click();
  await expect(page.locator('#dialogue-feedback')).toContainText('gespeichert',{timeout:45000});
  expect(calls).toBe(1);
+ // A natural German question about Black's decisive mistake must not bypass
+ // the complete evaluations just because it lacks "gesamte Partie".
+ await page.locator('#question').fill('Was war der entscheidende Fehler von Schwarz?');
+ await page.locator('#ask').click();
+ await expect.poll(()=>calls).toBe(2);
+ await expect(page.locator('#dialogue-feedback')).toContainText('gespeichert',{timeout:45000});
 });
