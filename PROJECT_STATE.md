@@ -1,3 +1,20 @@
+# ChessStudio 1.7.0 – KI-Übergabe der gesamten Maia-Partie und sicherer PGN-Import verifiziert (12. November 2026)
+
+**Aktueller Stand:** Entwurfs-PR [#18](https://github.com/wibem1/AI-Chess-Studio/pull/18), Branch `feat/automatic-stockfish-evaluations-20261112`. **Nicht gemergt oder veröffentlicht**; öffentlich weiterhin 1.6.1.
+
+**Neuester Nachweis:** [GitHub Actions 43311857225](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43311857225) **SUCCESS**: **286/286 Node-Tests, 48/48 Chromium-Browsertests**. Besonders relevant:
+- Die authentische vollständige Maia-Partie mit 109 Halbzügen bis `55.Qf6#` einschließlich `23…Nxd4` wird mit einer gespeicherten synthetischen Stockfish-Bewertungsreihe in einer echten Browser-KI-Anfrage transportiert; der simulierte Provider erhält die kritische Stelle sowie den gesamten chronologischen Verlauf und seine Antwort wird gespeichert. Diese Tests belegen die Übergabe, **nicht** die Qualität oder Erreichbarkeit einer realen OpenAI-/OpenRouter-Antwort.
+- Der 109-Züge-Bericht erfüllt die serverseitige Kontextvalidierung, ohne Züge zu verlieren.
+- Automatische lokale Stockfish-Prüfungen wurden beim PGN-Import als konkurrierende Schreiber identifiziert. Die automatische Queue lässt sich nun transaktional suspendieren; verspätete laufende Workerantworten dürfen die gesicherte Sitzung nicht verändern. Nach Import (auch bei Fehlschlag) wird sie wieder aktiviert.
+- Der normale PGN-Import und der Test zur fehlgeschlagenen Vorsicherung sind wieder erfolgreich; automatische technische Stellungsbewertungen dürfen die unveränderten Nutzerzüge und Notizen ergänzen.
+- Die Diagnose enthält jetzt `lastAiStage` (Phase des fehlgeschlagenen KI-Aufrufs) und `lastAiError`, damit auch Fehler **vor** dem Anbieteraufruf erkennbar werden.
+
+**Wichtig:** Die vom Nutzer zuvor beobachtete KI-Fehlermeldung lässt sich aus der alten Diagnose mit `requests: []` nicht eindeutig einer konkreten Ursache zuordnen. Die neue Prüfung beweist, dass ein 109-Halbzüge-Bericht **grundsätzlich durch die reale Browser-/App-Pipeline** bis zu einer simulierten Provider-Anfrage gelangt. Ein echter bezahlter KI-Aufruf und ein natives Android-Gerät wurden nicht getestet. Keine neue Release-Freigabe erteilt.
+
+**Nächster Schritt:** Optional den bereits geprüften 1.7.0-Releasekandidaten nach ausdrücklicher Freigabe veröffentlichen; anschließend vom Nutzer den konkreten KI-Fehler samt neuer Diagnose überprüfen lassen. Keine Veröffentlichung ohne neue Anweisung.
+
+---
+
 # ChessStudio 1.7.0 – automatisches Stockfish-Scoring, Releasekandidat erfolgreich geprüft (12. November 2026)
 
 **Aktueller Entwicklungsstand:** [Entwurfs-PR #18](https://github.com/wibem1/AI-Chess-Studio/pull/18), Branch `feat/automatic-stockfish-evaluations-20261112`, **noch nicht gemergt oder veröffentlicht**. Öffentliche Version bleibt 1.6.1. Ausdrückliche Veröffentlichungserlaubnis für 1.7.0 liegt nicht vor.
