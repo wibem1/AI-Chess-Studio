@@ -1,5 +1,13 @@
 # Änderungen
 
+## 1.5.8 – Neue Maia-Partie nach Analyse zuverlässig starten (12. November 2026)
+
+- Beim ausdrücklichen Start einer neuen Partie wird der alte Maia-2-WASM-Worker zurückgesetzt. Ein vorheriger Spiel- oder Lernmodus darf keine alte Engine-Laufzeit in die neue Partie übernehmen.
+- Verspätete Fehler und Antworten eines bereits beendeten Workers dürfen keine spätere Partie abbrechen oder deren Engine-Anfrage überschreiben. Auch Fehler beim Worker-Start werden abgefangen; ein Fehlschlag pausiert nur die betroffene Partie.
+- Echte Browserregression mit zwei Maia-Partien und dazwischen Lernmodus/Analyse; außerdem vollständige Testreihe und Produktions-Build. Der Nutzerbericht kam aus der mobilen Web-App; eine zusätzliche Abnahme auf dem betroffenen Android-Gerät bleibt nötig.
+- Die Version 1.5.8 betrifft die Laufzeitsteuerung, nicht die Stärke oder Zugauswahl des Maia-2-Modells.
+
+
 ## 1.5.7 – Maia-2: Plausiblere Zugauswahl und Schutz vor Figurenpendeln (12. November 2026)
 
 - Maia-2 Blitz behält sein echtes ONNX-Modell. In den ersten 30 Halbzügen werden nur die höchstens vier relativ wahrscheinlichsten legalen Züge berücksichtigt (mindestens 18 % der Wahrscheinlichkeit des führenden zulässigen Zuges); danach maximal acht Kandidaten (mindestens 8 %). Innerhalb der Kandidaten wird weiter nach Maia-Wahrscheinlichkeiten gewichtet ausgewählt.

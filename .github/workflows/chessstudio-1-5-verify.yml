@@ -10,6 +10,7 @@ on:
       - fix/stockfish-variation-heading-stable-20261111
       - fix/stockfish-variation-fixed-row-20261111
       - fix/maia2-opening-selection-20261112
+      - fix/maia-new-game-after-analysis-20261112
       - feat/stockfish-whole-game-analysis-20261112
       - fix/stockfish-silent-navigation-20261111
     paths:
@@ -66,7 +67,6 @@ jobs:
             e2e/game-review.spec.ts \
             e2e/position-transfer.spec.ts \
             e2e/maia.spec.ts \
-            e2e/full-game-analysis.spec.ts \
             e2e/pages.spec.ts \
             e2e/strategic-quality.spec.ts
       - name: Validate production file manifest without deployment

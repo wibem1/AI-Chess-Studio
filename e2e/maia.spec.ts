@@ -101,3 +101,30 @@ test('real Maia-2 opening move after 1.d4 excludes the reported 1-percent ...Na6
  expect(maia.modelUci).toBe(maia.uci);
  expect(maia.uci).not.toBe('b8a6');
 });
+
+test('a second Maia game starts after reviewing the first without inheriting paused analysis or a stale worker',async({page})=>{
+ test.setTimeout(120000);
+ const errors:string[]=[];page.on('pageerror',error=>errors.push(error.message));
+ await page.goto('/?platform=web');
+ await expect(page.locator('#workspace')).not.toHaveAttribute('inert','');
+ await page.locator('#game-opponent').selectOption('maia');
+ await page.locator('#game-color').selectOption('w');
+ await page.locator('#game-level').selectOption('1');
+ await page.locator('#open-game-setup').click();
+ await page.locator('#board [data-square=d2]').click();
+ await page.locator('#board [data-square=d4]').click();
+ await expect(page.locator('#game-feedback')).toContainText('Maia hat gezogen',{timeout:45000});
+ await page.getByRole('tab',{name:'Lernmodus',exact:true}).click();
+ await page.locator('#learn-first').click();
+ await expect(page.locator('#position-status')).toContainText('n0');
+ await page.getByRole('tab',{name:'Spielmodus',exact:true}).click();
+ await page.locator('#open-game-setup').click();
+ await expect(page.locator('#game-feedback')).toContainText('Neue Partie gestartet');
+ await expect(page.locator('#position-status')).toContainText('n0');
+ await page.locator('#board [data-square=d2]').click();
+ await page.locator('#board [data-square=d4]').click();
+ await expect(page.locator('#game-feedback')).toContainText('Maia hat gezogen',{timeout:45000});
+ await expect(page.locator('#game-status')).not.toContainText('Analysemodus');
+ await expect(page.locator('#position-status')).toContainText('n2');
+ expect(errors).toEqual([]);
+});

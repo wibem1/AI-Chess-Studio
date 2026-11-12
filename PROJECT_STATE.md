@@ -12,15 +12,27 @@
 
 ---
 
-# Entwicklungsstand: Vollständige Stockfish-Bewertungen im KI-Kontext (12. November 2026)
+# Chess Studio 1.5.8 – Maia-Neustart nach Analyse veröffentlicht (12. November 2026)
 
-**Branch:** `feat/stockfish-whole-game-analysis-20261112`. **Nicht gemergt, nicht veröffentlicht.** Öffentliche Version laut `work`: 1.5.8.
+**Veröffentlichung vollständig bestätigt.** Nutzerfreigabe für Veröffentlichung lag ausdrücklich vor. [PR #15](https://github.com/wibem1/AI-Chess-Studio/pull/15) nach `work` gemergt, Merge-Commit `84bbd02c3c276dbcf0975ab30a735c15e1c50883`. Kandidatenprüfung [43251174667](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43251174667) und endgültiger Release-Lauf [43253786359](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43253786359) **SUCCESS** einschließlich TypeScript, Node-Tests, Web-Build und **43/43 Chromium-Browsertests** mit echter Maia-Engine. GitHub-Pages-Lauf [43254362646](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43254362646) **SUCCESS**. Öffentliches Release-Manifest auf Branch `gh-pages` (`BUILD.json`): `version=1.5.8`, `base=/AI-Chess-Studio/`, `sourceCommit=84bbd02c3c276dbcf0975ab30a735c15e1c50883`. Live-URL: https://wibem1.github.io/AI-Chess-Studio/ .
 
-**Diese Sitzung – implementiert, noch nicht in CI getestet:** In `src/full-game-analysis.ts` übergibt `fullGameSummary()` der KI nun eine vollständige zeitliche Liste aller Halbzüge mit jeweiliger Stockfish-Bewertung aus Weißsicht. Die schwersten Bewertungsverluste werden zusätzlich priorisiert und mit Ausgangsstellung genannt. Ein ausdrücklicher Analyseauftrag fordert die Erklärung großer Wendepunkte vor nachrangigen strategischen Kommentaren. Regressionstest in `test/full-game-analysis.test.ts` ergänzt. Dokumentiert in `docs/FULL_GAME_STOCKFISH.md`. Commits: `22161ac0`, `3479fe78`, `147c080a`.
+**Korrektur:** Neue Maia-Partie beendet alte Maia-WASM-Laufzeit ausdrücklich; späte Fehler/Antworten früherer Worker dürfen die neue Partie nicht beeinflussen. Der Browserregressionstest hat die Abfolge Maia-Partie → Lernmodus/Analyse → neue Maia-Partie → automatische Maia-Antwort erfolgreich geprüft. Das Maia-Modell und seine Zugauswahl wurden nicht geändert. **Praxistest auf Nutzergerät Android noch offen**. Falls im mobilen Browser weiterhin `Maia-Laufzeit nicht verfügbar` erscheint, bitte neuen Diagnoseexport bereitstellen; neue App-Version vor Retest prüfen.
 
-**Prüfstand:** Quelltext und Test geschrieben; weder TypeScript/Node-Tests noch Chromium-/Maia-/Stockfish-Integrationstests in dieser Sitzung ausgeführt. Netzwerkzugriff auf GitHub per lokaler Git-CLI nicht möglich. Der bereits zuvor fehlgeschlagene Full-Game-Browsertest ist weiterhin ein Blocker. Keine kostenpflichtige Modellanfrage.
+**Getrennte laufende Entwicklung:** `feat/stockfish-whole-game-analysis-20261112` für vollständige Partieprüfung, Fehlerstatistik und KI-Kontext ist noch **nicht fertig freigegeben** (letzter eigenständiger Integrationstest schlug fehl). Nicht mit dieser Maia-Releasekorrektur vermischen. Öffentliche Version **1.5.8** enthält diese neue Partieanalyse noch nicht.
 
-**Nächster einzelner Schritt:** Integrationstest zur vollständigen Partieanalyse reproduzieren, Ursache beheben und vollständige Tests ausführen. Danach erst bewerten, ob die KI tatsächlich den großen Maia-Fehler erkennt. Zukünftig separate Schritte: höhere Stockfish-Suchtiefe bei Wendepunkten und Maia-Kaltstartzeiten messen/verbessern.
+---
+
+# Chess Studio 1.5.8 – Maia nach Partiebesprechung wieder spielbar (12. November 2026)
+
+**Entwickelt und mit realer Maia-Browserruntime geprüft, aber noch NICHT veröffentlicht.** Nutzer meldete auf Android nach einer Partie und anschließender Analyse: Im Spielmodus nach einem neuen `1.d4` bleibt die Partie bei Stellung `n1` pausiert und meldet „Maia-Laufzeit nicht verfügbar. Partie pausiert.“ Der UI-Status zeigt „Analysemodus · Partie pausiert“ – das ist auch der Zustand nach einem Enginefehler, nicht allein der Auslöser.
+
+**Codeursache und Korrektur:** In `web/main.ts` war beim Start einer neuen Partie zwar `game.pause()` aufgerufen worden, aber der letzte Maia-2-WASM-Worker konnte nach einem bereits fertig berechneten Zug weiterhin gehalten werden. Die neue Startsequenz `maiaEngine.cancel()` gibt den alten Worker explizit frei und startet die neue Partie mit sauberer Maia-Laufzeit. In `web/maia-engine.ts` bindet sich die asynchrone Antwort-/Fehlerbehandlung an die Worker-Identität, sodass späte Events alter Worker die nächste Partie nicht beeinflussen können; Startfehler bei `postMessage` werden abgefangen.
+
+**Tests:** Neue echte Chromium-Regression `e2e/maia.spec.ts` führt zwei Maia-Partien mit dazwischen Lernmodus und Analyseschritt aus und bestätigt, dass Maia in der zweiten Partie erneut einen Zug spielt. GitHub-Actions-Lauf [43250169201](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43250169201) **SUCCESS**, weitere Prüfung des versionierten Kandidaten [43251174667](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43251174667) **SUCCESS**: TypeScript, vollständige Node-Tests, Web-Build, **43/43 Chromium-Browsertests**, Produktionsmanifest ohne Deployment. Keine kostenpflichtigen KI-Anfragen; Maia-Modell/Spielstärke unverändert. **Android-Gerät des Nutzers noch nicht abgenommen**: Der Browsertest weist nicht nach, dass jeder Geräte-/Speichermangel behoben ist.
+
+**Releasevorbereitung:** Versionsnummer 1.5.8 in `package.json`, `package-lock.json`, `CHANGELOG.md`, Release-Workflow konsistent. [PR #15](https://github.com/wibem1/AI-Chess-Studio/pull/15) zur späteren Übernahme in `work` **offen**. Erst nach ausdrücklichem Auftrag mergen/veröffentlichen, GitHub Actions Pages erfolgreich prüfen, `gh-pages/BUILD.json` verifizieren. **Öffentliche Version bleibt 1.5.7.**
+
+**Unabhängiges Vorhaben:** Die vollständige Stockfish-Partieanalyse samt Speicherung und KI-Kontext befindet sich weiterhin separat in `feat/stockfish-whole-game-analysis-20261112`; der letzte dortige Release-Integrationstest ist noch rot und darf nicht mit dem Maia-Neustart-PR vermischt werden.
 
 ---
 
