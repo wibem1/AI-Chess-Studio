@@ -2,7 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {Chess} from 'chess.js';
 import {Session} from '../src/session.js';
-import {scanFullGame,makeFullGameAnalysis,fullGameSummary,fullGameContext} from '../src/full-game-analysis.js';
+import {scanFullGame,makeFullGameAnalysis,fullGameSummary,fullGameContext,asksAboutGameQuality} from '../src/full-game-analysis.js';
 import {TACTICAL_LIMITS,type TacticalAdapter} from '../src/tactics.js';
 
 test('full game analysis computes separate, explicitly approximate White and Black error counts',()=>{
@@ -75,4 +75,11 @@ test('real Maia-game move sequence: a hypothetical 6-pawn swing on 23…Nxd4 is 
  assert.match(context,/Wichtigste Fehler nach Bewertungsverlust: 23…Nxd4: grober Fehler \(Verlust 600 cp/);
  assert.match(context,/Vollständiger chronologischer Verlauf aller 49 Halbzüge/);
  for(const move of ['23…Nxd4','24.Qxd5','24…Nxf3+','25.Qxf3'])assert.ok(context.includes(move),move);
+});
+
+test('game-wide intent recognizes natural decisive-mistake questions and excludes position-only or technical requests',()=>{
+ for(const q of ['Was war der entscheidende Fehler von Schwarz?','Bewerte bitte die gesamte Partie.','Wie gut hat Maia gespielt?','Welche Züge waren Patzer von Weiß?','Nenne die wichtigsten Wendepunkte.'])
+  assert.equal(asksAboutGameQuality(q),true,q);
+ for(const q of ['Erkläre mir das Feld e4.','Wie ändere ich den API-Schlüssel?','Zeichne einen Pfeil auf dem Brett.'])
+  assert.equal(asksAboutGameQuality(q),false,q);
 });
