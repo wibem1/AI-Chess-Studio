@@ -24,6 +24,7 @@ test('automatic scores are stored without UI visibility and survive session expo
  const restored=Session.import(s.export());
  assert.equal(restored.snapshot().fullGameAnalysis?.records.length,2);
  assert.equal(Object.keys(restored.snapshot().positionScores??{}).length,3);
+ assert.ok(restored.snapshot().positionScores?.n1?.line?.length, 'main variation survives reload and can be displayed without another calculation');
  const newQueue=new AutomaticStockfish(()=>restored,()=>mock(()=>calls++),()=>false,async()=>{});
  assert.equal(await newQueue.ensure(),true);
  assert.equal(calls,3,'reloading must not repeat completed engine calculations');
