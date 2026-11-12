@@ -21,7 +21,7 @@ import { ServerModelAdapter } from '../src/model-client.js';
 import { checkTactics, ServerTacticalAdapter, validateTacticalReport, type TacticalReport } from '../src/tactics.js';
 import {BrowserTacticalAdapter} from '../src/browser-tactics.js';
 import {withStockfishAssessment} from '../src/stockfish-assist.js';
-import {fullGameContext} from '../src/full-game-analysis.js';
+import {fullGameContext,asksAboutGameQuality} from '../src/full-game-analysis.js';
 import {installFullGameUI,matchingFullGameAnalysis} from './full-game-ui.js';
 import { LearningGame, ServerPlayingEngine, pathTo, type AppliedEngineMove } from '../src/game.js';
 import type {HintMode} from '../src/learning.js';
@@ -434,15 +434,16 @@ stockfishToggle.addEventListener('change',async()=>{
   stockfishStatus.textContent=error instanceof Error?error.message:'Einstellung konnte nicht gespeichert werden.';
  }
 });
-fullGameUI=installFullGameUI($('learning-chat'),()=>studio.session,id=>{game.analyse(id);selected=null;render();},question=>{text('question').value=question;text('question').focus();},()=>autosave.save(),isWebPlatform,platformFetch,()=>pending||match.running);
+fullGameUI=installFullGameUI($('learning-chat'),()=>studio.session,id=>{game.analyse(id);selected=null;render();},question=>{text('question').value=question;if(!modelAvailable||!accessReady){message('dialogue-feedback','Für eine KI-Bewertung zuerst unter Einstellungen einen verfügbaren KI-Zugang auswählen. Die Stockfish-Prüfung bleibt gespeichert.');text('question').focus();return;}if(pending||match.running){message('dialogue-feedback','Laufende KI-Anfrage oder Partie zuerst beenden.');return;}$<HTMLFormElement>('dialogue-form').requestSubmit();},()=>autosave.save(),isWebPlatform,platformFetch,()=>pending||match.running);
 const enrichWithStockfish=async(request:import('../src/dialogue.js').DialogueRequest)=>{
  if(request.topic!=='chat'||request.matchTest||request.toolExchanges?.length)return request;
  const session=studio.session,position=session.snapshot().nodes.find(n=>n.id===request.nodeId);
  if(!position||position.fen!==request.fen)throw new Error('Stellung während der Prüfung gewechselt. Keine KI-Anfrage gesendet.');
- const wholeGameQuestion=/\b(?:partie|spiel(?:er|qualität|stärke)?|wei(?:ß|ss)|schwarz|fehler|genauigkeit|schlüsselstellen)\b/iu.test(request.question)&&/(gesamt|ganz|qualit|bewert|analys|fehler|vergleich|rückblick|schlüsselstell|stärke)/iu.test(request.question);
+ const wholeGameQuestion=asksAboutGameQuality(request.question);
  if(wholeGameQuestion){
   const report=matchingFullGameAnalysis(session);
-  const facts=report?fullGameContext(report):['Es liegt für die gesamte Partie noch keine vollständige Stockfish-Prüfung vor. Keine objektive Fehlerstatistik, Genauigkeit oder Spieler-Elo behaupten. Der Nutzer kann „Gesamte Partie mit Stockfish prüfen“ ausdrücklich starten.'];
+  if(!report)throw new Error('Keine vollständige Stockfish-Prüfung für diese Partie vorhanden. Im Lernmodus zuerst „Gesamte Partie mit Stockfish prüfen“ und „Partie prüfen“ ausführen. Ohne Messwerte wird keine KI-Partiequalität behauptet.');
+  const facts=fullGameContext(report);
   return {...request,context:[...facts,...(request.context??[])].slice(0,6)};
  }
  if(!stockfishAssistEnabled)return request;
