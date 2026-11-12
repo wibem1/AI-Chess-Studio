@@ -88,3 +88,14 @@ export function fullGameSummary(report:FullGameAnalysis,maxIssues=8):string{
  const timeline=report.records.map(r=>`${label(r)} ${score(r.afterCp)}${r.lossCp===null?' [nicht bewertet]':r.lossCp>=50?` [${r.grade}; -${r.lossCp}cp]`:''}`).join(' | ');
  return `Lokal geprüfte Stockfish-Partieanalyse (keine Lichess-Genauigkeit/Elo): ${line(report.players.white)} ${line(report.players.black)} Wichtigste Fehler nach Bewertungsverlust: ${issues||'keine'}. Vollständiger chronologischer Verlauf aller ${report.records.length} Halbzüge (Bewertung aus Weißsicht nach jedem Zug, in Bauerneinheiten): ${timeline}. Anfangsbewertung: ${score(report.records[0]?.beforeCp??null)}. Grenzen je Stellung: Tiefe 12, 20.000 Knoten, 1 s. Klassifikation nur näherungsweise; Mattbewertungen auf ±1500 cp abgebildet. ANALYSEAUFTRAG: Identifiziere zuerst die größten nachgewiesenen Wendepunkte, benenne Zug und Bewertungsänderung und erkläre die konkrete schachliche Ursache; ein grober Fehler darf nicht beiläufig übergangen werden. Werte danach die Pläne und Leistungen beider Seiten aus menschlicher Sicht. Bei nicht belegter Ursache Unsicherheit kenntlich machen, keine Varianten oder Fehler erfinden. Die Enginebewertung allein beweist keine Spielstärke.`;
 }
+
+/** Segment a complete game report without silently dropping half-moves.
+ * A hard cap protects browser/provider requests on exceptionally long annotations.
+ */
+export function fullGameContext(report:FullGameAnalysis):string[]{
+ const characters=Array.from(fullGameSummary(report));
+ const parts:string[]=[];
+ for(let i=0;i<characters.length;i+=2700)parts.push(characters.slice(i,i+2700).join(''));
+ if(parts.length>5)throw new Error('Stockfish-Partiebericht überschreitet das KI-Kontextlimit. Keine unvollständige Partieanalyse versendet.');
+ return parts;
+}
