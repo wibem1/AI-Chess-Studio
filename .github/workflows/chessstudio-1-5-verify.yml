@@ -11,6 +11,7 @@ on:
       - fix/stockfish-variation-fixed-row-20261111
       - fix/maia2-opening-selection-20261112
       - fix/maia-new-game-after-analysis-20261112
+      - feat/stockfish-whole-game-analysis-20261112
       - fix/stockfish-silent-navigation-20261111
     paths:
       - .github/workflows/chessstudio-1-5-verify.yml
@@ -64,6 +65,7 @@ jobs:
             e2e/model-diagnostics.spec.ts \
             e2e/pgn-file.spec.ts \
             e2e/game-review.spec.ts \
+            e2e/full-game-analysis.spec.ts \
             e2e/position-transfer.spec.ts \
             e2e/maia.spec.ts \
             e2e/pages.spec.ts \

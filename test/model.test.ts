@@ -38,8 +38,8 @@ test('provider contract has fixed TLS endpoint, bounded output, no redirects/ret
 });
 test('input validation rejects excessive context, malformed FEN and forged moves before transport', async () => {
   let calls = 0; const service = new ModelService(config, fake(async () => { calls++; return response(); }));
-  for (const value of [null, { ...request(), question: 'x'.repeat(1001) }, { ...request(), context: ['x'.repeat(801)] },
-    { ...request(), context: Array(7).fill('x') }, { ...request(), fen: 'invalid' }, { ...request(), legalMoves: ['e5'] }]) {
+  for (const value of [null, { ...request(), question: 'x'.repeat(1001) }, { ...request(), context: ['x'.repeat(2701)] },
+    { ...request(), context: Array(7).fill('x') }, { ...request(), context: Array(6).fill('x'.repeat(2600)) }, { ...request(), fen: 'invalid' }, { ...request(), legalMoves: ['e5'] }]) {
     await assert.rejects(service.reply(value), (e: unknown) => e instanceof ApiError && e.status === 400);
   }
   assert.equal(calls, 0);

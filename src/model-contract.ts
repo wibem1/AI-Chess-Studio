@@ -40,7 +40,7 @@ export function parseRequest(raw: unknown): DialogueRequest {
   if (typeof r.nodeId !== 'string' || r.nodeId.length > 80 || typeof r.fen !== 'string' || r.fen.length > 150 ||
       typeof r.question !== 'string' || !r.question.trim() || r.question.length > 1000 ||
       !Array.isArray(r.legalMoves) || r.legalMoves.length > 256 ||
-      !Array.isArray(r.context) || r.context.length > 6 || !r.context.every(t => typeof t === 'string' && t.length <= 800)) {
+      !Array.isArray(r.context) || r.context.length > 6 || !r.context.every(t => typeof t === 'string' && t.length <= 2700) || r.context.reduce((n:number,t:unknown)=>n+(typeof t==='string'?t.length:0),0)>15000) {
     throw new ApiError(400, 'Ungültiger oder zu großer Kontext.');
   }
   if(r.generalInstructions!==undefined&&(typeof r.generalInstructions!=='string'||r.generalInstructions.length>2000||/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/.test(r.generalInstructions)))throw new ApiError(400,'Allgemeine KI-Anweisungen sind ungültig oder länger als 2.000 Zeichen.');

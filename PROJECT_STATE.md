@@ -1,3 +1,45 @@
+# ChessStudio 1.6.0 – Releasekandidat technisch bestanden (12. November 2026)
+
+**GitHub Actions [43274563392](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43274563392) SUCCESS** für Commit `9b74090bcdc25b22637957a79f196575e128e98e`: **276/276 Node-Tests, 44/44 Chromium-Browsertests**, einschließlich explizitem `e2e/full-game-analysis.spec.ts` mit echter Stockfish-Prüfung, Wiederherstellung, simuliertem Providerkontext und Maia-Neustartregression. Produktionsmanifest lokal vorbereitet: `version=1.6.0`, `sourceCommit=9b74090b...`, `published=false`. Keine Kosten durch reale KI-Anfragen.
+
+**Gesichert:** Releasekandidat 1.6.0 im Branch `feat/stockfish-whole-game-analysis-20261112` und Entwurfs-PR #16 gegen `work`, nicht gemergt, nicht veröffentlicht. Öffentliche App bleibt 1.5.8. **Noch offen:** echte schachliche Modellqualitätsabnahme mit Nutzerpartie und vollständiger Stockfish-Neuberechnung der entscheidenden Stellung; Maia-Erstzug-Beschleunigung separat. Aus einer simulierten 600-cp-Schwankung darf kein realer Enginewert abgeleitet werden.
+
+**Nächster Schritt:** ausdrückliche Veröffentlichungsfreigabe des Nutzers; vor Merge finalen Branchkopf und Release-Workflow prüfen. Nicht automatisch veröffentlichen.
+
+---
+
+# Version 1.6.0 – Releasekandidat vorbereitet (12. November 2026)
+
+Der Featureumfang wurde vor der Versionsvergabe durch [GitHub Actions 43273692685](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43273692685) geprüft: **276/276 Node-Tests, 44/44 Chromium-Tests**, einschließlich echter Stockfish-Gesamtpartieprüfung und Maia-Neustartregression. Der neue Browser-Integrationsfall ist jetzt in beiden Prüfläufen enthalten. Ein zusätzlicher Test nutzt den realen Maia-Spielverlauf bis 25. Dxf3, aber **simulierte** sechs Bauerneinheiten Bewertungsänderung bei 23…Sxd4. Keine reale Neuberechnung des tatsächlichen Bewertungssprungs und keine kostenpflichtige KI-Anfrage.
+
+Version **1.6.0** in package.json, package-lock.json, CHANGELOG und Release-Workflow vorbereitet. Eine erneute CI-Prüfung des versionierten Kandidaten ist erforderlich. **Nicht gemergt, nicht veröffentlicht; Entwurfs-PR #16.** Öffentliche Version weiterhin 1.5.8.
+
+---
+
+# Integrationsprüfung gegen ChessStudio 1.5.8 erfolgreich (12. November 2026)
+
+**Aktueller Entwicklungsbranch:** `feat/stockfish-whole-game-analysis-20261112`, Merge-Commit `86fdaab7b850a7008c48ab04c3ad0209c09a1b53` (mit `work` vereinigt, ohne `work` zu verändern). **Entwurfs-PR #16**, konfliktfrei, nicht gemergt und nicht veröffentlicht.
+
+**GitHub Actions [43272320813](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43272320813): SUCCESS.** 275/275 Node-Tests und 43/43 Chromium-Browsertests, einschließlich echter Stockfish-Gesamtpartieprüfung mit vollständig übertragenem KI-Kontext sowie echtem Maia-Neustart nach Analyse. Keine kostenpflichtige KI-Anfrage. Öffentliche Version ist weiter 1.5.8.
+
+**Offen vor Freigabe:** echte KI-Qualitätsabnahme mit der Maia-Partie des Nutzers, insbesondere Erklärung eines Fehlerzuges mit starkem Bewertungsumschwung; gegebenenfalls gezielte Stockfish-Nachsuche an kritischen Stellen. Auch die Maia-Kaltstartoptimierung bleibt separat offen.
+
+---
+
+# Entwicklungsstand: Vollständiger Stockfish-KI-Kontext erfolgreich integriert (12. November 2026)
+
+**Branch:** `feat/stockfish-whole-game-analysis-20261112`; öffentliche Version bleibt **1.5.8**. **Nicht gemergt, nicht veröffentlicht.**
+
+**Ursache des roten Integrationstests:** `web/main.ts` sendete einen Stockfish-Bericht als Kontexttext von bis zu 1.800 Zeichen; `src/model-contract.ts` erlaubte pro Eintrag nur 800. Die Anfrage wurde lokal vor Erreichen des KI-Anbieters abgewiesen (`calls=0`). Ein zusätzliches `.slice(0,1800)` hätte die vollständige Bewertung ohnehin abgeschnitten.
+
+**Korrektur:** `fullGameContext()` übergibt die gesamte Zeitreihe aller tatsächlich geprüften Halbzüge in maximal fünf Abschnitten von je 2.700 Zeichen; überschreitet ein Bericht diese Grenze, wird der Fehler ausdrücklich gemeldet statt eine unvollständige Analyse zu versenden. `src/model-contract.ts` erlaubt diese begrenzten Abschnitte bei maximal 15.000 Zeichen insgesamt. Der KI-Kontext priorisiert gleichzeitig die größten Bewertungsverluste. Relevante Dateien: `src/full-game-analysis.ts`, `web/main.ts`, `src/model-contract.ts`, Node-/Browser-Regressionstests.
+
+**Nachgewiesen:** GitHub-Actions Kandidatenprüfung (ohne Deployment) [43271240795](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43271240795), Commit `c6e08bd056ec7f0fed71e4f956c627f5c04b127d`, **SUCCESS**: TypeScript/Build, **275/275 Node-Tests**, **43/43 Chromium-Browsertests** einschließlich echter Stockfish-Partieprüfung mit Speicherung/Import und Provider-Fake, der nachweist, dass alle vier Züge der Referenzpartie mit Bewertungsreihe und Fehlerpriorisierung ankommen. **Kein kostenpflichtiger KI-Aufruf, keine reale Android-Abnahme, keine echte KI-Qualitätsprüfung.**
+
+**Nächster einzelner Schritt:** Schachliche Praxisprüfung anhand der vom Nutzer hochgeladenen Maia-Partie mit besonders großem Bewertungssprung (inklusive Alternativzug und verständlicher Begründung) vor einer Versionsfreigabe. Zweitrangig: gezielte Nachsuche großer Bewertungsumschwünge; Maia-Kaltstart separat optimieren. Keine automatische Veröffentlichung.
+
+---
+
 # Chess Studio 1.5.8 – Maia-Neustart nach Analyse veröffentlicht (12. November 2026)
 
 **Veröffentlichung vollständig bestätigt.** Nutzerfreigabe für Veröffentlichung lag ausdrücklich vor. [PR #15](https://github.com/wibem1/AI-Chess-Studio/pull/15) nach `work` gemergt, Merge-Commit `84bbd02c3c276dbcf0975ab30a735c15e1c50883`. Kandidatenprüfung [43251174667](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43251174667) und endgültiger Release-Lauf [43253786359](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43253786359) **SUCCESS** einschließlich TypeScript, Node-Tests, Web-Build und **43/43 Chromium-Browsertests** mit echter Maia-Engine. GitHub-Pages-Lauf [43254362646](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43254362646) **SUCCESS**. Öffentliches Release-Manifest auf Branch `gh-pages` (`BUILD.json`): `version=1.5.8`, `base=/AI-Chess-Studio/`, `sourceCommit=84bbd02c3c276dbcf0975ab30a735c15e1c50883`. Live-URL: https://wibem1.github.io/AI-Chess-Studio/ .

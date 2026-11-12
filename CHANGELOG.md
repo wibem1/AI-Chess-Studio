@@ -1,5 +1,14 @@
 # Änderungen
 
+## 1.6.0 – Vollständige Stockfish-Partieanalyse (Releasekandidat, 12. November 2026)
+
+- Vollständige, ausdrücklich angeforderte Stockfish-Prüfung der Hauptpartie mit Speicherung aller Stellungsbewertungen und Fehlerstatistik für beide Seiten.
+- KI-Kontext enthält sämtliche bewerteten Halbzüge und priorisiert die schwersten Bewertungsverluste; kein stilles Abschneiden der Daten bei zu langer Partie.
+- Speicherung, Wiederherstellung und Sprungnavigation sowie Maia-Neustart nach Analyse abgesichert.
+- 276 Node-Tests und 44 Chromium-Browsertests erfolgreich (GitHub Actions 43273692685), darunter echte Stockfish-Prüfung und simulierte Anbieterübertragung. Die tatsächliche Maia-Zugfolge wurde mit einem ausdrücklich simulierten 600-cp-Umschwung getestet.
+- Reale KI-Qualitätsabnahme, tiefere Engine-Nachsuche und Android-Gerätetest noch offen. Kein Deployment ohne ausdrückliche Freigabe.
+
+
 ## 1.5.8 – Neue Maia-Partie nach Analyse zuverlässig starten (12. November 2026)
 
 - Beim ausdrücklichen Start einer neuen Partie wird der alte Maia-2-WASM-Worker zurückgesetzt. Ein vorheriger Spiel- oder Lernmodus darf keine alte Engine-Laufzeit in die neue Partie übernehmen.
