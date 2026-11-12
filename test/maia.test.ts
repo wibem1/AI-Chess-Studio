@@ -60,6 +60,9 @@ test('Maia pawn and knight returns: unforced reverse is filtered but forced or t
  const threatened=new Chess();
  threatened.move('e4');threatened.move('Nc6');threatened.move('Bb5');
  assert.equal(selectMaiaMove(threatened.fen(),[{uci:'c6b8',p:0.9},{uci:'g8f6',p:0.1}],ctx,()=>0),'c6b8');
+
+ const capturingFen='1R6/7k/2n5/8/8/8/8/7K b - - 0 1';
+ assert.equal(selectMaiaMove(capturingFen,[{uci:'c6b8',p:0.9},{uci:'c6e5',p:0.1}],ctx,()=>0),'c6b8','a return capture is not an empty shuttle');
 });
 test('Maia-2 real ONNX predictions no longer produce reported opening shuttles',async()=>{
  const bytes=readFileSync('vendor/maia2/maia2-blitz.fp16.onnx');
