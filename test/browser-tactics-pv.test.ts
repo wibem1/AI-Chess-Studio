@@ -25,10 +25,10 @@ class FakeWorker implements EngineWorker {
 test('position scan accepts legal final bestmove distinct from a valid scored PV',async()=>{
  const board=new Chess();board.move('d4');const fen=board.fen();
  const workers:FakeWorker[]=[];
- const adapter=new BrowserTacticalAdapter(()=>{const w=new FakeWorker('d7d5','g8f6');workers.push(w);return w;});
+ const adapter=new BrowserTacticalAdapter(()=>{const w=new FakeWorker('d7d5','g8f6 g1f3');workers.push(w);return w;});
  const result=await adapter.check(fen,null,{rootFen:new Chess().fen(),moves:['d4']});
  assert.equal(result.fen,fen);
- assert.deepEqual(result.line,['Nf6']);
+ assert.deepEqual(result.line,['Nf6','Nf3']);
  assert.deepEqual(result.score,{unit:'cp',value:-31,perspective:'white'});
  assert.equal(workers[0]?.terminated,true);
 });
