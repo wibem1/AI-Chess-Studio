@@ -21,16 +21,16 @@ export function installFullGameUI(
  save:()=>Promise<void>,webPlatform:()=>boolean,transport:typeof fetch,
  busy:()=>boolean
 ){
- const panel=document.createElement('details');panel.id='full-game-analysis';panel.className='tool-section';
- panel.innerHTML='<summary>Gesamte Partie mit Stockfish prüfen</summary><div class="disclosure-body"><p class="hint">Lokale Prüfung aller gespielten Züge für Weiß und Schwarz. Pro Stellung höchstens Tiefe 12, 20.000 Knoten oder 1 Sekunde; bei langen Partien dauert das einige Minuten. Keine KI-Kosten. Fehlerklassen sind Näherungen, keine Elo- oder Lichess-Genauigkeit.</p><div class="full-game-buttons"><button id="full-game-start" type="button">Partie prüfen</button><button id="full-game-cancel" type="button" class="secondary" disabled>Abbrechen</button></div><p id="full-game-status" role="status" aria-live="polite">Noch keine vollständige Prüfung für diese Partie gespeichert.</p><div id="full-game-results"></div><button id="full-game-ask" type="button" class="secondary" hidden>KI zur Spielqualität befragen</button></div>';
- parent.prepend(panel);
+ const panel=document.createElement('section');panel.id='full-game-analysis';panel.className='full-game-board-panel';panel.setAttribute('aria-label','Stockfish-Partieprüfung');
+ panel.innerHTML='<div class="full-game-buttons"><button id="full-game-start" type="button">Partie prüfen (Stockfish)</button><button id="full-game-cancel" type="button" class="secondary" disabled>Abbrechen</button><button id="full-game-ask" type="button" class="secondary" hidden>KI zur Spielqualität befragen</button></div><p id="full-game-status" role="status" aria-live="polite">Gesamtpartieprüfung noch nicht gestartet.</p><details id="full-game-result-details" hidden><summary>Auswertung und kritische Züge</summary><p class="hint">Lokale Prüfung aller gespielten Züge für Weiß und Schwarz. Pro Stellung höchstens Tiefe 12, 20.000 Knoten oder 1 Sekunde; bei langen Partien dauert das einige Minuten. Keine KI-Kosten. Fehlerklassen sind Näherungen, keine Elo- oder Lichess-Genauigkeit.</p><div id="full-game-results"></div></details>';
+ parent.after(panel);
  const get=<T extends HTMLElement>(id:string)=>panel.querySelector<T>('#'+id)!;
  const start=get<HTMLButtonElement>('full-game-start'),cancel=get<HTMLButtonElement>('full-game-cancel'),ask=get<HTMLButtonElement>('full-game-ask');
- const results=get<HTMLDivElement>('full-game-results'),status=get<HTMLParagraphElement>('full-game-status');
+ const results=get<HTMLDivElement>('full-game-results'),status=get<HTMLParagraphElement>('full-game-status'),details=get<HTMLDetailsElement>('full-game-result-details');
  let controller:AbortController|undefined,engine:BrowserTacticalAdapter|ServerTacticalAdapter|undefined,scanning=false;
  function render(){
   const session=current(),report=matchingFullGameAnalysis(session),path=currentGameLine(session);
-  results.replaceChildren();ask.hidden=!report;
+  results.replaceChildren();ask.hidden=!report;details.hidden=!report;
   if(!report)return;
   for(const player of [report.players.white,report.players.black]){
    const p=document.createElement('p');
@@ -64,7 +64,7 @@ export function installFullGameUI(
    if(current()!==session)throw new Error('Sitzung gewechselt; Ergebnis verworfen.');
    session.storeFullGameAnalysis(report);
    status.textContent='Vollständige Prüfung gespeichert: '+report.records.length+' Züge. Der KI-Lernchat kann diese Befunde für die Spielqualität verwenden.';
-   render();await save();
+   render();details.open=true;await save();
   }catch(error){status.textContent=error instanceof Error?error.message:'Stockfish-Prüfung fehlgeschlagen.';}
   finally{scanning=false;controller=undefined;engine=undefined;start.disabled=false;cancel.disabled=true;}
  });
