@@ -1,3 +1,17 @@
+# ChessStudio 1.6.1 – tatsächlicher Maia-Stockfish-Fehler behoben und vollständig getestet (12. November 2026)
+
+**Beleg:** GitHub Actions [43293060402](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43293060402) **SUCCESS** auf Commit `528cd86a19187e52a8238848f5111646f0214a3f`: 281/281 Node-Tests und 46/46 Chromium-Browsertests. Der reale Browsertest nutzt den authentischen Maia-Partieverlauf von `1.d4` bis `25.Qxf3` (49 Halbzüge einschließlich `23…Nxd4`) und hat die vollständige Stockfish-Prüfung bei eingeschalteter Stockfish-Stellungsanzeige abgeschlossen und gespeichert. Kein bezahlter KI-Test und keine Android-Geräteabnahme.
+
+**Ursachenanalyse:** Ein erster realer Browserlauf [43290232369](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43290232369) belegte, dass der abschließende Stockfish-`bestmove` schon nach `1.d4` vom ersten Zug der zuletzt gemeldeten gültigen `info pv` abweichen konnte; die App brach fälschlich ab. Die zugehörige Korrektur enthielt zunächst einen fehlerhaft escapten Whitespace-Split, durch den bei der Stellung vor `23…Nxd4` ([43291526108](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43291526108)) mehrzügige PVs nicht getrennt wurden. Beide Fehler wurden korrigiert, und entsprechende UCI-Regressionsfälle prüfen legale unterschiedliche Endzüge, illegale Endzüge und mehrzügige Hauptvarianten. Der gesamte Browserdurchlauf wird nicht mehr wegen dieser Fälle abgebrochen. Ein einzelner gezielter Wiederholungsversuch ist für fehlerhafte Suchantworten vorhanden; verbleibende Fehler werden mit Zugnummer und FEN angezeigt. Keine belastbare Evidenz für gleichzeitige Worker-Kollisionen.
+
+**Weitere Änderungen des Releasekandidaten:** Stockfish-Gesamtprüfungsbutton direkt unter dem Lernbrett; gespeicherte vollständige Bewertungsreihe geht unabhängig von Schlüsselwörtern in die KI-Anfrage; ohne Gesamtbericht nur aktuelle Stockfish-Stellungsprüfung, keine erfundene Fehlerstatistik; Diagnose zeigt Berichtsstatus; Button „KI zur Spielqualität befragen“ sendet die Frage. Diese Funktionen wurden mit echten lokalen Engines und simulierten Providerantworten geprüft, **nicht** hinsichtlich tatsächlich guter KI-Erklärungsqualität.
+
+**Status:** Version 1.6.1 im Entwurfs-PR #17, nicht gemergt, nicht veröffentlicht. Öffentlich weiterhin Version 1.6.0. `BUILD.json` wurde für Commit `528cd86...` mit `version=1.6.1` und `published=false` vorbereitet.
+
+**Nächster Schritt:** Ausdrückliche Benutzerfreigabe zum Merge und GitHub-Pages-Release; danach auf Android praktische Gesamtanalyse und Qualität der tatsächlichen KI-Interpretation prüfen.
+
+---
+
 # Version 1.6.1 – finaler Releasekandidat vollständig geprüft (12. November 2026)
 
 **GitHub Actions [43288203089](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43288203089): SUCCESS** für Commit `a9667bf2312479c4190f17f947d027e96afeaf85`: **277/277 Node-Tests und 45/45 Chromium-Browsertests**, einschließlich realem lokalen Stockfish und dem nachgewiesenen direkt sichtbaren Button unter dem Brett bei 390/820/1440 px. Das Produktionsmanifest wurde als Version **1.6.1** mit dem korrekten Quellcommit vorbereitet (`published=false`). Auch der zugehörige Funktionsstand war zuvor unter [43287356997](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43287356997) erfolgreich geprüft.
