@@ -1,3 +1,13 @@
+# Chess Studio 1.5.8 – Maia-Neustart nach Analyse veröffentlicht (12. November 2026)
+
+**Veröffentlichung vollständig bestätigt.** Nutzerfreigabe für Veröffentlichung lag ausdrücklich vor. [PR #15](https://github.com/wibem1/AI-Chess-Studio/pull/15) nach `work` gemergt, Merge-Commit `84bbd02c3c276dbcf0975ab30a735c15e1c50883`. Kandidatenprüfung [43251174667](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43251174667) und endgültiger Release-Lauf [43253786359](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43253786359) **SUCCESS** einschließlich TypeScript, Node-Tests, Web-Build und **43/43 Chromium-Browsertests** mit echter Maia-Engine. GitHub-Pages-Lauf [43254362646](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43254362646) **SUCCESS**. Öffentliches Release-Manifest auf Branch `gh-pages` (`BUILD.json`): `version=1.5.8`, `base=/AI-Chess-Studio/`, `sourceCommit=84bbd02c3c276dbcf0975ab30a735c15e1c50883`. Live-URL: https://wibem1.github.io/AI-Chess-Studio/ .
+
+**Korrektur:** Neue Maia-Partie beendet alte Maia-WASM-Laufzeit ausdrücklich; späte Fehler/Antworten früherer Worker dürfen die neue Partie nicht beeinflussen. Der Browserregressionstest hat die Abfolge Maia-Partie → Lernmodus/Analyse → neue Maia-Partie → automatische Maia-Antwort erfolgreich geprüft. Das Maia-Modell und seine Zugauswahl wurden nicht geändert. **Praxistest auf Nutzergerät Android noch offen**. Falls im mobilen Browser weiterhin `Maia-Laufzeit nicht verfügbar` erscheint, bitte neuen Diagnoseexport bereitstellen; neue App-Version vor Retest prüfen.
+
+**Getrennte laufende Entwicklung:** `feat/stockfish-whole-game-analysis-20261112` für vollständige Partieprüfung, Fehlerstatistik und KI-Kontext ist noch **nicht fertig freigegeben** (letzter eigenständiger Integrationstest schlug fehl). Nicht mit dieser Maia-Releasekorrektur vermischen. Öffentliche Version **1.5.8** enthält diese neue Partieanalyse noch nicht.
+
+---
+
 # Chess Studio 1.5.8 – Maia nach Partiebesprechung wieder spielbar (12. November 2026)
 
 **Entwickelt und mit realer Maia-Browserruntime geprüft, aber noch NICHT veröffentlicht.** Nutzer meldete auf Android nach einer Partie und anschließender Analyse: Im Spielmodus nach einem neuen `1.d4` bleibt die Partie bei Stellung `n1` pausiert und meldet „Maia-Laufzeit nicht verfügbar. Partie pausiert.“ Der UI-Status zeigt „Analysemodus · Partie pausiert“ – das ist auch der Zustand nach einem Enginefehler, nicht allein der Auslöser.
