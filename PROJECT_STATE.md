@@ -1,3 +1,11 @@
+# Version 1.6.1 – finaler Releasekandidat vollständig geprüft (12. November 2026)
+
+**GitHub Actions [43288203089](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43288203089): SUCCESS** für Commit `a9667bf2312479c4190f17f947d027e96afeaf85`: **277/277 Node-Tests und 45/45 Chromium-Browsertests**, einschließlich realem lokalen Stockfish und dem nachgewiesenen direkt sichtbaren Button unter dem Brett bei 390/820/1440 px. Das Produktionsmanifest wurde als Version **1.6.1** mit dem korrekten Quellcommit vorbereitet (`published=false`). Auch der zugehörige Funktionsstand war zuvor unter [43287356997](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43287356997) erfolgreich geprüft.
+
+**Entwurfs-PR #17:** https://github.com/wibem1/AI-Chess-Studio/pull/17 . Nicht gemergt, nicht veröffentlicht. Öffentliche Version bleibt 1.6.0. Ein tatsächlicher KI-Schachqualitätsnachweis oder Android-Gerätetest ist damit nicht ersetzt. **Nächster Schritt:** ausdrückliche Nutzerfreigabe zur Veröffentlichung, danach Merge/Release/Pages-Manifest prüfen.
+
+---
+
 # ChessStudio 1.6.1 – UI- und KI-Faktenkorrektur vorbereitet (12. November 2026)
 
 **Nutzerforderung:** Der Startknopf „Partie prüfen“ gehört unmittelbar unter das Brett. Im Entwicklungsbranch `fix/stockfish-game-context-and-review-send-20261112` wurde die vollständige Stockfish-Partieprüfung aus dem tiefen Chatbereich direkt hinter die Brettsteuerung verschoben; sichtbar ohne Aufklappen nur im Lernmodus. Bei gespeicherten Analysen können die ausführlichen Ergebnisse nach Bedarf aufgerufen werden. Der KI-Lernchat verwendet vorhandene Gesamtpartie-Bewertungen ohne Schlüsselwortfilter, ansonsten eine lokale Stellungsprüfung (keine ungefragte Gesamtpartieberechnung); der Qualitätsknopf sendet seine Frage tatsächlich ab. Diagnose meldet Vorhandensein und schwersten Fehler des gespeicherten Berichts.
