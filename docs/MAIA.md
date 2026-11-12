@@ -1,7 +1,7 @@
 # Maia als alternativer Spielgegner
 
-Stand: 6. November 2026 · **0.7.0: echte Maia-2-Blitz-Inferenz implementiert und
-mit CPU-WebAssembly im Chromium geprüft.** Stockfish bleibt auswählbar.
+Stand: 12. November 2026 · **Maia-2-Blitz-Inferenz mit qualitätsgefilterter
+Zugauswahl im Entwicklungsbranch.** Stockfish bleibt separat auswählbar.
 Native Windows-/macOS-/Android-/iPad-Abnahme ist davon getrennt offen.
 
 ## Bedienung und Verhalten
@@ -21,8 +21,8 @@ danach höchstens acht Kandidaten und mindestens 8 % des besten Kandidaten.
 Innerhalb dieser Menge wird weiter gewichtet zufällig gezogen. Ein direkter
 Rückzug derselben Figur auf ihr vorheriges Feld wird nur aus der Auswahl
 entfernt, wenn die Figur nicht angegriffen ist, der König nicht im Schach steht
-und eine andere ausreichend wahrscheinliche Möglichkeit existiert. Bei Schach,
-Angriff auf die Figur oder fehlenden Alternativen bleibt der Rückzug möglich.
+und eine andere ausreichend wahrscheinliche Möglichkeit existiert. Bei Schach, Angriff auf die Figur, schlagendem oder schachgebendem Rückzug
+oder fehlenden Alternativen bleibt der Rückzug möglich.
 Dieser Filter ist eine praktische Trainingsheuristik, **kein Beweis für den
 besten Zug** und keine Garantie für die angezeigte Spielstärke.
 
