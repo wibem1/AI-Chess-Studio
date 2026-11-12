@@ -13,6 +13,18 @@ export class AutomaticStockfish {
  private retryTimer:ReturnType<typeof setTimeout>|undefined;
  private failures=new WeakMap<Session,Set<string>>();
  private lastError='';
+ private suspended=false;
+ /** Freeze session writes during imports/backups. In-flight evaluations are
+  * discarded after their awaited worker response, never saved to stale data. */
+ suspend():void{
+  this.suspended=true;
+  if(this.retryTimer){clearTimeout(this.retryTimer);this.retryTimer=undefined;}
+ }
+ resume():void{
+  if(!this.suspended)return;
+  this.suspended=false;
+  this.sync();
+ }
  constructor(
   private current:()=>Session,
   private adapter:()=>TacticalAdapter,
@@ -29,10 +41,10 @@ export class AutomaticStockfish {
  }
  /** Invoked after moves, imports, page reload or entering learning view. */
  sync():void{
-  if(this.running||this.retryTimer)return;
+  if(this.suspended||this.running||this.retryTimer)return;
   this.retryTimer=setTimeout(()=>{
    this.retryTimer=undefined;
-   if(this.running)return;
+   if(this.suspended||this.running)return;
    const task=this.scan();
    this.running=task;
    void task.finally(()=>{
@@ -42,6 +54,7 @@ export class AutomaticStockfish {
  }
  /** Await any missing scores before a full-game KI question. */
  async ensure():Promise<boolean>{
+  if(this.suspended)return false;
   if(this.retryTimer){clearTimeout(this.retryTimer);this.retryTimer=undefined;}
   if(this.running)await this.running;
   else{const task=this.scan(true);this.running=task;try{await task;}finally{if(this.running===task)this.running=undefined;}}
@@ -52,6 +65,7 @@ export class AutomaticStockfish {
     d.fullGameAnalysis.rootFen===path[0]?.fen&&JSON.stringify(d.fullGameAnalysis.moves)===JSON.stringify(path.slice(1).map(n=>n.san));
  }
  private async scan(priority=false):Promise<void>{
+  if(this.suspended)return;
   const session=this.current();
   if(!priority&&this.engineBusy()){this.sync();return;}
   const data=session.snapshot(),end=data.game?.cursor??data.review?.original.at(-1)??(data.nodes.length>1?data.activeNodeId:undefined);
@@ -61,7 +75,7 @@ export class AutomaticStockfish {
   const failed=this.failures.get(session)??new Set<string>();
   this.failures.set(session,failed);
   for(const [index,node] of path.entries()){
-   if(this.current()!==session)return;
+   if(this.suspended||this.current()!==session)return;
    if(!priority&&this.engineBusy()){this.sync();return;}
    if(session.snapshot().positionScores?.[node.id]?.fen===node.fen)continue;
    if(failed.has(node.id))return;
@@ -74,7 +88,7 @@ export class AutomaticStockfish {
      const report=validateTacticalReport(raw,node.fen);
      cp=scoreToCp(report);depth=report.depth;line=report.line;
     }
-    if(this.current()!==session)return;
+    if(this.suspended||this.current()!==session)return;
     session.storePositionScore(node.id,node.fen,cp,depth,line);
     const latest=session.snapshot(),currentEnd=latest.game?.cursor??latest.review?.original.at(-1)??latest.activeNodeId;
     const currentPath=pathTo(latest,currentEnd);
@@ -90,7 +104,7 @@ export class AutomaticStockfish {
    }
   }
   // A new position may have been added while the previous queue was working.
-  if(this.current()===session){
+  if(!this.suspended&&this.current()===session){
    const now=session.snapshot(),currentEnd=now.game?.cursor??now.review?.original.at(-1)??now.activeNodeId;
    const currentPath=pathTo(now,currentEnd);
    if(currentPath.some(n=>!now.positionScores?.[n.id]&&!failed.has(n.id))){/* next pass scheduled after running task settles */}
