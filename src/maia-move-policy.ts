@@ -9,7 +9,7 @@ export interface MaiaPriorMove {from:string;to:string;color:'w'|'b'}
 export function selectMaiaMove(
  fen:string,
  predictions:readonly MaiaCandidate[],
- context:{plies:number;lastOwnMove?:MaiaPriorMove},
+ context:{plies:number;lastOwnMove?:MaiaPriorMove|undefined},
  random:()=>number=Math.random
 ):string{
  const board=new Chess(fen);
