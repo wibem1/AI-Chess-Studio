@@ -52,8 +52,9 @@ test('Maia opening candidates exclude very rare first moves while retaining huma
 test('Maia pawn and knight returns: unforced reverse is filtered but forced or threatened retreats remain legal',()=>{
  const fen='r1bqkbnr/pppppppp/2n5/8/3P4/4P3/PPP2PPP/RNBQKBNR b KQkq - 0 2';
  const moves=[{uci:'c6b8',p:0.87},{uci:'g8f6',p:0.053},{uci:'d7d5',p:0.032},{uci:'e7e6',p:0.007}];
- const ctx={plies:3,lastOwnMove:{from:'b8',to:'c6',color:'b' as const}};
+ const ctx={plies:3,recentOwnMoves:[{from:'b8',to:'c6',color:'b' as const}]};
  assert.equal(selectMaiaMove(fen,moves,ctx,()=>0),'g8f6');
+ assert.equal(selectMaiaMove(fen,moves,{plies:5,recentOwnMoves:[{from:'b8',to:'c6',color:'b'},{from:'d7',to:'d6',color:'b'}]},()=>0),'g8f6');
  assert.equal(selectMaiaMove(fen,moves,ctx,()=>0.99),'d7d5');
  assert.equal(selectMaiaMove(fen,moves,{plies:3},()=>0),'c6b8');
  const threatened=new Chess();
@@ -69,14 +70,14 @@ test('Maia-2 real ONNX predictions no longer produce reported opening shuttles',
    return {logits_move:r.policy!,logits_value:r.value!};
   }}});
   const scenarios=[
-   {fen:'rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b KQkq - 0 1',plies:1,prior:undefined,bad:'b8a6'},
-   {fen:'r1bqkbnr/ppp1pppp/n2p4/8/3P1P2/4P3/PPP3PP/RNBQKBNR b KQkq - 0 3',plies:5,prior:{from:'b8',to:'a6',color:'b' as const},bad:'a6b8'},
-   {fen:'r1bqkbnr/pppppppp/2n5/8/3P4/4P3/PPP2PPP/RNBQKBNR b KQkq - 0 2',plies:3,prior:{from:'b8',to:'c6',color:'b' as const},bad:'c6b8'}
+   {fen:'rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b KQkq - 0 1',plies:1,prior:[] as {from:string;to:string;color:'b'}[],bad:'b8a6'},
+   {fen:'r1bqkbnr/ppp1pppp/n2p4/8/3P1P2/4P3/PPP3PP/RNBQKBNR b KQkq - 0 3',plies:5,prior:[{from:'b8',to:'a6',color:'b' as const},{from:'d7',to:'d6',color:'b' as const}],bad:'a6b8'},
+   {fen:'r1bqkbnr/pppppppp/2n5/8/3P4/4P3/PPP2PPP/RNBQKBNR b KQkq - 0 2',plies:3,prior:[{from:'b8',to:'c6',color:'b' as const}],bad:'c6b8'}
   ];
   for(const item of scenarios){
    const prediction=await model.predict(item.fen,1500,1500);
    for(const random of [0,0.25,0.5,0.75,0.9999]){
-    const selected=selectMaiaMove(item.fen,prediction.moves,{plies:item.plies,lastOwnMove:item.prior},()=>random);
+    const selected=selectMaiaMove(item.fen,prediction.moves,{plies:item.plies,recentOwnMoves:item.prior},()=>random);
     assert.notEqual(selected,item.bad,item.fen);
    }
   }
