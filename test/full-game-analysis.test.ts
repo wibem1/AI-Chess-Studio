@@ -56,3 +56,23 @@ test('complete AI context is split within provider limits without dropping score
  assert.equal(fragments.join(''),fullGameSummary(analysis));
  assert.match(fragments.join(''),/2…Qh4#/);
 });
+
+test('real Maia-game move sequence: a hypothetical 6-pawn swing on 23…Nxd4 is the leading turning point',()=>{
+ // SAN sequence comes from the user's exported Maia game. Scores here are deliberately
+ // synthetic, because the old diagnosis did not contain per-position Stockfish scores.
+ const moves=['d4','Nf6','e3','g6','f4','Bg7','Nf3','O-O','Be2','d6','O-O','Nbd7','c3','b6','b4','c5','bxc5','bxc5','dxc5','Nxc5','a4','Bb7','Ba3','Nfe4','Bxc5','Nxc5','Nd4','e5','fxe5','Bxe5','Bf3','Bxf3','Rxf3','Qh4','g3','Qh3','Qf1','Qg4','Kg2','Qe4','Nd2','Qd5','Kg1','Ne6','Qc4','Nxd4','Qxd5','Nxf3+','Qxf3'];
+ const scores=Array<number>(moves.length+1).fill(0);
+ for(let i=46;i<scores.length;i++)scores[i]=600;
+ const report=makeFullGameAnalysis(new Chess().fen(),moves,scores);
+ const mistake=report.records[45]!;
+ assert.equal(mistake.ply,46);
+ assert.equal(mistake.san,'Nxd4');
+ assert.equal(mistake.side,'b');
+ assert.equal(mistake.grade,'grober Fehler');
+ assert.equal(mistake.lossCp,600);
+ assert.equal(report.players.black.blunders,1);
+ const context=fullGameContext(report).join('');
+ assert.match(context,/Wichtigste Fehler nach Bewertungsverlust: 23…Nxd4: grober Fehler \\(Verlust 600 cp/);
+ assert.match(context,/Vollständiger chronologischer Verlauf aller 49 Halbzüge/);
+ for(const move of ['23…Nxd4','24.Qxd5','24…Nxf3+','25.Qxf3'])assert.ok(context.includes(move),move);
+});
