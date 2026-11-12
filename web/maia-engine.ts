@@ -4,7 +4,7 @@ import {preparePlayingPosition} from '../src/playing-position.js';
 import {MAIA_ASSET_BASE,MAIA_PROFILES} from '../src/maia-files.js';
 export class MaiaPlayingEngine implements PlayingEngine{
  private worker:Worker|undefined;
- private pending:{reject:(error:Error)=>void;timer:ReturnType<typeof setTimeout>}|undefined;
+ private pending:{reject:(error:Error)=>void;timer:ReturnType<typeof setTimeout>;worker:Worker}|undefined;
  constructor(private progress:(value:string)=>void=()=>{}){}
  cancel(){const pending=this.pending;this.pending=undefined;this.worker?.terminate();this.worker=undefined;if(pending){clearTimeout(pending.timer);pending.reject(new Error('Maia-Berechnung abgebrochen.'));}}
  async move(rootFen:string,moves:string[],level:number){
@@ -12,11 +12,18 @@ export class MaiaPlayingEngine implements PlayingEngine{
   this.worker??=new Worker(new URL('./maia-worker.ts',import.meta.url),{type:'module'});
   const worker=this.worker,modelFen=request.board.fen();
   return new Promise<{san:string;level:number;engine:string;uci:string;modelFen:string}>((resolve,reject)=>{
-   const fail=(error:Error)=>{if(this.pending)clearTimeout(this.pending.timer);this.pending=undefined;this.cancel();reject(error);};
+   const fail=(error:Error)=>{
+    // A late error from a terminated, older worker must never cancel the next game.
+    if(this.pending?.worker!==worker)return;
+    clearTimeout(this.pending.timer);this.pending=undefined;
+    if(this.worker===worker)this.worker=undefined;
+    worker.terminate();reject(error);
+   };
    const timer=setTimeout(()=>fail(new Error('Maia-Zeitlimit erreicht. Partie pausiert; bewusst erneut fortsetzen.')),120000);
-   this.pending={reject,timer};
-   worker.onerror=()=>fail(new Error('Maia-Laufzeit nicht verfügbar. Partie pausiert.'));
+   this.pending={reject,timer,worker};
+   worker.onerror=()=>fail(new Error('Maia-Laufzeit nicht verfügbar. Partie pausiert. Beim nächsten Start wird die Engine neu geladen.'));
    worker.onmessage=(event:MessageEvent<{uci?:string;status?:string;error?:string}>)=>{
+    if(this.pending?.worker!==worker)return;
     if(event.data.status){this.progress(event.data.status);return;}
     if(event.data.error){fail(new Error(event.data.error));return;}
     try{
@@ -27,7 +34,8 @@ export class MaiaPlayingEngine implements PlayingEngine{
    };
    const history=request.board.history({verbose:true});
    const recentOwnMoves=history.filter(move=>move.color===request.board.turn()).slice(-12).map(move=>({from:move.from,to:move.to,color:move.color}));
-   worker.postMessage({base:new URL(appPath(MAIA_ASSET_BASE),location.origin).href,fen:request.board.fen(),rating:MAIA_PROFILES[level-1],plies:history.length,recentOwnMoves});
+   try{worker.postMessage({base:new URL(appPath(MAIA_ASSET_BASE),location.origin).href,fen:request.board.fen(),rating:MAIA_PROFILES[level-1],plies:history.length,recentOwnMoves});}
+   catch{fail(new Error('Maia-Worker konnte nicht gestartet werden. Partie pausiert.'));}
   });
  }
 }
