@@ -1,3 +1,15 @@
+# ChessStudio 1.7.0 – veröffentlicht und GitHub Pages bestätigt (12. November 2026)
+
+**Nutzerfreigabe „Freigeben“ für Version 1.7.0 ausgeführt.** [PR #18](https://github.com/wibem1/AI-Chess-Studio/pull/18) gemergt in `work` (Merge-Commit `bd6731ca54d9c9e2a10818f9ff00e1613580a986`). Offizieller [Release-Workflow 43313234220](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43313234220) **SUCCESS**, einschließlich Tests, Manifest, Veröffentlichung und abschließender Deploymentprüfung. GitHub-Pages-Deployment [43313853052](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43313853052) **SUCCESS**. Die öffentlich auf `gh-pages` abgelegte `BUILD.json` meldet `version=1.7.0` und `sourceCommit=bd6731ca54d9c9e2a10818f9ff00e1613580a986`. Live: https://wibem1.github.io/AI-Chess-Studio/ .
+
+**Wesentliche Benutzeränderung:** Kein großer „Partie prüfen“-Knopf mehr unter dem Brett. Stockfish bewertet die gespielte Partie lokal im Hintergrund, speichert FEN/Bewertung/Tiefe und geprüfte Hauptvariante je Stellung; der Schalter im Lernmodus steuert lediglich die Anzeige. Die vollständige gespeicherte Bewertungsreihe wird für KI-Fragen herangezogen; Diagnose enthält Fehler und Phase des letzten KI-Aufrufs. PGN-Import sichert Partien ohne konkurrierende Hintergrundänderungen.
+
+**Vor Release separat nachgewiesen:** [Actions 43311857225](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43311857225) **286/286 Node-Tests und 48/48 Chromium-Browsertests**; darunter eine reale lokale Stockfish-Prüfung, sichere PGN-Speicherung während der Hintergrundberechnung und die korrekte Übergabe der synthetisch bewerteten vollständigen 109-Halbzüge-Maia-Partie an einen simulierten Provider. Keine bezahlte echte KI-Modellqualitätsprüfung oder native Android-Geräteabnahme. Ein erfolgreicher End-to-End-Test mit simuliertem Anbieter beweist nicht, dass die zuvor beobachtete reale KI-Anfrage künftig unter allen Umständen funktioniert.
+
+**Nächster Schritt:** Nutzer prüft auf Android, ob die Anzeige des großen Knopfs entfällt und Bewertungen nach einer Partie automatisch vorliegen; danach gezielter realer KI-Partierückblick zu 23…Sxd4. Bei Fehlern Diagnose mit `lastAiStage` und `lastAiError` auswerten. Keine weiteren Veröffentlichungen ohne ausdrückliche Freigabe.
+
+---
+
 # ChessStudio 1.7.0 – KI-Übergabe der gesamten Maia-Partie und sicherer PGN-Import verifiziert (12. November 2026)
 
 **Aktueller Stand:** Entwurfs-PR [#18](https://github.com/wibem1/AI-Chess-Studio/pull/18), Branch `feat/automatic-stockfish-evaluations-20261112`. **Nicht gemergt oder veröffentlicht**; öffentlich weiterhin 1.6.1.
