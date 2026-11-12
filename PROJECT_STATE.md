@@ -1,3 +1,13 @@
+# ChessStudio 1.6.1 – UI- und KI-Faktenkorrektur vorbereitet (12. November 2026)
+
+**Nutzerforderung:** Der Startknopf „Partie prüfen“ gehört unmittelbar unter das Brett. Im Entwicklungsbranch `fix/stockfish-game-context-and-review-send-20261112` wurde die vollständige Stockfish-Partieprüfung aus dem tiefen Chatbereich direkt hinter die Brettsteuerung verschoben; sichtbar ohne Aufklappen nur im Lernmodus. Bei gespeicherten Analysen können die ausführlichen Ergebnisse nach Bedarf aufgerufen werden. Der KI-Lernchat verwendet vorhandene Gesamtpartie-Bewertungen ohne Schlüsselwortfilter, ansonsten eine lokale Stellungsprüfung (keine ungefragte Gesamtpartieberechnung); der Qualitätsknopf sendet seine Frage tatsächlich ab. Diagnose meldet Vorhandensein und schwersten Fehler des gespeicherten Berichts.
+
+**Beleg:** GitHub Actions [43287356997](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43287356997) **SUCCESS**, 277/277 Node-Tests, 45/45 Chromium-Browsertests, inklusive realer Stockfish-Integration, falscher früherer Provider-Erkennung und Position des direkten Brettknopfs bei 390/820/1440 px. Keine reale bezahlte KI-Abnahme. **Version 1.6.1 als Releasekandidat vorbereitet, noch nicht gemergt/veröffentlicht.** Nach Versionsvergabe erneute CI-Prüfung nötig. Öffentliche Version bleibt 1.6.0.
+
+**Nächster Schritt:** versionierten Kandidaten verifizieren und in einem Entwurfs-PR sichern; Veröffentlichung nur mit neuer ausdrücklicher Freigabe.
+
+---
+
 # ChessStudio 1.6.0 – veröffentlicht und bestätigt (12. November 2026)
 
 **Nutzerfreigabe „freigeben“ ausdrücklich erteilt.** [PR #16](https://github.com/wibem1/AI-Chess-Studio/pull/16) in `work` gemergt, Merge-Commit `1f02ed2f07b5537797587ed56ce6cc950c107691`. Offizieller Release-GitHub-Actions-Lauf [43282445722](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43282445722) **SUCCESS** mit **276/276 Node-Tests und 44/44 Chromium-Browsertests** (einschließlich der echten Stockfish-Gesamtpartieprüfung und der Maia-Neustartregression). Veröffentlichung in `gh-pages` erfolgt; GitHub-Pages-Deployment [43282885628](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43282885628) **SUCCESS**.
