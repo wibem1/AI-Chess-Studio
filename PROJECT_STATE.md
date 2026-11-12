@@ -1,3 +1,15 @@
+# ChessStudio 1.6.0 – veröffentlicht und bestätigt (12. November 2026)
+
+**Nutzerfreigabe „freigeben“ ausdrücklich erteilt.** [PR #16](https://github.com/wibem1/AI-Chess-Studio/pull/16) in `work` gemergt, Merge-Commit `1f02ed2f07b5537797587ed56ce6cc950c107691`. Offizieller Release-GitHub-Actions-Lauf [43282445722](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43282445722) **SUCCESS** mit **276/276 Node-Tests und 44/44 Chromium-Browsertests** (einschließlich der echten Stockfish-Gesamtpartieprüfung und der Maia-Neustartregression). Veröffentlichung in `gh-pages` erfolgt; GitHub-Pages-Deployment [43282885628](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43282885628) **SUCCESS**.
+
+**Veröffentlichtes Manifest `gh-pages/BUILD.json`:** `version=1.6.0`, `base=/AI-Chess-Studio/`, `sourceCommit=1f02ed2f07b5537797587ed56ce6cc950c107691`. Live-App: https://wibem1.github.io/AI-Chess-Studio/ .
+
+**Neue Funktion:** ausdrückliche lokale Stockfish-Prüfung der gesamten Hauptpartie, Fehlerstatistiken beider Seiten, priorisierte Wendepunkte und vollständiger chronologischer Bewertungsverlauf als KI-Kontext. Das volle Ergebnis wird mit der Partie gespeichert. Kontextlängen werden kontrolliert, ohne stilles Abschneiden. In Browser-Integration mit realem Stockfish und simuliertem KI-Provider geprüft; **eine tatsächliche KI-Qualitätsprüfung mit der Nutzerpartie oder ein Android-Abnahmetest fehlen**. Der 600-cp-Sprung bei 23…Sxd4 war eine simulierte Testannahme, keine gemessene Stockfish-Auswertung.
+
+**Nächster einzelner Schritt:** Nutzer-Praxistest mit echter Maia-Partie und überprüfter Schachanalyse; danach bei Bedarf vertiefte Stockfish-Nachsuche. Die mögliche Maia-Erstzug-Beschleunigung ist ein getrenntes, noch nicht implementiertes Arbeitspaket. Keine weitere Veröffentlichung ohne Auftrag.
+
+---
+
 # ChessStudio 1.6.0 – Releasekandidat technisch bestanden (12. November 2026)
 
 **GitHub Actions [43274563392](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43274563392) SUCCESS** für Commit `9b74090bcdc25b22637957a79f196575e128e98e`: **276/276 Node-Tests, 44/44 Chromium-Browsertests**, einschließlich explizitem `e2e/full-game-analysis.spec.ts` mit echter Stockfish-Prüfung, Wiederherstellung, simuliertem Providerkontext und Maia-Neustartregression. Produktionsmanifest lokal vorbereitet: `version=1.6.0`, `sourceCommit=9b74090b...`, `published=false`. Keine Kosten durch reale KI-Anfragen.
