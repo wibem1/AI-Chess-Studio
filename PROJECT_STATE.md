@@ -1,3 +1,13 @@
+# Integrationsprüfung gegen ChessStudio 1.5.8 erfolgreich (12. November 2026)
+
+**Aktueller Entwicklungsbranch:** `feat/stockfish-whole-game-analysis-20261112`, Merge-Commit `86fdaab7b850a7008c48ab04c3ad0209c09a1b53` (mit `work` vereinigt, ohne `work` zu verändern). **Entwurfs-PR #16**, konfliktfrei, nicht gemergt und nicht veröffentlicht.
+
+**GitHub Actions [43272320813](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43272320813): SUCCESS.** 275/275 Node-Tests und 43/43 Chromium-Browsertests, einschließlich echter Stockfish-Gesamtpartieprüfung mit vollständig übertragenem KI-Kontext sowie echtem Maia-Neustart nach Analyse. Keine kostenpflichtige KI-Anfrage. Öffentliche Version ist weiter 1.5.8.
+
+**Offen vor Freigabe:** echte KI-Qualitätsabnahme mit der Maia-Partie des Nutzers, insbesondere Erklärung eines Fehlerzuges mit starkem Bewertungsumschwung; gegebenenfalls gezielte Stockfish-Nachsuche an kritischen Stellen. Auch die Maia-Kaltstartoptimierung bleibt separat offen.
+
+---
+
 # Entwicklungsstand: Vollständiger Stockfish-KI-Kontext erfolgreich integriert (12. November 2026)
 
 **Branch:** `feat/stockfish-whole-game-analysis-20261112`; öffentliche Version bleibt **1.5.8**. **Nicht gemergt, nicht veröffentlicht.**
