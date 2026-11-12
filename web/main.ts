@@ -439,7 +439,7 @@ const enrichWithStockfish=async(request:import('../src/dialogue.js').DialogueReq
  if(request.topic!=='chat'||request.matchTest||request.toolExchanges?.length)return request;
  const session=studio.session,position=session.snapshot().nodes.find(n=>n.id===request.nodeId);
  if(!position||position.fen!==request.fen)throw new Error('Stellung während der Prüfung gewechselt. Keine KI-Anfrage gesendet.');
- const wholeGameQuestion=/\\b(?:partie|spiel(?:er|qualität|stärke)?|wei(?:ß|ss)|schwarz|fehler|genauigkeit|schlüsselstellen)\\b/iu.test(request.question)&&/(gesamt|ganz|qualit|bewert|analys|fehler|vergleich|rückblick|schlüsselstell|stärke)/iu.test(request.question);
+ const wholeGameQuestion=/\b(?:partie|spiel(?:er|qualität|stärke)?|wei(?:ß|ss)|schwarz|fehler|genauigkeit|schlüsselstellen)\b/iu.test(request.question)&&/(gesamt|ganz|qualit|bewert|analys|fehler|vergleich|rückblick|schlüsselstell|stärke)/iu.test(request.question);
  if(wholeGameQuestion){
   const report=matchingFullGameAnalysis(session);
   const fact=report?fullGameSummary(report):'Es liegt für die gesamte Partie noch keine vollständige Stockfish-Prüfung vor. Keine objektive Fehlerstatistik, Genauigkeit oder Spieler-Elo behaupten. Der Nutzer kann „Gesamte Partie mit Stockfish prüfen“ ausdrücklich starten.';
