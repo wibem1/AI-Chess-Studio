@@ -1,3 +1,13 @@
+# ChessStudio 1.6.0 – Releasekandidat technisch bestanden (12. November 2026)
+
+**GitHub Actions [43274563392](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43274563392) SUCCESS** für Commit `9b74090bcdc25b22637957a79f196575e128e98e`: **276/276 Node-Tests, 44/44 Chromium-Browsertests**, einschließlich explizitem `e2e/full-game-analysis.spec.ts` mit echter Stockfish-Prüfung, Wiederherstellung, simuliertem Providerkontext und Maia-Neustartregression. Produktionsmanifest lokal vorbereitet: `version=1.6.0`, `sourceCommit=9b74090b...`, `published=false`. Keine Kosten durch reale KI-Anfragen.
+
+**Gesichert:** Releasekandidat 1.6.0 im Branch `feat/stockfish-whole-game-analysis-20261112` und Entwurfs-PR #16 gegen `work`, nicht gemergt, nicht veröffentlicht. Öffentliche App bleibt 1.5.8. **Noch offen:** echte schachliche Modellqualitätsabnahme mit Nutzerpartie und vollständiger Stockfish-Neuberechnung der entscheidenden Stellung; Maia-Erstzug-Beschleunigung separat. Aus einer simulierten 600-cp-Schwankung darf kein realer Enginewert abgeleitet werden.
+
+**Nächster Schritt:** ausdrückliche Veröffentlichungsfreigabe des Nutzers; vor Merge finalen Branchkopf und Release-Workflow prüfen. Nicht automatisch veröffentlichen.
+
+---
+
 # Version 1.6.0 – Releasekandidat vorbereitet (12. November 2026)
 
 Der Featureumfang wurde vor der Versionsvergabe durch [GitHub Actions 43273692685](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43273692685) geprüft: **276/276 Node-Tests, 44/44 Chromium-Tests**, einschließlich echter Stockfish-Gesamtpartieprüfung und Maia-Neustartregression. Der neue Browser-Integrationsfall ist jetzt in beiden Prüfläufen enthalten. Ein zusätzlicher Test nutzt den realen Maia-Spielverlauf bis 25. Dxf3, aber **simulierte** sechs Bauerneinheiten Bewertungsänderung bei 23…Sxd4. Keine reale Neuberechnung des tatsächlichen Bewertungssprungs und keine kostenpflichtige KI-Anfrage.
