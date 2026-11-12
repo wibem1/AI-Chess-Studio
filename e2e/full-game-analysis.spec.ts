@@ -41,7 +41,7 @@ test('real Stockfish whole-game report is stored, restored and can be given to a
  await page.getByRole('tab',{name:'Lernmodus',exact:true}).click();
  await page.locator('#stockfish-assist-enabled').check();
  await page.locator('#full-game-ask').click();
- await expect(page.locator('#question')).toContainText('Vergleiche die schachliche Qualität');
+ await expect(page.locator('#question')).toHaveValue(/Vergleiche die schachliche Qualität/);
  await page.locator('#ask').click();
  await expect(page.locator('#dialogue-feedback')).toContainText('gespeichert',{timeout:45000});
  expect(calls).toBe(1);
