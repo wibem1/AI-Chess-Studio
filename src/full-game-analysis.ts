@@ -106,6 +106,6 @@ export function fullGameContext(report:FullGameAnalysis):string[]{
 export function asksAboutGameQuality(question:string):boolean{
  const q=question.toLocaleLowerCase('de-DE');
  if(/partie|spielverlauf|spielqualität|spielstärke|schlüsselstell|wendepunkt|partieanalyse|partiebewert/u.test(q))return true;
- const issue=/fehler|patzer|blunder|verlust|schlecht|entscheid|kritisch|bewert|analyse|analys|stärke|qualität|leistung|zug|züge/u.test(q);
+ const issue=/fehler|patzer|blunder|verlust|schlecht|entscheid|kritisch|bewert|analyse|analys|stärke|qualität|leistung|zug|züge|gespielt|spielte|spielt|gut/u.test(q);
  return issue&&/schwarz|weiß|weiss|maia|spiel|züge|zug|fehler/u.test(q);
 }
