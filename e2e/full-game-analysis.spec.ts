@@ -79,3 +79,22 @@ test('Stockfish Partie prüfen button is directly under the board and requires n
   await expect(button).toBeHidden();
  }
 });
+
+test('real Maia-game history over critical Black move can be scanned while live Stockfish display is enabled',async({page})=>{
+ test.setTimeout(240000);
+ const studio=new Studio();
+ // User's actual SAN game prefix, not synthetic scores. All evaluations here
+ // are performed by the pinned browser Stockfish, not by the test fixture.
+ const moves=['d4','Nf6','e3','g6','f4','Bg7','Nf3','O-O','Be2','d6','O-O','Nbd7','c3','b6','b4','c5','bxc5','bxc5','dxc5','Nxc5','a4','Bb7','Ba3','Nfe4','Bxc5','Nxc5','Nd4','e5','fxe5','Bxe5','Bf3','Bxf3','Rxf3','Qh4','g3','Qh3','Qf1','Qg4','Kg2','Qe4','Nd2','Qd5','Kg1','Ne6','Qc4','Nxd4','Qxd5','Nxf3+','Qxf3'];
+ for(const san of moves)studio.session.play(san);
+ await page.goto('/?platform=web#lernen');
+ await expect(page.locator('#workspace')).not.toHaveAttribute('inert','');
+ await page.locator('#games-menu > summary').click();
+ await page.locator('#game-file').setInputFiles({name:'maia-prefix.json',mimeType:'application/json',buffer:Buffer.from(studio.session.export())});
+ await expect(page.locator('#games-status')).toContainText('Partie geladen');
+ await page.locator('#stockfish-assist-enabled').check();
+ await page.locator('#full-game-start').click();
+ await expect(page.locator('#full-game-status')).toContainText('Vollständige Prüfung gespeichert: 49 Züge',{timeout:210000});
+ await expect(page.locator('#full-game-results')).toContainText('Schwarz:');
+ await expect(page.locator('#full-game-ask')).toBeVisible();
+});
