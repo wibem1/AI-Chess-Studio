@@ -1,5 +1,14 @@
 # Änderungen
 
+## 1.5.7 – Maia-2: Plausiblere Zugauswahl und Schutz vor Figurenpendeln (12. November 2026)
+
+- Maia-2 Blitz behält sein echtes ONNX-Modell. In den ersten 30 Halbzügen werden nur die höchstens vier relativ wahrscheinlichsten legalen Züge berücksichtigt (mindestens 18 % der Wahrscheinlichkeit des führenden zulässigen Zuges); danach maximal acht Kandidaten (mindestens 8 %). Innerhalb der Kandidaten wird weiter nach Maia-Wahrscheinlichkeiten gewichtet ausgewählt.
+- Unbegründete direkte Rückzüge zum vorherigen Feld derselben Figur werden anhand der eigenen jüngsten Zughistorie erkannt, auch wenn ein anderer Zug dazwischenliegt. Bei Schach, angegriffenen Figuren, Schlägen, Schachgeboten und fehlenden hinreichend plausiblen Alternativen bleiben Rückzüge erlaubt.
+- Modellbefund: Nach 1.d4 hatte der früher mögliche Maia-Zug 1...Sa6 nur etwa 1,3 % Modellwahrscheinlichkeit; 2...Sb8 nach 1.d4 Sc6 2.e3 dagegen rund 87 %. Der reine Wechsel zum Top-1-Zug hätte das Problem nicht behoben.
+- Regression mit realer Maia-2-WASM-Inferenz, Originalstellungen und neuem Browserfall nach 1.d4; Ausgangskorrektur im isolierten Branch mit 42/42 Browsertests erfolgreich (Actions 43206756393).
+- Keine Stockfish-Züge im Maia-Modus, keine Veränderung des Modells oder der persönlichen Spielstärke, keine Garantie schachlicher Optimalität.
+
+
 ## 1.5.6 – Feste Zeile für die Stockfish-Hauptvariante (11. November 2026)
 
 - Die Stockfish-Bewertung erhält eine separate einzeilige Fläche; die Überschrift „Variante“ steht fest in der folgenden Zeile und springt nicht mehr bei unterschiedlich langen Bewertungen.
