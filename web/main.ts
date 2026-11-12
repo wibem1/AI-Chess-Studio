@@ -21,7 +21,7 @@ import { ServerModelAdapter } from '../src/model-client.js';
 import { checkTactics, ServerTacticalAdapter, validateTacticalReport, type TacticalReport } from '../src/tactics.js';
 import {BrowserTacticalAdapter} from '../src/browser-tactics.js';
 import {withStockfishAssessment} from '../src/stockfish-assist.js';
-import {fullGameSummary} from '../src/full-game-analysis.js';
+import {fullGameContext} from '../src/full-game-analysis.js';
 import {installFullGameUI,matchingFullGameAnalysis} from './full-game-ui.js';
 import { LearningGame, ServerPlayingEngine, pathTo, type AppliedEngineMove } from '../src/game.js';
 import type {HintMode} from '../src/learning.js';
@@ -442,8 +442,8 @@ const enrichWithStockfish=async(request:import('../src/dialogue.js').DialogueReq
  const wholeGameQuestion=/\b(?:partie|spiel(?:er|qualität|stärke)?|wei(?:ß|ss)|schwarz|fehler|genauigkeit|schlüsselstellen)\b/iu.test(request.question)&&/(gesamt|ganz|qualit|bewert|analys|fehler|vergleich|rückblick|schlüsselstell|stärke)/iu.test(request.question);
  if(wholeGameQuestion){
   const report=matchingFullGameAnalysis(session);
-  const fact=report?fullGameSummary(report):'Es liegt für die gesamte Partie noch keine vollständige Stockfish-Prüfung vor. Keine objektive Fehlerstatistik, Genauigkeit oder Spieler-Elo behaupten. Der Nutzer kann „Gesamte Partie mit Stockfish prüfen“ ausdrücklich starten.';
-  return {...request,context:[fact.slice(0,1800),...(request.context??[])].slice(0,6)};
+  const facts=report?fullGameContext(report):['Es liegt für die gesamte Partie noch keine vollständige Stockfish-Prüfung vor. Keine objektive Fehlerstatistik, Genauigkeit oder Spieler-Elo behaupten. Der Nutzer kann „Gesamte Partie mit Stockfish prüfen“ ausdrücklich starten.'];
+  return {...request,context:[...facts,...(request.context??[])].slice(0,6)};
  }
  if(!stockfishAssistEnabled)return request;
  if(new Chess(request.fen).isGameOver())return {...request,context:['Die aktuelle Stellung ist beendet und erhält keine weitere Engine-Hauptvariante. Die KI-Frage ist trotzdem zulässig.',...(request.context??[])].slice(0,6)};
