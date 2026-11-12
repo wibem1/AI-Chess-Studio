@@ -1,6 +1,7 @@
 import {test,expect} from '@playwright/test';
 import {Studio} from '../src/dialogue.js';
 import {LearningGame} from '../src/game.js';
+import {makeFullGameAnalysis} from '../src/full-game-analysis.js';
 
 async function savedReport(page:import('@playwright/test').Page){
  return page.evaluate(async()=>{
@@ -111,4 +112,43 @@ test('playing moves automatically stores evaluations even with Stockfish display
  await page.locator('#stockfish-assist-enabled').check();
  await expect(page.locator('#stockfish-assist-result')).toContainText('Stockfish:');
  await expect(page.locator('#stockfish-assist-line')).toContainText('Hauptvariante:');
+});
+
+test('actual complete 109-ply Maia game gets its saved Stockfish evidence into a real browser provider request',async({page})=>{
+ test.setTimeout(100000);
+ const moves=['d4','Nf6','e3','g6','f4','Bg7','Nf3','O-O','Be2','d6','O-O','Nbd7','c3','b6','b4','c5','bxc5','bxc5','dxc5','Nxc5','a4','Bb7','Ba3','Nfe4','Bxc5','Nxc5','Nd4','e5','fxe5','Bxe5','Bf3','Bxf3','Rxf3','Qh4','g3','Qh3','Qf1','Qg4','Kg2','Qe4','Nd2','Qd5','Kg1','Ne6','Qc4','Nxd4','Qxd5','Nxf3+','Qxf3','Bxc3','Qd1','Bxa1','Qxa1','Rab8','Qd4','Rfd8','Nc4','Rb1+','Kg2','Rc1','e4','Rc2+','Kh3','Re2','Qd3','Ra2','Qb3','Re2','Qd3','Ra2','a5','d5','exd5','Kg7','d6','Ra4','Qc3+','Kg8','Qb3','Ra1','Qb7','Rd1','Qxa7','h5','Qc7','Re8','a6','Rc1','a7','g5','Qc6','g4+','Kh4','Re2','a8=Q+','Kg7','Kxh5','Rxh2+','Kxg4','Rh8','Qab7','Rxc4+','Qxc4','Rd8','Qd4+','Kg6','Qbe4+','Kh6','Qf6#'];
+ const studio=new Studio();for(const san of moves)studio.session.play(san);
+ const all=studio.session.snapshot(),scores=Array<number>(moves.length+1).fill(0);
+ for(let i=46;i<scores.length;i++)scores[i]=599;
+ studio.session.storeFullGameAnalysis(makeFullGameAnalysis(all.nodes[0]!.fen,moves,scores,all.nodes.slice(1).map(n=>n.id)));
+ await page.goto('/?platform=web#lernen');
+ await expect(page.locator('#workspace')).not.toHaveAttribute('inert','');
+ await page.locator('#games-menu > summary').click();
+ await page.locator('#game-file').setInputFiles({name:'maia-109-evaluated.json',mimeType:'application/json',buffer:Buffer.from(studio.session.export())});
+ await expect(page.locator('#games-status')).toContainText('Partie geladen');
+ await expect.poll(async()=>(await savedReport(page)).count).toBe(109);
+ await page.locator('#open-settings').click();
+ await page.locator('#api-settings > summary').click();
+ await page.locator('#api-provider').selectOption('openai');
+ await page.locator('#settings-model-section > summary').click();
+ await page.locator('#api-model').fill('gpt-4.1-mini');
+ await page.locator('#api-key').fill('fixture-not-real-for-long-game');
+ await page.locator('#api-cost-consent').check();
+ await page.locator('#api-connect').click();
+ await expect(page.locator('#api-feedback')).toContainText('gespeichert');
+ let calls=0;
+ await page.route('https://api.openai.com/v1/chat/completions',async route=>{
+  calls++;
+  const data=route.request().postDataJSON(),user=JSON.parse(data.messages.filter((m:{role:string})=>m.role==='user').at(-1).content);
+  const context=user.context.join('');
+  expect(context).toContain('Vollständiger chronologischer Verlauf aller 109 Halbzüge');
+  expect(context).toContain('23…Nxd4: grober Fehler');
+  expect(context).toContain('55.Qf6#');
+  return route.fulfill({json:{choices:[{finish_reason:'stop',message:{content:'23…Sxd4 ist der größte belegte Fehler; die Bewertung wechselt um ungefähr sechs Bauerneinheiten.'}}],usage:{prompt_tokens:500,completion_tokens:48}}});
+ });
+ await page.getByRole('tab',{name:'Lernmodus',exact:true}).click();
+ await page.locator('#question').fill('Warum war 23…Sxd4 der entscheidende Fehler von Schwarz?');
+ await page.locator('#ask').click();
+ await expect(page.locator('#dialogue-feedback')).toContainText('gespeichert',{timeout:45000});
+ expect(calls).toBe(1,'Provider must actually receive the full 109-ply Stockfish report');
 });
