@@ -19,12 +19,12 @@ async function load(base:string):Promise<Maia>{
  // This pinned conversion names the official board/policy/value tensors differently.
  return createMaia({Tensor:ort.Tensor,session:{run:async({boards,...feeds})=>{const out=await session.run({board:boards as ort.Tensor,...feeds as Record<string,ort.Tensor>});return {logits_move:out.policy!,logits_value:out.value!};}}});
 }
-self.onmessage=async(event:MessageEvent<{base:string;fen:string;rating:number;plies:number;lastOwnMove?:MaiaPriorMove}>)=>{
+self.onmessage=async(event:MessageEvent<{base:string;fen:string;rating:number;plies:number;recentOwnMoves?:MaiaPriorMove[]}>)=>{
  try{
   if(!model)self.postMessage({status:'Maia wird vorbereitet: beim ersten Einsatz etwa 60 MB laden. Das Brett bleibt bedienbar.'});
   model??=load(event.data.base);const maia=await model;
   self.postMessage({status:'Maia berechnet einen menschlichen Zug …'});
   const prediction=await maia.predict(event.data.fen,event.data.rating,event.data.rating);
-  const uci=selectMaiaMove(event.data.fen,prediction.moves,{plies:event.data.plies,lastOwnMove:event.data.lastOwnMove});self.postMessage({uci});
+  const uci=selectMaiaMove(event.data.fen,prediction.moves,{plies:event.data.plies,recentOwnMoves:event.data.recentOwnMoves});self.postMessage({uci});
  }catch(error){console.error('Maia-WASM:',error instanceof Error?error.message:'Laufzeitfehler');model=undefined;self.postMessage({error:'Maia konnte nicht rechnen. Internetverbindung und freien Gerätespeicher prüfen; danach bewusst fortsetzen. Es wurde kein Ersatzgegner gestartet.'});}
 };
