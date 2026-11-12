@@ -16,11 +16,23 @@ export class BrowserTacticalAdapter implements TacticalAdapter {
   return this.process.search({position,go:'go depth 12 nodes 20000 movetime 1000'+selected,options:['setoption name MultiPV value 1'],line:line=>{
    if(!line.startsWith('info ')||/lowerbound|upperbound/.test(line))return;
    const depth=/\bdepth (\d+)/.exec(line),nodes=/\bnodes (\d+)/.exec(line),score=/\bscore (cp|mate) (-?\d+)/.exec(line),pv=/\bpv (.+)$/.exec(line);
-   if(depth&&nodes&&score&&pv)info={depth:Number(depth[1]),nodes:Number(nodes[1]),unit:score[1] as 'cp'|'mate',value:Number(score[2]),pv:pv[1]!.trim().split(/\s+/)};
+   if(depth&&nodes&&score&&pv){
+    const sequence=pv[1]!.trim().split(/\\s+/),probe=new Chess(fen);
+    // UCI can report incomplete or stale interim PV lines. Discard them
+    // instead of letting one transient line poison the final engine response.
+    try{
+     for(const uci of sequence.slice(0,64)){
+      if(!/^[a-h][1-8][a-h][1-8][qrbn]?$/.test(uci))throw new Error('invalid UCI');
+      probe.move({from:uci.slice(0,2),to:uci.slice(2,4),...(uci[4]?{promotion:uci[4]}:{})});
+     }
+     info={depth:Number(depth[1]),nodes:Number(nodes[1]),unit:score[1] as 'cp'|'mate',value:Number(score[2]),pv:sequence};
+    }catch{/* Ignore incomplete interim search lines. */}
+   }
   },complete:(uci,engine)=>{
-   if(!info||info.pv[0]!==uci)throw new Error('Kein vollständiger Suchbefund.');
+   if(!info)throw new Error('Stockfish-Prüfung: Keine gültige Hauptvariante im Suchergebnis.');
+   if(info.pv[0]!==uci)throw new Error('Stockfish-Prüfung: Abschließender Zug stimmt nicht mit der letzten gültigen Hauptvariante überein.');
    const replay=new Chess(fen),line:string[]=[];
-   for(const uci of info.pv.slice(0,64)){if(!/^[a-h][1-8][a-h][1-8][qrbn]?$/.test(uci))throw new Error();const move=replay.move({from:uci.slice(0,2),to:uci.slice(2,4),...(uci[4]?{promotion:uci[4]}:{})});line.push(move.san);}
+   for(const uci of info.pv.slice(0,64)){if(!/^[a-h][1-8][a-h][1-8][qrbn]?$/.test(uci))throw new Error('Stockfish-Prüfung: Ungültiger Zug in der Hauptvariante.');const move=replay.move({from:uci.slice(0,2),to:uci.slice(2,4),...(uci[4]?{promotion:uci[4]}:{})});line.push(move.san);}
    return validateTacticalReport({fen,engine,...(history?{history}:{}),depth:info.depth,nodes:info.nodes,elapsedMs:Math.round(performance.now()-start),score:{unit:info.unit,value:info.value*(board.turn()==='w'?1:-1),perspective:'white'},line,candidate,limits:TACTICAL_LIMITS},fen);
   }});
  }
