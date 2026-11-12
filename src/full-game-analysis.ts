@@ -74,10 +74,17 @@ export async function scanFullGame(
  }
  return makeFullGameAnalysis(rootFen,moves,scores,nodeIds);
 }
-/** Compact, factual context for the learning KI; deliberately no fabricated accuracy percentages. */
+/** Complete, compact move-by-move evaluation for the learning KI.
+ * The priority list is an index, not a substitute for the entire evaluated game.
+ * No expensive per-move FEN duplication in the chronology; SAN plus ply identifies moves.
+ */
 export function fullGameSummary(report:FullGameAnalysis,maxIssues=8):string{
  const line=(p:PlayerQuality)=>`${p.side==='w'?'Weiß':'Schwarz'}: ${p.evaluated} bewertete Züge; mittlerer geschätzter Bewertungsverlust ${p.averageLossCp??'–'} cp; Ungenauigkeiten ${p.inaccuracies}; Fehler ${p.mistakes}; grobe Fehler ${p.blunders}.`;
- const issues=report.records.filter(r=>r.lossCp!==null&&r.grade!=='gut').sort((a,b)=>b.lossCp!-a.lossCp!).slice(0,maxIssues)
- .map(r=>`${Math.ceil(r.ply/2)}${r.side==='w'?'.':'…'}${r.san}: ${r.grade} (Verlust ${r.lossCp} cp, FEN davor ${r.before})`).join(' | ');
- return `Lokal geprüfte Stockfish-Partieanalyse (keine Lichess-Genauigkeit/Elo): ${line(report.players.white)} ${line(report.players.black)} Auffällige Züge: ${issues||'keine'}. Grenzen je Stellung: Tiefe 12, 20.000 Knoten, 1 s. Die Klassifikation ist näherungsweise, Mattbewertungen sind auf ±1500 cp abgebildet; die Bewertung allein beweist keine menschliche Spielstärke. Bitte Qualität beider Spieler anhand dieser konkreten Befunde und der Pläne beurteilen; Fehler nicht erfinden.`;
+ const label=(r:ScoredMove)=>`${Math.ceil(r.ply/2)}${r.side==='w'?'.':'…'}${r.san}`;
+ const score=(cp:number|null)=>cp===null?'?':`${cp>=0?'+':''}${(cp/100).toFixed(2)}`;
+ const issues=report.records.filter(r=>r.lossCp!==null&&r.grade!=='gut')
+  .sort((a,b)=>b.lossCp!-a.lossCp!).slice(0,maxIssues)
+  .map(r=>`${label(r)}: ${r.grade} (Verlust ${r.lossCp} cp, vorher ${score(r.beforeCp)}, nachher ${score(r.afterCp)}, FEN davor ${r.before})`).join(' | ');
+ const timeline=report.records.map(r=>`${label(r)} ${score(r.afterCp)}${r.lossCp===null?' [nicht bewertet]':r.lossCp>=50?` [${r.grade}; -${r.lossCp}cp]`:''}`).join(' | ');
+ return `Lokal geprüfte Stockfish-Partieanalyse (keine Lichess-Genauigkeit/Elo): ${line(report.players.white)} ${line(report.players.black)} Wichtigste Fehler nach Bewertungsverlust: ${issues||'keine'}. Vollständiger chronologischer Verlauf aller ${report.records.length} Halbzüge (Bewertung aus Weißsicht nach jedem Zug, in Bauerneinheiten): ${timeline}. Anfangsbewertung: ${score(report.records[0]?.beforeCp??null)}. Grenzen je Stellung: Tiefe 12, 20.000 Knoten, 1 s. Klassifikation nur näherungsweise; Mattbewertungen auf ±1500 cp abgebildet. ANALYSEAUFTRAG: Identifiziere zuerst die größten nachgewiesenen Wendepunkte, benenne Zug und Bewertungsänderung und erkläre die konkrete schachliche Ursache; ein grober Fehler darf nicht beiläufig übergangen werden. Werte danach die Pläne und Leistungen beider Seiten aus menschlicher Sicht. Bei nicht belegter Ursache Unsicherheit kenntlich machen, keine Varianten oder Fehler erfinden. Die Enginebewertung allein beweist keine Spielstärke.`;
 }
