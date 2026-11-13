@@ -1,3 +1,13 @@
+# ChessStudio 1.7.2 – in work integriert (13. November 2026)
+
+**Status:** [PR #20](https://github.com/wibem1/AI-Chess-Studio/pull/20) erfolgreich in `work` zusammengeführt; Merge-Commit `afea324ec93d510e4fa0653246733911f87c40b5`. Codeversion `1.7.2`. **Noch nicht veröffentlicht**; öffentlich bleibt die nachgewiesene GitHub-Pages-Version 1.7.1. Veröffentlichung erfordert einen ausdrücklichen Auftrag.
+
+**Umfang:** Verlässliche Vollpartie-Stockfish-Bewertung auch bei dreifacher Stellungswiederholung (Original-PGN mit 137 Halbzügen), Vollzugnummern wie „nach 47… Sxg7“ und deutsche Figurenkürzel K/D/T/L/S in sichtbaren Zügen und Varianten. Internationale SAN-Schnittstellen bleiben erhalten. Vor dem Merge: [Actions 43379590086](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43379590086) SUCCESS, 292/292 Node-Tests und 52/52 Chromium-Browsertests. Keine native Geräteabnahme oder Prüfung eines echten KI-Providers.
+
+**Nächster Schritt:** Auf ausdrücklichen Veröffentlichungsauftrag 1.7.2 über bestehendes Verfahren auf GitHub Pages bereitstellen, BUILD.json/Deployment prüfen und auf dem Nutzergerät die Anzeige testen. Keine neuen Workflows anlegen.
+
+---
+
 # ChessStudio 1.7.2 – Stockfish-Repetition und deutsche Zugnummerierung korrigiert (13. November 2026)
 
 **Status:** Vollständig geprüfter Releasekandidat **1.7.2** im [Entwurfs-PR #20](https://github.com/wibem1/AI-Chess-Studio/pull/20), Branch `fix/repetition-aware-auto-stockfish-20261113`; **nicht gemergt und nicht veröffentlicht**. Öffentliche GitHub-Pages-Version bleibt 1.7.1. Keine Freigabe zum Deployment erteilt.
