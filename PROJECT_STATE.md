@@ -1,3 +1,15 @@
+# ChessStudio 1.7.1 – veröffentlicht und GitHub Pages bestätigt (13. November 2026)
+
+**Nutzerauftrag „veröffentlichen“ abgeschlossen.** [PR #19](https://github.com/wibem1/AI-Chess-Studio/pull/19) in `work` gemergt (Merge-Commit `1be552a42fd741544301a9604de3cc81a92ec7d6`). [Release-Workflow 43373891513](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43373891513) **SUCCESS**; [GitHub-Pages-Deployment 43374195081](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43374195081) **SUCCESS**. Öffentliches `gh-pages/BUILD.json` bestätigt `version=1.7.1`, `sourceCommit=1be552a42fd741544301a9604de3cc81a92ec7d6`, `base=/AI-Chess-Studio/`. Live: https://wibem1.github.io/AI-Chess-Studio/ .
+
+**Verbesserungen:** Zwei unmittelbar startende KI-Aktionen „Analyse des Spiels“ und „Analyse der Stellung“ im Lernmodus. Die erste erzeugt einen strukturierten Partierückblick mit Schlüsselstellen; die zweite analysiert die beim Klick angezeigte FEN. Die KI-Vorbereitung ist an die Anfrage-FEN gebunden und wird durch bloßes Navigieren nicht ungültig. Die zuletzt ausgewählte Ansicht wird im Browserprofil/PWA gespeichert und beim Start ohne URL-Fragment wiederhergestellt; explizite Direktlinks haben Vorrang.
+
+**Vor Freigabe verifiziert:** [Actions 43373211250](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43373211250) **286/286 Node-Tests und 51/51 Chromium-Browsertests**. Das beweist eine simulierte KI-Anbindung und Browsernavigation, nicht die Leistung des tatsächlichen kostenpflichtigen Modells oder einen nativen iPad-/Android-Test.
+
+**Nächster Schritt:** Nutzer überprüft auf seinem Gerät die Versionsanzeige 1.7.1, die direkte Auslösung beider KI-Analysen, den Start in der zuletzt gewählten Ansicht und bei Bedarf den Diagnoseexport. Weitere Releases nur nach neuem Auftrag.
+
+---
+
 # ChessStudio 1.7.1 – zwei Analysebuttons und zuletzt gewählte Ansicht, geprüft (13. November 2026)
 
 **Status:** Releasekandidat **1.7.1** im [Entwurfs-PR #19](https://github.com/wibem1/AI-Chess-Studio/pull/19), Branch `fix/analysis-buttons-snapshot-20261113`. **Noch nicht gemergt und nicht veröffentlicht**; öffentlich bleibt 1.7.0. Keine weitere Freigabe zum Deployment erteilt.
