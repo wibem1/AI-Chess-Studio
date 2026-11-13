@@ -1,3 +1,17 @@
+# ChessStudio 1.7.2 – Stockfish-Repetition und deutsche Zugnummerierung korrigiert (13. November 2026)
+
+**Status:** Vorbereiteter Releasekandidat 1.7.2 in Branch `fix/repetition-aware-auto-stockfish-20261113`, noch nicht gemergt oder veröffentlicht. Öffentliche GitHub-Pages-Version bleibt 1.7.1. Keine Freigabe zum Deployment erteilt.
+
+**Reproduzierter Fehler:** Die Originalpartie `test/fixtures/lichess-1Vh80QL2.pgn` endet nach **137 Halbzügen / 69.Kh2**, das eine dritte Stellungswiederholung hervorruft (dieselbe Stellung zuvor nach 61.Kh2 und 65.Kh2). Bisher meldete die Engine „Stellung mit dieser Historie bereits beendet“ und die automatische Vollpartiebewertung blieb unvollständig. Der Scanner rekonstruiert nun den gesamten tatsächlichen Zugverlauf – auch wenn Scores zwischendurch bereits gespeichert sind – und erfasst die dreifache Wiederholung als Remis-/Anspruchswert 0. Die technische Gesamtprüfung verwendet dieselbe regelrichtige Wiederholungskontrolle. Keine bezahlte KI-Anfrage.
+
+**UI-Korrektur:** Oben keine rohen Halbbzug-/Knotenkennungen mehr, sondern Vollzugnummern wie **„nach 47… Sxg7“**, entsprechend der Stockfish-Partieanzeige. Navigation und sichtbar gespeicherte Hauptvarianten verwenden **deutsche Figurenabkürzungen K, D, T, L, S**, auch Bauernumwandlung `=D`; maschinenlesbares internationales SAN und FEN bleiben unverändert. Neue E2E-Prüfung mit Originalstellung vor 47…Nxg7 und gespeicherter 48. Kg3-Variante. KI-Ausgabeanweisungen verlangen deutsche Schreibweise nur für lesbaren Erklärungstext, nicht für strukturierte SAN-Zugfelder.
+
+**Verifiziert:** [GitHub Actions 43378645300](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43378645300), **SUCCESS, 292 Node-Tests und 52 Chromium-Browsertests**. Vollständiges 137-Halbzüge-Original-PGN lädt, rechnet vollständig durch, speichert `n137` mit 0 cp und stellt den Vollbericht nach Export/Import wieder her. Die Browseranzeige von Vollzugnummer und deutscher Notation wurde ebenfalls getestet. Diese Prüfung erfolgte vor dem Versionsbump; versionierter Kandidat wird separat erneut geprüft. Kein nativer Geräte- oder echter kostenpflichtiger Modelltest.
+
+**Nächster Schritt:** Kandidaten 1.7.2 im CI nochmals verifizieren, Entwurfs-PR erstellen und ausschließlich nach ausdrücklicher Freigabe veröffentlichen.
+
+---
+
 # ChessStudio 1.7.1 – veröffentlicht und GitHub Pages bestätigt (13. November 2026)
 
 **Nutzerauftrag „veröffentlichen“ abgeschlossen.** [PR #19](https://github.com/wibem1/AI-Chess-Studio/pull/19) in `work` gemergt (Merge-Commit `1be552a42fd741544301a9604de3cc81a92ec7d6`). [Release-Workflow 43373891513](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43373891513) **SUCCESS**; [GitHub-Pages-Deployment 43374195081](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43374195081) **SUCCESS**. Öffentliches `gh-pages/BUILD.json` bestätigt `version=1.7.1`, `sourceCommit=1be552a42fd741544301a9604de3cc81a92ec7d6`, `base=/AI-Chess-Studio/`. Live: https://wibem1.github.io/AI-Chess-Studio/ .
