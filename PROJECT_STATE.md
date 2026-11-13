@@ -1,3 +1,17 @@
+# Strategieorientierter KI-Partierückblick – Entwicklungsstand (14. November 2026)
+
+**Status:** Nur Entwicklungsbranch `feat/strategy-first-game-analysis-20261114`, keine Veröffentlichung, keine neue Versionsnummer. Codeänderungen auf GitHub gesichert, **noch keine Tests ausgeführt**, kein realer KI-Provider geprüft.
+
+**Ausgangspunkt:** Die Diagnose der veröffentlichten Version 1.7.2 zeigte eine KI-Partieanalyse, die Stockfish-Bewertungssprünge weitgehend nacherzählt. `src/full-game-analysis.ts` und `src/model-contract.ts` wiesen das Modell ausdrücklich an, mit den größten numerischen Bewertungsänderungen zu beginnen.
+
+**Implementiert (nicht getestet):** Analyseauftrag und KI-System-/Chatprompt verlangen nun zuerst einen eigenständigen strategischen Durchgang durch den tatsächlichen Partieverlauf (Pläne beider Seiten, gelungene Entscheidungen, Übergänge), danach einen kritischen Stockfish-Abgleich. Bewertungen bei geringer Suchtiefe werden als unvollkommene Indizien gekennzeichnet. Der strukturierte Rückblick kann statt vier bis zu sechs chronologische Lernmomente enthalten; das Review-Ausgabelimit ist auf 2.600 Tokens erhöht. Bestehende Regelprüfung von SAN-Alternativen bleibt erhalten. Neue Regressionstests für Strategie-Priorisierung und sechs Momente angelegt.
+
+**Grenze:** Dies ist noch keine physisch getrennte zweistufige KI-Anfrage, sondern eine veränderte Anleitung und Ausgabeobergrenze in einem Modellaufruf. Die Stockfish-Chronologie wird weiter als Kontext mitgesendet; ein tatsächlicher Qualitätsgewinn ist erst mit realem Modelltest belegbar. Bestehende knappe Stockfish-Prüfung (Tiefe 12 / 1 s) bleibt unverändert.
+
+**Nächster Schritt:** Node-Tests und Chromium-Tests ausführen, danach eine echte 59-Züge-Partie mit dem bisherigen Diagnosefall vergleichen und insbesondere sachliche Erklärungen zu 35…Tc8 und 50.Df3 kontrollieren. Keine Freigabe ohne Nutzerauftrag.
+
+---
+
 # Offline-Ausbau – Bestandsprüfung und nächster Schritt (13. November 2026)
 
 **Auftrag:** Eine gemeinsame, möglichst vollständig offline nutzbare Chess-Studio-Anwendung für Windows, macOS, Android und iPadOS; Online-KI bleibt optional. **Keine neue Version vergeben, nichts veröffentlicht.** Grundlage ist die bestätigte Webversion 1.7.2.
