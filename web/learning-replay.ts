@@ -1,4 +1,5 @@
 import {pathTo,type LearningGame} from '../src/game.js';
+import {germanMoveFromFen} from '../src/german-notation.js';
 import type {SessionData} from '../src/session.js';
 import {visibleReviewNodes,reviewLocked} from '../src/review.js';
 /** The actual game line stays separate from freely explored study branches. */
@@ -29,8 +30,7 @@ export function renderLearningReplay(data:SessionData,game:LearningGame,change:(
  for(const [i,node] of line.entries()){
   const button=document.createElement('button');button.type='button';button.className='secondary';
   const parent=node.parentId?data.nodes.find(n=>n.id===node.parentId):undefined;
-  const fields=parent?.fen.split(' '),number=fields?.[5]??'1',black=fields?.[1]==='b';
-  button.textContent=i===0?'Ausgangsstellung':`${number}${black?'…':'.'} ${node.san}`;
+  button.textContent=i===0?'Ausgangsstellung':germanMoveFromFen(parent!.fen,node.san!);
   button.setAttribute('aria-label',i===0?'Ausgangsstellung ansehen':`${button.textContent} ansehen`);button.setAttribute('aria-current',String(node.id===current.id));button.disabled=locked;
   button.onclick=()=>{game.analyse(node.id);change();};container.append(button);
  }
