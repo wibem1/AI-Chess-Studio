@@ -88,6 +88,7 @@ const coachBoard=new CoachBoard(()=>studio.session,()=>studio.session.snapshot()
  selected=null;render();
 });
 let directAnalysisHint:'explain'|undefined;
+let directAnalysisTopic:'review'|'chat'|undefined;
 let tacticalPending = false;
 let modelAvailable = false;
 let modelConfigured=false,modelSaved=false,modelBlocked='Kein KI-Zugang eingerichtet.';
@@ -534,13 +535,13 @@ $('clear-dialogue').addEventListener('click',async()=>{
 $('dialogue-form').addEventListener('submit', async event => {
   event.preventDefault(); if (pending || !modelAvailable) return;
   game.pause();
-  const question = text('question').value,hintOverride=directAnalysisHint;directAnalysisHint=undefined;
+  const question = text('question').value,hintOverride=directAnalysisHint,topicOverride=directAnalysisTopic;directAnalysisHint=undefined;directAnalysisTopic=undefined;
   const session = studio.session,chatRevision=session.dialogueRevision();
   chatStopped=false;pending = true;lastAiStage='request_started';lastAiError='';updateMode();
   message('dialogue-feedback', 'Modellanfrage läuft … Stellungswechsel ist weiterhin möglich.');
   try {
     activeAdapter=new ServerModelAdapter(platformFetch,()=>generalAiInstructions,enrichWithStockfish);let toolStarted=false;
-    const result = await studio.ask(question, activeAdapter!,'chat',hintOverride,async(call,node)=>{if(!toolStarted){pendingCoachAnchor={session,node};toolStarted=true;}message('dialogue-feedback',call.function.name==='play_engine'?'Spielengine antwortet …':call.function.name==='show_line'?'Variante wird vorgeführt …':'Brettdarstellung wird aufgebaut …');if(call.function.name==='show_line'||call.function.name==='play_engine')illustration=undefined;
+    const result = await studio.ask(question, activeAdapter!,topicOverride??'chat',hintOverride,async(call,node)=>{if(!toolStarted){pendingCoachAnchor={session,node};toolStarted=true;}message('dialogue-feedback',call.function.name==='play_engine'?'Spielengine antwortet …':call.function.name==='show_line'?'Variante wird vorgeführt …':'Brettdarstellung wird aufgebaut …');if(call.function.name==='show_line'||call.function.name==='play_engine')illustration=undefined;
       const result=await coachBoard.execute(call,node);boardActions.push({at:new Date().toISOString(),call,result});if(boardActions.length>20)boardActions.shift();if(!chatStopped)message('dialogue-feedback','Brettergebnis liegt vor; die Lernengine erläutert es …');return result;});
     lastAskFailed=false;lastAiError='';lastAiStage=result==='stored'?'answer_saved':'answer_discarded';
     message('dialogue-feedback', result === 'stored' ? 'Modellantwort an der angefragten Stellung gespeichert.' : chatStopped?'Angehalten. Gezeigte Züge bleiben als Lernvariante erhalten.':'Veraltete Antwort nach Sitzungs- oder Chatwechsel verworfen.');
@@ -800,7 +801,7 @@ function beginAnalysis(wholeGame:boolean){
  text('question').value=wholeGame
   ?'Analysiere die gesamte gespielte Partie anhand der gespeicherten Stockfish-Bewertungen. Priorisiere die wichtigsten Wendepunkte und Fehler mit Zugnummer, Bewertungsverlust und konkreter Ursache. Erkläre auch gelungene Pläne und welche Erkenntnisse ich daraus ziehen kann. Führe die Schlüsselstellungen auf, damit ich sie anspringen kann.'
   :'Analysiere die aktuell angezeigte Stellung anhand der gespeicherten Stockfish-Bewertung: Wer steht besser und warum? Welche konkreten Gefahren, Kandidatenzüge, Pläne und Gegenpläne sind wichtig? Priorisiere deine wichtigste Empfehlung und erkläre ihre Grenzen.';
- directAnalysisHint='explain';
+ directAnalysisHint='explain';directAnalysisTopic=wholeGame?'review':'chat';
  render();
  $<HTMLFormElement>('dialogue-form').requestSubmit();
 }
