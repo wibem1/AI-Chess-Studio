@@ -35,7 +35,7 @@ test('server transport requires a retrospective and reserves its larger output w
  const req={nodeId:'n4',fen:board.fen(),question:'Partie besprechen',legalMoves:[],context:[],topic:'review',hintMode:'explain',history};
  let calls=0;
  const base=await new SimulationAdapter().respond({nodeId:'n0',fen:history.rootFen,question:'',legalMoves:[]}) as Record<string,unknown>;
- const service=new ModelService({enabled:true,apiKey:'fixture-only-secret',model:'fixture'},(async(_url,init)=>{calls++;assert.equal(JSON.parse(String(init!.body)).max_completion_tokens,1800);return new Response(JSON.stringify({choices:[{finish_reason:'stop',message:{content:JSON.stringify(calls===1?{...base,gameReview:review}:base)}}],usage:{prompt_tokens:10,completion_tokens:20}}));}) as typeof fetch);
+ const service=new ModelService({enabled:true,apiKey:'fixture-only-secret',model:'fixture'},(async(_url,init)=>{calls++;assert.equal(JSON.parse(String(init!.body)).max_completion_tokens,2600);return new Response(JSON.stringify({choices:[{finish_reason:'stop',message:{content:JSON.stringify(calls===1?{...base,gameReview:review}:base)}}],usage:{prompt_tokens:10,completion_tokens:20}}));}) as typeof fetch);
  await assert.rejects(service.reply({...req,history:undefined}));assert.equal(calls,0);
  await service.reply(req);await assert.rejects(service.reply(req));assert.equal(calls,2);
 });
