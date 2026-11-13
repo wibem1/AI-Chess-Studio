@@ -74,13 +74,18 @@ export class AutomaticStockfish {
   if(path.length<2||path.length>301)return;
   const failed=this.failures.get(session)??new Set<string>();
   this.failures.set(session,failed);
+  // FEN alone cannot detect threefold repetition: replay the actual mainline
+  // to preserve repetition counts, while still storing one score per node.
+  const historyBoard=new Chess(path[0]!.fen);
   for(const [index,node] of path.entries()){
    if(this.suspended||this.current()!==session)return;
    if(!priority&&this.engineBusy()){this.sync();return;}
    if(session.snapshot().positionScores?.[node.id]?.fen===node.fen)continue;
    if(failed.has(node.id))return;
    try{
-    const position=new Chess(node.fen),terminal=gameResultCp(position);
+    if(index>0)historyBoard.move(node.san!);
+    if(historyBoard.fen()!==node.fen)throw new Error('Partiegeschichte stimmt nicht mit der gespeicherten Stellung überein.');
+    const terminal=gameResultCp(historyBoard);
     let cp:number,depth:number,line:string[]|undefined;
     if(terminal!==null){cp=terminal;depth=0;}
     else{
