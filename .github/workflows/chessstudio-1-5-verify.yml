@@ -14,6 +14,7 @@ on:
       - feat/stockfish-whole-game-analysis-20261112
       - fix/stockfish-game-context-and-review-send-20261112
       - feat/automatic-stockfish-evaluations-20261112
+      - fix/analysis-buttons-snapshot-20261113
       - fix/stockfish-silent-navigation-20261111
     paths:
       - .github/workflows/chessstudio-1-5-verify.yml

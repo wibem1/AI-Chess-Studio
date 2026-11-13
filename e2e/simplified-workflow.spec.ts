@@ -28,3 +28,23 @@ test('clean learning UI keeps essential play, chat and branch choices without le
  await expect(page.locator('#position-status')).toContainText('n7');
  await expect(page.locator('#game-file')).toHaveCount(1);
 });
+
+test('remembers last view on a fresh PWA launch, but explicit deep links take precedence',async({page})=>{
+ await page.goto('/?platform=web');await expect(page.locator('#workspace')).not.toHaveAttribute('inert','');
+ await expect(page.getByRole('tab',{name:'Spielmodus',exact:true})).toHaveAttribute('aria-selected','true');
+ await page.getByRole('tab',{name:'Lernmodus',exact:true}).click();
+ await expect(page.locator('#workspace')).toHaveAttribute('data-active-view','learn');
+ // Installed PWAs commonly restart without the hash fragment.
+ await page.goto('/?platform=web');
+ await expect(page.locator('#workspace')).not.toHaveAttribute('inert','');
+ await expect(page.locator('#workspace')).toHaveAttribute('data-active-view','learn');
+ await expect(page.getByRole('tab',{name:'Lernmodus',exact:true})).toHaveAttribute('aria-selected','true');
+ // Explicit URLs remain navigable and become the new remembered preference.
+ await page.goto('/?platform=web#partie');
+ await expect(page.locator('#workspace')).toHaveAttribute('data-active-view','play');
+ await page.goto('/?platform=web');
+ await expect(page.locator('#workspace')).toHaveAttribute('data-active-view','play');
+ await page.getByRole('tab',{name:'Lernmodus',exact:true}).click();
+ await page.reload();
+ await expect(page.locator('#workspace')).toHaveAttribute('data-active-view','learn');
+});

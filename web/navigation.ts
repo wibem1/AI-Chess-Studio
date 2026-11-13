@@ -1,13 +1,22 @@
 export type View = 'play' | 'learn' | 'variants' | 'settings';
 const hashes:Record<View,string>={play:'partie',learn:'lernen',variants:'varianten',settings:'einstellungen'};
+const SAVED_VIEW_KEY='chessstudio-last-view';
+function storedView():View{
+ try{const saved=localStorage.getItem(SAVED_VIEW_KEY);return saved==='learn'||saved==='settings'||saved==='play'?saved:'play';}
+ catch{return 'play';}
+}
+function rememberView(view:View):void{
+ try{localStorage.setItem(SAVED_VIEW_KEY,view);}catch{/* Private browsing or storage restrictions must not block navigation. */}
+}
 /** One board, two modes. Variants are a disclosure within learning. */
 export function installNavigation(cancelGesture:()=>void,change:(view:View)=>void=()=>{}){
  const tabs=[...document.querySelectorAll<HTMLButtonElement>('[role=tab][data-view]')],workspace=document.getElementById('workspace')!;
- const fromHash=():View=>(Object.entries(hashes).find(([,hash])=>location.hash==='#'+hash)?.[0] as View)??'play';
+ const explicitHash=():View|undefined=>Object.entries(hashes).find(([,hash])=>location.hash==='#'+hash)?.[0] as View|undefined;
+ const fromHash=():View=>explicitHash()??storedView();
  let current:View=fromHash();
  const select=(requested:View,focus=false,writeHistory=true,notify=true)=>{
   const view=requested==='variants'?'learn':requested;cancelGesture();
-  const previous=current;current=view;
+  const previous=current;current=view;rememberView(view);
   for(const tab of tabs){const active=tab.dataset.view===view;tab.setAttribute('aria-selected',String(active));tab.tabIndex=active?0:-1;if(active&&focus)tab.focus({preventScroll:true});}
   for(const name of ['play','learn','settings'])document.getElementById('panel-'+name)!.hidden=name!==view;
   document.getElementById('board-area')!.hidden=view==='settings';workspace.dataset.activeView=view;
@@ -24,5 +33,7 @@ export function installNavigation(cancelGesture:()=>void,change:(view:View)=>voi
 
  window.addEventListener('popstate',()=>select(fromHash(),false,false));
  window.addEventListener('hashchange',()=>select(fromHash(),false,false));
+ // When launched without a hash, restore the last view even for installed PWAs.
+ // Explicit deep links, e.g. #partie, still take precedence and update the preference.
  select(current,false,false,false);return {select};
 }
