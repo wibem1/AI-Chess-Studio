@@ -45,8 +45,9 @@ test('KI context contains every move evaluation, with the largest swing explicit
  assert.match(summary,/Wichtigste Fehler nach Bewertungsverlust: 2\.g4: grober Fehler/);
  assert.match(summary,/Vollständiger chronologischer Verlauf aller 4 Halbzüge/);
  for(const move of ['1.f3','1…e5','2.g4','2…Qh4#'])assert.ok(summary.includes(move),move);
- assert.match(summary,/ANALYSEAUFTRAG – STRATEGIE ZUERST/);
- assert.match(summary,/Nutze ERST DANACH die obige Stockfish-Reihe/);
+ assert.ok(summary.startsWith('ANALYSEAUFTRAG – STRATEGIE ZUERST'));
+ assert.ok(summary.indexOf('NACHGEORDNETE KONTROLLDATEN')>summary.indexOf('ANALYSEAUFTRAG – STRATEGIE ZUERST'));
+ assert.match(summary,/Nutze ERST DANACH die nachgeordneten Stockfish-Kontrolldaten/);
 });
 
 test('complete AI context is split within provider limits without dropping scored moves',()=>{
