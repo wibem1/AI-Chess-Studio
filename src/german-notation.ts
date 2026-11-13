@@ -1,3 +1,4 @@
+import {Chess} from 'chess.js';
 /** Presentation-only German algebraic notation.
  * Internal SAN, PGN, FEN, chess.js input and model contracts remain standard SAN.
  */
@@ -27,4 +28,13 @@ export function germanMoveFromFen(parentFen:string,san:string):string{
 }
 export function germanPositionFromFen(parentFen:string|undefined,san:string|null):string{
  return parentFen&&san?`nach ${germanMoveFromFen(parentFen,san)}`:'Ausgangsstellung';
+}
+
+export function germanVariation(startFen:string,moves:readonly string[]):string{
+ const board=new Chess(startFen),parts:string[]=[];
+ for(const san of moves){
+  parts.push(germanMoveFromFen(board.fen(),san));
+  board.move(san);
+ }
+ return parts.join(' · ');
 }
