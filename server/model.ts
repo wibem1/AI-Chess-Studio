@@ -84,7 +84,7 @@ export class ModelService {
    * The draft is deliberately not saved as an answer; phase two must verify it.
    * Both phases have separate cost reservations and diagnostic traces.
    */
-  private async qualitativeGamePass(request:DialogueRequest,signal?:AbortSignal):Promise<string>{
+  private async qualitativeGamePass(request:DialogueRequest,signal?:AbortSignal):Promise<{draft:string;costUsd:number|null}>{
     if(!request.history||request.history.truncated)throw new ApiError(400,'Vollständige Partie für die strategische Voranalyse erforderlich.');
     const payload={question:request.question,history:request.history,human:request.gameHistory?.human??null};
     const body=JSON.stringify({
@@ -114,10 +114,12 @@ export class ModelService {
       this.costs.settle(reservation,envelope.usage);
       if(envelope.choices?.[0]?.finish_reason==='length')throw new CoachFailure('output_limit');
       if(envelope.choices?.[0]?.finish_reason!=='stop')throw new Error('Incomplete strategic draft');
-      const draft=decodeModelContent(envelope.choices[0].message.content,false);
+      const decoded=decodeModelContent(envelope.choices[0].message.content,false) as {message?:unknown};
+      const draft=decoded.message;
       if(typeof draft!=='string'||draft.trim().length<50||draft.length>6500)throw new Error('Ungültige strategische Voranalyse');
       trace.finish('accepted');
-      return draft.trim();
+      const cost=envelope?.usage?.cost;
+      return {draft:draft.trim(),costUsd:typeof cost==='number'&&Number.isFinite(cost)&&cost>=0?cost:null};
     }catch(error){
       const failure=error instanceof CoachFailure?error.code:code;
       trace.finish('failed',failure,status);
@@ -130,9 +132,9 @@ export class ModelService {
     if (this.busy) throw new ApiError(429, 'Eine Modellanfrage läuft bereits.');
     const retrospective=request.topic==='review'&&(request.hintMode??'explain')==='explain';
     // Deliberately exclude context/engine data from phase one. A partial draft is never saved.
-    const qualitativeDraft=retrospective?await this.qualitativeGamePass(request,signal):undefined;
+    const qualitativePass=retrospective?await this.qualitativeGamePass(request,signal):undefined;
     const {generalInstructions:_,turns=[],toolExchanges,...currentRequest}=request;
-    const finalRequest=qualitativeDraft?{...currentRequest,qualitativeDraft,analysisPhases:'Stufe 1 (nur Züge) ist eine ungeprüfte Hypothese. Stufe 2: Vergleiche mit Stockfish, korrigiere Irrtümer anhand konkreter historischer Stellungen und stelle nur das überprüfbare Ergebnis dar. Keine Zahlenliste.'}:currentRequest;
+    const finalRequest=qualitativePass?{...currentRequest,qualitativeDraft:qualitativePass.draft,analysisPhases:'Stufe 1 (nur Züge) ist eine ungeprüfte Hypothese. Stufe 2: Vergleiche mit Stockfish, korrigiere Irrtümer anhand konkreter historischer Stellungen und stelle nur das überprüfbare Ergebnis dar. Keine Zahlenliste.'}:currentRequest;
     const instructionsPrompt=promptWithUserInstructions(request.topic==='chat'?FREE_CHAT_PROMPT:SYSTEM_PROMPT,request.generalInstructions);
   const outputTokens=retrospective?2600:request.topic==='chat'?1800:800;
     const body=JSON.stringify({model:this.config.model,...generationOptions(this.config,outputTokens),...providerToolFields(this.config,request),...(request.topic==='chat'?{}:{response_format:{type:'json_object'}}),
@@ -161,7 +163,13 @@ export class ModelService {
       if(request.topic && !reply.message?.trim())throw new Error('Missing dialogue');
       if(request.hintMode==='question' && (!reply.openQuestions.length || reply.candidates.length))throw new Error('Unwanted solution');
       failureCode='review_format';if(retrospective)reply.gameReview=validateGameReview(reply.gameReview,request.history,true);
-      trace.finish('accepted');return taggedReply(reply,this.config,envelope,trace.id);
+      trace.finish('accepted');
+      const tagged=taggedReply(reply,this.config,envelope,trace.id);
+      if(qualitativePass&&tagged.provenance){
+        const current=tagged.provenance.costUsd;
+        tagged.provenance={...tagged.provenance,costUsd:current!==null&&qualitativePass.costUsd!==null?current+qualitativePass.costUsd:null,calls:2};
+      }
+      return tagged;
     } catch(error) { const code=error instanceof CoachFailure?error.code:failureCode;trace.finish('failed',code,httpStatus,error instanceof ReviewValidationError?error.message:undefined);throw new ApiError(502,(error instanceof ReviewValidationError?error.message:COACH_ERRORS[code])+' Keine neue Antwort gespeichert.',code); }
     finally { this.busy = false; }
   }
