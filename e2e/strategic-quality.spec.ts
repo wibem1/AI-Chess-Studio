@@ -20,7 +20,7 @@ test('manual strategic-quality comparison loads original game, validates grades 
  await expect(page.locator('#strategic-quality-question')).toContainText('menschlich-strategischer Sicht');
  await page.locator('#strategic-quality-prepare').click();
  await expect(page.locator('#question')).toHaveValue('Erkläre mir die Stellung aus menschlich-strategischer Sicht. Was sind die wichtigsten Pläne beider Seiten, warum, und welche konkreten Gegenmaßnahmen sind denkbar?');
- await expect(page.locator('#position-status')).toContainText('n10');
+ await expect(page.locator('#position-status')).toHaveAttribute('data-node-id','n10');
  expect(modelRequests).toBe(0);
  await page.locator('#open-settings').click();
  if(await page.locator('#settings-diagnosis').getAttribute('open')===null)await page.locator('#settings-diagnosis > summary').click();

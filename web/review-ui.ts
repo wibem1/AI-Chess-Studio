@@ -1,4 +1,5 @@
 import {Session,type SessionData} from '../src/session.js';
+import {germanSan} from '../src/german-notation.js';
 import {parsePgn,reviewDecisions,reviewLocked,reviewSummary,REVIEW_QUESTIONS,type ParsedGame,type ReviewQuestion,type PlayerColor} from '../src/review.js';
 
 export function installReviewUI(current:()=>Session,replace:(next:Session)=>void,render:()=>void) {
@@ -86,7 +87,7 @@ export function installReviewUI(current:()=>Session,replace:(next:Session)=>void
    for(const q of REVIEW_QUESTIONS)if(answers[q.key]){const p=document.createElement('p');p.textContent=`${q.text} – Deine Angabe: ${answers[q.key]}`;$('review-answers').append(p);}
    const revealed=!r.guiding||r.revealed.includes(r.decision);
    $('review-played').hidden=!revealed;
-   $('review-played').textContent=revealed?`Damals gespielt: ${ply.number}${r.human==='b'?'...':'.'} ${ply.san}. Das ist der historische Zug, keine Bewertung.`:'';
+   $('review-played').textContent=revealed?`Damals gespielt: ${ply.number}${r.human==='b'?'…':'.'} ${germanSan(ply.san)}. Das ist der historische Zug, keine Bewertung.`:'';
    $('review-concealed').hidden=revealed;
    $<HTMLButtonElement>('review-reveal').disabled=revealed;
    $('review-comment-output').textContent=revealed?ply.comment:'';

@@ -102,11 +102,11 @@ test('playing moves automatically stores evaluations even with Stockfish display
  await expect(page.locator('#stockfish-assist-enabled')).not.toBeChecked();
  await page.locator('#board [data-square=e2]').click();
  await page.locator('#board [data-square=e4]').click();
- await expect(page.locator('#position-status')).toContainText('n1');
+ await expect(page.locator('#position-status')).toHaveAttribute('data-node-id','n1');
  await expect.poll(async()=>(await savedReport(page)).positions,{timeout:45000}).toBe(2);
  await page.locator('#board [data-square=e7]').click();
  await page.locator('#board [data-square=e5]').click();
- await expect(page.locator('#position-status')).toContainText('n2');
+ await expect(page.locator('#position-status')).toHaveAttribute('data-node-id','n2');
  await expect.poll(async()=>(await savedReport(page)).count,{timeout:45000}).toBe(2);
  await expect(page.locator('#stockfish-assist-enabled')).not.toBeChecked();
  await page.locator('#stockfish-assist-enabled').check();

@@ -1,5 +1,14 @@
 # Änderungen
 
+## 1.7.2 – automatische Remiserkennung und deutsche Zugnotation (Releasekandidat, 13. November 2026)
+
+- Die automatische Stockfish-Bewertung berücksichtigt die vollständige Zuggeschichte inklusive dreifacher Stellungswiederholung; die dritte Wiederholung wird mit ihrem Remisanspruch als 0,00 gespeichert, statt als „Partie bereits beendet“ die gesamte Prüfung abzubrechen. Auch der manuelle Gesamtprüfungskern wurde korrigiert.
+- Der Partieverlauf wird selbst für bereits bewertete Positionen vollständig rekonstruiert. Damit laufen Bewertung, Export/Import und späteres Fortsetzen ohne falsche historische FEN-Prüfung weiter.
+- Die gesamte Original-Lichess-Partie mit 137 Halbzügen bis 69.Kh2 wurde mit gespeicherten Positionen und wieder einlesbarem vollständigem Prüfbericht getestet.
+- Stellungsanzeige und Stockfish-Hauptvarianten nutzen die gleichen Vollzugnummern (z. B. „nach 47… Sxg7“ und „48. Kg3“). Sichtbare Züge verwenden deutsche Figurenabkürzungen K, D, T, L, S; die standardisierte SAN-Eingabe und das PGN bleiben unverändert. Die KI wird angehalten, in erklärenden Texten deutsche Zugnotation und in maschinenlesbaren Feldern internationales SAN zu verwenden.
+- [Nicht veröffentlichender GitHub-Check 43378645300](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43378645300): **292/292 Node-Tests, 52/52 Chromium-Browsertests erfolgreich**, einschließlich vollständiger 137-Halbzüge-Partie und der echten Browseranzeige nach 47…Sxg7. Bei der deutschen KI-Notation noch keine bezahlte reale Providerabnahme; Veröffentlichung erst nach Freigabe.
+
+
 ## 1.7.1 – Zwei direkte Analyseaktionen und zuletzt gewählte Ansicht (Releasekandidat, 13. November 2026)
 
 - Lernmodus: Statt der missverständlichen Schaltfläche „Schlüsselstellungen“ stehen „Analyse des Spiels“ und „Analyse der Stellung“ nebeneinander. Beide starten unmittelbar eine neue KI-Anfrage, sofern ein Zugang eingerichtet ist; die erste fordert einen vollständigen priorisierten Partierückblick mit zwei bis vier angesprungenen Schlüsselstellen an, die zweite analysiert die aktuell angezeigte FEN. Die bisherigen Schaltflächen zum Navigieren zu Schlüsselstellen bleiben erhalten.

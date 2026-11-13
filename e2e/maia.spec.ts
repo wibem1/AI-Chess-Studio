@@ -6,12 +6,12 @@ test('real Maia WASM plays both colors, preserves learning branches and can undo
  await page.goto('/?platform=web');await expect(page.locator('#workspace')).not.toHaveAttribute('inert','');
  expect(modelLoads).toBe(0);await page.locator('#game-opponent').selectOption('maia');await expect(page.locator('#playing-title')).toContainText('Maia');
  await page.locator('#game-color').selectOption('b');await page.locator('#game-level').selectOption('3');await page.locator('#open-game-setup').click();
- await expect(page.locator('#game-feedback')).toContainText('Maia hat gezogen',{timeout:30000});await expect(page.locator('#position-status')).toContainText('n1 · Schwarz');
+ await expect(page.locator('#game-feedback')).toContainText('Maia hat gezogen',{timeout:30000});await expect(page.locator('#position-status')).toHaveAttribute('data-node-id','n1');
  await expect(page.locator('#game-status')).toContainText('Maia-Profil 1500');
  await page.getByRole('tab',{name:'Lernmodus',exact:true}).click();await page.locator('#board [data-square=e7]').click();await page.locator('#board [data-square=e5]').click();
- await page.getByRole('tab',{name:'Spielmodus',exact:true}).click();await expect(page.locator('#position-status')).toContainText('n1 · Schwarz');
+ await page.getByRole('tab',{name:'Spielmodus',exact:true}).click();await expect(page.locator('#position-status')).toHaveAttribute('data-node-id','n1');
  await page.locator('#game-color').selectOption('w');await page.locator('#open-game-setup').click();await page.locator('#board [data-square=e2]').click();await page.locator('#board [data-square=e4]').click();
- await expect(page.locator('#game-feedback')).toContainText('Maia hat gezogen',{timeout:30000});await page.locator('#game-undo').click();await expect(page.locator('#position-status')).toContainText('n0 · Weiß');
+ await expect(page.locator('#game-feedback')).toContainText('Maia hat gezogen',{timeout:30000});await page.locator('#game-undo').click();await expect(page.locator('#position-status')).toHaveAttribute('data-node-id','n0');
  expect(errors).toEqual([]);
 });
 
@@ -19,8 +19,8 @@ test('pausing a Maia model download cancels the old turn and explicit resume cre
  let release!:()=>void,started!:()=>void,count=0;const waiting=new Promise<void>(r=>started=r),gate=new Promise<void>(r=>release=r);
  await page.route('**/maia2-blitz.fp16.onnx',async route=>{if(++count===1){started();await gate;}try{await route.continue();}catch{}});
  await page.goto('/?platform=web');await expect(page.locator('#workspace')).not.toHaveAttribute('inert','');await page.locator('#game-opponent').selectOption('maia');await page.locator('#game-color').selectOption('b');await page.locator('#open-game-setup').click();await waiting;
- await page.getByRole('tab',{name:'Lernmodus',exact:true}).click();await expect(page.locator('#position-status')).toContainText('n0 · Weiß');release();
- await page.getByRole('tab',{name:'Spielmodus',exact:true}).click();await expect(page.locator('#game-feedback')).toContainText('Maia hat gezogen',{timeout:30000});await expect(page.locator('#position-status')).toContainText('n1 · Schwarz');expect(count).toBeGreaterThanOrEqual(2);
+ await page.getByRole('tab',{name:'Lernmodus',exact:true}).click();await expect(page.locator('#position-status')).toHaveAttribute('data-node-id','n0');release();
+ await page.getByRole('tab',{name:'Spielmodus',exact:true}).click();await expect(page.locator('#game-feedback')).toContainText('Maia hat gezogen',{timeout:30000});await expect(page.locator('#position-status')).toHaveAttribute('data-node-id','n1');expect(count).toBeGreaterThanOrEqual(2);
 });
 
 test('real Maia also plays from phone and tablet touch layouts without a backend or provider',async({browser})=>{
@@ -43,7 +43,7 @@ test('diagnostic download contains the real Maia move even without an AI provide
  await page.locator('#game-level').selectOption('3');
  await page.locator('#open-game-setup').click();
  await expect(page.locator('#game-feedback')).toContainText('Maia hat gezogen',{timeout:30000});
- await expect(page.locator('#position-status')).toContainText('n1 · Schwarz');
+ await expect(page.locator('#position-status')).toHaveAttribute('data-node-id','n1');
  await page.locator('#open-settings').click();
  await page.locator('#settings-diagnosis > summary').click();
  if(await page.locator('#ai-diagnosis').getAttribute('open')===null)await page.locator('#ai-diagnosis > summary').click();
@@ -116,15 +116,15 @@ test('a second Maia game starts after reviewing the first without inheriting pau
  await expect(page.locator('#game-feedback')).toContainText('Maia hat gezogen',{timeout:45000});
  await page.getByRole('tab',{name:'Lernmodus',exact:true}).click();
  await page.locator('#learn-first').click();
- await expect(page.locator('#position-status')).toContainText('n0');
+ await expect(page.locator('#position-status')).toHaveAttribute('data-node-id','n0');
  await page.getByRole('tab',{name:'Spielmodus',exact:true}).click();
  await page.locator('#open-game-setup').click();
  await expect(page.locator('#game-feedback')).toContainText('Neue Partie gestartet');
- await expect(page.locator('#position-status')).toContainText('n0');
+ await expect(page.locator('#position-status')).toHaveAttribute('data-node-id','n0');
  await page.locator('#board [data-square=d2]').click();
  await page.locator('#board [data-square=d4]').click();
  await expect(page.locator('#game-feedback')).toContainText('Maia hat gezogen',{timeout:45000});
  await expect(page.locator('#game-status')).not.toContainText('Analysemodus');
- await expect(page.locator('#position-status')).toContainText('n2');
+ await expect(page.locator('#position-status')).toHaveAttribute('data-node-id','n2');
  expect(errors).toEqual([]);
 });

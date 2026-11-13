@@ -1,6 +1,7 @@
 import {installBoardToolbar} from './board-toolbar.js';
 import {attachAnswerResize} from './answer-resize.js';
 import {installKeyMoments} from './key-moments.js';
+import {germanSan,germanMoveFromFen,germanPositionFromFen,germanVariation} from '../src/german-notation.js';
 import {reviewAnchors} from '../src/game-review.js';
 import {playablePosition} from '../src/position-transfer.js';
 import {validModel} from '../src/model-provider.js';
@@ -189,15 +190,16 @@ function render() {
   if(live){
     const opponent=live.opponent==='maia'?'Maia-2':'Stockfish';
     const end=studio.session.status(live.cursor);
-    message('game-status',`Du spielst ${live.human==='w'?'Weiß':'Schwarz'} · ${live.opponent==='maia'?`Maia-Profil ${MAIA_PROFILES[live.level-1]}`:`Level ${live.level}`} · ${live.engine==='browser'?'Browser-Engine':'Desktop-Engine'} · ${end.checkmate?'Partie beendet: Schachmatt':end.draw?'Partie beendet: Remis':live.paused?'Analysemodus · Partie pausiert':enginePending?`${opponent} denkt …`:'Partie läuft'} · Partiestellung ${live.cursor}`);
+    message('game-status',`Du spielst ${live.human==='w'?'Weiß':'Schwarz'} · ${live.opponent==='maia'?`Maia-Profil ${MAIA_PROFILES[live.level-1]}`:`Level ${live.level}`} · ${live.engine==='browser'?'Browser-Engine':'Desktop-Engine'} · ${end.checkmate?'Partie beendet: Schachmatt':end.draw?'Partie beendet: Remis':live.paused?'Analysemodus · Partie pausiert':enginePending?`${opponent} denkt …`:'Partie läuft'} · Partiestellung ${(()=>{const node=data.nodes.find(n=>n.id===live.cursor)!;return germanPositionFromFen(node.parentId?data.nodes.find(n=>n.id===node.parentId)?.fen:undefined,node.san);})()}`);
   }else message('game-status',data.review?'Importierte menschliche Partie. Kein Enginegegner gestartet.':'Noch keine Enginepartie gestartet. Das Brett kann frei untersucht werden.');
   $<HTMLButtonElement>('game-pause').disabled=!live || live.paused;
   $<HTMLSelectElement>('engine-location').disabled=enginePending;$<HTMLSelectElement>('game-opponent').disabled=enginePending;
   if(data.game?.engine)$<HTMLSelectElement>('engine-location').value=data.game.engine;
   $<HTMLButtonElement>('game-resume').disabled=!live;
-  message('game-line',live ? pathTo(data,live.cursor).filter(n=>n.san).map(n=>n.san).join(' · ') || 'Die Anfangsstellung ist bereit.' : data.review?'Importierte Originalpartie · geführter Rückblick im Tab Lernen.':'Deine Partie beginnt hier.');
+  message('game-line',live ? pathTo(data,live.cursor).filter(n=>n.san).map(n=>germanMoveFromFen(data.nodes.find(p=>p.id===n.parentId)!.fen,n.san!)).join(' · ') || 'Die Anfangsstellung ist bereit.' : data.review?'Importierte Originalpartie · geführter Rückblick im Tab Lernen.':'Deine Partie beginnt hier.');
   const mainIds=new Set(live?pathTo(data,live.cursor).slice(pathTo(data,live.cursor).findIndex(n=>n.id===live.start)).map(n=>n.id):[]);
-  message('position-status', `${current.id} · ${chess.turn() === 'w' ? 'Weiß' : 'Schwarz'} am Zug${status.checkmate ? ' · Schachmatt' : status.draw ? ' · Remis' : status.check ? ' · Schach' : ''}`);
+  $('position-status').dataset.nodeId=current.id; // machine-readable identity, not shown as a confusing move number
+  message('position-status', `${germanPositionFromFen(current.parentId?data.nodes.find(n=>n.id===current.parentId)?.fen:undefined,current.san)} · ${chess.turn() === 'w' ? 'Weiß' : 'Schwarz'} am Zug${status.checkmate ? ' · Schachmatt' : status.draw ? ' · Remis' : status.check ? ' · Schach' : ''}`);
   const pieces: Record<string, string> = { wk:'♔',wq:'♕',wr:'♖',wb:'♗',wn:'♘',wp:'♙',bk:'♚',bq:'♛',br:'♜',bb:'♝',bn:'♞',bp:'♟' };
   const names: Record<string, string> = { k:'König',q:'Dame',r:'Turm',b:'Läufer',n:'Springer',p:'Bauer' };
   const targets = learning && selected && !illustration?.diagram.fen && !status.gameOver ? chess.moves({ square: selected, verbose: true }).map(m => m.to) : [];
@@ -257,7 +259,7 @@ function render() {
   const branchList=document.createElement('div');branchList.className='variant-choices';variants.append(branchList);
   if(choices.length>1)for(const node of choices){
     const path=pathTo(data,node.id),label=data.labels?.[node.id];
-    const name=label||`${node.san??'Stellung'} · ${path.length-1} Halbzüge`;
+    const name=label||`${germanPositionFromFen(node.parentId?data.nodes.find(n=>n.id===node.parentId)?.fen:undefined,node.san)} · ${path.length-1} Halbzüge`;
     const button=document.createElement('button');button.type='button';button.className='secondary';
     button.textContent=`${name}${mainIds.has(node.id)?' · Hauptpartie':' · Variante'}`;
     button.setAttribute('aria-current',String(node.id===current.id));
@@ -288,8 +290,8 @@ function render() {
       if(answer?.startsWith('Modellnachweis (App): ')){const split=body.textContent!.indexOf('\n\n');if(split>=0){const receipt=document.createElement('small');receipt.textContent=body.textContent!.slice(0,split);body.textContent=body.textContent!.slice(split+2);entry.append(receipt);}}
       entry.append(meta,body);
       if(kind==='dialogue'&&a.source==='model'&&!locked)for(const san of a.suggestions??[]){
-        const show=document.createElement('button');show.type='button';show.textContent=`Zug zeigen: ${san}`;
-        show.addEventListener('click',()=>attempt(()=>{game.analyse(a.nodeId);const board=new Chess(data.nodes.find(n=>n.id===a.nodeId)!.fen),shown=board.move(san);const node=game.play(san);shownMove={node,from:shown.from,to:shown.to};},'move-feedback',`${san} im Lernzweig gezeigt. Die Partie bleibt unverändert.`));entry.append(show);
+        const show=document.createElement('button');show.type='button';show.textContent=`Zug zeigen: ${germanSan(san)}`;
+        show.addEventListener('click',()=>attempt(()=>{game.analyse(a.nodeId);const board=new Chess(data.nodes.find(n=>n.id===a.nodeId)!.fen),shown=board.move(san);const node=game.play(san);shownMove={node,from:shown.from,to:shown.to};},'move-feedback',`${germanSan(san)} im Lernzweig gezeigt. Die Partie bleibt unverändert.`));entry.append(show);
       }
       if(kind==='dialogue'&&a.source==='model'&&!locked){
         const anchors=reviewAnchors(data,a),analysis=data.annotations.indexOf(a);
@@ -372,7 +374,7 @@ function showStockfishReport(report:TacticalReport){
   ?(report.score.value>=0?'+':'')+(report.score.value/100).toFixed(2)
   :report.score.value===0?'Mattbewertung 0':(report.score.value>0?'Matt für Weiß in ':'Matt für Schwarz in ')+Math.abs(report.score.value);
  stockfishResult.textContent='Stockfish: '+score+(report.score.unit==='cp'?' (Weiß)':'')+' · T'+report.depth;
- stockfishLine.textContent='Hauptvariante: '+report.line.slice(0,8).join(' ')+' · '+report.nodes+' Knoten';
+ stockfishLine.textContent='Hauptvariante: '+germanVariation(report.fen,report.line.slice(0,8))+' · '+report.nodes+' Knoten';
  stockfishDetails.removeAttribute('aria-busy');
  stockfishDetails.hidden=false;
  stockfishDetails.style.visibility='visible';
@@ -413,7 +415,7 @@ function syncStockfishBoard(){
   const value=(record.cp>=0?'+':'')+(record.cp/100).toFixed(2);
   stockfishResult.textContent='Stockfish: '+value+' (Weiß) · T'+record.depth;
   stockfishResult.style.visibility='visible';stockfishDetails.removeAttribute('aria-busy');
-  stockfishLine.textContent=record.line?.length?'Hauptvariante: '+record.line.slice(0,8).join(' '):'Stockfish-Bewertung gespeichert; keine Hauptvariante verfügbar.';
+  stockfishLine.textContent=record.line?.length?'Hauptvariante: '+germanVariation(fen,record.line.slice(0,8)):'Stockfish-Bewertung gespeichert; keine Hauptvariante verfügbar.';
  }else{
   const started=!!data.game||!!data.review||data.nodes.length>1;
   stockfishResult.textContent=started?'Stockfish: Bewertung wird gespeichert …':'Stockfish: – (noch keine Partie)';
@@ -744,7 +746,7 @@ function renderComparison(){
  const options=visible.filter(n=>n.parentId!==null&&((count.get(n.id)??0)===0||!!d.labels?.[n.id]));
  for(const [id,saved] of [['compare-a',d.comparison?.a],['compare-b',d.comparison?.b]] as const){
   const select=$<HTMLSelectElement>(id),previous=saved??select.value;select.replaceChildren();
-  for(const node of options){const option=document.createElement('option');option.value=node.id;option.textContent=d.labels?.[node.id]??`${node.san??'Stellung'} · ${pathTo(d,node.id).length-1} Halbzüge`;select.append(option);}
+  for(const node of options){const option=document.createElement('option');option.value=node.id;option.textContent=d.labels?.[node.id]??`${germanPositionFromFen(node.parentId?d.nodes.find(n=>n.id===node.parentId)?.fen:undefined,node.san)} · ${pathTo(d,node.id).length-1} Halbzüge`;select.append(option);}
   if(options.some(n=>n.id===previous))select.value=previous;
   else if(id==='compare-b'&&options.length>1)select.selectedIndex=1;
  }
@@ -752,16 +754,16 @@ function renderComparison(){
  const container=$('comparison-view');container.replaceChildren();if(!d.comparison||!allowed.has(d.comparison.a)||!allowed.has(d.comparison.b))return;
  const a=pathTo(d,d.comparison.a),b=pathTo(d,d.comparison.b);
  const common=a.filter((node,i)=>b[i]?.id===node.id).at(-1)!;
- const heading=document.createElement('p');heading.textContent=`Gemeinsamer Ausgangspunkt: ${common.id} · ${d.labels?.[common.id]??common.san??'Ausgangsstellung'}`;container.append(heading);
+ const heading=document.createElement('p');heading.textContent=`Gemeinsamer Ausgangspunkt: ${common.id} · ${d.labels?.[common.id]??germanSan(common.san??'Ausgangsstellung')}`;container.append(heading);
  for(const [name,id] of [['A',d.comparison.a],['B',d.comparison.b]]){
   const path=pathTo(d,id!),node=path.at(-1)!;const card=document.createElement('article');card.className='comparison-card';
-  const title=document.createElement('h3');title.textContent=`${name}: ${d.labels?.[node.id]??node.san??node.id}`;card.append(title);
+  const title=document.createElement('h3');title.textContent=`${name}: ${d.labels?.[node.id]??germanSan(node.san??node.id)}`;card.append(title);
   const mini=document.createElement('div');mini.className='mini-board';mini.setAttribute('role','img');mini.setAttribute('aria-label',`Stellung ${name}: ${node.fen}`);
   const glyphs:Record<string,string>={wk:'♔',wq:'♕',wr:'♖',wb:'♗',wn:'♘',wp:'♙',bk:'♚',bq:'♛',br:'♜',bb:'♝',bn:'♞',bp:'♟'};
   const flipped=(d.orientation??d.game?.human)==='b',rows=new Chess(node.fen).board();
   const ranks=flipped?rows.slice().reverse().map(row=>row.slice().reverse()):rows;
   for(const [rank,row] of ranks.entries())for(let file=0;file<8;file++){const cell=document.createElement('span');cell.dataset.square=`${'abcdefgh'[flipped?7-file:file]}${flipped?rank+1:8-rank}`;cell.className=(rank+file)%2?'dark':'';const piece=row[file];cell.textContent=piece?glyphs[piece.color+piece.type]!+'\uFE0E':'';mini.append(cell);}
-  card.append(mini);const line=document.createElement('p');line.textContent=`Zugfolge: ${path.slice(1).map(n=>n.san).join(' ')||'Ausgangsstellung'}`;card.append(line);
+  card.append(mini);const line=document.createElement('p');line.textContent=`Zugfolge: ${path.slice(1).map(n=>germanMoveFromFen(d.nodes.find(p=>p.id===n.parentId)!.fen,n.san!)).join(' ')||'Ausgangsstellung'}`;card.append(line);
   const notes=document.createElement('p');notes.textContent=d.annotations.filter(n=>n.nodeId===node.id && n.kind!=='factcheck').map(n=>`${n.source}: ${n.text}`).join('\n')||'Noch keine Notiz oder Diskussion an dieser Stellung.';card.append(notes);container.append(card);
  }
 }

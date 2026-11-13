@@ -62,10 +62,13 @@ export async function scanFullGame(
  if(!Array.isArray(moves)||moves.length<2||moves.length>300)throw new Error('Für die vollständige Prüfung sind 2 bis 300 Halbzüge nötig.');
  const board=new Chess(rootFen),positions=[board.fen()];
  for(const san of moves){if(!board.moves().includes(san))throw new Error('Ungültiger Partieverlauf.');board.move(san);positions.push(board.fen());}
- const scores:(number|null)[]=[];
+ const scores:(number|null)[]=[],historyBoard=new Chess(rootFen);
  for(const [i,fen] of positions.entries()){
   if(signal?.aborted)throw new Error('Partieanalyse abgebrochen.');
-  const position=new Chess(fen),terminal=gameResultCp(position);
+  if(i>0)historyBoard.move(moves[i-1]!);
+  // A FEN-only Chess instance loses repetition history; the complete
+  // game record detects the third occurrence before asking the UCI engine.
+  const terminal=gameResultCp(historyBoard);
   if(terminal!==null){scores.push(terminal);update(i+1,positions.length);continue;}
   let report:TacticalReport|undefined;
   for(let attempt=0;attempt<2;attempt++){
