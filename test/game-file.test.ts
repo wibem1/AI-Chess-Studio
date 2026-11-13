@@ -83,7 +83,7 @@ test('rejected real review reports each illegal alternative with its historical 
  const {readFileSync}=await import('node:fs'),{validateGameReview}=await import('../src/game-review.js');
  const game=parsePgn(readFileSync('test/fixtures/lichess-1Vh80QL2.pgn','utf8'));
  const moments=[[18,'Qxe5+','Qxe7+'],[56,'Nxg3','Nf5'],[85,'Rc7+','Rf7'],[136,'Ng3+','Nh5']].map(([ply,played,alternative])=>({ply,played,alternative,explanation:'Erklärung',reason:'Begründung'}));
- assert.throws(()=>validateGameReview({summary:'Überblick',lesson:'Lernfolgerung',moments},{rootFen:game.rootFen,moves:game.moves.map(m=>m.san),truncated:false}),error=>{assert.ok(error instanceof Error);for(const label of ['9… Qxe5+','28… Nxg3','43. Rc7+','68… Ng3+'])assert.ok(error.message.includes(label));return true;});
+ assert.throws(()=>validateGameReview({summary:'Überblick',lesson:'Lernfolgerung',moments},{rootFen:game.rootFen,moves:game.moves.map(m=>m.san),truncated:false}),error=>{assert.ok(error instanceof Error);for(const label of ['9… Dxe5+','28… Sxg3','43. Tc7+','68… Sg3+'])assert.ok(error.message.includes(label));return true;});
 });
 
 test('diagnosis retains the precise validation reason without leaking credentials',async()=>{
