@@ -66,3 +66,22 @@ test('whole game scanner also respects third repetition and does not call engine
  assert.equal(result.records.length,17);
  assert.equal(result.records.at(-1)?.afterCp,0);
 });
+
+test('the original complete 137-ply Lichess PGN now finishes background scoring and survives export',async()=>{
+ const {readFileSync}=await import('node:fs');
+ const pgn=readFileSync('test/fixtures/lichess-1Vh80QL2.pgn','utf8');
+ const session=Session.fromPgn(pgn,'b','wibem','study');
+ assert.equal(session.snapshot().review?.original.length,138);
+ let calls=0;
+ const queue=new AutomaticStockfish(()=>session,()=>adapter(()=>calls++),()=>false,async()=>{});
+ assert.equal(await queue.ensure(),true,queue.error);
+ const data=session.snapshot();
+ assert.equal(Object.keys(data.positionScores??{}).length,138);
+ assert.equal(data.positionScores?.n137?.cp,0);
+ assert.equal(data.positionScores?.n137?.depth,0);
+ assert.equal(data.fullGameAnalysis?.records.length,137);
+ assert.equal(data.fullGameAnalysis?.completed,true);
+ assert.ok(calls<=137,'history-backed draw must bypass normal Stockfish search');
+ const restored=Session.import(session.export());
+ assert.equal(restored.snapshot().fullGameAnalysis?.records.length,137);
+});
