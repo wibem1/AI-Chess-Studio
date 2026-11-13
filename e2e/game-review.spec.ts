@@ -125,8 +125,8 @@ test('two explicit analysis buttons: game review creates key moments, position a
 test('game analysis retains its original game position if user navigates during the Stockfish preparation',async({page})=>{
  test.setTimeout(120000);
  const studio=new Studio(),game=new LearningGame(()=>studio.session);
- game.start('w',1);game.play('f3');await game.reply({move:async()=>({san:'e5',level:1,engine:'fixture'})});
- game.play('g4');await game.reply({move:async()=>({san:'Qh4#',level:1,engine:'fixture'})});game.pause();
+ game.start('w',1);game.play('f3');await game.reply({move:async()=>({san:'e5',level:1,engine:'Stockfish fixture'})});
+ game.play('g4');await game.reply({move:async()=>({san:'Qh4#',level:1,engine:'Stockfish fixture'})});game.pause();
  await page.goto('/?platform=web#lernen');
  await expect(page.locator('#workspace')).not.toHaveAttribute('inert','');
  await page.locator('#games-menu > summary').click();
