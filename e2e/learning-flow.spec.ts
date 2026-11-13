@@ -17,8 +17,8 @@ test('a completed game can be replayed, discussed and branched without resetting
  session.reflect(session.snapshot().activeNodeId,{idea:'',reasoning:'',uncertainty:'',goal:'',hintMode:'question'});
  await page.getByRole('tab',{name:'Lernmodus',exact:true}).click();await page.locator('#games-menu > summary').click();await page.locator('#game-file').setInputFiles({name:'finished.json',mimeType:'application/json',buffer:Buffer.from(session.export())});
  await expect(page.locator('#position-status')).toContainText('Schachmatt');await page.locator('#analyse-game').click();await expect(page.locator('#dialogue-feedback')).toContainText('Beispielantwort');await expect(page.locator('#dialogue')).toContainText('keine KI');
- await page.getByRole('button',{name:'1. f3 ansehen',exact:true}).click();await expect(page.locator('#position-status')).toContainText('n1');
- await page.locator('#question').fill('Warum war dieser Zug problematisch?');await page.locator('#ask').click();await expect(page.locator('#dialogue-feedback')).toContainText('Beispielantwort');await expect(page.locator('#position-status')).toContainText('n1');
- await page.locator('#learn-next').click();await expect(page.locator('#position-status')).toContainText('n2');await page.locator('#board [data-square=e2]').click();await page.locator('#board [data-square=e4]').click();await expect(page.locator('#position-status')).not.toContainText('n2');
+ await page.getByRole('button',{name:'1. f3 ansehen',exact:true}).click();await expect(page.locator('#position-status')).toHaveAttribute('data-node-id','n1');
+ await page.locator('#question').fill('Warum war dieser Zug problematisch?');await page.locator('#ask').click();await expect(page.locator('#dialogue-feedback')).toContainText('Beispielantwort');await expect(page.locator('#position-status')).toHaveAttribute('data-node-id','n1');
+ await page.locator('#learn-next').click();await expect(page.locator('#position-status')).toHaveAttribute('data-node-id','n2');await page.locator('#board [data-square=e2]').click();await page.locator('#board [data-square=e4]').click();await expect(page.locator('#position-status')).not.toHaveAttribute('data-node-id','n2');
  await page.getByRole('tab',{name:'Spielmodus',exact:true}).click();await expect(page.locator('#position-status')).toContainText('Schachmatt');
 });
