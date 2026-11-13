@@ -115,3 +115,11 @@ test('paid-model review with one illegal alternative is saved, navigable and exp
  // The provider's original response object was not overwritten.
  assert.equal(candidate.moments[0]!.alternative,'Qh4#');
 });
+
+test('six chronological strategic moments are permitted without weakening legal move checks',()=>{
+ const moves=['e4','e5','Nf3','Nc6','Bb5','a6','Ba4','Nf6'];
+ const data={rootFen:new Chess().fen(),moves,truncated:false};
+ const moments=[1,2,3,4,5,6].map(ply=>({ply,played:moves[ply-1]!,explanation:'Plan oder Gegenplan an diesem konkreten Zug prüfen.',alternative:'',reason:'Eine geprüfte taktische Alternative fehlt.'}));
+ assert.equal(validateGameReview({summary:'Weiß und Schwarz entwickeln ihre Figuren und ringen um Raum.',moments,lesson:'Pläne beider Seiten vor der Enginebewertung untersuchen.'},data).moments.length,6);
+ assert.throws(()=>validateGameReview({summary:'Überblick',moments:[...moments,{...moments[0]!,ply:7,played:moves[6]!}],lesson:'Lernpunkt'},data));
+});
