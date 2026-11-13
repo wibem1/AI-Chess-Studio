@@ -16,7 +16,7 @@ export function installKeyMoments(current:()=>Session,jump:(node:string)=>void){
  });
  return {choose,render(){
   const focused=nav.contains(document.activeElement);
-  document.getElementById('find-key-moments')!.hidden=document.getElementById('workspace')?.dataset.activeView!=='learn';
+  for(const id of ['find-key-moments','analyze-position'])document.getElementById(id)!.hidden=document.getElementById('workspace')?.dataset.activeView!=='learn';
   const session=current(),data=session.snapshot(),allowed=visibleReviewNodes(data);const candidates=data.annotations.map((a,i)=>({i,anchors:reviewAnchors(data,a)})).filter(x=>x.anchors.length&&x.anchors.every(m=>allowed.has(m.nodeId)));
   const newest=candidates.at(-1)?.i??-1;
   if(latest?.session!==session||latest.index!==newest){latest={session,index:newest};selected=newest<0?undefined:{session,index:newest,text:data.annotations[newest]!.text};}
