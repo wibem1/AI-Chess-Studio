@@ -10,7 +10,7 @@ for(const width of [820,1440])test(`board controls stay below the board and pres
  for(const id of ['learn-back','learn-next','board-flip','learn-first']){
   const before=await page.evaluate(()=>scrollY);await page.locator('#'+id).click();await expect.poll(()=>page.evaluate(()=>scrollY)).toBeCloseTo(before,0);
  }
- await expect(page.locator('#position-status')).toContainText('n0');await page.screenshot({path:`/tmp/chess-toolbar-${width}.png`,fullPage:true});
+ await expect(page.locator('#position-status')).toHaveAttribute('data-node-id','n0');await page.screenshot({path:`/tmp/chess-toolbar-${width}.png`,fullPage:true});
 });
 
 test('simplified learning has no legacy forms and diagnosis download is directly accessible',async({page})=>{
