@@ -6,6 +6,10 @@
 
 **Implementiert (nicht getestet):** Analyseauftrag und KI-System-/Chatprompt verlangen nun zuerst einen eigenständigen strategischen Durchgang durch den tatsächlichen Partieverlauf (Pläne beider Seiten, gelungene Entscheidungen, Übergänge), danach einen kritischen Stockfish-Abgleich. Bewertungen bei geringer Suchtiefe werden als unvollkommene Indizien gekennzeichnet. Der strukturierte Rückblick kann statt vier bis zu sechs chronologische Lernmomente enthalten; das Review-Ausgabelimit ist auf 2.600 Tokens erhöht. Bestehende Regelprüfung von SAN-Alternativen bleibt erhalten. Neue Regressionstests für Strategie-Priorisierung und sechs Momente angelegt.
 
+**Fortsetzung (14. November):** Die tatsächliche Textreihenfolge von `fullGameSummary()` wurde korrigiert: Der strategische Analyseauftrag steht jetzt vor dem numerischen Stockfish-Bericht; dieser ist ausdrücklich als nachgeordneter Faktencheck gekennzeichnet. Der UI-Knopf zur Spielqualität fordert dieselbe Reihenfolge. Der Servertransporttest wurde auf 2.600 Antworttokens abgestimmt, und ein Test prüft die tatsächliche Kontextreihenfolge. Dies sind Codeänderungen, keine bewiesene Modellqualität.
+
+**Prüfblocker:** Für diesen Branch zeigt GitHub Actions derzeit keinen Lauf. Der bestehende Verifikationsworkflow ist zwar manuell startbar, aber die verfügbare GitHub-Anbindung stellt keinen Workflow-Dispatch bereit; der Container kann das Repository wegen fehlender Netznamensauflösung nicht klonen. Deshalb keine Tests als bestanden deklarieren und PR #22 als Entwurf belassen.
+
 **Grenze:** Dies ist noch keine physisch getrennte zweistufige KI-Anfrage, sondern eine veränderte Anleitung und Ausgabeobergrenze in einem Modellaufruf. Die Stockfish-Chronologie wird weiter als Kontext mitgesendet; ein tatsächlicher Qualitätsgewinn ist erst mit realem Modelltest belegbar. Bestehende knappe Stockfish-Prüfung (Tiefe 12 / 1 s) bleibt unverändert.
 
 **Nächster Schritt:** Node-Tests und Chromium-Tests ausführen, danach eine echte 59-Züge-Partie mit dem bisherigen Diagnosefall vergleichen und insbesondere sachliche Erklärungen zu 35…Tc8 und 50.Df3 kontrollieren. Keine Freigabe ohne Nutzerauftrag.
