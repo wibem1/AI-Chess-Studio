@@ -1,3 +1,17 @@
+# Zweistufige KI-Partieanalyse – Entwicklungsfortsetzung (14. November 2026)
+
+**Status:** Entwicklungsbranch `feat/strategy-first-game-analysis-20261114`, Entwurfs-PR #22. Nicht gemergt, nicht veröffentlicht, Versionsnummer weiterhin 1.7.2. Technische und reale KI-Tests noch nicht ausgeführt.
+
+**Implementiert:** `server/model.ts` verwendet für strukturierte ganze Partierückblicke nun zwei **physisch getrennte Modellaufrufe**. Stufe 1 erhält nur die geprüfte historische Zugfolge, die konkrete Frage und soweit verfügbar die Nutzerseite; weder Stockfish-Bewertungen noch den gespeicherten Analysekontext. Stufe 1 erstellt eine vorläufige strategische Deutung. Stufe 2 bekommt diese vorläufige Deutung plus den üblichen Partie-/Stockfish-Kontext und muss die Aussagen kritisch korrigieren. Eine Antwort wird erst nach erfolgreicher Stufe 2 mit `validateGameReview()` gespeichert.
+
+**Kosten/Diagnose:** Jeder Aufruf hat eine eigene Reservierung und Diagnosespur; OpenRouter-Kostennachweise werden für die im Review angezeigte Gesamtanfrage summiert und zwei Aufrufe kenntlich gemacht. Der tatsächliche Verbrauch wird höher als beim früheren Einzelaufruf sein. Kein automatischer Retry bei fehlerhafter erster Phase. Die bisherigen normalen Chat- und Stellungsanfragen bleiben einstufig. Fehlende Preisangaben werden nicht geschätzt.
+
+**Tests geschrieben/angepasst, aber nicht ausgeführt:** Fixturetest für 2 statt 1 Provideraufruf, strikte Prüfung, dass die erste Stufe keine Engine-Daten erhält, Fehlerabbruch nach einer unvollständigen ersten Stufe; Browser-Reviewtests für beide Stufen angepasst. Ein Realtest mit GPT-6.1 Sol und Stockfish ist weiterhin nötig. Begrenzung: Die erste Stufe kann aus der Zugliste allein falsche Hypothesen bilden; die zweite Stufe muss diese anhand des tatsächlichen Brettes überprüfen, kann aber ohne nachgerechnete Varianten keinen taktischen Beweis liefern.
+
+**Nächster einzelner Schritt:** Bestehenden GitHub-Verifikationsworkflow manuell auf dem Branch starten (kein Workflow-Dispatch in der aktuellen Anbindung) und alle Node-/Chromium-Tests prüfen. Bei Fehlern korrigieren. Anschließend mit dem 59-Züge-Diagnosefall einen kontrollierten echten Modellvergleich durchführen und insbesondere Erklärungstiefe, tatsächlich nachweisbare Varianten und Mehrkosten bewerten.
+
+---
+
 # Strategieorientierter KI-Partierückblick – Entwicklungsstand (14. November 2026)
 
 **Status:** Nur Entwicklungsbranch `feat/strategy-first-game-analysis-20261114`, keine Veröffentlichung, keine neue Versionsnummer. Codeänderungen auf GitHub gesichert, **noch keine Tests ausgeführt**, kein realer KI-Provider geprüft.
