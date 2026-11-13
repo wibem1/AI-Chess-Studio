@@ -1,3 +1,17 @@
+# Offline-Ausbau – Bestandsprüfung und nächster Schritt (13. November 2026)
+
+**Auftrag:** Eine gemeinsame, möglichst vollständig offline nutzbare Chess-Studio-Anwendung für Windows, macOS, Android und iPadOS; Online-KI bleibt optional. **Keine neue Version vergeben, nichts veröffentlicht.** Grundlage ist die bestätigte Webversion 1.7.2.
+
+**Quellcodeprüfung (keine neue Testausführung):** `server/pwa-assets.ts` generiert einen versionsabhängigen Offline-Shell-Cache mit Startseite, JavaScript/CSS, lokalen Stockfish-Dateien und Webmanifest. Navigationsanfragen gehen zunächst ans Netzwerk und fallen bei Ausfall auf den Cache zurück. `web/pwa.ts` prüft veröffentlichte Versionen, registriert den Service Worker und verlangt für einen wartenden Worker eine bewusste Übernahme. `e2e/web-app.spec.ts` enthält einen vorhandenen Offline-Test für Browser-Stockfish, Sitzung und PGN; `e2e/pages.spec.ts` enthält einen vorhandenen Chromium-GitHub-Pages-Test, der nach erfolgreichem Online-Start von Maia und Stockfish die Verbindung trennt und den Offline-Neustart inklusive Maia prüft.
+
+**Wesentliche Lücke:** `server/pwa-assets.ts` behandelt Maia-Modell/WASM bewusst als optionale Dateien; `web/maia-engine.ts` lädt Maia bei Bedarf. Daher ist **Maia unmittelbar nach einer Erstinstallation ohne vorherigen Online-Modellaufruf nicht belegt offline verfügbar**. Das Modell ist laut `src/maia-files.ts` etwa 42,5 MB groß. Das derzeitige Vorhandensein der Offline-Shell beweist noch keine heruntergeladene Maia-Runtime. Ein realistischer Installationsdialog braucht eine ausdrückliche, überprüfbare Offline-Vorbereitung, ohne die Initialinstallation bei Downloadfehlern zu gefährden.
+
+**Weitere Grenzen:** Tests wurden in Chromium durchgeführt, nicht auf nativen Windows-/Mac-/Android-/iPad-Geräten. Lokale Browserdaten können bei Speicherbereinigung verloren gehen; JSON-Export und Wiederherstellung müssen deshalb als Sicherungsweg geprüft werden. KI-Anfragen über OpenAI/OpenRouter benötigen weiterhin Internet; dafür keine Offline-Funktion vortäuschen. Keine bezahlten Modelltests nötig.
+
+**Nächster einzelner Implementierungsschritt:** Einen ausdrücklich auslösbaren „Offline vorbereiten“-Ablauf für Maia-Dateien mit Download-/Cache-Verifikation und eindeutigem Status hinzufügen. Danach einen Browser-Regressionstest „frische Installation → Offline-Vorbereitung → Netzwerk aus → Maia-Zug“ mit realen Engine-Dateien ausführen. Erst nach bestandener Prüfung Versionsnummer 1.8.0 als Kandidat erwägen; Plattformabnahmen separat dokumentieren.
+
+---
+
 # Chess Studio 1.7.2 – Veröffentlichung bestätigt (13. November 2026)
 
 **Veröffentlicht:** Der bestehende Release-Workflow [43385146114](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43385146114) und das GitHub-Pages-Deployment [43385494736](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43385494736) waren erfolgreich. Die Datei `gh-pages/BUILD.json` bestätigt `version=1.7.2`, `sourceCommit=afea324ec93d510e4fa0653246733911f87c40b5` und `base=/AI-Chess-Studio/`. Live-URL: https://wibem1.github.io/AI-Chess-Studio/ . Die Veröffentlichung erfolgte bereits automatisch durch den bestehenden Push-Workflow nach dem Merge von PR #20; es wurde kein neuer Workflow erzeugt.
