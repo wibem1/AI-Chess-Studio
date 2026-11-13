@@ -18,8 +18,8 @@ test('move numbers match pre-move FEN, including imported games starting at full
  assert.equal(germanPositionFromFen(before,'Nxg7'),'nach 47… Sxg7');
  assert.equal(germanPositionFromFen(undefined,null),'Ausgangsstellung');
  const custom=new Chess('8/7k/8/8/8/8/4K3/7R w - - 0 61');
- const fen=custom.fen(),san='Rh7+';
+ const fen=custom.fen(),san='Rh6+';
  assert.ok(custom.moves().includes(san));
- assert.equal(germanMoveFromFen(fen,san),'61. Th7+');
+ assert.equal(germanMoveFromFen(fen,san),'61. Th6+');
  assert.equal(germanVariation(fen,[san]),'61. Th7+');
 });
