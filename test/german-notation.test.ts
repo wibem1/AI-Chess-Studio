@@ -1,10 +1,10 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {Chess} from 'chess.js';
-import {germanSan,germanMoveLabel,germanMoveFromFen,germanPositionFromFen,germanVariation} from '../src/german-notation.js';
+import {germanSan,germanMoveLabel,germanPositionLabel,germanMoveFromFen,germanPositionFromFen,germanVariation} from '../src/german-notation.js';
 
 test('German SAN changes only the displayed piece symbols, never file names or legal SAN',()=>{
- for(const [san,want] of [['Nf3','Sf3'],['Nbd7','Sbd7'],['Rae1','Tae1'],['Rxe7+','Txe7+'],['Qxd4','Dxd4'],['Bf4','Lf4'],['Kf2','Kf2'],['axb8=Q+','axb8=D+'],['b1=N#','b1=S#'],['e4','e4'],['exd4','exd4'],['O-O','O-O'],['O-O-O','O-O-O']])
+ for(const [san,want] of [['Nf3','Sf3'],['Nbd7','Sbd7'],['Rae1','Tae1'],['Rxe7+','Txe7+'],['Qxd4','Dxd4'],['Bf4','Lf4'],['Kf2','Kf2'],['axb8=Q+','axb8=D+'],['b1=N#','b1=S#'],['e4','e4'],['exd4','exd4'],['O-O','O-O'],['O-O-O','O-O-O']] as const)
   assert.equal(germanSan(san),want);
  assert.equal(germanMoveLabel(94,'Nxg7'),'47… Sxg7');
  assert.equal(germanMoveLabel(93,'Rxg7'),'47. Txg7');
