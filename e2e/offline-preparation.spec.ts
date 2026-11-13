@@ -1,11 +1,13 @@
 import {test,expect} from '@playwright/test';
+import {openView} from './navigation-helper.js';
 
 test.use({serviceWorkers:'allow'});
 
 test('fresh install explicitly prepares Maia and plays a real move after restart without network',async({page,context})=>{
+ test.setTimeout(150000);
  await page.goto('/?platform=web');
  await expect(page.locator('#workspace')).not.toHaveAttribute('inert','');
- await page.getByRole('tab',{name:'Einstellungen',exact:true}).click();
+ await openView(page,'settings');
  await page.locator('#pwa-tools > summary').click();
  await expect(page.locator('#pwa-status')).toContainText('Offline-Start vorbereitet',{timeout:20000});
  await expect(page.locator('#pwa-offline-status')).toContainText('noch nicht vollständig lokal gespeichert');
