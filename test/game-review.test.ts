@@ -41,7 +41,7 @@ test('server transport requires a retrospective and reserves its larger output w
    assert.equal(payload.max_completion_tokens,calls%2===1?1100:2600);
    if(calls%2===1){
      assert.equal(payload.messages.length,2);
-     assert.doesNotMatch(JSON.stringify(payload),/Stockfish|centipawn|lossCp/);
+     assert.doesNotMatch(JSON.stringify(payload.messages[1]),/Stockfish|centipawn|lossCp|beforeCp|afterCp/);
    }else{
      assert.match(JSON.stringify(payload.messages),/qualitativeDraft/);
      assert.match(JSON.stringify(payload.messages),/Weiß schwächt/);
