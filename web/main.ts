@@ -198,6 +198,7 @@ function render() {
   $<HTMLButtonElement>('game-resume').disabled=!live;
   message('game-line',live ? pathTo(data,live.cursor).filter(n=>n.san).map(n=>germanMoveFromFen(data.nodes.find(p=>p.id===n.parentId)!.fen,n.san!)).join(' · ') || 'Die Anfangsstellung ist bereit.' : data.review?'Importierte Originalpartie · geführter Rückblick im Tab Lernen.':'Deine Partie beginnt hier.');
   const mainIds=new Set(live?pathTo(data,live.cursor).slice(pathTo(data,live.cursor).findIndex(n=>n.id===live.start)).map(n=>n.id):[]);
+  $('position-status').dataset.nodeId=current.id; // machine-readable identity, not shown as a confusing move number
   message('position-status', `${germanPositionFromFen(current.parentId?data.nodes.find(n=>n.id===current.parentId)?.fen:undefined,current.san)} · ${chess.turn() === 'w' ? 'Weiß' : 'Schwarz'} am Zug${status.checkmate ? ' · Schachmatt' : status.draw ? ' · Remis' : status.check ? ' · Schach' : ''}`);
   const pieces: Record<string, string> = { wk:'♔',wq:'♕',wr:'♖',wb:'♗',wn:'♘',wp:'♙',bk:'♚',bq:'♛',br:'♜',bb:'♝',bn:'♞',bp:'♟' };
   const names: Record<string, string> = { k:'König',q:'Dame',r:'Turm',b:'Läufer',n:'Springer',p:'Bauer' };
