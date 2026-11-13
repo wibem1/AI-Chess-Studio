@@ -2,8 +2,9 @@ import {Chess} from 'chess.js';
 /** Presentation-only German algebraic notation.
  * Internal SAN, PGN, FEN, chess.js input and model contracts remain standard SAN.
  */
+const GERMAN_PIECES:Record<string,string>={K:'K',Q:'D',R:'T',B:'L',N:'S'};
 export function germanSan(san:string):string{
- return san.replace(/^[KQRBN]/,piece=>({K:'K',Q:'D',R:'T',B:'L',N:'S'}[piece]!))
+ return san.replace(/^[KQRBN]/,piece=>GERMAN_PIECES[piece]!)
   .replace(/=([QRBN])/g,(_match:string,piece:string)=>'='+({Q:'D',R:'T',B:'L',N:'S'}[piece]!));
 }
 /** A half-move number (ply) expressed with the standard full-move number. */
