@@ -16,3 +16,15 @@ export function germanPositionLabel(ply:number,san:string|null):string{
 export function germanLine(moves:readonly string[],offsetPly=0):string{
  return moves.map((san,i)=>germanMoveLabel(offsetPly+i+1,san)).join(' · ');
 }
+
+/** Number the visible move from its parent position (also supports PGNs
+ * starting at a nonstandard move number or with Black to move). */
+export function germanMoveFromFen(parentFen:string,san:string):string{
+ const fields=parentFen.split(' ');
+ const fullmove=Number(fields[5]);
+ if(!Number.isSafeInteger(fullmove)||fullmove<1||!['w','b'].includes(fields[1]??''))throw new Error('Ungültige Stellungsnummer.');
+ return `${fullmove}${fields[1]==='w'?'.':'…'} ${germanSan(san)}`;
+}
+export function germanPositionFromFen(parentFen:string|undefined,san:string|null):string{
+ return parentFen&&san?`nach ${germanMoveFromFen(parentFen,san)}`:'Ausgangsstellung';
+}
