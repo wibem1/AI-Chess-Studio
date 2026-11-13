@@ -1,5 +1,14 @@
 # Änderungen
 
+## 1.7.1 – Zwei direkte Analyseaktionen und zuletzt gewählte Ansicht (Releasekandidat, 13. November 2026)
+
+- Lernmodus: Statt der missverständlichen Schaltfläche „Schlüsselstellungen“ stehen „Analyse des Spiels“ und „Analyse der Stellung“ nebeneinander. Beide starten unmittelbar eine neue KI-Anfrage, sofern ein Zugang eingerichtet ist; die erste fordert einen vollständigen priorisierten Partierückblick mit zwei bis vier angesprungenen Schlüsselstellen an, die zweite analysiert die aktuell angezeigte FEN. Die bisherigen Schaltflächen zum Navigieren zu Schlüsselstellen bleiben erhalten.
+- Die KI-Prüfung wird an die beim Aufruf erfasste Partie und FEN gebunden. Navigation durch Stellungen während der lokalen Stockfish-Vorbereitung führt nicht länger allein deshalb zum Abbruch.
+- Zuletzt gewählter Spielmodus/Lernmodus beziehungsweise Einstellungen bleibt lokal gespeichert und wird auch bei Neustart der installierten PWA ohne Hash-Fragment wieder geöffnet. Ein explizit aufgerufener Direktlink hat Vorrang.
+- Vor Versionsvergabe in [GitHub Actions 43372782623](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43372782623) geprüft: 286/286 Node- und 51/51 Chromium-Browsertests, darunter beide direkten KI-Aktionen, navigationsfester Partierückblick und wiederhergestellte Ansicht auf Neuladen. KI-Antworten im Browser mit simuliertem Anbieter getestet, keine kostenpflichtigen API-Anfragen und kein nativer Tablet-Test.
+- Noch nicht veröffentlicht.
+
+
 ## 1.7.0 – automatische Stockfish-Bewertungen während des Spiels (Releasekandidat, 12. November 2026)
 
 - Kein zusätzlicher Button oder Bereich „Partie prüfen“ unter dem Brett.
