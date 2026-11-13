@@ -69,6 +69,6 @@ export function installFullGameUI(
   finally{scanning=false;controller=undefined;engine=undefined;start.disabled=false;cancel.disabled=true;}
  });
  cancel.addEventListener('click',()=>{controller?.abort();if(engine instanceof BrowserTacticalAdapter)engine.cancel();status.textContent='Abbruch angefordert …';});
- ask.addEventListener('click',()=>prepareQuestion('Vergleiche die schachliche Qualität von Weiß und Schwarz in der gesamten Partie. Berücksichtige die gespeicherte Stockfish-Fehlerstatistik, gelungene Ideen, kritische Entscheidungen und die wichtigsten Lernpunkte. Trenne Enginebefunde von deiner strategischen Einschätzung.'));
+ ask.addEventListener('click',()=>prepareQuestion('Analysiere die gesamte Partie zuerst aus schachlich-strategischer Sicht: Welche Pläne verfolgen beide Seiten, was gelingt ihnen, wie verändern sich die Stellungen und wo liegen die entscheidenden Übergänge? Erkläre konkrete Züge und praktische Alternativen. Nutze die Stockfish-Fehlerstatistik erst anschließend als vorsichtigen Faktencheck und zähle nicht bloß Bewertungsänderungen auf.'));
  return {render,isRunning:()=>scanning};
 }
