@@ -80,15 +80,63 @@ export class ModelService {
     this.continuity.clear();this.config = next;
     return this.status();
   }
+  /** First paid phase of a complete-game review: historical moves, no engine scores.
+   * The draft is deliberately not saved as an answer; phase two must verify it.
+   * Both phases have separate cost reservations and diagnostic traces.
+   */
+  private async qualitativeGamePass(request:DialogueRequest,signal?:AbortSignal):Promise<string>{
+    if(!request.history||request.history.truncated)throw new ApiError(400,'Vollständige Partie für die strategische Voranalyse erforderlich.');
+    const payload={question:request.question,history:request.history,human:request.gameHistory?.human??null};
+    const body=JSON.stringify({
+      model:this.config.model,...generationOptions(this.config,1100),
+      messages:[
+        {role:'system',content:'Du bist ein deutschsprachiger Schachanalytiker. Dies ist STUFE 1 von 2. Du erhältst ausschließlich die tatsächliche Zugfolge, keine Stockfish-Bewertungen. Untersuche die Partie eigenständig: Ziele und Gegenpläne beider Seiten, Figurenkoordination, Bauernstruktur, Planwechsel, gelungene Entscheidungen und Übergänge. Begründe Aussagen durch Züge und Felder. Unterstelle Spielern keine unbekannten Gedanken. Benenne offene taktische Fragen ausdrücklich; erfinde weder Enginewerte noch als bewiesen bezeichnete Alternativen. Antworte als knappe, zusammenhängende strategische Arbeitshypothese auf Deutsch mit Zugbezügen, kein JSON. Diese Notiz wird anschließend anhand von Stockfish und Brettregeln kritisch geprüft.'},
+        {role:'user',content:JSON.stringify(payload)}
+      ]
+    });
+    let reservation:number;
+    try{const parsed=JSON.parse(body);reservation=this.costs.reserve(Buffer.byteLength(body),parsed.max_tokens??parsed.max_completion_tokens);}
+    catch{throw new ApiError(402,'Verbrauch für die strategische Voranalyse konnte nicht reserviert werden.');}
+    const trace=this.traces.start(JSON.parse(body),{nodeId:request.nodeId,fen:request.fen,provider:providerOf(this.config),model:this.config.model,reasoning:this.config.reasoning??null,toolRound:0,priceAssumptions:this.costs.snapshot()},this.config.apiKey);
+    this.busy=true;
+    let status:number|undefined,code:CoachFailureCode='network';
+    try{
+      trace.sent();
+      const response=await this.transport(providerBase(this.config)+'/chat/completions',{
+        method:'POST',redirect:'error',headers:{Authorization:`Bearer ${this.config.apiKey}`,'Content-Type':'application/json'},
+        signal:AbortSignal.any([AbortSignal.timeout(this.config.reasoning?90_000:15_000),...(signal?[signal]:[])]),body
+      });
+      status=response.status;
+      if(!response.ok){await response.body?.cancel();throw new CoachFailure(providerFailure(response.status));}
+      code='provider_format';
+      const envelope=JSON.parse(await readLimited(response,providerOf(this.config)==='openrouter'?524288:65536));
+      trace.received(envelope,response.status);
+      this.costs.settle(reservation,envelope.usage);
+      if(envelope.choices?.[0]?.finish_reason==='length')throw new CoachFailure('output_limit');
+      if(envelope.choices?.[0]?.finish_reason!=='stop')throw new Error('Incomplete strategic draft');
+      const draft=decodeModelContent(envelope.choices[0].message.content,false);
+      if(typeof draft!=='string'||draft.trim().length<50||draft.length>6500)throw new Error('Ungültige strategische Voranalyse');
+      trace.finish('accepted');
+      return draft.trim();
+    }catch(error){
+      const failure=error instanceof CoachFailure?error.code:code;
+      trace.finish('failed',failure,status);
+      throw new ApiError(502,COACH_ERRORS[failure]+' Strategische Voranalyse fehlgeschlagen; kein fertiger Partierückblick gespeichert.',failure);
+    }finally{this.busy=false;}
+  }
   async reply(raw: unknown,signal?:AbortSignal): Promise<StrategicReply> {
     if (!this.status().available) throw new ApiError(403, 'Modellanbindung gesperrt oder nicht konfiguriert.');
     const request = parseRequest(raw);if(request.expectedModel&&request.expectedModel!==this.config.model)throw new ApiError(409,'Modell während des Testlaufs gewechselt.');
     if (this.busy) throw new ApiError(429, 'Eine Modellanfrage läuft bereits.');
+    const retrospective=request.topic==='review'&&(request.hintMode??'explain')==='explain';
+    // Deliberately exclude context/engine data from phase one. A partial draft is never saved.
+    const qualitativeDraft=retrospective?await this.qualitativeGamePass(request,signal):undefined;
     const {generalInstructions:_,turns=[],toolExchanges,...currentRequest}=request;
+    const finalRequest=qualitativeDraft?{...currentRequest,qualitativeDraft,analysisPhases:'Stufe 1 (nur Züge) ist eine ungeprüfte Hypothese. Stufe 2: Vergleiche mit Stockfish, korrigiere Irrtümer anhand konkreter historischer Stellungen und stelle nur das überprüfbare Ergebnis dar. Keine Zahlenliste.'}:currentRequest;
     const instructionsPrompt=promptWithUserInstructions(request.topic==='chat'?FREE_CHAT_PROMPT:SYSTEM_PROMPT,request.generalInstructions);
-  const retrospective=request.topic==='review'&&(request.hintMode??'explain')==='explain',outputTokens=retrospective?2600:request.topic==='chat'?1800:800;
+  const outputTokens=retrospective?2600:request.topic==='chat'?1800:800;
     const body=JSON.stringify({model:this.config.model,...generationOptions(this.config,outputTokens),...providerToolFields(this.config,request),...(request.topic==='chat'?{}:{response_format:{type:'json_object'}}),
-      messages:[{role:'system',content:instructionsPrompt},...turns.map(t=>({role:t.role,content:`[Stellung ${t.nodeId}${t.fen?`, FEN ${t.fen}`:''}] ${t.text}`})),{role:'user',content:JSON.stringify(currentRequest)},...(providerOf(this.config)==='openrouter'?this.continuity.restore(coachProviderMessages(request)):coachProviderMessages(request))]});
+      messages:[{role:'system',content:instructionsPrompt},...turns.map(t=>({role:t.role,content:`[Stellung ${t.nodeId}${t.fen?`, FEN ${t.fen}`:''}] ${t.text}`})),{role:'user',content:JSON.stringify(finalRequest)},...(providerOf(this.config)==='openrouter'?this.continuity.restore(coachProviderMessages(request)):coachProviderMessages(request))]});
     let reservation:number;
     try {reservation=this.costs.reserve(Buffer.byteLength(body),JSON.parse(body).max_tokens??JSON.parse(body).max_completion_tokens);}catch{throw new ApiError(402,'Verbrauch konnte nicht gespeichert werden.');}
     const trace=this.traces.start(JSON.parse(body),{nodeId:request.nodeId,fen:request.fen,provider:providerOf(this.config),model:this.config.model,reasoning:this.config.reasoning??null,toolRound:request.toolExchanges?.length??0,priceAssumptions:this.costs.snapshot()},this.config.apiKey);
