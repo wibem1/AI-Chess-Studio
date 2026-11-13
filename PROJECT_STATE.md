@@ -1,3 +1,18 @@
+# ChessStudio 1.7.1 – zwei Analysebuttons und zuletzt gewählte Ansicht, geprüft (13. November 2026)
+
+**Status:** Releasekandidat **1.7.1** im [Entwurfs-PR #19](https://github.com/wibem1/AI-Chess-Studio/pull/19), Branch `fix/analysis-buttons-snapshot-20261113`. **Noch nicht gemergt und nicht veröffentlicht**; öffentlich bleibt 1.7.0. Keine weitere Freigabe zum Deployment erteilt.
+
+**Nutzeranforderung und Umsetzung:**
+- Im Lernmodus stehen die Buttons **„Analyse des Spiels“** und **„Analyse der Stellung“** nebeneinander statt des missverständlichen „Schlüsselstellungen“. Ein Klick startet jeweils eine tatsächliche neue KI-Anfrage mit dem ausgewählten Anbieter, wenn der Zugang bereitsteht. Die Partieanalyse erzeugt einen strukturierten Rückblick mit mindestens zwei Schlüsselstellen; die Stellungsanalyse bewertet die beim Klick angezeigte Stellung. Vorhandene Schlüsselstellen-Navigation bleibt erhalten.
+- Die KI-Vorbereitung prüft die bei Anfragebeginn erfasste Partie/FEN statt der gerade sichtbaren Brettstellung. Freies Navigieren während der Stockfish-Berechnung löst nicht mehr allein den Fehler „Stellung während der Prüfung gewechselt“ aus; Wechsel oder Austausch der zugrunde liegenden Sitzung wird weiterhin geschützt.
+- Die zuletzt gewählte Ansicht (Spielmodus, Lernmodus, Einstellungen) wird lokal im Browser/PWA-Profil gespeichert. Beim erneuten Öffnen ohne URL-Fragment wird sie wiederhergestellt. Ein ausdrücklicher Deep-Link (`#partie`, `#lernen`) hat Vorrang und aktualisiert die Präferenz.
+
+**Verifiziert:** [GitHub Actions 43373211250](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43373211250) **SUCCESS** auf Version 1.7.1, **286/286 Node-Tests und 51/51 Chromium-Browsertests**. Besondere Browsertests: Beide Buttons senden in einem Klick ihren fachlich unterschiedlichen KI-Aufruf an einen simulierten OpenAI-Provider; die Partierückblick-Navigation funktioniert bei laufender Anfrage; die zuletzt gewählte Ansicht wird bei Neustart ohne URL-Fragment wiederhergestellt und explizite Links behalten Vorrang. Das ist kein realer kostenpflichtiger Provider- oder nativer Tablet-Test.
+
+**Nächster Schritt:** Nach ausdrücklicher Freigabe PR #19 zusammenführen und neue Version über GitHub Pages veröffentlichen. Anschließend tatsächliche KI-Ergebnisse und PWA-Neustart auf dem Nutzergerät prüfen. Kein automatisches Deployment ohne neue Zustimmung.
+
+---
+
 # ChessStudio 1.7.0 – veröffentlicht und GitHub Pages bestätigt (12. November 2026)
 
 **Nutzerfreigabe „Freigeben“ für Version 1.7.0 ausgeführt.** [PR #18](https://github.com/wibem1/AI-Chess-Studio/pull/18) gemergt in `work` (Merge-Commit `bd6731ca54d9c9e2a10818f9ff00e1613580a986`). Offizieller [Release-Workflow 43313234220](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43313234220) **SUCCESS**, einschließlich Tests, Manifest, Veröffentlichung und abschließender Deploymentprüfung. GitHub-Pages-Deployment [43313853052](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43313853052) **SUCCESS**. Die öffentlich auf `gh-pages` abgelegte `BUILD.json` meldet `version=1.7.0` und `sourceCommit=bd6731ca54d9c9e2a10818f9ff00e1613580a986`. Live: https://wibem1.github.io/AI-Chess-Studio/ .
