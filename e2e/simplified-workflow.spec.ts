@@ -23,9 +23,9 @@ test('clean learning UI keeps essential play, chat and branch choices without le
  await page.locator('#compare-form button').click();
  await expect(page.locator('#comparison-view .comparison-card')).toHaveCount(2);
  await page.locator('#variations button').first().click();
- await expect(page.locator('#position-status')).toContainText('n5');
+ await expect(page.locator('#position-status')).toHaveAttribute('data-node-id','n5');
  await page.locator('#variations button').last().click();
- await expect(page.locator('#position-status')).toContainText('n7');
+ await expect(page.locator('#position-status')).toHaveAttribute('data-node-id','n7');
  await expect(page.locator('#game-file')).toHaveCount(1);
 });
 
