@@ -136,3 +136,16 @@ test('six chronological strategic moments are permitted without weakening legal 
  assert.equal(validateGameReview({summary:'Weiß und Schwarz entwickeln ihre Figuren und ringen um Raum.',moments,lesson:'Pläne beider Seiten vor der Enginebewertung untersuchen.'},data).moments.length,6);
  assert.throws(()=>validateGameReview({summary:'Überblick',moments:[...moments,{...moments[0]!,ply:7,played:moves[6]!}],lesson:'Lernpunkt'},data));
 });
+
+test('failed qualitative first pass is not mistaken for a completed review or silently retried',async()=>{
+ const {ModelService}=await import('../server/model.js');
+ const board=new Chess();for(const move of history.moves)board.move(move);
+ let calls=0;
+ const service=new ModelService({enabled:true,apiKey:'fixture-only-secret',model:'fixture'},(async(_url,init)=>{
+  calls++;const payload=JSON.parse(String(init!.body));
+  assert.equal(payload.max_completion_tokens,1100);
+  return new Response(JSON.stringify({choices:[{finish_reason:'length',message:{content:'Unvollständige Deutung'}}],usage:{prompt_tokens:60,completion_tokens:1100}}));
+ }) as typeof fetch);
+ await assert.rejects(service.reply({nodeId:'n4',fen:board.fen(),question:'Analysiere die Partie',legalMoves:[],context:[],topic:'review',hintMode:'explain',history}),/Strategische Voranalyse fehlgeschlagen/);
+ assert.equal(calls,1,'no paid second-stage call after an incomplete draft');
+});
