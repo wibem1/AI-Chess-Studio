@@ -1,3 +1,13 @@
+# Chess Studio 1.7.2 – Veröffentlichung bestätigt (13. November 2026)
+
+**Veröffentlicht:** Der bestehende Release-Workflow [43385146114](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43385146114) und das GitHub-Pages-Deployment [43385494736](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43385494736) waren erfolgreich. Die Datei `gh-pages/BUILD.json` bestätigt `version=1.7.2`, `sourceCommit=afea324ec93d510e4fa0653246733911f87c40b5` und `base=/AI-Chess-Studio/`. Live-URL: https://wibem1.github.io/AI-Chess-Studio/ . Die Veröffentlichung erfolgte bereits automatisch durch den bestehenden Push-Workflow nach dem Merge von PR #20; es wurde kein neuer Workflow erzeugt.
+
+**Testgrundlage:** Releasekandidat erfolgreich geprüft: 292/292 Node-Tests und 52/52 Chromium-Browsertests. Kein nativer Test auf dem Nutzergerät und keine kostenpflichtige reale KI-Modell-Abnahme.
+
+**Nächster Schritt:** Nutzer prüft auf seinem Gerät die angezeigte Version 1.7.2 und die Vollzugnummern/deutschen Zugkürzel in einer importierten Partie. Bei Problemen Diagnose exportieren.
+
+---
+
 # ChessStudio 1.7.2 – in work integriert (13. November 2026)
 
 **Status:** [PR #20](https://github.com/wibem1/AI-Chess-Studio/pull/20) erfolgreich in `work` zusammengeführt; Merge-Commit `afea324ec93d510e4fa0653246733911f87c40b5`. Codeversion `1.7.2`. **Noch nicht veröffentlicht**; öffentlich bleibt die nachgewiesene GitHub-Pages-Version 1.7.1. Veröffentlichung erfordert einen ausdrücklichen Auftrag.
