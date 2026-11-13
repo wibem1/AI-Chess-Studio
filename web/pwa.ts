@@ -1,11 +1,22 @@
 import {APP_BASE,appPath} from '../src/app-path.js';
 import {APP_VERSION} from '../src/version.js';
+import {maiaOfflineAvailable,prepareMaiaOffline} from './offline-maia.js';
 declare const __PWA_ENABLED__:boolean;
 interface InstallPrompt extends Event {prompt():Promise<void>;userChoice:Promise<{outcome:string}>}
 export function installPwa(save:()=>Promise<void>){
  const status=document.getElementById('pwa-status')!,check=document.getElementById('pwa-check') as HTMLButtonElement,apply=document.getElementById('pwa-apply') as HTMLButtonElement,install=document.getElementById('pwa-install') as HTMLButtonElement,consent=document.getElementById('pwa-update-consent') as HTMLInputElement;
  if(!__PWA_ENABLED__||!('serviceWorker' in navigator)||!isSecureContext){status.textContent='Offline-Installation braucht den gebauten App-Stand und HTTPS oder localhost. Die aktuelle Sitzung kannst du als JSON sichern.';check.disabled=true;return;}
  let registration:ServiceWorkerRegistration|undefined,prompt:InstallPrompt|undefined,reload=false,remoteVersion:string|undefined;
+ const offlineButton=document.getElementById('pwa-offline-prepare') as HTMLButtonElement;
+ const offlineStatus=document.getElementById('pwa-offline-status')!;
+ const refreshOffline=async()=>{try{offlineStatus.textContent=await maiaOfflineAvailable()?'Maia ist lokal gespeichert. Offline-Spiel nach einem Neustart möglich.':'Maia ist noch nicht vollständig lokal gespeichert (ca. 43 MB Download).';}catch{offlineStatus.textContent='Offline-Speicherstatus nicht abrufbar.';}};
+ offlineButton.addEventListener('click',async()=>{
+  offlineButton.disabled=true;
+  try{await prepareMaiaOffline(message=>{offlineStatus.textContent=message;});await refreshOffline();}
+  catch(error){offlineStatus.textContent='Offline-Vorbereitung fehlgeschlagen: '+(error instanceof Error?error.message:'Unbekannter Fehler')+'. Internetverbindung und freien Gerätespeicher prüfen.';}
+  finally{offlineButton.disabled=false;}
+ });
+ void refreshOffline();
  const shellPrefix='chess-studio-shell-'+Array.from(new TextEncoder().encode(APP_BASE),byte=>byte.toString(16).padStart(2,'0')).join('')+'-';
  const publishedVersion=async()=>{
   const response=await fetch(appPath('BUILD.json')+'?update-check='+Date.now(),{cache:'no-store'});

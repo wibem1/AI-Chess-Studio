@@ -1,3 +1,17 @@
+# Offline-Ausbau: Maia-Vorbereitung implementiert und getestet (13. November 2026)
+
+**Status:** Erster isolierter Offline-Entwicklungsschritt im Entwurfs-[PR #21](https://github.com/wibem1/AI-Chess-Studio/pull/21), Branch `feat/offline-maia-preparation-20261113`. **Nicht gemergt, nicht veröffentlicht; öffentliche Version weiterhin 1.7.2.** Noch keine neue Versionsnummer vergeben, weil die gesamte plattformübergreifende Offline-Freigabe nicht abgeschlossen ist.
+
+**Implementierung:** Neuer Button „Maia für Offline-Spiel vorbereiten“ in Einstellungen → Updates und Installation. `web/offline-maia.ts` lädt das Modell und die zwei ONNX-WASM-Laufzeitdateien bewusst in den vorhandenen `MAIA_CACHE`; das 42,5-MB-Modell wird anhand Länge und SHA-256 geprüft. Der Status unterscheidet fehlende Dateien, laufende Vorbereitung, Erfolg und Fehler. Der bestehende Service Worker, Online-Update-Ablauf und KI-Zugänge werden nicht verändert. Kein automatischer kostenpflichtiger KI-Aufruf.
+
+**Objektive Prüfung:** [GitHub Actions 43409467846](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43409467846) **SUCCESS** auf Code-Commit `006813a041491f39a46014c2f6e99d05319ace8a`: TypeScript, 292/292 Node-Tests, Build und 53/53 Chromium-Browsertests; darunter `e2e/offline-preparation.spec.ts` (frische Installation, expliziter realer Maia-Modelldownload, Offline-Neustart und echter Maia-Zug). Produktionsdatei-Manifest ohne Veröffentlichung erfolgreich geprüft. Der erste Run 43408835890 scheiterte nur an einem falschen Settings-Locator im neuen Test, der durch den bereits vorhandenen Navigationshelfer ersetzt wurde.
+
+**Nicht bewiesen:** Native Funktionstests auf iPadOS, Android, macOS und Windows; Verhalten bei dauerhafter Speicherverknappung oder Löschen von Browserdaten; Gesamtqualität externer KI offline (OpenAI/OpenRouter benötigen weiterhin Netzwerk). Ein vollständiges plattformübergreifendes Offline-Release 1.8.0 ist **nicht** fertig und nicht freigegeben.
+
+**Nächster einzelner Schritt:** Die Offline-Datensicherung/-Wiederherstellung und die Verständlichkeit des Installationsstatus prüfen sowie gerätespezifische Abnahmetests planen. Vor einem Merge/Freigabe erneut um ausdrücklichen Auftrag bitten und bei einem Release die Versionsnummer samt Changelog/Lockfile konsistent erhöhen. Keine neue Actions-Workflowdatei angelegt; bestehende Verifikation prüft den Feature-Branch.
+
+---
+
 # Offline-Ausbau – Bestandsprüfung und nächster Schritt (13. November 2026)
 
 **Auftrag:** Eine gemeinsame, möglichst vollständig offline nutzbare Chess-Studio-Anwendung für Windows, macOS, Android und iPadOS; Online-KI bleibt optional. **Keine neue Version vergeben, nichts veröffentlicht.** Grundlage ist die bestätigte Webversion 1.7.2.
