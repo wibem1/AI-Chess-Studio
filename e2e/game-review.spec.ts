@@ -145,7 +145,7 @@ test('game analysis retains its original game position if user navigates during 
   expect(payload.context.join('')).toContain('Lokal geprüfte Stockfish-Partieanalyse');
   const response={message:'Partie überprüft.',candidates:[],openQuestions:[],gameReview:{
    summary:'Weißs König wurde geschwächt.',lesson:'Schachs vor Bauernzügen prüfen.',
-   moments:[{ply:3,played:'g4',explanation:'Ermöglicht Matt auf h4.',alternative:'g3',reason:'Weniger Schwächen.'}]}};
+   moments:[{ply:1,played:'f3',explanation:'Schwächt die Königsstellung.',alternative:'e4',reason:'Entwicklung fördern.'},{ply:3,played:'g4',explanation:'Ermöglicht Matt auf h4.',alternative:'g3',reason:'Weniger Schwächen.'}]}};
   await route.fulfill({json:{choices:[{finish_reason:'stop',message:{content:JSON.stringify(response)}}],usage:{prompt_tokens:120,completion_tokens:120}}});
  });
  await page.getByRole('tab',{name:'Lernmodus',exact:true}).click();
@@ -154,6 +154,6 @@ test('game analysis retains its original game position if user navigates during 
  await expect(page.locator('#position-status')).toContainText('n0');
  await expect(page.locator('#dialogue-feedback')).toContainText('gespeichert',{timeout:60000});
  expect(calls).toBe(1);
- await expect(page.locator('#key-moment-links button')).toHaveCount(1);
+ await expect(page.locator('#key-moment-links button')).toHaveCount(2);
  await expect(page.locator('#dialogue-feedback')).not.toContainText('Stellung während der Stockfish-Prüfung gewechselt');
 });
