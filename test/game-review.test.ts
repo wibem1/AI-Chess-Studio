@@ -35,9 +35,22 @@ test('server transport requires a retrospective and reserves its larger output w
  const req={nodeId:'n4',fen:board.fen(),question:'Partie besprechen',legalMoves:[],context:[],topic:'review',hintMode:'explain',history};
  let calls=0;
  const base=await new SimulationAdapter().respond({nodeId:'n0',fen:history.rootFen,question:'',legalMoves:[]}) as Record<string,unknown>;
- const service=new ModelService({enabled:true,apiKey:'fixture-only-secret',model:'fixture'},(async(_url,init)=>{calls++;assert.equal(JSON.parse(String(init!.body)).max_completion_tokens,2600);return new Response(JSON.stringify({choices:[{finish_reason:'stop',message:{content:JSON.stringify(calls===1?{...base,gameReview:review}:base)}}],usage:{prompt_tokens:10,completion_tokens:20}}));}) as typeof fetch);
+ const draft='Weiß schwächt mit f3 und g4 den König; Schwarz nutzt mit der Dame die offene Diagonale h4–e1.';
+ const service=new ModelService({enabled:true,apiKey:'fixture-only-secret',model:'fixture'},(async(_url,init)=>{
+   calls++;const payload=JSON.parse(String(init!.body));
+   assert.equal(payload.max_completion_tokens,calls%2===1?1100:2600);
+   if(calls%2===1){
+     assert.equal(payload.messages.length,2);
+     assert.doesNotMatch(JSON.stringify(payload),/Stockfish|centipawn|lossCp/);
+   }else{
+     assert.match(JSON.stringify(payload.messages),/qualitativeDraft/);
+     assert.match(JSON.stringify(payload.messages),/Weiß schwächt/);
+   }
+   return new Response(JSON.stringify({choices:[{finish_reason:'stop',message:{content:calls%2===1?draft:JSON.stringify(calls===2?{...base,gameReview:review}:base)}}],usage:{prompt_tokens:10,completion_tokens:20}}));
+ }) as typeof fetch);
  await assert.rejects(service.reply({...req,history:undefined}));assert.equal(calls,0);
- await service.reply(req);await assert.rejects(service.reply(req));assert.equal(calls,2);
+ await service.reply(req);assert.equal(calls,2);
+ await assert.rejects(service.reply(req));assert.equal(calls,4);
 });
 
 test('explicit key-moment requests in free chat store checked analysis and navigable anchors with the game',async()=>{
