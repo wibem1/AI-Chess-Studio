@@ -80,11 +80,14 @@ export class AutomaticStockfish {
   for(const [index,node] of path.entries()){
    if(this.suspended||this.current()!==session)return;
    if(!priority&&this.engineBusy()){this.sync();return;}
-   if(session.snapshot().positionScores?.[node.id]?.fen===node.fen)continue;
-   if(failed.has(node.id))return;
    try{
+    // Replay EVERY prior move, even if its score is already cached. Otherwise
+    // the historical board and its repetition counter fall out of sync after
+    // a partial scan or a resumed/imported game.
     if(index>0)historyBoard.move(node.san!);
     if(historyBoard.fen()!==node.fen)throw new Error('Partiegeschichte stimmt nicht mit der gespeicherten Stellung überein.');
+    if(session.snapshot().positionScores?.[node.id]?.fen===node.fen)continue;
+    if(failed.has(node.id))return;
     const terminal=gameResultCp(historyBoard);
     let cp:number,depth:number,line:string[]|undefined;
     if(terminal!==null){cp=terminal;depth=0;}
