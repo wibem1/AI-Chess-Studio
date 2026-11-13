@@ -54,7 +54,7 @@ test('Stockfish board score is refreshed for the visible learning position, neve
  const initial=await score.textContent();
  await page.locator('#board [data-square=e2]').click();
  await page.locator('#board [data-square=e4]').click();
- await expect(page.locator('#position-status')).toContainText('n1');
+ await expect(page.locator('#position-status')).toHaveAttribute('data-node-id','n1');
  await expect(score).toBeVisible({timeout:30000});
  await expect(score).not.toHaveText(initial!);
  await page.getByRole('tab',{name:'Spielmodus',exact:true}).click();
@@ -89,17 +89,17 @@ test('Stockfish navigation has no calculating message or height jump',async({pag
  const height=await row.evaluate(el=>el.getBoundingClientRect().height);
  await page.locator('#board [data-square=e2]').click();
  await page.locator('#board [data-square=e4]').click();
- await expect(page.locator('#position-status')).toContainText('n1');
+ await expect(page.locator('#position-status')).toHaveAttribute('data-node-id','n1');
  await expect(status).toBeHidden();
  await expect(page.locator('#stockfish-assist-settings')).not.toContainText('Stockfish berechnet');
  expect(Math.abs((await row.evaluate(el=>el.getBoundingClientRect().height))-height)).toBeLessThan(2);
  await expect(score).toBeVisible({timeout:30000});
  await page.locator('#learn-back').click();
- await expect(page.locator('#position-status')).toContainText('n0');
+ await expect(page.locator('#position-status')).toHaveAttribute('data-node-id','n0');
  await expect(status).toBeHidden();
  expect(Math.abs((await row.evaluate(el=>el.getBoundingClientRect().height))-height)).toBeLessThan(2);
  await page.locator('#learn-next').click();
- await expect(page.locator('#position-status')).toContainText('n1');
+ await expect(page.locator('#position-status')).toHaveAttribute('data-node-id','n1');
  await expect(status).toBeHidden();
  await expect(score).toBeVisible({timeout:30000});
  expect(Math.abs((await row.evaluate(el=>el.getBoundingClientRect().height))-height)).toBeLessThan(2);
@@ -124,7 +124,7 @@ test('Stockfish Variante disclosure stays visible while navigating between posit
  const before=await positionInRow();
  await page.locator('#board [data-square=e2]').click();
  await page.locator('#board [data-square=e4]').click();
- await expect(page.locator('#position-status')).toContainText('n1');
+ await expect(page.locator('#position-status')).toHaveAttribute('data-node-id','n1');
  await expect(details).toBeVisible();
  await expect(summary).toHaveText('Variante');
  await expect(details).toHaveCSS('visibility','visible');
@@ -133,12 +133,12 @@ test('Stockfish Variante disclosure stays visible while navigating between posit
  const after=await positionInRow();
  expect(Math.abs(after-before)).toBeLessThan(2);
  await page.locator('#learn-back').click();
- await expect(page.locator('#position-status')).toContainText('n0');
+ await expect(page.locator('#position-status')).toHaveAttribute('data-node-id','n0');
  await expect(details).toBeVisible();
  await expect(details).toHaveCSS('visibility','visible');
  await expect(details).toHaveAttribute('open','');
  await page.locator('#learn-next').click();
- await expect(page.locator('#position-status')).toContainText('n1');
+ await expect(page.locator('#position-status')).toHaveAttribute('data-node-id','n1');
  await expect(details).toBeVisible();
  await expect(details).toHaveCSS('visibility','visible');
  await expect(details).toHaveAttribute('open','');
@@ -179,9 +179,9 @@ test('Variante remains on its own fixed row even when the Stockfish score change
  }
  await page.locator('#board [data-square=e2]').click();
  await page.locator('#board [data-square=e4]').click();
- await expect(page.locator('#position-status')).toContainText('n1');
+ await expect(page.locator('#position-status')).toHaveAttribute('data-node-id','n1');
  await expect(details).toHaveAttribute('open','');
  await page.locator('#learn-back').click();
- await expect(page.locator('#position-status')).toContainText('n0');
+ await expect(page.locator('#position-status')).toHaveAttribute('data-node-id','n0');
  await expect(details).toHaveAttribute('open','');
 });
