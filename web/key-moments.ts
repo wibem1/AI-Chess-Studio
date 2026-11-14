@@ -21,7 +21,8 @@ export function installKeyMoments(current:()=>Session,jump:(node:string)=>void,r
  const activeMarks=(data:SessionData):BoardMark[]=>{
   if(!marksVisible||!selected||selected.session!==current())return [];
   const annotation=data.annotations[selected.index];
-  const moment=annotation?.gameReview?.moments.find(m=>{
+  if(!annotation?.gameReview)return [];
+  const moment=annotation.gameReview.moments.find(m=>{
    const anchor=reviewAnchors(data,annotation).find(a=>a.ply===m.ply);
    return anchor?.nodeId===data.activeNodeId;
   });
