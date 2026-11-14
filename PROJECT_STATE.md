@@ -1,3 +1,11 @@
+# Version 1.8.0 veröffentlicht – 14. November 2026
+
+Der PR #22 zur zweistufigen strategieorientierten KI-Partieanalyse wurde mit Squash-Commit `df20d9ca7af589165f6e9baa5709749eb3fe405b` in `work` übernommen. [Release-Workflow 43571801921](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43571801921) **vollständig erfolgreich**, einschließlich TypeScript, Node-Tests, Chromium-Browsertests mit lokalen Spielengines, Dateimanifest, Push nach gh-pages und GitHub-Pages-Onlinekontrolle. Das veröffentlichte `gh-pages/BUILD.json` nennt Version 1.8.0 und denselben Quellcommit. Web-App: https://wibem1.github.io/AI-Chess-Studio/ .
+
+**Noch offen:** Echte Modellqualität der zweistufigen Analyse anhand einer vollständigen Partie und realer GPT-6.1-Sol-Antwort sowie die tatsächlichen Kosten dieser beiden Modellaufrufe sind nicht durch Simulation bewiesen. Native Gerätetests sind separat erforderlich. Keine kostenpflichtigen Provideranfragen für die Veröffentlichung ausgelöst.
+
+---
+
 # Veröffentlichungskandidat 1.8.0 (14. November 2026)
 
 Vor Versionsanhebung vollständig erfolgreich: [GitHub Actions 43570185508](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43570185508) mit TypeScript, Node-Tests, Web-Build, Chromium und Produktionsdateimanifest. Zweistufige Analyse mit simulierten Providerantworten geprüft; echte Modellqualität noch nicht geprüft.
