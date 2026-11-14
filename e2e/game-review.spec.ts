@@ -89,7 +89,9 @@ test('key-position browser flow salvages one illegal alternative and keeps navig
  await expect(page.locator('#board .board-marks line')).toHaveCount(2);
  await page.locator('#key-moment-next').click();
  await expect(page.locator('#position-status')).toHaveAttribute('data-node-id','n2');
- await expect(page.locator('#board .board-marks')).toHaveCount(0);
+ await expect(page.locator('#board .board-marks line')).toHaveCount(1);
+ await expect(page.locator('#key-stage-text')).toContainText('tatsächlich gespielter Zug');
+ await expect(page.locator('#board .board-marks line')).toHaveAttribute('stroke','#245dd1');
  expect(calls).toBe(2);
  await page.reload();
  await expect(page.locator('#workspace')).not.toHaveAttribute('inert','');

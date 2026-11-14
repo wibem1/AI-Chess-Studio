@@ -1,4 +1,5 @@
 import {reviewAnchors,type ReviewAnchor} from '../src/game-review.js';
+import {Chess} from 'chess.js';
 import type {Session,SessionData} from '../src/session.js';
 import type {BoardMark} from '../src/coach-tools.js';
 import {reviewLocked,visibleReviewNodes} from '../src/review.js';
@@ -42,11 +43,21 @@ export function installKeyMoments(current:()=>Session,jump:(node:string)=>void,r
   if(!annotation?.gameReview)return undefined;
   return annotation.gameReview.moments.find(m=>reviewAnchors(data,annotation).some(a=>a.ply===m.ply&&a.nodeId===data.activeNodeId));
  };
+ // A verified historical move is an honest fallback, never an invented strategic plan.
+ const playedArrow=(data:SessionData):BoardMark[]=>{
+  const moment=momentAt(data),node=data.nodes.find(n=>n.id===data.activeNodeId);
+  if(!moment||!node)return [];
+  try{
+   const move=new Chess(node.fen).move(moment.played);
+   return [{from:move.from,to:move.to,kind:'arrow',color:'blue'}];
+  }catch{return [];}
+ };
  const staged=(data:SessionData)=>{
   const moment=momentAt(data);
   const explicit=moment?.steps;
   if(explicit?.length)return explicit;
-  return (moment?.marks??[]).map(m=>({marks:[m],text:`${m.color==='green'?'Eigener Plan':m.color==='red'?'Gegnerische Drohung':'Strategische Verbindung'}: ${m.from}–${m.to}`}));
+  if(!moment?.marks?.length)return playedArrow(data).map(mark=>({marks:[mark],text:'Blauer Pfeil: tatsächlich gespielter Zug, kein strategischer KI-Hinweis.'}));
+  return moment.marks.map(m=>({marks:[m],text:`${m.color==='green'?'Eigener Plan':m.color==='red'?'Gegnerische Drohung':'Strategische Verbindung'}: ${m.from}–${m.to}`}));
  };
  const activeMarks=(data:SessionData):BoardMark[]=>{
   if(!marksVisible||!selected||selected.session!==current())return [];
@@ -55,7 +66,7 @@ export function installKeyMoments(current:()=>Session,jump:(node:string)=>void,r
   // Never render a stage belonging to a position or analysis that is no longer visible.
   const stamp=`${selected.index}:${data.activeNodeId}`;
   if(demonstrationKey!==stamp)demonstrationIndex=0;
-  if(demonstrationIndex===0)return moment.marks?.length?moment.marks:moment.steps?.flatMap(s=>s.marks).slice(0,4)??[];
+  if(demonstrationIndex===0)return moment.marks?.length?moment.marks:moment.steps?.flatMap(s=>s.marks).slice(0,4)??playedArrow(data);
   return staged(data)[demonstrationIndex-1]?.marks??[];
  };
  return {choose,showLatest,hasReview:()=>!!latestReview(),marks:(data:SessionData)=>activeMarks(data),render(){
@@ -76,14 +87,14 @@ export function installKeyMoments(current:()=>Session,jump:(node:string)=>void,r
    const decorated=report.moments.filter(m=>!!m.marks?.length||!!m.steps?.length).length;
    heading.textContent=`Partieanalyse abgeschlossen · ${report.moments.length} Schlüsselstellungen`;
    summary.textContent=report.summary;lesson.textContent=`Für die nächste Partie: ${report.lesson}`;
-   notice.textContent=decorated?`${decorated} Schlüsselstellungen mit KI-Pfeilen. Wähle unten eine Stellung, um sie am Brett zu sehen.`:'Die KI hat keine strategischen Pfeile geliefert. Die Schlüsselstellungen und ihre Texte sind trotzdem gespeichert. Für grafische Pläne wäre eine neue kostenpflichtige Analyse nötig.';
+   notice.textContent=decorated?`${decorated} Schlüsselstellungen mit KI-Pfeilen. Wähle unten eine Stellung, um sie am Brett zu sehen.`:'Sol hat keine strategischen Pfeile geliefert. Ein blauer Pfeil zeigt deshalb nur den tatsächlich gespielten Zug – keine KI-Bewertung. Die Erklärungen sind weiterhin gespeichert.';
   }
   const moment=momentAt(data),frames=staged(data);
   const available=!!moment&&(!!moment.marks?.length||frames.length>0);
   toggle.hidden=!available;toggle.textContent=marksVisible?'Pfeile ausblenden':'Pfeile anzeigen';toggle.setAttribute('aria-pressed',String(marksVisible));
   stages.hidden=!available||!marksVisible||frames.length===0;
   stagePrevious.disabled=demonstrationIndex===0;stageNext.disabled=demonstrationIndex>=frames.length;
-  stageText.textContent=demonstrationIndex===0?'Gesamtansicht':`${demonstrationIndex}/${frames.length} · ${frames[demonstrationIndex-1]?.text??''}`;
+  stageText.textContent=demonstrationIndex===0?(moment&&!moment.marks?.length&&!moment.steps?.length?'Blau: tatsächlich gespielter Zug':'Gesamtansicht'):`${demonstrationIndex}/${frames.length} · ${frames[demonstrationIndex-1]?.text??''}`;
   previous.disabled=index===0;next.disabled=index===anchors.length-1;status.textContent=index<0?`${anchors.length} Schlüsselstellen`:`${index+1}/${anchors.length} · vor ${anchors[index]!.label}`;
   const links=document.getElementById('key-moment-links')!;links.replaceChildren();
   for(const [i,anchor] of anchors.entries()){const button=document.createElement('button');button.type='button';button.textContent=anchor.label;button.setAttribute('aria-label',`Schlüsselstellung vor ${anchor.label}`);button.setAttribute('aria-current',String(i===index));button.onclick=()=>{if(selected)choose(selected.index,i);};links.append(button);}
