@@ -1,5 +1,15 @@
 # Änderungen
 
+## 1.8.0 – Strategieorientierte zweistufige Partieanalyse (14. November 2026)
+
+- Die KI analysiert den Partieverlauf zunächst strategisch ohne Stockfish-Bewertungen; ein zweiter eigenständiger Modellaufruf prüft die vorläufigen Aussagen anhand der Engine-Daten.
+- Pläne, Gegenspiel und schachliche Ursachen werden priorisiert, Bewertungssprünge dienen als nachgeordnete Kontrolle.
+- Bis zu sechs navigierbare Lernmomente, geprüfte Partiehistorie und Speicherung der Analyse.
+- Getrennte Diagnose beider Aufrufe und zusammengefasste Kostendarstellung. Zweistufige Analysen können höhere API-Kosten verursachen.
+- Browseradapter für direkte OpenAI- und OpenRouter-Anfragen einschließlich Fehler-/Abbruchbehandlung erweitert.
+- Technische Vorprüfung: [Actions 43570185508](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43570185508) vollständig erfolgreich. Keine kostenpflichtigen realen KI-Qualitätstests und keine native Geräteabnahme durchgeführt.
+
+
 ## 1.7.2 – automatische Remiserkennung und deutsche Zugnotation (Releasekandidat, 13. November 2026)
 
 - Die automatische Stockfish-Bewertung berücksichtigt die vollständige Zuggeschichte inklusive dreifacher Stellungswiederholung; die dritte Wiederholung wird mit ihrem Remisanspruch als 0,00 gespeichert, statt als „Partie bereits beendet“ die gesamte Prüfung abzubrechen. Auch der manuelle Gesamtprüfungskern wurde korrigiert.

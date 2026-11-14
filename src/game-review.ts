@@ -35,7 +35,7 @@ export function validateGameReview(raw:unknown,history:{rootFen:string;moves:str
  if(!history || history.truncated || !history.moves.length)throw new ReviewValidationError('Analyse verworfen: Die vollständige Zugfolge fehlt.');
  const r=raw as GameReview|undefined;
  const text=(s:unknown,max:number)=>typeof s==='string'&&s.trim().length>0&&s.length<=max;
- if(!r||!text(r.summary,1200)||!text(r.lesson,800)||!Array.isArray(r.moments)||r.moments.length<Math.min(2,history.moves.length)||r.moments.length>4)throw new ReviewValidationError('Analyse verworfen: Erwartet werden ein Überblick, eine Lernfolgerung und zwei bis vier Schlüsselstellungen (Lernmomente) mit Beschreibung.');
+ if(!r||!text(r.summary,1200)||!text(r.lesson,800)||!Array.isArray(r.moments)||r.moments.length<Math.min(2,history.moves.length)||r.moments.length>6)throw new ReviewValidationError('Analyse verworfen: Erwartet werden ein Überblick, eine Lernfolgerung und zwei bis sechs Schlüsselstellungen (Lernmomente) mit Beschreibung.');
  const board=new Chess(history.rootFen),before:string[]=[];
  for(const san of history.moves){before.push(board.fen());board.move(san);}
  const problems:string[]=[];

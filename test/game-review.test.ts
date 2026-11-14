@@ -35,9 +35,22 @@ test('server transport requires a retrospective and reserves its larger output w
  const req={nodeId:'n4',fen:board.fen(),question:'Partie besprechen',legalMoves:[],context:[],topic:'review',hintMode:'explain',history};
  let calls=0;
  const base=await new SimulationAdapter().respond({nodeId:'n0',fen:history.rootFen,question:'',legalMoves:[]}) as Record<string,unknown>;
- const service=new ModelService({enabled:true,apiKey:'fixture-only-secret',model:'fixture'},(async(_url,init)=>{calls++;assert.equal(JSON.parse(String(init!.body)).max_completion_tokens,1800);return new Response(JSON.stringify({choices:[{finish_reason:'stop',message:{content:JSON.stringify(calls===1?{...base,gameReview:review}:base)}}],usage:{prompt_tokens:10,completion_tokens:20}}));}) as typeof fetch);
+ const draft='Weiß schwächt mit f3 und g4 den König; Schwarz nutzt mit der Dame die offene Diagonale h4–e1.';
+ const service=new ModelService({enabled:true,apiKey:'fixture-only-secret',model:'fixture'},(async(_url,init)=>{
+   calls++;const payload=JSON.parse(String(init!.body));
+   assert.equal(payload.max_completion_tokens,calls%2===1?1100:2600);
+   if(calls%2===1){
+     assert.equal(payload.messages.length,2);
+     assert.doesNotMatch(JSON.stringify(payload.messages[1]),/Stockfish|centipawn|lossCp|beforeCp|afterCp/);
+   }else{
+     assert.match(JSON.stringify(payload.messages),/qualitativeDraft/);
+     assert.match(JSON.stringify(payload.messages),/Weiß schwächt/);
+   }
+   return new Response(JSON.stringify({choices:[{finish_reason:'stop',message:{content:calls%2===1?draft:JSON.stringify(calls===2?{...base,gameReview:review}:base)}}],usage:{prompt_tokens:10,completion_tokens:20}}));
+ }) as typeof fetch);
  await assert.rejects(service.reply({...req,history:undefined}));assert.equal(calls,0);
- await service.reply(req);await assert.rejects(service.reply(req));assert.equal(calls,2);
+ await service.reply(req);assert.equal(calls,2);
+ await assert.rejects(service.reply(req));assert.equal(calls,4);
 });
 
 test('explicit key-moment requests in free chat store checked analysis and navigable anchors with the game',async()=>{
@@ -114,4 +127,44 @@ test('paid-model review with one illegal alternative is saved, navigable and exp
  assert.equal(saved.gameReview!.moments[0]!.alternative,'');
  // The provider's original response object was not overwritten.
  assert.equal(candidate.moments[0]!.alternative,'Qh4#');
+});
+
+test('six chronological strategic moments are permitted without weakening legal move checks',()=>{
+ const moves=['e4','e5','Nf3','Nc6','Bb5','a6','Ba4','Nf6'];
+ const data={rootFen:new Chess().fen(),moves,truncated:false};
+ const moments=[1,2,3,4,5,6].map(ply=>({ply,played:moves[ply-1]!,explanation:'Plan oder Gegenplan an diesem konkreten Zug prüfen.',alternative:'',reason:'Eine geprüfte taktische Alternative fehlt.'}));
+ assert.equal(validateGameReview({summary:'Weiß und Schwarz entwickeln ihre Figuren und ringen um Raum.',moments,lesson:'Pläne beider Seiten vor der Enginebewertung untersuchen.'},data).moments.length,6);
+ assert.throws(()=>validateGameReview({summary:'Überblick',moments:[...moments,{...moments[0]!,ply:7,played:moves[6]!}],lesson:'Lernpunkt'},data));
+});
+
+test('failed qualitative first pass is not mistaken for a completed review or silently retried',async()=>{
+ const {ModelService}=await import('../server/model.js');
+ const board=new Chess();for(const move of history.moves)board.move(move);
+ let calls=0;
+ const service=new ModelService({enabled:true,apiKey:'fixture-only-secret',model:'fixture'},(async(_url,init)=>{
+  calls++;const payload=JSON.parse(String(init!.body));
+  assert.equal(payload.max_completion_tokens,1100);
+  return new Response(JSON.stringify({choices:[{finish_reason:'length',message:{content:'Unvollständige Deutung'}}],usage:{prompt_tokens:60,completion_tokens:1100}}));
+ }) as typeof fetch);
+ await assert.rejects(service.reply({nodeId:'n4',fen:board.fen(),question:'Analysiere die Partie',legalMoves:[],context:[],topic:'review',hintMode:'explain',history}),/Strategische Voranalyse fehlgeschlagen/);
+ assert.equal(calls,1,'no paid second-stage call after an incomplete draft');
+});
+
+test('59-move diagnostic game is complete in the isolated strategic payload and retains historical anchors',async()=>{
+ const {readFileSync}=await import('node:fs');const {strategicPayload}=await import('../src/strategic-pass.js');
+ const moves=JSON.parse(readFileSync('test/fixtures/strategy-59-moves.json','utf8')) as string[];
+ const board=new Chess();for(const san of moves)board.move(san);assert.equal(moves.length,117);assert.equal(board.isCheckmate(),true);
+ const data={rootFen:new Chess().fen(),moves,truncated:false};
+ const payload=strategicPayload({nodeId:'n117',fen:board.fen(),legalMoves:[],question:'Analysiere die Partie',history:{...data,engineScore:999} as any,context:['Stockfish beforeCp 530'],turns:[{role:'assistant',nodeId:'n70',text:'ENGINE_SENTINEL'}]});
+ assert.deepEqual(payload.history,data);assert.doesNotMatch(JSON.stringify(payload),/Stockfish|engineScore|ENGINE_SENTINEL|beforeCp/);
+ const moments=[13,42,70,91,99,113].map(ply=>({ply,played:moves[ply-1]!,explanation:'Konkrete Figurenkoordination und Gegenplan an dieser Stellung prüfen.',alternative:'',reason:'Keine berechnete Alternative vorhanden.'}));
+ assert.equal(moves[69],'Rc8');assert.equal(moves[98],'Qf3');
+ assert.equal(validateGameReview({summary:'Raumgewinn, Zentrumsabtausch, Freibauernrennen und Königsangriff.',moments,lesson:'Nach der Umwandlung die Priorität von Freibauernkontrolle zu Königssicherheit neu prüfen.'},data).moments.length,6);
+});
+
+test('two-stage model receipt survives game export together with the validated review',async()=>{
+ const {Session}=await import('../src/session.js');const studio=new Studio();for(const san of history.moves)studio.session.play(san);
+ await studio.ask('Analysiere die Partie',{source:'model',respond:async()=>({message:review.summary,gameReview:review,provenance:{provider:'OpenRouter',model:'fixture/model',requestedModel:'fixture/model',reasoning:null,costUsd:0.03,traceId:2,calls:2}})},'review','explain');
+ const saved=Session.import(studio.session.export()).snapshot().annotations.at(-1)!;
+ assert.deepEqual(saved.gameReview,review);assert.match(saved.text,/2 Aufruf\(e\)/);assert.match(saved.text,/0\.030000 USD/);
 });

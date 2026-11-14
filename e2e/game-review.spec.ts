@@ -28,6 +28,13 @@ test('key-position browser flow salvages one illegal alternative and keeps navig
  await page.route('https://api.openai.com/v1/chat/completions',route=>{
   calls++;
   const body=route.request().postDataJSON(),payload=JSON.parse(body.messages.at(-1).content);
+  if(!payload.topic){
+   expect(payload.history.moves).toEqual(['f3','e5','g4','Qh4#']);
+   expect(payload.question).toContain('zuerst eigenständig');
+   expect(payload.question).not.toContain('mit Zugnummer, Bewertungsverlust');
+   expect(payload.context).toBeUndefined();
+   return route.fulfill({json:{choices:[{finish_reason:'stop',message:{content:'Weiß schwächt durch die Bauernzüge f3 und g4 seinen König. Schwarz antwortet mit einem direkten Damenmatt auf h4.'}}],usage:{prompt_tokens:100,completion_tokens:100}}});
+  }
   expect(payload.topic).toBe('review');
   expect(payload.history.moves).toEqual(['f3','e5','g4','Qh4#']);
   return route.fulfill({json:{choices:[{finish_reason:'stop',message:{content:JSON.stringify(modelReply)}}],usage:{prompt_tokens:140,completion_tokens:160}}});
@@ -57,12 +64,12 @@ test('key-position browser flow salvages one illegal alternative and keeps navig
  await expect(page.locator('#position-status')).toHaveAttribute('data-node-id','n0');
  await page.locator('#key-moment-next').click();
  await expect(page.locator('#position-status')).toHaveAttribute('data-node-id','n2');
- expect(calls).toBe(1);
+ expect(calls).toBe(2);
  await page.reload();
  await expect(page.locator('#workspace')).not.toHaveAttribute('inert','');
  await page.getByRole('tab',{name:'Lernmodus',exact:true}).click();
  await expect(page.locator('#key-moment-links button')).toHaveCount(2);
- expect(calls).toBe(1);
+ expect(calls).toBe(2);
 });
 
 test('two explicit analysis buttons: game review creates key moments, position analysis targets the visible FEN',async({page})=>{
@@ -86,10 +93,14 @@ test('two explicit analysis buttons: game review creates key moments, position a
  await page.locator('#api-key').fill('fixture-analysis-buttons-not-real');
  await page.locator('#api-cost-consent').check();await page.locator('#api-connect').click();
  await expect(page.locator('#api-feedback')).toContainText('gespeichert');
- let gameCalls=0,positionCalls=0;
+ let gameCalls=0,positionCalls=0,firstPassCalls=0;
  await page.route('https://api.openai.com/v1/chat/completions',async route=>{
   const data=route.request().postDataJSON(),payload=JSON.parse(data.messages.at(-1).content);
-  if(payload.topic==='review'){
+  if(!payload.topic){
+   firstPassCalls++;
+   expect(payload.history.moves).toEqual(['f3','e5','g4','Qh4#']);
+   await route.fulfill({json:{choices:[{finish_reason:'stop',message:{content:'Weiß schwächt durch die Bauernzüge f3 und g4 seinen König. Schwarz antwortet mit einem direkten Damenmatt auf h4.'}}],usage:{prompt_tokens:100,completion_tokens:100}}});
+  }else if(payload.topic==='review'){
    gameCalls++;
    expect(payload.history.moves).toEqual(['f3','e5','g4','Qh4#']);
    const response={message:'Die entscheidenden Fehler waren 1. f3 und 2. g4.',candidates:[],openQuestions:[],gameReview:{
@@ -110,7 +121,7 @@ test('two explicit analysis buttons: game review creates key moments, position a
  // This is a new AI request, not only a prepared text.
  await expect(page.locator('#dialogue-feedback')).toContainText('gespeichert',{timeout:60000});
  await expect(page.locator('#key-moment-links button')).toHaveCount(2);
- expect(gameCalls).toBe(1);
+ expect(gameCalls).toBe(1);expect(firstPassCalls).toBe(1);
  await page.locator('#learn-first').click();await page.locator('#learn-next').click();
  await expect(page.locator('#position-status')).toHaveAttribute('data-node-id','n1');
  await page.locator('#analyze-position').click();
@@ -141,6 +152,11 @@ test('game analysis retains its original game position if user navigates during 
  await page.route('https://api.openai.com/v1/chat/completions',async route=>{
   calls++;
   const payload=JSON.parse(route.request().postDataJSON().messages.at(-1).content);
+  if(!payload.topic){
+   expect(payload.history.moves).toEqual(['f3','e5','g4','Qh4#']);
+   await route.fulfill({json:{choices:[{finish_reason:'stop',message:{content:'Weiß schwächt durch die Bauernzüge f3 und g4 seinen König. Schwarz antwortet mit einem direkten Damenmatt auf h4.'}}],usage:{prompt_tokens:100,completion_tokens:100}}});
+   return;
+  }
   expect(payload.topic).toBe('review');expect(payload.history.moves).toEqual(['f3','e5','g4','Qh4#']);
   expect(payload.context.join('')).toContain('Lokal geprüfte Stockfish-Partieanalyse');
   const response={message:'Partie überprüft.',candidates:[],openQuestions:[],gameReview:{
@@ -153,7 +169,7 @@ test('game analysis retains its original game position if user navigates during 
  await page.locator('#learn-first').click();
  await expect(page.locator('#position-status')).toHaveAttribute('data-node-id','n0');
  await expect(page.locator('#dialogue-feedback')).toContainText('gespeichert',{timeout:60000});
- expect(calls).toBe(1);
+ expect(calls).toBe(2);
  await expect(page.locator('#key-moment-links button')).toHaveCount(2);
  await expect(page.locator('#dialogue-feedback')).not.toContainText('Stellung während der Stockfish-Prüfung gewechselt');
 });

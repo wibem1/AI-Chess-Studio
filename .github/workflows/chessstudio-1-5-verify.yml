@@ -3,6 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches:
+      - feat/strategy-first-game-analysis-20261114
       - feat/human-strategic-analysis-1-5
       - fix/sol-browser-timeout-90s-20261109
       - feat/prioritized-human-plans-20261110
@@ -19,6 +20,7 @@ on:
       - fix/stockfish-silent-navigation-20261111
     paths:
       - .github/workflows/chessstudio-1-5-verify.yml
+      - server/**
       - src/**
       - web/**
       - e2e/**
@@ -69,6 +71,7 @@ jobs:
             e2e/model-diagnostics.spec.ts \
             e2e/pgn-file.spec.ts \
             e2e/game-review.spec.ts \
+            e2e/analysis-navigation.spec.ts \
             e2e/full-game-analysis.spec.ts \
             e2e/position-transfer.spec.ts \
             e2e/maia.spec.ts \

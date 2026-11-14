@@ -1,3 +1,61 @@
+# Veröffentlichungskandidat 1.8.0 (14. November 2026)
+
+Vor Versionsanhebung vollständig erfolgreich: [GitHub Actions 43570185508](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43570185508) mit TypeScript, Node-Tests, Web-Build, Chromium und Produktionsdateimanifest. Zweistufige Analyse mit simulierten Providerantworten geprüft; echte Modellqualität noch nicht geprüft.
+
+Version 1.8.0 ist in package.json, package-lock.json und CHANGELOG.md auf dem Entwicklungsbranch vorbereitet; der Release-Workflow ist aktualisiert. Eine erneute erfolgreiche Gesamtprüfung dieses Versionierungsstands ist vor Merge und Veröffentlichung erforderlich. Nutzerfreigabe für den Release liegt vor. Kein Merge oder Deployment bestätigt. Keine bezahlten Provideraufrufe.
+
+---
+
+# Testkorrektur und laufende Freigabeprüfung (14. November 2026)
+
+Letzter vollständiger GitHub-Actions-Lauf [43567663187](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43567663187): TypeScript, Node-Tests und Build erfolgreich; Chromium 53/55 bestanden. Die zwei Fehler in `e2e/analysis-navigation.spec.ts` wurden durch fehlende ausdrückliche OpenAI-Anbieterauswahl im Testsetup ausgelöst, nicht durch eine nachgewiesene Analysefehlfunktion. Der Test wurde auf dem PR-Branch mit Commit `50874dbc983060e91c5f43513b028d6f18ec7924` korrigiert. Ein erneuter Workflow [43570185508](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43570185508) ist gestartet, **Ergebnis noch offen**. Kein Merge, keine Versionsanhebung und keine Veröffentlichung bis zum erfolgreichen Abschluss und zur Prüfung der Release-Schritte. Kein kostenpflichtiger KI-Test ausgeführt.
+
+---
+
+# Zweistufige Partieanalyse – technische Korrektur (14. November 2026)
+
+PR #22 / Branch `feat/strategy-first-game-analysis-20261114`, weiterhin Version 1.7.2, nicht veröffentlicht.
+
+Bei der Übernahme fehlte die zweiteilige Analyse vollständig im Browseradapter. Ergänzt für Chat Completions/OpenRouter und direkte Sol Responses, mit gemeinsamem strikt ausgewähltem Strategie-Payload ohne Enginekontext oder gespeicherte Dialoge. Beide Phasen besitzen eigene Diagnosespuren und Kostenabrechnung; Aufrufanzahl und Gesamtpreis werden jetzt auch im gespeicherten Partierückblick sichtbar. Die Anfragesperre gilt für beide Phasen und Abbrüche verhindern Phase zwei.
+
+Prüfung: ursprüngliche 295 Node-Tests nach Fehlerfixture-Anpassung bestanden; weitere Regressionen für beide Browserprovider, Abbruch/Fehler und den anonymisierten 59-Züge-Verlauf ergänzt. Vollständige erneute Prüfung läuft. Lokaler Chromium-Start scheitert an einer Unix-Socket-Sperre der Ausführungsumgebung, nicht an einer getesteten Appfunktion. Deshalb wird der vorhandene Verifikationsworkflow für diesen Branch mit allen Chromiumtests verwendet. Keine bezahlten Provideranfragen.
+
+Qualitätsmaßstab aus der Originaldiagnose: Pläne und Ursachen vor Zahlen; insbesondere Damenflügel-Raumgewinn, schwarzes Zentrum/Gegenspiel, Freibauernrennen, 35…Tc8, 46.Tb8, 50.Df3 und Übergang zum Mattangriff. Technische Fixtures belegen keine bessere reale Modellanalyse. Keine Veröffentlichung vor erfolgreicher Gesamtprüfung.
+
+---
+
+# Zweistufige KI-Partieanalyse – Entwicklungsfortsetzung (14. November 2026)
+
+**Status:** Entwicklungsbranch `feat/strategy-first-game-analysis-20261114`, Entwurfs-PR #22. Nicht gemergt, nicht veröffentlicht, Versionsnummer weiterhin 1.7.2. Technische und reale KI-Tests noch nicht ausgeführt.
+
+**Implementiert:** `server/model.ts` verwendet für strukturierte ganze Partierückblicke nun zwei **physisch getrennte Modellaufrufe**. Stufe 1 erhält nur die geprüfte historische Zugfolge, die konkrete Frage und soweit verfügbar die Nutzerseite; weder Stockfish-Bewertungen noch den gespeicherten Analysekontext. Stufe 1 erstellt eine vorläufige strategische Deutung. Stufe 2 bekommt diese vorläufige Deutung plus den üblichen Partie-/Stockfish-Kontext und muss die Aussagen kritisch korrigieren. Eine Antwort wird erst nach erfolgreicher Stufe 2 mit `validateGameReview()` gespeichert.
+
+**Kosten/Diagnose:** Jeder Aufruf hat eine eigene Reservierung und Diagnosespur; OpenRouter-Kostennachweise werden für die im Review angezeigte Gesamtanfrage summiert und zwei Aufrufe kenntlich gemacht. Der tatsächliche Verbrauch wird höher als beim früheren Einzelaufruf sein. Kein automatischer Retry bei fehlerhafter erster Phase. Die bisherigen normalen Chat- und Stellungsanfragen bleiben einstufig. Fehlende Preisangaben werden nicht geschätzt.
+
+**Tests geschrieben/angepasst, aber nicht ausgeführt:** Fixturetest für 2 statt 1 Provideraufruf, strikte Prüfung, dass die erste Stufe keine Engine-Daten erhält, Fehlerabbruch nach einer unvollständigen ersten Stufe; Browser-Reviewtests für beide Stufen angepasst. Ein Realtest mit GPT-6.1 Sol und Stockfish ist weiterhin nötig. Begrenzung: Die erste Stufe kann aus der Zugliste allein falsche Hypothesen bilden; die zweite Stufe muss diese anhand des tatsächlichen Brettes überprüfen, kann aber ohne nachgerechnete Varianten keinen taktischen Beweis liefern.
+
+**Nächster einzelner Schritt:** Bestehenden GitHub-Verifikationsworkflow manuell auf dem Branch starten (kein Workflow-Dispatch in der aktuellen Anbindung) und alle Node-/Chromium-Tests prüfen. Bei Fehlern korrigieren. Anschließend mit dem 59-Züge-Diagnosefall einen kontrollierten echten Modellvergleich durchführen und insbesondere Erklärungstiefe, tatsächlich nachweisbare Varianten und Mehrkosten bewerten.
+
+---
+
+# Strategieorientierter KI-Partierückblick – Entwicklungsstand (14. November 2026)
+
+**Status:** Nur Entwicklungsbranch `feat/strategy-first-game-analysis-20261114`, keine Veröffentlichung, keine neue Versionsnummer. Codeänderungen auf GitHub gesichert, **noch keine Tests ausgeführt**, kein realer KI-Provider geprüft.
+
+**Ausgangspunkt:** Die Diagnose der veröffentlichten Version 1.7.2 zeigte eine KI-Partieanalyse, die Stockfish-Bewertungssprünge weitgehend nacherzählt. `src/full-game-analysis.ts` und `src/model-contract.ts` wiesen das Modell ausdrücklich an, mit den größten numerischen Bewertungsänderungen zu beginnen.
+
+**Implementiert (nicht getestet):** Analyseauftrag und KI-System-/Chatprompt verlangen nun zuerst einen eigenständigen strategischen Durchgang durch den tatsächlichen Partieverlauf (Pläne beider Seiten, gelungene Entscheidungen, Übergänge), danach einen kritischen Stockfish-Abgleich. Bewertungen bei geringer Suchtiefe werden als unvollkommene Indizien gekennzeichnet. Der strukturierte Rückblick kann statt vier bis zu sechs chronologische Lernmomente enthalten; das Review-Ausgabelimit ist auf 2.600 Tokens erhöht. Bestehende Regelprüfung von SAN-Alternativen bleibt erhalten. Neue Regressionstests für Strategie-Priorisierung und sechs Momente angelegt.
+
+**Fortsetzung (14. November):** Die tatsächliche Textreihenfolge von `fullGameSummary()` wurde korrigiert: Der strategische Analyseauftrag steht jetzt vor dem numerischen Stockfish-Bericht; dieser ist ausdrücklich als nachgeordneter Faktencheck gekennzeichnet. Der UI-Knopf zur Spielqualität fordert dieselbe Reihenfolge. Der Servertransporttest wurde auf 2.600 Antworttokens abgestimmt, und ein Test prüft die tatsächliche Kontextreihenfolge. Dies sind Codeänderungen, keine bewiesene Modellqualität.
+
+**Prüfblocker:** Für diesen Branch zeigt GitHub Actions derzeit keinen Lauf. Der bestehende Verifikationsworkflow ist zwar manuell startbar, aber die verfügbare GitHub-Anbindung stellt keinen Workflow-Dispatch bereit; der Container kann das Repository wegen fehlender Netznamensauflösung nicht klonen. Deshalb keine Tests als bestanden deklarieren und PR #22 als Entwurf belassen.
+
+**Grenze:** Dies ist noch keine physisch getrennte zweistufige KI-Anfrage, sondern eine veränderte Anleitung und Ausgabeobergrenze in einem Modellaufruf. Die Stockfish-Chronologie wird weiter als Kontext mitgesendet; ein tatsächlicher Qualitätsgewinn ist erst mit realem Modelltest belegbar. Bestehende knappe Stockfish-Prüfung (Tiefe 12 / 1 s) bleibt unverändert.
+
+**Nächster Schritt:** Node-Tests und Chromium-Tests ausführen, danach eine echte 59-Züge-Partie mit dem bisherigen Diagnosefall vergleichen und insbesondere sachliche Erklärungen zu 35…Tc8 und 50.Df3 kontrollieren. Keine Freigabe ohne Nutzerauftrag.
+
+---
+
 # Offline-Ausbau – Bestandsprüfung und nächster Schritt (13. November 2026)
 
 **Auftrag:** Eine gemeinsame, möglichst vollständig offline nutzbare Chess-Studio-Anwendung für Windows, macOS, Android und iPadOS; Online-KI bleibt optional. **Keine neue Version vergeben, nichts veröffentlicht.** Grundlage ist die bestätigte Webversion 1.7.2.
