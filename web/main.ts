@@ -40,6 +40,7 @@ import {installGameLibrary} from './game-library.js';
 import {installFontScale} from './font-scale.js';
 import {installStrategicQualityUI} from './strategic-quality-ui.js';
 import {diagnosticGameHistory} from '../src/diagnostic-game-history.js';
+import {diagnosticReviewIllustrations} from '../src/diagnostic-review-illustrations.js';
 
 document.getElementById('app-version')!.textContent = `Version ${APP_VERSION}`;
 document.title = `AI-Chess-Studio ${APP_VERSION}`;
@@ -230,6 +231,7 @@ function render() {
     }
   }
   if(illustration){drawBoardMarks(board,illustration.diagram.marks,flipped);if(illustration.diagram.fen)message('position-status',`Lehrstellung · ${chess.turn()==='w'?'Weiß':'Schwarz'} am Zug`);}
+  else if(learningView&&!locked)drawBoardMarks(board,keyMoments.marks(data),flipped);
   message('legal-moves', status.gameOver ? 'Partie beendet.' : studio.session.legalMoves().join(', '));
   $<HTMLButtonElement>('tactical-check').disabled = tacticalPending || status.gameOver || locked || !!data.review&&status.repetition;
   message('tactical-limits-hint',data.review?'Stockfish 19 Lite · begrenzter Faktencheck auf Aufruf mit vollständiger Zuggeschichte. Wiederholungen werden historisch geprüft; bei Remisanspruch keine isolierte Endspielbewertung.':'Stockfish 19 Lite · 1 Thread · 16 MiB Hash · höchstens Tiefe 12, 20.000 Knoten oder 1 Sekunde Suchzeit. Aktuelle FEN, ohne Wiederholungshistorie.');
@@ -344,7 +346,7 @@ $('api-settings').prepend($('ai-access-card'));
 $('learning-settings').hidden=true;
 $('panel-settings').append($('learning-settings'));
 $('diagram-close').onclick=()=>{chatStopped=true;studio.cancelAsk();coachBoard.cancel();activeAdapter?.cancel();illustration=undefined;render();};
-const keyMoments=installKeyMoments(()=>studio.session,node=>{match.stop('Schlüsselstelle ansehen.');game.analyse(node);illustration=undefined;selected=null;navigation.select('learn',false,true,false);render();});
+const keyMoments=installKeyMoments(()=>studio.session,node=>{match.stop('Schlüsselstelle ansehen.');game.analyse(node);illustration=undefined;selected=null;navigation.select('learn',false,true,false);render();},render);
 // Keep optional Stockfish assessment in the same compact row as KI gegen Engine.
 $('match-stop').after($('stockfish-assist-settings'));
 const stockfishToggle=$<HTMLInputElement>('stockfish-assist-enabled'),stockfishStatus=$('stockfish-assist-status');
@@ -514,7 +516,7 @@ installStrategicQualityUI(()=>studio.session,(fen,question)=>{
  render();
  text('question').focus();
 });
-const modelControls=installModelControls(localPost,async()=>{updateMode();await refreshModelStatus();await refreshCosts();},()=>({nodeId:studio.session.snapshot().activeNodeId,fen:studio.session.snapshot().nodes.find(n=>n.id===studio.session.snapshot().activeNodeId)!.fen,gameHistory:diagnosticGameHistory(studio.session.snapshot()),automaticStockfishError:automaticScores?.error??'',lastAiError,lastAiStage,fullGameStockfish:(()=>{
+const modelControls=installModelControls(localPost,async()=>{updateMode();await refreshModelStatus();await refreshCosts();},()=>({nodeId:studio.session.snapshot().activeNodeId,fen:studio.session.snapshot().nodes.find(n=>n.id===studio.session.snapshot().activeNodeId)!.fen,gameHistory:diagnosticGameHistory(studio.session.snapshot()),reviewIllustrations:diagnosticReviewIllustrations(studio.session.snapshot()),automaticStockfishError:automaticScores?.error??'',lastAiError,lastAiStage,fullGameStockfish:(()=>{
  const report=matchingFullGameAnalysis(studio.session);
  const issue=report?.records.filter(m=>m.lossCp!==null&&m.grade!=='gut').sort((a,b)=>b.lossCp!-a.lossCp!)[0];
  return report?{state:'stored',plies:report.records.length,critical:issue?{ply:issue.ply,san:issue.san,grade:issue.grade,lossCp:issue.lossCp}:null}:{state:'missing_or_other_game'};

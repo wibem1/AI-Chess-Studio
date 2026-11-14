@@ -571,3 +571,8 @@ html:has(#workspace[data-active-view=learn]),body:has(#workspace[data-active-vie
 .full-game-board-panel #full-game-status{margin:6px 0;font-size:.79rem;color:var(--muted)}
 .full-game-board-panel #full-game-result-details{margin:2px 0}
 .full-game-board-panel #full-game-results button{margin:3px;min-height:38px;padding:8px 10px;font-size:.78rem}
+
+/* Lightweight coaching stages stay readable below the board on narrow screens. */
+#key-moment-stages:not([hidden]){display:flex;align-items:center;justify-content:center;gap:6px;flex:1 1 100%;flex-wrap:wrap}
+#key-stage-text{max-width:min(100%,450px);font-size:.85rem;line-height:1.3;overflow-wrap:anywhere;text-align:center}
+#key-moment-stages button{min-height:32px}

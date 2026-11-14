@@ -1,11 +1,12 @@
 import type {Annotation,SessionData} from './session.js';
 import {pathTo} from './game.js';
 import {Chess} from 'chess.js';
+import {parseMarks,type BoardMark} from './coach-tools.js';
 import {germanSan,germanMoveFromFen} from './german-notation.js';
 
 export interface GameReview {
  summary:string;
- moments:{ply:number;played:string;explanation:string;alternative:string;reason:string}[];
+ moments:{ply:number;played:string;explanation:string;alternative:string;reason:string;marks?:BoardMark[];steps?:{text:string;marks:BoardMark[]}[]}[];
  lesson:string;
 }
 export function asksForKeyMoments(question:string):boolean{
@@ -43,14 +44,50 @@ export function validateGameReview(raw:unknown,history:{rootFen:string;moves:str
  let previous=0;
  for(const m of r.moments){
   if(!m||!Number.isInteger(m.ply)||m.ply<=previous||m.ply>before.length||m.played!==history.moves[m.ply-1]||!text(m.explanation,1000)||!text(m.reason,700)||typeof m.alternative!=='string'){problems.push('Eine Schlüsselstellung enthält einen ungültigen Bezug zur Zugfolge oder eine fehlende Beschreibung.');continue;}
+  // Illustrative arrows originate at an occupied square in the historical position.
+  // Use lines for connections without a source piece; neither implies a legal move.
   const position=new Chess(before[m.ply-1]!);
+  const checkedMarks=(value:unknown):BoardMark[]=>{
+   const checked=parseMarks(value);
+   if(checked.some(mark=>mark.kind==='arrow'&&!position.get(mark.from as import('chess.js').Square)))
+    throw new Error('Ein Pfeil hat keine Ausgangsfigur.');
+   return checked;
+  };
+  let marks:BoardMark[]|undefined;
+  if(m.marks!==undefined){
+   try{
+    marks=checkedMarks(m.marks);
+    if(marks.length>4)throw new Error('Zu viele Erklärungspfeile.');
+   }catch{
+    if(!sanitizeInvalidAlternatives){problems.push('Eine Schlüsselstellung enthält ungültige Brettpfeile.');continue;}
+    marks=undefined; // Keep the review, but never persist untrusted drawing instructions.
+   }
+  }
+  let steps:NonNullable<typeof m.steps>|undefined;
+  if(m.steps!==undefined){
+   try{
+    if(!Array.isArray(m.steps)||m.steps.length<1||m.steps.length>3)throw new Error('Ungültige Lernschritte.');
+    steps=m.steps.map(s=>{
+     if(!s||typeof s.text!=='string'||!s.text.trim()||s.text.length>180)throw new Error('Ungültiger Lernschritt.');
+     const checked=checkedMarks(s.marks);
+     if(checked.length<1||checked.length>3)throw new Error('Ungültige Lernpfeile.');
+     return {text:s.text.trim(),marks:checked};
+    });
+   }catch{
+    if(!sanitizeInvalidAlternatives){problems.push('Eine Schlüsselstellung enthält ungültige Lernschritte.');continue;}
+    steps=undefined;
+   }
+  }
+  const clean={...m};
+  if(marks===undefined)delete clean.marks;else clean.marks=marks;
+  if(steps===undefined)delete clean.steps;else clean.steps=steps;
   if(m.alternative && (m.alternative===m.played||!position.moves().includes(m.alternative))){
    const label=germanMoveFromFen(position.fen(),m.played);
    if(sanitizeInvalidAlternatives){
     // Keep the checked historic move and its description, never a bogus alternative or its rationale.
-    safeMoments.push({...m,alternative:'',reason:'Der KI-Vorschlag für einen Alternativzug war in dieser Stellung nicht legal und wurde entfernt. Ein anderer Zug wurde nicht geprüft.'});
+    safeMoments.push({...clean,alternative:'',reason:'Der KI-Vorschlag für einen Alternativzug war in dieser Stellung nicht legal und wurde entfernt. Ein anderer Zug wurde nicht geprüft.'});
    }else problems.push(`Bei ${label}: Der Alternativzug ${/^[a-zA-Z0-9=+#-]{1,16}$/.test(m.alternative)?m.alternative:'(ungültige Schreibweise)'} ist nicht legal oder entspricht dem gespielten Zug.`);
-  }else safeMoments.push({...m});
+  }else safeMoments.push(clean);
   previous=m.ply;
  }
  if(problems.length)throw new ReviewValidationError('Analyse verworfen: '+problems.join(' '));

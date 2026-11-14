@@ -1,4 +1,42 @@
-# Chess Studio 1.9.0 veröffentlicht – 14. November 2026
+# Diagnoseexport für KI-Bretterklärungen erfolgreich geprüft – 14. November 2026
+
+**Branch:** `feat/key-moment-board-arrows-20261114` / [PR #25](https://github.com/wibem1/AI-Chess-Studio/pull/25), weiterhin Entwurf; öffentliche Version **1.9.0** unverändert.
+
+**Neu:** Die reguläre KI-Diagnose enthält in `extra.current.reviewIllustrations` bis zu drei gespeicherte Partierückblicke mit allen ihren maximal sechs Lernmomenten, jeweils historischem Knoten, FEN vor dem besprochenen Zug, gespielt/Alternative, ursprünglicher Erklärung sowie den tatsächlich gespeicherten Pfeilen und beschrifteten Demonstrationsschritten. Die Funktion funktioniert auch nach Sitzungs-Neuladen und wenn seit dem Browserneustart keine Modellanfrage erfolgt ist. Sie erfindet keine zusätzlichen Pfeile und führt keine KI-Anfrage aus. Der Diagnoseexport enthält Partiestellungen und Analysetexte, daher vor Weitergabe prüfen.
+
+**Prüfgrundlage:** [GitHub Actions 43602938073](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43602938073) auf Source-Commit `b6d063bf8dda374b3709012bc2907e52e95ab105` vollständig **success**: TypeScript, Node-Tests einschließlich neuen Exporttests, Web-Build, Chromium-Regressionslauf und Produktionsmanifest. PR-Beschreibung ebenfalls aktualisiert. Keine API-Kosten oder Veröffentlichung.
+
+**Noch offen:** Ein echter Sol-Partierückblick mit erstmals erzeugten Markierungen; die technische Diagnose kann die späteren Daten belegen, ersetzt aber keine qualitative Prüfung durch einen Schachkundigen. Kein Sol-Zugang im GitHub-Workflow; API-Schlüssel werden nicht im Repository gespeichert. Fortsetzung nach einem echten Test mit Zugriff auf die zugehörige Diagnose und visuelle Kontrolle, dann ggf. Freigabe durch den Nutzer.
+
+---
+
+# Prüfung der grafischen Schachlogik – 14. November 2026
+
+**Entwicklungsbranch:** `feat/key-moment-board-arrows-20261114` / [PR #25](https://github.com/wibem1/AI-Chess-Studio/pull/25); öffentliche Version weiterhin **1.9.0**. Die Qualitätssicherung verwirft jetzt einen Pfeil, der auf einem leeren Ausgangsfeld in der betreffenden historischen Stellung beginnt; abstrakte Linien dürfen leere Felder verbinden. Die Prüfung gilt sowohl für Gesamtmarkierungen als auch für die einzelnen Demonstrationsschritte und beim JSON-Import. Eine fehlerhafte Zeichnung wird bei einer echten KI-Antwort bereinigt, ohne die restliche Analyse zu verlieren. Beim Wechsel der historischen Stellung wird kein alter Demonstrationsschritt mehr gezeichnet. Ergänzte Unit-Tests prüfen die fehlerhaften und zulässigen Fälle, Browsertests verifizieren unveränderte Stellungsidentität während der Erklärungsschritte.
+
+**Prüfgrundlage:** [GitHub Actions 43601001337](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43601001337), Commit `9c44979a75aab6f48aff42b38f3b99cd20f89cb0`, vollständig **success**: TypeScript, Node-Tests, Web-Build, Chromium-Regression und Produktionsmanifest. **Kein Release und keine bezahlte Modellanfrage.** Eine empirische Qualitätsprüfung von echten Sol-Erklärungspfeilen ist weiterhin offen; hierfür ist eine echte Modellantwort aus der App erforderlich. Der UI-Test beweist die Funktion, nicht die schachliche Qualität freier KI-Zeichnungen. Vor einer Veröffentlichung zuerst reale Sol-Bretterklärungen an konkreten Schlüsselstellungen begutachten; keine selbstständige Veröffentlichung ohne neuen Auftrag.
+
+---
+
+# Schrittweise KI-Bretterklärung erfolgreich geprüft – 14. November 2026
+
+**Entwicklung:** Auf PR #25 wurden neben den gespeicherten Schlüsselstellungs-Pfeilen auch schrittweise Erklärungen ergänzt. Je historischem Lernmoment optional bis zu drei KI-beschriftete Demonstrationsschritte mit jeweils bis zu drei validierten Pfeilen. Auf der unveränderten Stellung vor dem zu besprechenden Zug kann der Nutzer „Gesamtansicht“ und Schritte 1–3 mit Zurück/Weiter durchgehen. Wenn ein Modell nur normale Pfeile liefert, können diese ebenfalls einzeln durchgegangen werden; ältere Analysen ohne Zeichenanweisungen bleiben unverändert. Ein-/Ausblenden und Brettdrehung bleiben erhalten, keine zusätzlichen KI-Anfragen beim Durchgehen. Alle Diagramme sind visualisierte Ideen, keine nachgespielten oder durch Stockfish bestätigten Varianten.
+
+**Nachweis:** [GitHub Actions 43599729799](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43599729799) auf Commit `4a84d7c3f64a205e9f2761dafecddd5b7daba48c` vollständig erfolgreich: TypeScript, Node-Tests, Web-Build, Chromium-Regression einschließlich Schritt-für-Schritt-Navigation, ein-/ausgeblendeten Markierungen, Brettdrehung und normaler Schlüsselstellen-Navigation, Dateimanifest. Das Modell war im Test simuliert. **Nicht veröffentlicht:** PR #25 bleibt Entwicklungsentwurf, öffentliche Version 1.9.0.
+
+**Noch offen:** Keine reale Sol-Antwort mit echten gestuften Markierungen qualitativ bewertet. Keine automatischen Züge während der Erklärschritte; ein echtes Varianten-Vorspielen mit Zuglegalitätskontrolle wäre ein getrenntes Feature. Keine native Geräteabnahme. Nächster Schritt: reale Schachpartie mit Sol analysieren, didaktische Qualität der gezeichneten Pfeile und Schritte beurteilen, danach über Freigabe und Versionsnummer entscheiden.
+
+---
+
+# Grafische Schlüsselstellungs-Pfeile – technische Prüfung erfolgreich (14. November 2026)
+
+**Branch:** `feat/key-moment-board-arrows-20261114`, [PR #25](https://github.com/wibem1/AI-Chess-Studio/pull/25), weiterhin Entwurf. **GitHub Actions [43598511772](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43598511772) vollständig erfolgreich** auf Commit `07d653458603fe1f77afe71a0f3ba6642ba2bd60`: TypeScript, Node-Tests, Web-Build, Chromium-Browsertests einschließlich Ein-/Ausblenden, Brettdrehung und Wechsel zwischen Schlüsselstellungen, Produktionsmanifest. Keine bezahlten KI-Anfragen.
+
+Implementiert: optionale, KI-generierte max. vier Pfeile/Linien pro historischem GameReview-Lernmoment; streng validiert, ungültige Markierungen werden vor Speicherung entfernt; persistiert in Sitzungs-JSON und beim Import neu validiert. Bestehendes Brett-SVG zeichnet nur für passende angezeigte Schlüsselstellung und im Lernmodus, keine zusätzlichen API-Kosten. Alte Partierückblicke bleiben kompatibel. **Keine Veröffentlichung**: öffentliche Version weiterhin 1.9.0. Die konkrete Qualität der Pfeilwahl eines realen Sol-Aufrufs ist noch ungeprüft. Nächster Schritt: vor Freigabe reale Partie mit Sol analysieren und Zeichnungsqualität kontrollieren; schrittweise Vorführung separat entwickeln.
+
+---
+
+# Entwicklungsstand: grafische Erläuterung von Schlüsselstellungen (14. November 2026)\n\n**Branch:** `feat/key-moment-board-arrows-20261114`. Ziel: optionale, an historische Stellungen gebundene KI-Pfeile in GameReview-Lernmomenten. Pfeile nutzen die vorhandene SVG-Brettzeichnung und bleiben bei Brettdrehung geometrisch korrekt. Die KI liefert maximal vier Pfeile/Linien je Moment, die strikt validiert und mit Sitzungsexport/-import gespeichert werden. Beim Anspringen einer Schlüsselstellung werden die Pfeile eingeblendet; Ein-/Ausblenden ist ohne weitere KI-Anfrage möglich. Alte gespeicherte Analysen bleiben kompatibel. Fremde Lehrdiagramme haben Vorrang; kein Anzeigen an anderen Stellungen oder in verborgenen geführten Rückblicken.\n\n**Status:** Code- und Teständerungen als Entwicklungsschritt. Vollständige GitHub-Actions- und echte Browserprüfung noch ausstehend; keine Versionsnummer, kein Release oder Deployment. Eine mehrstufige interaktive Vorführung und farbige Feldhervorhebung sind eigene Folgeschritte.\n\n---\n\n# Chess Studio 1.9.0 veröffentlicht – 14. November 2026
 
 **Nutzerauftrag umgesetzt:** PR #24 mit der zusätzlichen erzwungenen tiefen Stockfish-Prüfung des tatsächlich gespielten Zuges ist nach erfolgreicher Releasekandidaten-CI [43595933262](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43595933262) per Squash in `work` integriert (Commit `68b249c1863812f74ec873f902e4b47c661cb366`). Der bestehende Releaseworkflow [43596248059](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43596248059) hat den Upload nach `gh-pages` ausgeführt. `gh-pages/BUILD.json` bestätigt Version **1.9.0**, denselben Source-Commit und den korrekten Pages-Basispfad. Live-App: https://wibem1.github.io/AI-Chess-Studio/ .
 

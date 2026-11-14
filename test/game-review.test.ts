@@ -168,3 +168,45 @@ test('two-stage model receipt survives game export together with the validated r
  const saved=Session.import(studio.session.export()).snapshot().annotations.at(-1)!;
  assert.deepEqual(saved.gameReview,review);assert.match(saved.text,/2 Aufruf\(e\)/);assert.match(saved.text,/0\.030000 USD/);
 });
+
+test('review teaching arrows stay tied to the position before a key move and survive export/import',async()=>{
+ const {Session}=await import('../src/session.js');
+ const {reviewAnchors}=await import('../src/game-review.js');
+ const annotated={...review,moments:review.moments.map((m,i)=>({...m,marks:i===0?[{from:'f2',to:'f3',kind:'arrow' as const,color:'green' as const},{from:'d8',to:'h4',kind:'arrow' as const,color:'red' as const}]:[]}))};
+ const checked=validateGameReview(annotated,history);
+ const session=new Session();for(const m of history.moves)session.play(m);
+ session.annotate({nodeId:'n4',kind:'dialogue',source:'model',text:formatGameReview(checked,history),hypothesis:true,openQuestions:[],gameReview:checked});
+ const restored=Session.import(session.export());
+ assert.deepEqual(restored.snapshot().annotations[0]!.gameReview!.moments[0]!.marks,annotated.moments[0]!.marks);
+ assert.deepEqual(reviewAnchors(restored.snapshot(),restored.snapshot().annotations[0]!).map(a=>a.nodeId),['n0','n2']);
+ const malformed={...annotated,moments:[{...annotated.moments[0]!,marks:[{from:'a9',to:'h8',kind:'arrow',color:'red'}]},annotated.moments[1]!]};
+ assert.throws(()=>validateGameReview(malformed,history),/Brettpfeile/);
+ const cleaned=validateGameReview(malformed,history,true);
+ assert.equal(cleaned.moments[0]!.marks,undefined);
+ assert.equal(checked.moments[0]!.marks!.length,2);
+});
+
+test('teaching steps are position-scoped, validated and stripped when invalid',()=>{
+ const staged={...review,moments:review.moments.map((m,i)=>i?m:{...m,steps:[
+ {text:'Weiß zeigt den Bauernplan.',marks:[{from:'f2',to:'f3',kind:'arrow' as const,color:'green' as const}]},
+ {text:'Schwarz antwortet auf der Diagonale.',marks:[{from:'d8',to:'h4',kind:'arrow' as const,color:'red' as const}]}
+ ]})};
+ assert.equal(validateGameReview(staged,history).moments[0]!.steps?.length,2);
+ const invalid={...staged,moments:[{...staged.moments[0]!,steps:[{text:'Ungültig',marks:[{from:'a9',to:'b1',kind:'arrow',color:'red'}]}]},staged.moments[1]!]};
+ assert.throws(()=>validateGameReview(invalid,history),/Lernschritte/);
+ const salvaged=validateGameReview(invalid,history,true);
+ assert.equal(salvaged.moments[0]!.steps,undefined);
+ assert.equal(salvaged.moments[0]!.played,'f3');
+});
+
+test('a teaching arrow must originate on a piece in the historical position; lines may connect empty fields',()=>{
+ const raw={...review,moments:[{...review.moments[0]!,marks:[{from:'f3',to:'f5',kind:'arrow' as const,color:'green' as const}]},review.moments[1]!]};
+ assert.throws(()=>validateGameReview(raw,history),/Brettpfeile/);
+ const safe=validateGameReview(raw,history,true);
+ assert.equal(safe.moments[0]!.marks,undefined);
+ const line={...review,moments:[{...review.moments[0]!,marks:[{from:'f3',to:'f5',kind:'line' as const,color:'blue' as const}]},review.moments[1]!]};
+ assert.equal(validateGameReview(line,history).moments[0]!.marks?.length,1);
+ const step={...review,moments:[{...review.moments[0]!,steps:[{text:'Ein falscher Pfeil',marks:[{from:'f3',to:'f5',kind:'arrow' as const,color:'red' as const}]}]},review.moments[1]!]};
+ assert.throws(()=>validateGameReview(step,history),/Lernschritte/);
+ assert.equal(validateGameReview(step,history,true).moments[0]!.steps,undefined);
+});
