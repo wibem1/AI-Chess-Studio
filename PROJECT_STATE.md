@@ -1,3 +1,11 @@
+# Veröffentlichungskandidat 1.8.0 (14. November 2026)
+
+Vor Versionsanhebung vollständig erfolgreich: [GitHub Actions 43570185508](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43570185508) mit TypeScript, Node-Tests, Web-Build, Chromium und Produktionsdateimanifest. Zweistufige Analyse mit simulierten Providerantworten geprüft; echte Modellqualität noch nicht geprüft.
+
+Version 1.8.0 ist in package.json, package-lock.json und CHANGELOG.md auf dem Entwicklungsbranch vorbereitet; der Release-Workflow ist aktualisiert. Eine erneute erfolgreiche Gesamtprüfung dieses Versionierungsstands ist vor Merge und Veröffentlichung erforderlich. Nutzerfreigabe für den Release liegt vor. Kein Merge oder Deployment bestätigt. Keine bezahlten Provideraufrufe.
+
+---
+
 # Testkorrektur und laufende Freigabeprüfung (14. November 2026)
 
 Letzter vollständiger GitHub-Actions-Lauf [43567663187](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43567663187): TypeScript, Node-Tests und Build erfolgreich; Chromium 53/55 bestanden. Die zwei Fehler in `e2e/analysis-navigation.spec.ts` wurden durch fehlende ausdrückliche OpenAI-Anbieterauswahl im Testsetup ausgelöst, nicht durch eine nachgewiesene Analysefehlfunktion. Der Test wurde auf dem PR-Branch mit Commit `50874dbc983060e91c5f43513b028d6f18ec7924` korrigiert. Ein erneuter Workflow [43570185508](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43570185508) ist gestartet, **Ergebnis noch offen**. Kein Merge, keine Versionsanhebung und keine Veröffentlichung bis zum erfolgreichen Abschluss und zur Prüfung der Release-Schritte. Kein kostenpflichtiger KI-Test ausgeführt.
