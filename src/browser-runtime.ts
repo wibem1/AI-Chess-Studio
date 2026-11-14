@@ -13,6 +13,7 @@ import {ApiError,parseRequest,SYSTEM_PROMPT,FREE_CHAT_PROMPT,promptWithUserInstr
 import {validateReply} from './dialogue.js';
 import {APP_VERSION} from './version.js';
 import {BrowserTacticalAdapter} from './browser-tactics.js';
+import {BrowserDeepStockfish,deepReviewPlies,cleanStrategicDraft,reviewDeepChecks,type DeepReviewResult} from './deep-stockfish.js';
 
 async function readProvider(response:Response,maxBytes=65536):Promise<any>{
  const reader=response.body?.getReader();if(!reader)throw new Error();
@@ -160,7 +161,7 @@ export class BrowserRuntime {
   const qualitativePass=retrospective?await this.qualitativeGamePass(config,request,signal):undefined;
   signal?.throwIfAborted();
   const {generalInstructions:_,turns=[],toolExchanges,...original}=request;
-  const current=qualitativePass?verifiedRequest(original,qualitativePass.draft):original;
+  const current=qualitativePass?verifiedRequest(original,cleanStrategicDraft(qualitativePass.draft),deepChecks):original;
   const instructionsPrompt=promptWithUserInstructions(request.topic==='chat'?FREE_CHAT_PROMPT:SYSTEM_PROMPT,request.generalInstructions);
   const outputTokens=retrospective?2600:request.topic==='chat'?1800:800;
   const responses=needsResponses(config);
