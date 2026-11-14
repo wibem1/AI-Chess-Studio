@@ -4,6 +4,7 @@ import {strategicFeatures} from './strategic-features.js';
 import {strategicPlans} from './strategic-plans.js';
 import {strategicPlanDevelopmentFromHistory} from './strategic-plan-development.js';
 import {Chess} from 'chess.js';
+import {validateDeepChecksForGame} from './deep-stockfish.js';
 import type {DialogueRequest} from './dialogue.js';
 export class ApiError extends Error {
   constructor(public status:number,message:string,public code:string=''){super(message);}
@@ -54,6 +55,12 @@ export function parseRequest(raw: unknown): DialogueRequest {
     try{const replay=new Chess(h.rootFen);for(const san of h.moves){if(typeof san!=='string' || !replay.moves().includes(san))throw new Error();replay.move(san);}if(replay.fen()!==r.fen)throw new Error();}catch{throw new ApiError(400,'Partieverlauf passt nicht zur Stellung.');}
   }
   if(r.topic==='review'&&(r.hintMode??'explain')==='explain'&&(!r.history||(r.history as {truncated:boolean;moves:string[]}).truncated||!(r.history as {moves:string[]}).moves.length))throw new ApiError(400,'Vollständige gespielte Zugfolge für den Partierückblick erforderlich.');
+  let cachedDeepChecks:DialogueRequest['cachedDeepChecks'];
+  if(r.cachedDeepChecks!==undefined){
+    if(r.topic!=='review'||!r.history)throw new ApiError(400,'Engine-Nachprüfungen nur für vollständige Partien erlaubt.');
+    try{const h=r.history as NonNullable<DialogueRequest['history']>;cachedDeepChecks=validateDeepChecksForGame(h.rootFen,h.moves,r.cachedDeepChecks);}
+    catch{throw new ApiError(400,'Gespeicherte Engine-Nachprüfungen passen nicht zur Partie.');}
+  }
   let gameHistory:DialogueRequest['gameHistory'];
   if(r.gameHistory!==undefined){
     const h=r.gameHistory as NonNullable<DialogueRequest['gameHistory']>;
@@ -69,5 +76,5 @@ export function parseRequest(raw: unknown): DialogueRequest {
   let legal: string[];
   try { legal = new Chess(r.fen).moves(); } catch { throw new ApiError(400, 'Ungültige Stellung.'); }
   if (!r.legalMoves.every(m => typeof m === 'string' && legal.includes(m))) throw new ApiError(400, 'Ungültige Zugliste.');
-  return { ...(typeof r.generalInstructions==='string'&&r.generalInstructions.trim()?{generalInstructions:r.generalInstructions.trim()}:{}),...(typeof r.expectedModel==='string'?{expectedModel:r.expectedModel}:{}),...(matchTest?{matchTest}:{}),nodeId: r.nodeId, fen: r.fen, question: r.question.trim(), legalMoves: r.legalMoves as string[], positionFacts:positionFacts(r.fen),strategicFeatures:strategicFeatures(r.fen),strategicPlans:strategicPlans(r.fen),...((r.history as DialogueRequest['history'])?.moves.length?{planDevelopment:strategicPlanDevelopmentFromHistory(r.history as NonNullable<DialogueRequest['history']>)!.changes}:{}), context: r.context as string[],...(r.topic==='chat'?{toolsEnabled:r.toolsEnabled===true,toolExchanges}:{}),...(r.topic==='chat'?{conversationTruncated:r.conversationTruncated===true}:{}),...(gameHistory?{gameHistory}:{}),...(r.hintMode?{hintMode:r.hintMode as 'question'|'hint'|'explain'}:{}),...(r.topic?{topic:r.topic as NonNullable<DialogueRequest['topic']>} : {}),...(r.turns?{turns:r.turns as NonNullable<DialogueRequest['turns']>} : {}),...(r.history?{history:r.history as NonNullable<DialogueRequest['history']>,...(r.topic==='review'?{historyFacts:historyFacts(r.history as NonNullable<DialogueRequest['history']>)}:{})}:{}) };
+  return { ...(typeof r.generalInstructions==='string'&&r.generalInstructions.trim()?{generalInstructions:r.generalInstructions.trim()}:{}),...(typeof r.expectedModel==='string'?{expectedModel:r.expectedModel}:{}),...(matchTest?{matchTest}:{}),nodeId: r.nodeId, fen: r.fen, question: r.question.trim(), legalMoves: r.legalMoves as string[], positionFacts:positionFacts(r.fen),strategicFeatures:strategicFeatures(r.fen),strategicPlans:strategicPlans(r.fen),...((r.history as DialogueRequest['history'])?.moves.length?{planDevelopment:strategicPlanDevelopmentFromHistory(r.history as NonNullable<DialogueRequest['history']>)!.changes}:{}), context: r.context as string[],...(r.topic==='chat'?{toolsEnabled:r.toolsEnabled===true,toolExchanges}:{}),...(r.topic==='chat'?{conversationTruncated:r.conversationTruncated===true}:{}),...(gameHistory?{gameHistory}:{}),...(r.hintMode?{hintMode:r.hintMode as 'question'|'hint'|'explain'}:{}),...(r.topic?{topic:r.topic as NonNullable<DialogueRequest['topic']>} : {}),...(r.turns?{turns:r.turns as NonNullable<DialogueRequest['turns']>} : {}),...(r.history?{history:r.history as NonNullable<DialogueRequest['history']>,...(r.topic==='review'?{historyFacts:historyFacts(r.history as NonNullable<DialogueRequest['history']>)}:{})}:{}),...(cachedDeepChecks?{cachedDeepChecks}:{}) };
 }
