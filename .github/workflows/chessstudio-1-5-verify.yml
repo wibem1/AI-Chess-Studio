@@ -3,6 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches:
+      - fix/review-arrows-and-guidance-20261114
       - feat/key-moment-board-arrows-20261114
       - feat/deep-stockfish-review-20261114
       - fix/review-verification-timeout-20261114
