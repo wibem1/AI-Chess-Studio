@@ -1,3 +1,15 @@
+# Chess Studio 1.10.0 veröffentlicht – 14. November 2026
+
+**Freigabe des Nutzers:** „veröffentlichen“. [PR #25](https://github.com/wibem1/AI-Chess-Studio/pull/25) mit grafischen Schlüsselstellungs-Pfeilen, schrittweiser Erläuterung und Diagnoseexport per Squash nach `work` übernommen (Releasequellcommit `07c6597981c7009277b6f11476777e0a5d366d58`). Versionsnummer in `package.json` und `package-lock.json` auf **1.10.0**, Freigabeworkflow aktualisiert.
+
+**Verifikation:** Feature-Branch-Releasekandidat [43605327941](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43605327941) erfolgreich. Anschließend produktiver Freigabeworkflow [43605688367](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43605688367) vollständig **success** einschließlich Typprüfung, Node-Tests, Browserintegration mit lokalen Engines, Pages-Veröffentlichung und Deploymentprüfung. `gh-pages/BUILD.json` bestätigt **version 1.10.0**, Source-Commit `07c6597981c7009277b6f11476777e0a5d366d58` und Basis `/AI-Chess-Studio/`. Live-App: https://wibem1.github.io/AI-Chess-Studio/.
+
+**Neue Funktion:** KI kann zu historischen Schlüsselstellungen bis zu vier Pfeile/Linien und bis zu drei schrittweise beschriftete Erklärungen liefern, direkt auf dem Brett mit Ein-/Ausblenden, Orientierung, Sitzungs-Speicherung und exportierbarer FEN-bezogener Diagnose. Keine separaten zusätzlichen Modellaufrufe beim Navigieren. Bestehende Analysen ohne Markierungen funktionieren weiterhin.
+
+**Offener Qualitätsnachweis:** Die technische Kette ist erfolgreich getestet, die didaktische Qualität frei generierter Pfeile mit einem echten Sol-Aufruf dagegen noch nicht. Kein kostenträchtiger Test ohne Modellzugang. Eine reale Partieanalyse mit anschließendem Diagnoseexport für die nächste schachliche Prüfung durchführen. Das ist kein nachgewiesener Fehler der veröffentlichten Version, sondern eine ausstehende Qualitätsabnahme.
+
+---
+
 # Diagnoseexport für KI-Bretterklärungen erfolgreich geprüft – 14. November 2026
 
 **Branch:** `feat/key-moment-board-arrows-20261114` / [PR #25](https://github.com/wibem1/AI-Chess-Studio/pull/25), weiterhin Entwurf; öffentliche Version **1.9.0** unverändert.
