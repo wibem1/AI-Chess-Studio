@@ -148,7 +148,7 @@ export class ModelService {
       trace.sent();const response = await this.transport(providerBase(this.config)+'/chat/completions', {
         method: 'POST', redirect: 'error',
         headers: { Authorization: `Bearer ${this.config.apiKey}`, 'Content-Type': 'application/json' },
-        signal: AbortSignal.any([AbortSignal.timeout(this.config.reasoning?90_000:15_000),...(signal?[signal]:[])]),
+        signal: AbortSignal.any([AbortSignal.timeout(retrospective?180_000:this.config.reasoning?90_000:15_000),...(signal?[signal]:[])]),
         body
       });
       httpStatus=response.status;
