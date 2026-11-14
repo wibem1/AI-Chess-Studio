@@ -20,7 +20,7 @@ test('key-position browser flow salvages one illegal alternative and keeps navig
   candidates:[],openQuestions:[],
   gameReview:{summary:'Weiß öffnete seinen König; Schwarz setzte matt.',lesson:'Vor Bauernzügen die gegnerischen Drohungen prüfen.',
    moments:[
-    {ply:1,played:'f3',explanation:'Der erste Bauernvorstoß öffnete die Königsstellung.',alternative:'Qh4#',reason:'Dieser erfundene Alternativzug ist in der ersten Stellung nicht möglich.',marks:[{from:'f2',to:'f3',kind:'arrow',color:'green'},{from:'d8',to:'h4',kind:'arrow',color:'red'}]},
+    {ply:1,played:'f3',explanation:'Der erste Bauernvorstoß öffnete die Königsstellung.',alternative:'Qh4#',reason:'Dieser erfundene Alternativzug ist in der ersten Stellung nicht möglich.',marks:[{from:'f2',to:'f3',kind:'arrow',color:'green'},{from:'d8',to:'h4',kind:'arrow',color:'red'}],steps:[{text:'Weiß rückt den f-Bauern vor.',marks:[{from:'f2',to:'f3',kind:'arrow',color:'green'}]},{text:'Die schwarze Dame erhält eine Angriffslinie.',marks:[{from:'d8',to:'h4',kind:'arrow',color:'red'}]}]},
     {ply:3,played:'g4',explanation:'Der zweite Bauernzug ließ die Diagonale ungeschützt.',alternative:'g3',reason:'Dieser andere Bauernzug wäre legal und würde die Diagonale blockieren.'}
    ]
   }
@@ -64,6 +64,16 @@ test('key-position browser flow salvages one illegal alternative and keeps navig
  await expect(page.locator('#position-status')).toHaveAttribute('data-node-id','n0');
  await expect(page.locator('#board .board-marks line')).toHaveCount(2);
  await expect(page.locator('#key-moment-arrows')).toHaveText('Pfeile ausblenden');
+ await page.locator('#key-stage-next').click();
+ await expect(page.locator('#key-stage-text')).toContainText('Weiß rückt den f-Bauern vor.');
+ await expect(page.locator('#board .board-marks line')).toHaveCount(1);
+ await page.locator('#key-stage-next').click();
+ await expect(page.locator('#key-stage-text')).toContainText('schwarze Dame');
+ await expect(page.locator('#board .board-marks line')).toHaveCount(1);
+ await page.locator('#key-stage-prev').click();
+ await expect(page.locator('#key-stage-text')).toContainText('Weiß rückt');
+ await page.locator('#key-stage-prev').click();
+ await expect(page.locator('#board .board-marks line')).toHaveCount(2);
  await page.locator('#key-moment-arrows').click();
  await expect(page.locator('#board .board-marks')).toHaveCount(0);
  await page.locator('#key-moment-arrows').click();

@@ -6,7 +6,7 @@ import {germanSan,germanMoveFromFen} from './german-notation.js';
 
 export interface GameReview {
  summary:string;
- moments:{ply:number;played:string;explanation:string;alternative:string;reason:string;marks?:BoardMark[]}[];
+ moments:{ply:number;played:string;explanation:string;alternative:string;reason:string;marks?:BoardMark[];steps?:{text:string;marks:BoardMark[]}[]}[];
  lesson:string;
 }
 export function asksForKeyMoments(question:string):boolean{
@@ -55,8 +55,24 @@ export function validateGameReview(raw:unknown,history:{rootFen:string;moves:str
     marks=undefined; // Keep the review, but never persist untrusted drawing instructions.
    }
   }
-  const clean={...m,...(marks===undefined?{}:{marks})};
-  if(marks===undefined)delete clean.marks;
+  let steps:NonNullable<typeof m.steps>|undefined;
+  if(m.steps!==undefined){
+   try{
+    if(!Array.isArray(m.steps)||m.steps.length<1||m.steps.length>3)throw new Error('Ungültige Lernschritte.');
+    steps=m.steps.map(s=>{
+     if(!s||typeof s.text!=='string'||!s.text.trim()||s.text.length>180)throw new Error('Ungültiger Lernschritt.');
+     const checked=parseMarks(s.marks);
+     if(checked.length<1||checked.length>3)throw new Error('Ungültige Lernpfeile.');
+     return {text:s.text.trim(),marks:checked};
+    });
+   }catch{
+    if(!sanitizeInvalidAlternatives){problems.push('Eine Schlüsselstellung enthält ungültige Lernschritte.');continue;}
+    steps=undefined;
+   }
+  }
+  const clean={...m};
+  if(marks===undefined)delete clean.marks;else clean.marks=marks;
+  if(steps===undefined)delete clean.steps;else clean.steps=steps;
   const position=new Chess(before[m.ply-1]!);
   if(m.alternative && (m.alternative===m.played||!position.moves().includes(m.alternative))){
    const label=germanMoveFromFen(position.fen(),m.played);

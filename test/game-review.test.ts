@@ -185,3 +185,16 @@ test('review teaching arrows stay tied to the position before a key move and sur
  assert.equal(cleaned.moments[0]!.marks,undefined);
  assert.equal(checked.moments[0]!.marks!.length,2);
 });
+
+test('teaching steps are position-scoped, validated and stripped when invalid',()=>{
+ const staged={...review,moments:review.moments.map((m,i)=>i?m:{...m,steps:[
+ {text:'Weiß zeigt den Bauernplan.',marks:[{from:'f2',to:'f3',kind:'arrow' as const,color:'green' as const}]},
+ {text:'Schwarz antwortet auf der Diagonale.',marks:[{from:'d8',to:'h4',kind:'arrow' as const,color:'red' as const}]}
+ ]})};
+ assert.equal(validateGameReview(staged,history).moments[0]!.steps?.length,2);
+ const invalid={...staged,moments:[{...staged.moments[0]!,steps:[{text:'Ungültig',marks:[{from:'a9',to:'b1',kind:'arrow',color:'red'}]}]},staged.moments[1]!]};
+ assert.throws(()=>validateGameReview(invalid,history),/Lernschritte/);
+ const salvaged=validateGameReview(invalid,history,true);
+ assert.equal(salvaged.moments[0]!.steps,undefined);
+ assert.equal(salvaged.moments[0]!.played,'f3');
+});
