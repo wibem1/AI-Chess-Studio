@@ -160,6 +160,18 @@ export class BrowserRuntime {
   const retrospective=request.topic==='review'&&(request.hintMode??'explain')==='explain';
   const qualitativePass=retrospective?await this.qualitativeGamePass(config,request,signal):undefined;
   signal?.throwIfAborted();
+  let deepChecks:DeepReviewResult[]=[];
+  if(qualitativePass&&request.history){
+   const chosen=deepReviewPlies(qualitativePass.draft,request.history.moves);
+   if(chosen.length){
+    const deepEngine=new BrowserDeepStockfish();
+    const cancel=()=>deepEngine.cancel();
+    signal?.addEventListener('abort',cancel,{once:true});
+    try{deepChecks=await reviewDeepChecks(request.history.rootFen,request.history.moves,chosen,deepEngine,signal);}
+    finally{signal?.removeEventListener('abort',cancel);}
+   }
+  }
+  signal?.throwIfAborted();
   const {generalInstructions:_,turns=[],toolExchanges,...original}=request;
   const current=qualitativePass?verifiedRequest(original,cleanStrategicDraft(qualitativePass.draft),deepChecks):original;
   const instructionsPrompt=promptWithUserInstructions(request.topic==='chat'?FREE_CHAT_PROMPT:SYSTEM_PROMPT,request.generalInstructions);
