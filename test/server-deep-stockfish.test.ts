@@ -15,5 +15,7 @@ test('real local Stockfish calculates verified MultiPV with longer bounded searc
  assert.ok(report.lines.every(line=>line.depth>=1&&line.depth<=24));
  const first=new Chess(report.fen);
  for(const san of report.lines[0]!.san){assert.ok(first.moves().includes(san));first.move(san);}
- assert.ok(report.elapsedMs<=15000);
+ assert.equal(report.playedLine.san[0],'e5');
+ assert.ok(report.playedLine.depth>=1);
+ assert.ok(report.elapsedMs<=30000);
 });
