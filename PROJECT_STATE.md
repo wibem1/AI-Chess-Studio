@@ -1,3 +1,15 @@
+# Chess Studio 1.9.0 veröffentlicht – 14. November 2026
+
+**Nutzerauftrag umgesetzt:** PR #24 mit der zusätzlichen erzwungenen tiefen Stockfish-Prüfung des tatsächlich gespielten Zuges ist nach erfolgreicher Releasekandidaten-CI [43595933262](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43595933262) per Squash in `work` integriert (Commit `68b249c1863812f74ec873f902e4b47c661cb366`). Der bestehende Releaseworkflow [43596248059](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43596248059) hat den Upload nach `gh-pages` ausgeführt. `gh-pages/BUILD.json` bestätigt Version **1.9.0**, denselben Source-Commit und den korrekten Pages-Basispfad. Live-App: https://wibem1.github.io/AI-Chess-Studio/ .
+
+**Funktion:** Bis zu fünf von der KI angeforderte Stellungen; lokale Stockfish-MultiPV-Alternativen plus separat erzwungene Suche des tatsächlich gespielten Zuges, legalitätsgeprüfte Varianten, Übergabe an KI-Stufe 2, Wiederverwendung und strenge Importvalidierung. Normale Engine und automatische Bewertung unverändert.
+
+**Grenzen:** Technische Tests mit echtem lokalem Stockfish, aber KI-Provider nur simuliert; eine reale Sol-Qualitäts- und Kostenabnahme sowie native Geräteprüfung wurden nicht durchgeführt. Der KI-Marker kann ausbleiben; dann läuft die Analyse ohne zusätzliche Deep-Checks. Gesonderte sichtbare Fortschrittsanzeige pro Stellung ist noch nicht umgesetzt.
+
+**Nächster Schritt:** Partierückblick mit einer bekannten realen Partie und GPT-6.1 Sol in der veröffentlichten App ausführen; Diagnose, Schachqualität und tatsächliche API-Kosten prüfen, dabei besonders die Gegenüberstellung von gespielt/Alternativen bewerten. Keine zusätzliche Veröffentlichung ohne neuen Auftrag.
+
+---
+
 # Entwicklungsfortsetzung PR #24: gespielten Zug tief prüfen (14. November 2026)
 
 Die vertiefte Engine-Rückfrage berechnet jetzt **zusätzlich zur MultiPV-Top-3-Suche** den tatsächlich in der Partie gespielten Zug über eine zweite, getrennte `searchmoves`-Suche mit MultiPV 1. Die beiden Ergebnisse werden als `lines` und `playedLine` mit Suchstand, Bewertung aus Weißsicht und legalitätsgeprüfter SAN-Fortsetzung an die zweite KI-Phase übergeben; damit erhält Sol auch dann eine konkrete Linie, wenn der historische Zug nicht unter den drei besten Enginekandidaten erscheint. Der Cache im Sitzungs-JSON verlangt ab dieser noch unveröffentlichten Version ebenfalls die nachgeprüfte `playedLine`. Jede Suche ist auf Tiefe 24, 500.000 Knoten, 4 Sekunden (Workerdeadline 15 Sekunden) begrenzt. Insgesamt maximal fünf ausgewählte historische Stellungen, keine bezahlten Modellaufrufe ausgelöst. Alte öffentliche Version 1.8.1 unverändert.
