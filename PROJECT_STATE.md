@@ -1,3 +1,11 @@
+# Entwicklungsfortsetzung PR #24: gespielten Zug tief prüfen (14. November 2026)
+
+Die vertiefte Engine-Rückfrage berechnet jetzt **zusätzlich zur MultiPV-Top-3-Suche** den tatsächlich in der Partie gespielten Zug über eine zweite, getrennte `searchmoves`-Suche mit MultiPV 1. Die beiden Ergebnisse werden als `lines` und `playedLine` mit Suchstand, Bewertung aus Weißsicht und legalitätsgeprüfter SAN-Fortsetzung an die zweite KI-Phase übergeben; damit erhält Sol auch dann eine konkrete Linie, wenn der historische Zug nicht unter den drei besten Enginekandidaten erscheint. Der Cache im Sitzungs-JSON verlangt ab dieser noch unveröffentlichten Version ebenfalls die nachgeprüfte `playedLine`. Jede Suche ist auf Tiefe 24, 500.000 Knoten, 4 Sekunden (Workerdeadline 15 Sekunden) begrenzt. Insgesamt maximal fünf ausgewählte historische Stellungen, keine bezahlten Modellaufrufe ausgelöst. Alte öffentliche Version 1.8.1 unverändert.
+
+**Prüfgrundlage:** gezielte Unit-Tests zur erzwingenden UCI-Suche und zur unabhängigen Fortsetzung eines außerhalb von Top 3 liegenden Zuges; Node-Tests und Web-Build des aktuellen [GitHub-Actions-Laufs 43595453444](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43595453444) bereits erfolgreich. Browser-Regression bei Dokumentation noch nicht abgeschlossen. **Kein Release, keine Versionsanhebung, PR #24 bleibt Entwurf.** Reale Sol-Qualitätsabnahme und Geräteprüfung stehen weiterhin aus.
+
+---
+
 # Entwicklungsstand: KI-gesteuerte vertiefte Stockfish-Nachprüfung (14. November 2026)
 
 **Branch:** `feat/deep-stockfish-review-20261114`; Ausgangsversion 1.8.1 bleibt öffentlich, **keine Veröffentlichung**. Geplante neue Funktion für 1.9.0.
