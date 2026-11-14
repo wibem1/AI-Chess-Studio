@@ -1,3 +1,15 @@
+# Chess Studio 1.11.3 veröffentlicht – 14. November 2026
+
+**Freigabe:** Nutzer „veröffentlichen“. Der kompakte Smartphone-Lernmodus aus [PR #29](https://github.com/wibem1/AI-Chess-Studio/pull/29) wurde nach erfolgreicher Featureprüfung und dem vollständigen Releasekandidatenlauf [43638389031](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43638389031) per Squash in `work` übernommen (Quellcommit `b22715a8b2d2aba0e5937c10213c442077b467c5`). `package.json`, `package-lock.json` und der Produktionsworkflow tragen Versionsnummer **1.11.3**.
+
+**Veröffentlichung nachgewiesen:** [Produktionsworkflow 43638703968](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43638703968) vollständig **success**: Typprüfung, Node-Tests, Browserintegration mit lokalen Engines, Pages-Publikation und Deploymentprüfung. `gh-pages/BUILD.json` bestätigt **version 1.11.3**, Basis `/AI-Chess-Studio/` und Source-Commit `b22715a8b2d2aba0e5937c10213c442077b467c5`. Live: https://wibem1.github.io/AI-Chess-Studio/.
+
+**Verbesserungen:** Auf schmalen Bildschirmen ein kompaktes Raster für die wichtigen Analyse- und Zugbuttons, weniger Abstände, seitlich scrollbarе Schlüsselstellungsbuttons, platzsparendere Chateingabe. Das Analysefeld bleibt wie in 1.11.2 einklappbar, intern scrollbar und unter den Steuerbuttons. Die Statusgeometrie beim Engine-Spiel bleibt stabil. Keine entfernten Funktionen, keine zusätzlichen API-Kosten.
+
+**Offen:** Nutzer muss die mobile Ansicht auf dem tatsächlichen Gerät nach dem Release noch beurteilen. Kein kostenpflichtiger Sol-Test und keine qualitative Pfeilprüfung durchgeführt.
+
+---
+
 # Kompakter Smartphone-Lernmodus – Browserprüfung erfolgreich (14. November 2026)
 
 **Auftrag und Grundlage:** Nutzer hat einen Screenshot des Android-Lernmodus mit raumgreifenden Analyse-, Zug- und Schlüsselstellungsbuttons vorgelegt und um ein kompakteres Layout gebeten. Die veröffentlichte Version bleibt **1.11.2**; Änderungen liegen in Branch `fix/compact-mobile-learning-layout-20261114`, [PR #29](https://github.com/wibem1/AI-Chess-Studio/pull/29) (Entwurf).
