@@ -17,7 +17,7 @@ test('strategic stage selects at most five validated historical halfmoves',()=>{
 });
 test('verified deep lines reject illegal moves, mismatched FEN and duplicate candidates',()=>{
  const board=new Chess();board.move('e4');
- const fen=board.fen(),base={ply:2,fen,played:'e5',elapsedMs:40,lines:[{depth:19,score:{unit:'cp' as const,value:20},san:['e5','Nf3']}]};
+ const fen=board.fen(),base={ply:2,fen,played:'e5',elapsedMs:40,lines:[{depth:19,score:{unit:'cp' as const,value:20},san:['e5','Nf3']}],playedLine:{depth:19,score:{unit:'cp' as const,value:20},san:['e5','Nf3']}};
  assert.deepEqual(verifyDeepResult(base,fen,'e5'),base);
  assert.throws(()=>verifyDeepResult({...base,fen:root},fen,'e5'));
  assert.throws(()=>verifyDeepResult({...base,lines:[{...base.lines[0]!,san:['Qh4']}]},fen,'e5'));
@@ -73,7 +73,7 @@ test('deep engine evidence survives session export and import only for its exact
  const session=new Session();session.play('e4');session.play('e5');
  const before=new Chess(root);before.move('e4');
  const checked={ply:2,fen:before.fen(),played:'e5',elapsedMs:100,
-   lines:[{depth:17,score:{unit:'cp' as const,value:-30},san:['e5','Nf3']}]};
+   lines:[{depth:17,score:{unit:'cp' as const,value:-30},san:['e5','Nf3']}],playedLine:{depth:17,score:{unit:'cp' as const,value:-30},san:['e5','Nf3']}};
  assert.deepEqual(validateDeepChecksForGame(root,['e4','e5'],[checked]),[checked]);
  session.storeDeepReview('n2',root,['e4','e5'],[checked]);
  const recovered=Session.import(session.export());
