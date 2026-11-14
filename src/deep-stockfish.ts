@@ -72,6 +72,23 @@ export class BrowserDeepStockfish {
    }});
  }
 }
+/** Revalidate persisted or client-provided engine evidence against the exact played game. */
+export function validateDeepChecksForGame(rootFen:string,moves:readonly string[],raw:unknown):DeepReviewResult[]{
+ if(!Array.isArray(raw)||raw.length>5||moves.length>500)throw new Error('Ungültige gespeicherte Engine-Nachprüfungen.');
+ const board=new Chess(rootFen),positions=[board.fen()];
+ for(const san of moves){
+  if(typeof san!=='string'||!board.moves().includes(san))throw new Error('Ungültige Partie für die Engine-Nachprüfung.');
+  board.move(san);positions.push(board.fen());
+ }
+ const found=new Set<number>();
+ return raw.map(value=>{
+  const r=value as DeepReviewResult;
+  if(!r||!Number.isInteger(r.ply)||r.ply<1||r.ply>moves.length||found.has(r.ply))throw new Error('Ungültige oder doppelte vertiefte Partiestellung.');
+  found.add(r.ply);
+  return verifyDeepResult(r,positions[r.ply-1]!,moves[r.ply-1]!);
+ });
+}
+
 export async function reviewDeepChecks(rootFen:string,moves:readonly string[],plies:readonly number[],engine:BrowserDeepStockfish,signal?:AbortSignal):Promise<DeepReviewResult[]>{
  const selected=[...new Set(plies)];
  if(selected.length>5||selected.some(n=>!Number.isSafeInteger(n)||n<1||n>moves.length))throw new Error('Ungültige Engine-Nachprüfungen.');
