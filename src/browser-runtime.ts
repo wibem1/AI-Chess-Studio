@@ -204,6 +204,7 @@ export function classifyRequestFailure(error:unknown,deadlineExpired:boolean,use
  return fallback;
 }
 export function providerTimeoutMs(config:LocalModelConfig,retrospective=false):number{
+ if(retrospective)return 180000;
  if(config.reasoning)return 90000;
  if(needsResponses(config))return 90000;
  return 15000;
