@@ -1,5 +1,6 @@
 import {reviewAnchors,type ReviewAnchor} from '../src/game-review.js';
 import {Chess} from 'chess.js';
+import {germanSan} from '../src/german-notation.js';
 import type {Session,SessionData} from '../src/session.js';
 import type {BoardMark} from '../src/coach-tools.js';
 import {reviewLocked,visibleReviewNodes} from '../src/review.js';
@@ -9,7 +10,10 @@ export function installKeyMoments(current:()=>Session,jump:(node:string)=>void,r
  const card=document.createElement('section');card.id='key-review-result';card.className='key-review-result';card.hidden=true;card.setAttribute('aria-label','Gespeicherte Partieanalyse');
  const heading=document.createElement('strong');heading.textContent='Partieanalyse abgeschlossen';
  const summary=document.createElement('p'),lesson=document.createElement('p'),notice=document.createElement('p');notice.className='hint';
- card.append(heading,summary,lesson,notice);
+ const momentCard=document.createElement('section');momentCard.id='key-review-moment';momentCard.className='key-review-moment';momentCard.hidden=true;
+ const momentHeading=document.createElement('h3'),momentExplanation=document.createElement('p'),momentAlternative=document.createElement('p'),momentReason=document.createElement('p');
+ momentCard.append(momentHeading,momentExplanation,momentAlternative,momentReason);
+ card.append(heading,summary,lesson,notice,momentCard);
  nav.closest('.board-heading')?.after(card);
  let latest:{session:Session;index:number}|undefined;
  let marksVisible=true,demonstrationIndex=0,demonstrationKey='';
@@ -73,7 +77,9 @@ export function installKeyMoments(current:()=>Session,jump:(node:string)=>void,r
   const focused=nav.contains(document.activeElement);
   for(const id of ['find-key-moments','analyze-position'])document.getElementById(id)!.hidden=document.getElementById('workspace')?.dataset.activeView!=='learn';
   const session=current(),data=session.snapshot(),allowed=visibleReviewNodes(data);const candidates=data.annotations.map((a,i)=>({i,anchors:reviewAnchors(data,a)})).filter(x=>x.anchors.length&&x.anchors.every(m=>allowed.has(m.nodeId)));
-  const newest=candidates.at(-1)?.i??-1;
+  // Prefer a structured report over later ordinary dialogue or legacy snippets.
+  // The main analysis card and the navigation must refer to the same report.
+  const newest=candidates.filter(x=>!!data.annotations[x.i]?.gameReview).at(-1)?.i??candidates.at(-1)?.i??-1;
   if(latest?.session!==session||latest.index!==newest){latest={session,index:newest};selected=newest<0?undefined:{session,index:newest,text:data.annotations[newest]!.text};}
   if(selected?.session!==session||data.annotations[selected.index]?.text!==selected.text||!candidates.some(x=>x.i===selected!.index))selected=undefined;
   if(!selected&&candidates.length){const last=candidates.at(-1)!;selected={session,index:last.i,text:data.annotations[last.i]!.text};}
@@ -90,6 +96,14 @@ export function installKeyMoments(current:()=>Session,jump:(node:string)=>void,r
    notice.textContent=decorated?`${decorated} Schlüsselstellungen mit KI-Pfeilen. Wähle unten eine Stellung, um sie am Brett zu sehen.`:'Sol hat keine strategischen Pfeile geliefert. Ein blauer Pfeil zeigt deshalb nur den tatsächlich gespielten Zug – keine KI-Bewertung. Die Erklärungen sind weiterhin gespeichert.';
   }
   const moment=momentAt(data),frames=staged(data);
+  momentCard.hidden=!moment||card.hidden;
+  if(moment){
+   const label=anchors[index]?.label??germanSan(moment.played);
+   momentHeading.textContent=`Schlüsselstellung ${index+1}/${anchors.length} · vor ${label}`;
+   momentExplanation.textContent=moment.explanation;
+   momentAlternative.textContent=moment.alternative?`Alternative zum Prüfen: ${germanSan(moment.alternative)}`:'Keine ausreichend begründete konkrete Zug-Alternative.';
+   momentReason.textContent=moment.reason;
+  }
   const available=!!moment&&(!!moment.marks?.length||frames.length>0);
   toggle.hidden=!available;toggle.textContent=marksVisible?'Pfeile ausblenden':'Pfeile anzeigen';toggle.setAttribute('aria-pressed',String(marksVisible));
   stages.hidden=!available||!marksVisible||frames.length===0;

@@ -66,6 +66,8 @@ test('key-position browser flow salvages one illegal alternative and keeps navig
  await page.locator('#find-key-moments').click();
  expect(calls).toBe(2); // Viewing a saved analysis triggers no paid call.
  await page.locator('#key-moment-links button').nth(0).click();
+ await expect(page.locator('#key-review-moment')).toContainText('Der erste Bauernvorstoß öffnete die Königsstellung.');
+ await expect(page.locator('#key-review-moment')).toContainText('Alternative zum Prüfen');
  await expect(page.locator('#position-status')).toHaveAttribute('data-node-id','n0');
  await expect(page.locator('#board .board-marks line')).toHaveCount(2);
  await expect(page.locator('#key-moment-arrows')).toHaveText('Pfeile ausblenden');
@@ -88,6 +90,8 @@ test('key-position browser flow salvages one illegal alternative and keeps navig
  await page.locator('#board-flip').click();
  await expect(page.locator('#board .board-marks line')).toHaveCount(2);
  await page.locator('#key-moment-next').click();
+ await expect(page.locator('#key-review-moment')).toContainText('Der zweite Bauernzug ließ die Diagonale ungeschützt.');
+ await expect(page.locator('#key-review-moment')).not.toContainText('Der erste Bauernvorstoß');
  await expect(page.locator('#position-status')).toHaveAttribute('data-node-id','n2');
  await expect(page.locator('#board .board-marks line')).toHaveCount(1);
  await expect(page.locator('#key-stage-text')).toContainText('tatsächlich gespielter Zug');
