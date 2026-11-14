@@ -1,3 +1,11 @@
+# Chess Studio 1.8.1 veröffentlicht – 14. November 2026
+
+Die Korrektur des realen OpenRouter-Sol-Timeouts in der zweiten Phase vollständiger Partieanalysen wurde über PR #23 integriert. Release-Commit `fb1e85b4749644ed45091aa72ddb66935cd26481` auf `work`. Der [Release-Workflow 43590117032](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43590117032) wurde vollständig erfolgreich abgeschlossen: TypeScript, Node-Tests, Produktions-Build, Chromium-Integration mit lokalen Engines, Veröffentlichung auf `gh-pages` und erfolgreiche GitHub-Pages-Onlineprüfung. `gh-pages/BUILD.json` bestätigt Version 1.8.1 und den Release-Commit. Web-App: https://wibem1.github.io/AI-Chess-Studio/ .
+
+Änderung: Für die Verifikationsphase des vollständigen Partierückblicks gelten 180 statt 90 Sekunden, für den äußeren Client 300 statt 200 Sekunden. Normale Fragen unverändert. Keine bezahlten Modellaufrufe für den Patch-Release. **Noch offen:** Erfolgreiche reale Gesamtpartieanalyse mit GPT-6.1 Sol, Qualitätsbewertung und Kostenkontrolle; längere Zeitlimits sind keine Erfolgsgarantie.
+
+---
+
 # Freigabeprüfung Chess Studio 1.8.1 (14. November 2026)
 
 Die in der Nutzerdiagnose reproduzierte 90-Sekunden-Timeout-Störung der zweiten Modellphase wurde auf dem Hotfix-Branch korrigiert. Der Code für den zweiten vollständigen Partie-Review erlaubt nun 180 Sekunden; der äußere Client 300 Sekunden. Normale KI-Anfragen unverändert. [Nicht veröffentlichender Hotfix-Test 43575451914](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43575451914) war erfolgreich. Auf dem Hotfix-Branch sind Version 1.8.1, passendes Lockfile, Changelog und Releaseworkflow aktualisiert. Die abschließende erneute Versionierungsprüfung ist [43589781355](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43589781355) (bei diesem Eintrag noch nicht abgeschlossen). Nutzer hat Veröffentlichung ausdrücklich freigegeben. **Noch nicht in `work` integriert, noch nicht veröffentlicht.** Keine bezahlten Provideranfragen ausgeführt. Nächster Schritt: CI nach Abschluss prüfen, dann PR #23 integrieren; Release-Lauf und `gh-pages/BUILD.json` verifizieren. Reale schachliche KI-Qualität bleibt gesondert zu prüfen.
