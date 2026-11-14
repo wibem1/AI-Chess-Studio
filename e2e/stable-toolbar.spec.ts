@@ -18,3 +18,27 @@ test('simplified learning has no legacy forms and diagnosis download is directly
  for(const id of ['memory-form','reflection-form','dialogue-begin','simulation-mode','dialogue-mode','session-json','session-file','analyse-game','analyse-position'])await expect(page.locator('#'+id)).toHaveCount(0);
  await expect(page.locator('#ask')).toBeDisabled();await page.locator('#open-settings').click();await page.locator('#settings-diagnosis > summary').click();await expect(page.locator('#ai-diagnose-export')).toBeVisible();
 });
+
+test('phone learning toolbar stays compact, key moments form a horizontal strip, and controls stay reachable',async({page})=>{
+ await page.setViewportSize({width:390,height:844});
+ await page.goto('/?platform=web#lernen');
+ await expect(page.locator('#workspace')).not.toHaveAttribute('inert','');
+ await page.getByRole('tab',{name:'Lernmodus',exact:true}).click();
+ const s=new Session();for(const san of ['e4','e5','Nf3','Nc6'])s.play(san);
+ await page.locator('#games-menu > summary').click();
+ await page.locator('#game-file').setInputFiles({name:'mobile.json',mimeType:'application/json',buffer:Buffer.from(s.export())});
+ await expect(page.locator('#games-status')).toContainText('Partie geladen');
+ const bounds=await page.evaluate(()=>{
+  const box=(id:string)=>document.getElementById(id)!.getBoundingClientRect();
+  return {board:box('board'),actions:box('find-key-moments'),position:box('analyze-position'),
+    first:box('learn-first'),transfer:box('transfer-position'),controls:box('learning-controls'),
+    viewport:document.documentElement.clientWidth,scroll:document.documentElement.scrollWidth};
+ });
+ expect(bounds.actions.bottom).toBeLessThan(bounds.controls.top);
+ expect(bounds.position.width).toBeGreaterThan(130);
+ expect(bounds.actions.width).toBeGreaterThan(130);
+ expect(bounds.scroll).toBeLessThanOrEqual(bounds.viewport+1);
+ await expect(page.locator('#learn-first')).toBeVisible();
+ await expect(page.locator('#transfer-position')).toBeVisible();
+ await expect(page.locator('#question')).toBeVisible();
+});

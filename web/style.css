@@ -597,3 +597,70 @@ html:has(#workspace[data-active-view=learn]),body:has(#workspace[data-active-vie
 .workspace[data-active-view=learn] #board-area #key-review-result{order:4;align-self:stretch;min-width:0;width:100%;margin:8px 0 10px}
 #key-review-scroll{max-height:min(260px,32dvh);min-height:0;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;-webkit-overflow-scrolling:touch;user-select:text;-webkit-user-select:text;padding:0 6px 2px 0}
 #key-review-result:not([open]) #key-review-scroll{display:none}
+
+/* Mobile learning mode: a small, predictable toolbar instead of a forest of wrapped rows.
+   Keep all actions reachable; secondary key-moment chips scroll sideways independently. */
+@media(max-width:600px){
+ .workspace[data-active-view=learn]{padding:6px 8px 18px;gap:6px}
+ .workspace[data-active-view=learn] #board-area{padding:6px 8px}
+ .workspace[data-active-view=learn] #board-area #board{margin-bottom:2px}
+ .workspace[data-active-view=learn] #board-area .board-heading{margin:3px 0 5px}
+ .workspace[data-active-view=learn] #board-area .board-actions{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;
+  align-items:center;justify-content:stretch;width:100%
+ }
+ .workspace[data-active-view=learn] #board-area .board-actions>button{
+  width:100%;min-width:0;min-height:36px;padding:5px 4px;font-size:.72rem;
+  line-height:1.2;white-space:normal;overflow-wrap:break-word
+ }
+ .workspace[data-active-view=learn] #board-area .board-actions>#analyze-position,
+ .workspace[data-active-view=learn] #board-area .board-actions>#find-key-moments,
+ .workspace[data-active-view=learn] #board-area .board-actions>#review-reanalyze,
+ .workspace[data-active-view=learn] #board-area .board-actions>#transfer-position{grid-column:span 2}
+ .workspace[data-active-view=learn] #board-area .board-actions>#learn-first,
+ .workspace[data-active-view=learn] #board-area .board-actions>#open-game-setup{grid-column:span 1}
+ .workspace[data-active-view=learn] #board-area .board-actions #key-moment-nav{
+  grid-column:1/-1;display:grid;grid-template-columns:36px minmax(0,1fr) 36px auto;
+  flex:none;width:100%;gap:4px;align-items:center;justify-content:stretch;margin-top:2px
+ }
+ .workspace[data-active-view=learn] #key-moment-nav #key-moment-status{
+  min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  font-size:.74rem
+ }
+ .workspace[data-active-view=learn] #key-moment-nav #key-moment-links{
+  grid-row:2;grid-column:1/-1;display:flex;flex-wrap:nowrap;gap:4px;
+  max-width:100%;min-width:0;overflow-x:auto;overflow-y:hidden;
+  scrollbar-width:thin;touch-action:pan-x;padding:2px 0 4px
+ }
+ .workspace[data-active-view=learn] #key-moment-links button{
+  flex:0 0 auto;min-height:34px;padding:5px 8px;font-size:.73rem;white-space:nowrap
+ }
+ .workspace[data-active-view=learn] #key-moment-nav #key-moment-arrows{
+  grid-column:4;grid-row:1;min-height:34px;white-space:nowrap;padding:4px 7px;font-size:.7rem
+ }
+ .workspace[data-active-view=learn] #key-moment-nav #key-moment-stages{
+  grid-row:3;grid-column:1/-1
+ }
+ .workspace[data-active-view=learn] #board-area .board-actions #coach-plan-bar{
+  grid-column:1/-1;margin:0;padding:0
+ }
+ .workspace[data-active-view=learn] #board-area .board-actions #coach-match{
+  grid-column:1/-1;grid-template-columns:minmax(0,1fr) auto auto;gap:4px;margin:0
+ }
+ .workspace[data-active-view=learn] #board-area #coach-match #stockfish-assist-settings{
+  grid-column:1/-1;grid-row:auto
+ }
+ .workspace[data-active-view=learn] #board-area #learning-chat{padding:0;margin:0}
+ .workspace[data-active-view=learn] #learning-chat #question{
+  height:48px;min-height:48px;padding:6px 8px
+ }
+ .workspace[data-active-view=learn] #learning-controls{
+  margin-top:5px;gap:4px
+ }
+ .workspace[data-active-view=learn] #learning-controls>button{
+  min-height:34px;padding:5px 8px
+ }
+ .workspace[data-active-view=learn] #key-review-result:not([hidden]){
+  padding:7px 9px;margin:4px 0 6px
+ }
+}

@@ -1,4 +1,4 @@
-name: ChessStudio 1.11.2 - Scrollbarer Partierueckblick
+name: ChessStudio 1.11.3 - Kompaktes Smartphone-Layout
 
 on:
   workflow_dispatch:
@@ -37,7 +37,7 @@ jobs:
         run: npm ci
       - name: Chromium fuer Browsertests installieren
         run: npx playwright install chromium
-      - name: Typpruefung fuer 1.11.2
+      - name: Typpruefung fuer 1.11.3
         run: npm run check
       - name: Build und Einzeltests
         run: npm test
