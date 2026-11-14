@@ -1,3 +1,13 @@
+# Schlüsselstellen-Erklärung direkt am Brett – erfolgreich geprüft (14. November 2026)
+
+**Entwicklung:** [PR #26](https://github.com/wibem1/AI-Chess-Studio/pull/26), Branch `fix/review-arrows-and-guidance-20261114`, öffentliche Version weiterhin **1.10.0**. Der vereinfachte Partieanalyse-Bildschirm zeigt jetzt beim Auswählen einer Schlüsselstellung unmittelbar bei der Brettansicht die historische Zugnummer, die konkrete KI-Erklärung, die legale Alternative (falls vorhanden) und ihre Begründung. Ungültige Modellalternativen werden ausdrücklich als fehlende begründbare Alternative dargestellt, nicht erfunden. Beim Wechsel der Stellung wechselt die Erklärung synchron. Bei mehreren Dialogbeiträgen erhält ein gespeicherter strukturierter Partierückblick Vorrang vor neueren allgemeinen Textnachrichten/älteren Textanalysen.
+
+**Prüfgrundlage:** [GitHub Actions 43612902023](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43612902023), Commit `8dfa885d832dc857df40465963c753fb449fe905`, vollständig **success** (TypeScript, Node-Tests, Pages-Build, 55 Chromium-Regressionsfälle einschließlich Darstellung der ausgewählten Schlüsselstelle und Erhalt der Stellungsnavigation, Manifestprüfung). Vorheriger Lauf 43612469040 scheiterte nur an der falschen Testerwartung, eine vom Validator entfernte illegale Alternative müsse dennoch angezeigt werden; die korrekte Abwesenheitsmeldung ist jetzt explizit getestet. Kein echter Sol-API-Test, keine Veröffentlichung.
+
+**Nächster Schritt:** Nutzer kann die vereinfachte Ansicht nach ausdrücklicher Freigabe für Release erhalten. Eine neue Versionsnummer und Deployment werden erst im Rahmen einer gesondert beauftragten Veröffentlichung vorbereitet. Die Qualität echter von Sol generierter Strategie-Pfeile ist weiterhin offen; blauer Fallback zeigt nur den historischen Zug.
+
+---
+
 # Vereinfachte Partieanalyse – technisch geprüft, noch nicht veröffentlicht (14. November 2026)
 
 **Branch:** `fix/review-arrows-and-guidance-20261114`, [PR #26](https://github.com/wibem1/AI-Chess-Studio/pull/26), Entwurf; öffentliche Version **1.10.0** unverändert.
