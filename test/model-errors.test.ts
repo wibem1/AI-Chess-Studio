@@ -32,6 +32,6 @@ test('client deadline covers both separately bounded review phases while ordinar
  try{
   const adapter=new ServerModelAdapter((async()=>new Response('{}')) as typeof fetch);
   await adapter.respond(request);await adapter.respond({...request,topic:'chat'});
-  assert.deepEqual(limits,[200000,100000]);
+  assert.deepEqual(limits,[300000,100000]);
  }finally{AbortSignal.timeout=original;}
 });
