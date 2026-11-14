@@ -1,8 +1,8 @@
 # AI-Chess-Studio
 
-Aktuelle öffentliche Version vor der Veröffentlichung von 1.8.0: **1.7.2**.
+Veröffentlichter Stand vor diesem Patch-Release: **1.8.0**.
 
-**Veröffentlichungskandidat 1.8.0:** Zweistufige strategische KI-Partieanalyse mit unabhängiger Voranalyse und anschließendem Stockfish-Abgleich. Technische Prüfung erfolgreich; reale KI-Qualität noch nicht abgenommen.
+**Veröffentlichungskandidat 1.8.1:** Verlängertes Zeitlimit für die zweite Phase der zweistufigen strategischen KI-Partieanalyse nach echtem OpenRouter-Sol-Timeout. Die technische Prüfung ist erfolgreich; reale KI-Qualität noch nicht abgenommen.
 [Web-App öffnen](https://wibem1.github.io/AI-Chess-Studio/).
 **GitHub Pages für 1.5.1 erfolgreich bereitgestellt.** [Release-Prüfung](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42678170104) und [Pages-Deployment](https://github.com/wibem1/AI-Chess-Studio/actions/runs/42678980782) bestanden; echte Sol-Provider-Antwort, KI-Lehrqualität und native Geräteabnahme bleiben offen.
 Änderungen: [CHANGELOG.md](CHANGELOG.md).
