@@ -41,7 +41,7 @@ test('server transport requires a retrospective and reserves its larger output w
    assert.equal(payload.max_completion_tokens,calls%2===1?1100:2600);
    if(calls%2===1){
      assert.equal(payload.messages.length,2);
-     assert.doesNotMatch(JSON.stringify(payload.messages[1]),/Stockfish|centipawn|lossCp|beforeCp|afterCp/);
+     assert.deepEqual(JSON.parse(payload.messages[1].content).stockfishEvidence,[]);
    }else{
      assert.match(JSON.stringify(payload.messages),/qualitativeDraft/);
      assert.match(JSON.stringify(payload.messages),/Weiß schwächt/);
@@ -156,7 +156,7 @@ test('59-move diagnostic game is complete in the isolated strategic payload and 
  const board=new Chess();for(const san of moves)board.move(san);assert.equal(moves.length,117);assert.equal(board.isCheckmate(),true);
  const data={rootFen:new Chess().fen(),moves,truncated:false};
  const payload=strategicPayload({nodeId:'n117',fen:board.fen(),legalMoves:[],question:'Analysiere die Partie',history:{...data,engineScore:999} as any,context:['Stockfish beforeCp 530'],turns:[{role:'assistant',nodeId:'n70',text:'ENGINE_SENTINEL'}]});
- assert.deepEqual(payload.history,data);assert.doesNotMatch(JSON.stringify(payload),/Stockfish|engineScore|ENGINE_SENTINEL|beforeCp/);
+ assert.deepEqual(payload.history,data);assert.deepEqual(payload.stockfishEvidence,['Stockfish beforeCp 530']);assert.doesNotMatch(JSON.stringify(payload),/engineScore|ENGINE_SENTINEL/);
  const moments=[13,42,70,91,99,113].map(ply=>({ply,played:moves[ply-1]!,explanation:'Konkrete Figurenkoordination und Gegenplan an dieser Stellung prüfen.',alternative:'',reason:'Keine berechnete Alternative vorhanden.'}));
  assert.equal(moves[69],'Rc8');assert.equal(moves[98],'Qf3');
  assert.equal(validateGameReview({summary:'Raumgewinn, Zentrumsabtausch, Freibauernrennen und Königsangriff.',moments,lesson:'Nach der Umwandlung die Priorität von Freibauernkontrolle zu Königssicherheit neu prüfen.'},data).moments.length,6);

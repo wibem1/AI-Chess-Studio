@@ -289,7 +289,7 @@ for(const provider of ['openrouter','openai'] as const)test(`two-stage browser r
  const runtime=new BrowserRuntime(store,(async(url,init)=>{
   calls++;const body=JSON.parse(String(init!.body));
   const messages=body.messages??body.input,payload=JSON.parse(messages.at(-1).content);
-  if(calls===1){assert.deepEqual(Object.keys(payload).sort(),['history','human','question']);assert.doesNotMatch(JSON.stringify(body),/ENGINE_ONLY_SENTINEL|beforeCp/);assert.equal(body.tools,undefined);}
+  if(calls===1){assert.deepEqual(Object.keys(payload).sort(),['history','human','question','stockfishEvidence']);assert.deepEqual(payload.stockfishEvidence,[]);assert.equal(body.tools,undefined);}
   else{assert.match(JSON.stringify(body),/ENGINE_ONLY_SENTINEL/);assert.equal(payload.qualitativeDraft,strategicText);}
   const content=calls===1?strategicText:JSON.stringify(completeReview);
   return new Response(JSON.stringify(provider==='openai'?{status:'completed',output:[{type:'message',content:[{type:'output_text',text:content}]}],usage:{input_tokens:100,output_tokens:50}}:{model:'fixture/model',choices:[{finish_reason:'stop',message:{content}}],usage:{prompt_tokens:100,completion_tokens:50,cost:calls===1?0.01:0.02}}));
