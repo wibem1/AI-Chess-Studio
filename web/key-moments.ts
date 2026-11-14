@@ -7,8 +7,8 @@ import {reviewLocked,visibleReviewNodes} from '../src/review.js';
 export function installKeyMoments(current:()=>Session,jump:(node:string)=>void,refresh:()=>void=()=>{}){
  const nav=document.getElementById('key-moment-nav')!,previous=document.getElementById('key-moment-prev') as HTMLButtonElement,next=document.getElementById('key-moment-next') as HTMLButtonElement,status=document.getElementById('key-moment-status')!;
  nav.tabIndex=0;
- const card=document.createElement('section');card.id='key-review-result';card.className='key-review-result';card.hidden=true;card.setAttribute('aria-label','Gespeicherte Partieanalyse');
- const heading=document.createElement('strong');heading.textContent='Partieanalyse abgeschlossen';
+ const card=document.createElement('details');card.id='key-review-result';card.className='key-review-result';card.hidden=true;card.open=true;card.setAttribute('aria-label','Gespeicherte Partieanalyse');
+ const heading=document.createElement('summary');heading.id='key-review-toggle';heading.textContent='Partieanalyse abgeschlossen';
  const summary=document.createElement('p'),lesson=document.createElement('p'),notice=document.createElement('p');notice.className='hint';
  const momentCard=document.createElement('section');momentCard.id='key-review-moment';momentCard.className='key-review-moment';momentCard.hidden=true;
  const momentHeading=document.createElement('h3'),momentExplanation=document.createElement('p'),momentAlternative=document.createElement('p'),momentReason=document.createElement('p');

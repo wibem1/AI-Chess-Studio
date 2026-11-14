@@ -586,3 +586,9 @@ html:has(#workspace[data-active-view=learn]),body:has(#workspace[data-active-vie
 #key-review-moment:not([hidden]){margin-top:12px;padding-top:10px;border-top:1px solid var(--border,#b4bbc4)}
 #key-review-moment h3{font-size:1rem;margin:0 0 6px}
 #key-review-moment p{margin:5px 0;white-space:pre-wrap;overflow-wrap:anywhere}
+
+/* The review may be folded away without hiding the board navigation or losing its place. */
+#key-review-result > summary{cursor:pointer;font-weight:700;min-height:32px;display:list-item;list-style:disclosure-closed inside;line-height:1.5}
+#key-review-result[open] > summary{list-style:disclosure-open inside}
+#key-review-result:not([open]){padding-top:7px;padding-bottom:7px}
+#key-review-result:not([open]) > summary{margin:0}
