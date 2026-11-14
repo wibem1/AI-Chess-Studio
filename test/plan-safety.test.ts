@@ -24,3 +24,11 @@ test('illegal and mismatched results do not authorize a move',async()=>{
  await assert.rejects(checkProposedFirstMove(fen,'e5',adapter()),/nicht legal/);
  await assert.rejects(checkProposedFirstMove(fen,'d4',{async check(f,c){return {...await adapter().check(f,c) as object,fen:'wrong'};}}),/Ungültiger Stockfish-Befund/);
 });
+
+// Regression from the user's real 70...Rb5?? proposal: a5-rook can capture b5.
+test('real Stockfish vetoes the lost-rook move in the reported endgame',async()=>{
+ const {StockfishService}=await import('../server/stockfish.js');
+ const engine=new StockfishService();
+ const position='8/8/7k/R6P/1r6/p4K2/8/8 b - - 9 70';
+ await assert.rejects(checkProposedFirstMove(position,'Rb5',{check:(fen,candidate)=>engine.check({fen,candidate})}),/Stockfish-Planprüfung: Rb5.*nicht vorgeführt/);
+});
