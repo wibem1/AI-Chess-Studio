@@ -1,3 +1,17 @@
+# Entwicklungsstand: KI-gesteuerte vertiefte Stockfish-Nachprüfung (14. November 2026)
+
+**Branch:** `feat/deep-stockfish-review-20261114`; Ausgangsversion 1.8.1 bleibt öffentlich, **keine Veröffentlichung**. Geplante neue Funktion für 1.9.0.
+
+**Implementiert:** Die erste, enginefreie strategische KI-Phase darf mit der eigenen Zeile `ENGINE_CHECK_PLIES:` höchstens fünf historisch tatsächlich existierende Halbzüge zur vertieften Engineprüfung auswählen. Vor der zweiten KI-Phase untersucht eine separate lokale Stockfish-Laufzeit die Stellung *vor* dem ausgewählten Zug mit max. Tiefe 24, 500.000 Knoten und 4 Sekunden je Stellung; MultiPV bis drei legale Varianten mit FEN, Suchstand und Bewertung aus Weißsicht. Browser und Node-Server verwenden denselben validierten Such- und Modellkontext. Keine Veränderung der bisherigen automatischen Tiefe-12/1-s-Partieprüfung oder des Engine-Gegners. Benutzerabbruch und Längen-/Timeout-Grenzen bleiben. Der äußere Review-Client hat für beide KI-Phasen und die bis zu fünf Deep-Checks maximal 360 Sekunden.
+
+**Sicherung:** Bis zu fünf Ergebnisse werden nur nach erfolgreicher kompletter KI-Analyse bei der zugehörigen Zugfolge in der Sitzung gespeichert, beim JSON-Export wiedergegeben und beim Import gegen legale Varianten sowie die tatsächliche Partie erneut validiert. Bei erneutem vollständigem Rückblick derselben Zugfolge kann der Modellwunsch bereits geprüfte Stellungen aus diesem Cache wiederverwenden. Fehlgeschlagene lokale Suchversuche werden nicht als belastbare Enginefakten ausgegeben. Es wird nichts kostenpflichtig im Hintergrund wiederholt.
+
+**Prüfung:** Unit-Tests für Zielauswahl, Zuglegalität, Wiederverwendung, Export/Import und Ablehnung manipulierter Befunde; Browser-Providerintegration mit simulierten Modellantworten; zusätzlicher Test mit realer lokaler Stockfish-MultiPV-Berechnung. GitHub-Actions-Lauf [43593147244](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43593147244) ist der neueste nicht veröffentlichende Gesamttest. Finale Ergebnisprüfung bei Erstellung dieses Eintrags noch offen. Keine kostenpflichtigen realen Modellanfragen.
+
+**Grenzen/offen:** Keine reale Sol-Qualitätsabnahme, keine native Geräteabnahme. Eine verlangte Nachprüfung untersucht derzeit die besten Alternativen aus der Stellung *vor* dem angegebenen Halbzug; die konkret gespielte Fortsetzung wird nicht zusätzlich durch eine erzwungene tiefe `searchmoves`-Suche geprüft. Die KI kann ein Ziel auslassen oder den vorgegebenen Marker nicht liefern; dann erfolgt keine neue Engineprüfung. Aus UX-Sicht fehlen noch gesonderte Fortschrittsanzeigen pro vertiefter Stellung. Vor Release reale Kosten, Zeitlimits und schachliche Erklärungstiefe mit der bekannten Partie kontrollieren, dann erst Versionsnummer und Releaseprozess durchführen.
+
+---
+
 # Chess Studio 1.8.1 veröffentlicht – 14. November 2026
 
 Die Korrektur des realen OpenRouter-Sol-Timeouts in der zweiten Phase vollständiger Partieanalysen wurde über PR #23 integriert. Release-Commit `fb1e85b4749644ed45091aa72ddb66935cd26481` auf `work`. Der [Release-Workflow 43590117032](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43590117032) wurde vollständig erfolgreich abgeschlossen: TypeScript, Node-Tests, Produktions-Build, Chromium-Integration mit lokalen Engines, Veröffentlichung auf `gh-pages` und erfolgreiche GitHub-Pages-Onlineprüfung. `gh-pages/BUILD.json` bestätigt Version 1.8.1 und den Release-Commit. Web-App: https://wibem1.github.io/AI-Chess-Studio/ .
