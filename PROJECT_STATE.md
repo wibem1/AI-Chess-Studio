@@ -1,3 +1,13 @@
+# Chess Studio 1.11.0 veröffentlicht – 14. November 2026
+
+**Nutzerfreigabe:** „veröffentlichen“. [PR #26](https://github.com/wibem1/AI-Chess-Studio/pull/26) nach erfolgreichem Releasekandidatenlauf [43616809471](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43616809471) per Squash in `work` integriert (Releasequellcommit `faa3fa8500c6b6d3e0e29c9cd118bd3f6586304c`). Versionsnummer auf **1.11.0** in `package.json` und `package-lock.json` sowie Releaseworkflow angepasst. Der produktive Lauf [43617186122](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43617186122) hat **success** gemeldet, einschließlich Typprüfung, Node-Tests, Browserintegration mit lokalen Engines, Veröffentlichung nach `gh-pages` und Deploymentprüfung. `gh-pages/BUILD.json` bestätigt **1.11.0** sowie den Quellcommit `faa3fa8500c6b6d3e0e29c9cd118bd3f6586304c`. App: https://wibem1.github.io/AI-Chess-Studio/.
+
+**Änderungen:** Ein einziger klarer Einstieg in die zweistufige KI-Partieanalyse mit Ablaufhinweis; vorhandene Analysen durch „Analyse ansehen“ ohne neue Modellkosten öffnen; separate bestätigungspflichtige neue Analyse. Zusammenfassung, Lernfolgerung, gewählte Schlüsselstellung, zugbezogene Erklärung und legale Alternative direkt beim Brett. Historischer Zug als klar gekennzeichneter blauer Ersatzpfeil, wenn Sol keine strategischen Markierungen liefert. Keine erfundenen strategischen Pfeile; bei ungültiger Alternative keine unbelegte Zugempfehlung. Bestehende Sitzungen und Analysen bleiben kompatibel.
+
+**Grenzen:** Die technische Integration ist per CI und Browser erfolgreich geprüft. Ein echter kostenpflichtiger Sol-Probelauf mit qualitativer Beurteilung neu erzeugter strategischer Pfeile war nicht Teil dieser Freigabe und ist weiterhin offen. Kein realer Endgerätetest durch den Nutzer nach dem Release dokumentiert.
+
+---
+
 # Schlüsselstellen-Erklärung direkt am Brett – erfolgreich geprüft (14. November 2026)
 
 **Entwicklung:** [PR #26](https://github.com/wibem1/AI-Chess-Studio/pull/26), Branch `fix/review-arrows-and-guidance-20261114`, öffentliche Version weiterhin **1.10.0**. Der vereinfachte Partieanalyse-Bildschirm zeigt jetzt beim Auswählen einer Schlüsselstellung unmittelbar bei der Brettansicht die historische Zugnummer, die konkrete KI-Erklärung, die legale Alternative (falls vorhanden) und ihre Begründung. Ungültige Modellalternativen werden ausdrücklich als fehlende begründbare Alternative dargestellt, nicht erfunden. Beim Wechsel der Stellung wechselt die Erklärung synchron. Bei mehreren Dialogbeiträgen erhält ein gespeicherter strukturierter Partierückblick Vorrang vor neueren allgemeinen Textnachrichten/älteren Textanalysen.
