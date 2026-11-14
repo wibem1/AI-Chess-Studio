@@ -13,6 +13,7 @@ import {ApiError,parseRequest,SYSTEM_PROMPT,FREE_CHAT_PROMPT,promptWithUserInstr
 import {validateReply} from './dialogue.js';
 import {APP_VERSION} from './version.js';
 import {BrowserTacticalAdapter} from './browser-tactics.js';
+import type {EngineWorker} from './browser-uci.js';
 import {BrowserDeepStockfish,deepReviewPlies,cleanStrategicDraft,reviewDeepChecks,type DeepReviewResult} from './deep-stockfish.js';
 
 async function readProvider(response:Response,maxBytes=65536):Promise<any>{
@@ -32,7 +33,7 @@ export class BrowserRuntime {
  private tactics=new BrowserTacticalAdapter();
  private restoring:Promise<void>|undefined;
  private channel=typeof window!=='undefined'&&typeof BroadcastChannel!=='undefined'?new BroadcastChannel('chess-studio-vault'):null;
- constructor(readonly store=new BrowserStore(),private transport:typeof fetch=(input,init)=>fetch(input,init)){if(this.channel)this.channel.onmessage=event=>{this.vaultEpoch++;this.config=null;this.responseReasoning.clear();this.continuity.clear();this.restoreIssue=null;this.restoring=event.data==='changed'?undefined:Promise.resolve();window.dispatchEvent(new Event('chess-vault-change'));};}
+ constructor(readonly store=new BrowserStore(),private transport:typeof fetch=(input,init)=>fetch(input,init),private deepWorker?:()=>EngineWorker){if(this.channel)this.channel.onmessage=event=>{this.vaultEpoch++;this.config=null;this.responseReasoning.clear();this.continuity.clear();this.restoreIssue=null;this.restoring=event.data==='changed'?undefined:Promise.resolve();window.dispatchEvent(new Event('chess-vault-change'));};}
  private restoreIssue:'unreadable'|null=null;
  private restoreDevice(){
   if(this.restoring)return this.restoring;
@@ -164,7 +165,7 @@ export class BrowserRuntime {
   if(qualitativePass&&request.history){
    const chosen=deepReviewPlies(qualitativePass.draft,request.history.moves);
    if(chosen.length){
-    const deepEngine=new BrowserDeepStockfish();
+    const deepEngine=new BrowserDeepStockfish(this.deepWorker);
     const cancel=()=>deepEngine.cancel();
     signal?.addEventListener('abort',cancel,{once:true});
     try{deepChecks=await reviewDeepChecks(request.history.rootFen,request.history.moves,chosen,deepEngine,signal);}
