@@ -647,9 +647,6 @@ html:has(#workspace[data-active-view=learn]),body:has(#workspace[data-active-vie
  .workspace[data-active-view=learn] #board-area .board-actions #coach-match{
   grid-column:1/-1;grid-template-columns:minmax(0,1fr) auto auto;gap:4px;margin:0
  }
- .workspace[data-active-view=learn] #coach-match #match-status:empty{
-  display:none;min-height:0;height:0;max-height:0
- }
  .workspace[data-active-view=learn] #board-area #coach-match #stockfish-assist-settings{
   grid-column:1/-1;grid-row:auto
  }
