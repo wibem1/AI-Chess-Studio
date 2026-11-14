@@ -91,3 +91,34 @@ test('deep engine evidence survives session export and import only for its exact
  assert.deepEqual(parseRequest(request).cachedDeepChecks,[checked]);
  assert.throws(()=>parseRequest({...request,cachedDeepChecks:[{...checked,fen:root}]}));
 });
+
+
+test('deep review searches a played move even when it is outside the top three alternatives',async()=>{
+ const commands:string[]=[];
+ const factory=():EngineWorker=>({
+  onmessage:null,onerror:null,onmessageerror:null,terminate(){},
+  postMessage(command:string){
+   commands.push(command);
+   const emit=(line:string)=>this.onmessage?.(new MessageEvent('message',{data:line}));
+   if(command==='uci'){emit('id name Stockfish 19 fixture');emit('uciok');}
+   if(command==='isready')emit('readyok');
+   if(command.startsWith('go ')){
+    if(command.includes(' searchmoves d7d5')){
+     emit('info depth 18 nodes 4000 multipv 1 score cp -65 pv d7d5 e4d5');
+     emit('bestmove d7d5');
+    }else{
+     emit('info depth 18 nodes 4000 multipv 1 score cp 50 pv e7e5 g1f3');
+     emit('info depth 18 nodes 4000 multipv 2 score cp 30 pv c7c5 g1f3');
+     emit('info depth 18 nodes 4000 multipv 3 score cp 10 pv e7e6 d2d4');
+     emit('bestmove e7e5');
+    }
+   }
+  }
+ });
+ const result=await new BrowserDeepStockfish(factory).check(root,['e4','d5'],2);
+ assert.deepEqual(result.lines.map(line=>line.san[0]),['e5','c5','e6']);
+ assert.equal(result.played,'d5');
+ assert.deepEqual(result.playedLine.san,['d5','exd5']);
+ assert.ok(!result.lines.some(line=>line.san[0]==='d5'));
+ assert.ok(commands.includes('go depth 24 nodes 500000 movetime 4000 searchmoves d7d5'));
+});
