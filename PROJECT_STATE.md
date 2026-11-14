@@ -1,3 +1,15 @@
+# Diagnoseexport für KI-Bretterklärungen erfolgreich geprüft – 14. November 2026
+
+**Branch:** `feat/key-moment-board-arrows-20261114` / [PR #25](https://github.com/wibem1/AI-Chess-Studio/pull/25), weiterhin Entwurf; öffentliche Version **1.9.0** unverändert.
+
+**Neu:** Die reguläre KI-Diagnose enthält in `extra.current.reviewIllustrations` bis zu drei gespeicherte Partierückblicke mit allen ihren maximal sechs Lernmomenten, jeweils historischem Knoten, FEN vor dem besprochenen Zug, gespielt/Alternative, ursprünglicher Erklärung sowie den tatsächlich gespeicherten Pfeilen und beschrifteten Demonstrationsschritten. Die Funktion funktioniert auch nach Sitzungs-Neuladen und wenn seit dem Browserneustart keine Modellanfrage erfolgt ist. Sie erfindet keine zusätzlichen Pfeile und führt keine KI-Anfrage aus. Der Diagnoseexport enthält Partiestellungen und Analysetexte, daher vor Weitergabe prüfen.
+
+**Prüfgrundlage:** [GitHub Actions 43602938073](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43602938073) auf Source-Commit `b6d063bf8dda374b3709012bc2907e52e95ab105` vollständig **success**: TypeScript, Node-Tests einschließlich neuen Exporttests, Web-Build, Chromium-Regressionslauf und Produktionsmanifest. PR-Beschreibung ebenfalls aktualisiert. Keine API-Kosten oder Veröffentlichung.
+
+**Noch offen:** Ein echter Sol-Partierückblick mit erstmals erzeugten Markierungen; die technische Diagnose kann die späteren Daten belegen, ersetzt aber keine qualitative Prüfung durch einen Schachkundigen. Kein Sol-Zugang im GitHub-Workflow; API-Schlüssel werden nicht im Repository gespeichert. Fortsetzung nach einem echten Test mit Zugriff auf die zugehörige Diagnose und visuelle Kontrolle, dann ggf. Freigabe durch den Nutzer.
+
+---
+
 # Prüfung der grafischen Schachlogik – 14. November 2026
 
 **Entwicklungsbranch:** `feat/key-moment-board-arrows-20261114` / [PR #25](https://github.com/wibem1/AI-Chess-Studio/pull/25); öffentliche Version weiterhin **1.9.0**. Die Qualitätssicherung verwirft jetzt einen Pfeil, der auf einem leeren Ausgangsfeld in der betreffenden historischen Stellung beginnt; abstrakte Linien dürfen leere Felder verbinden. Die Prüfung gilt sowohl für Gesamtmarkierungen als auch für die einzelnen Demonstrationsschritte und beim JSON-Import. Eine fehlerhafte Zeichnung wird bei einer echten KI-Antwort bereinigt, ohne die restliche Analyse zu verlieren. Beim Wechsel der historischen Stellung wird kein alter Demonstrationsschritt mehr gezeichnet. Ergänzte Unit-Tests prüfen die fehlerhaften und zulässigen Fälle, Browsertests verifizieren unveränderte Stellungsidentität während der Erklärungsschritte.
