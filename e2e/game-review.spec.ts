@@ -67,7 +67,7 @@ test('key-position browser flow salvages one illegal alternative and keeps navig
  expect(calls).toBe(2); // Viewing a saved analysis triggers no paid call.
  await page.locator('#key-moment-links button').nth(0).click();
  await expect(page.locator('#key-review-moment')).toContainText('Der erste Bauernvorstoß öffnete die Königsstellung.');
- await expect(page.locator('#key-review-moment')).toContainText('Alternative zum Prüfen');
+ await expect(page.locator('#key-review-moment')).toContainText('Keine ausreichend begründete konkrete Zug-Alternative.');
  await expect(page.locator('#position-status')).toHaveAttribute('data-node-id','n0');
  await expect(page.locator('#board .board-marks line')).toHaveCount(2);
  await expect(page.locator('#key-moment-arrows')).toHaveText('Pfeile ausblenden');
