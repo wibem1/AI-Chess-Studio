@@ -2,7 +2,9 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {Chess} from 'chess.js';
 import type {EngineWorker} from '../src/browser-uci.js';
-import {BrowserDeepStockfish,cleanStrategicDraft,deepReviewPlies,reviewDeepChecks,verifyDeepResult} from '../src/deep-stockfish.js';
+import {BrowserDeepStockfish,cleanStrategicDraft,deepReviewPlies,reviewDeepChecks,verifyDeepResult,validateDeepChecksForGame} from '../src/deep-stockfish.js';
+import {Session} from '../src/session.js';
+import {parseRequest} from '../src/model-contract.js';
 
 const root=new Chess().fen();
 test('strategic stage selects at most five validated historical halfmoves',()=>{
@@ -65,4 +67,23 @@ test('review check execution bounds requests and does not claim engine results a
  assert.equal(calls,2);
  await assert.rejects(reviewDeepChecks(root,['e4','e5'],[1,2,3],fake));
  assert.equal(calls,2);
+});
+
+test('deep engine evidence survives session export and import only for its exact legal game',()=>{
+ const session=new Session();session.play('e4');session.play('e5');
+ const before=new Chess(root);before.move('e4');
+ const checked={ply:2,fen:before.fen(),played:'e5',elapsedMs:100,
+   lines:[{depth:17,score:{unit:'cp' as const,value:-30},san:['e5','Nf3']}]};
+ assert.deepEqual(validateDeepChecksForGame(root,['e4','e5'],[checked]),[checked]);
+ session.storeDeepReview('n2',root,['e4','e5'],[checked]);
+ const recovered=Session.import(session.export());
+ assert.deepEqual(recovered.snapshot().deepReview?.checks,[checked]);
+ assert.throws(()=>session.storeDeepReview('n1',root,['e4','e5'],[checked]));
+ const damaged=JSON.parse(session.export());damaged.deepReview.checks[0].lines[0].san[0]='Qh4';
+ assert.throws(()=>Session.import(JSON.stringify(damaged)),/Illegale/);
+ const good=Session.import(session.export()).snapshot();
+ const request={nodeId:'n2',fen:good.nodes[2]!.fen,question:'Analysiere die Partie',legalMoves:new Chess(good.nodes[2]!.fen).moves(),context:[],topic:'review',hintMode:'explain',
+   history:{rootFen:root,moves:['e4','e5'],truncated:false},cachedDeepChecks:[checked]};
+ assert.deepEqual(parseRequest(request).cachedDeepChecks,[checked]);
+ assert.throws(()=>parseRequest({...request,cachedDeepChecks:[{...checked,fen:root}]}));
 });
