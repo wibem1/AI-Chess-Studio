@@ -24,3 +24,14 @@ test('client displays only recognized safe error codes, never provider or server
  const unknown=new ServerModelAdapter((async()=>new Response(JSON.stringify({code:'unknown',error:'secret-provider-body'}),{status:502})) as typeof fetch);
  await assert.rejects(unknown.respond(request),e=>e instanceof Error&&e.message.includes('nicht übermittelt')&&!e.message.includes('secret'));
 });
+
+
+test('client deadline covers both separately bounded review phases while ordinary requests stay unchanged',async()=>{
+ const original=AbortSignal.timeout,limits:number[]=[];
+ AbortSignal.timeout=(ms:number)=>{limits.push(ms);return new AbortController().signal;};
+ try{
+  const adapter=new ServerModelAdapter((async()=>new Response('{}')) as typeof fetch);
+  await adapter.respond(request);await adapter.respond({...request,topic:'chat'});
+  assert.deepEqual(limits,[200000,100000]);
+ }finally{AbortSignal.timeout=original;}
+});

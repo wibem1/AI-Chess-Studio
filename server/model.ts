@@ -98,7 +98,7 @@ export class ModelService {
     let reservation:number;
     try{const parsed=JSON.parse(body);reservation=this.costs.reserve(Buffer.byteLength(body),parsed.max_tokens??parsed.max_completion_tokens);}
     catch{throw new ApiError(402,'Verbrauch für die strategische Voranalyse konnte nicht reserviert werden.');}
-    const trace=this.traces.start(JSON.parse(body),{nodeId:request.nodeId,fen:request.fen,provider:providerOf(this.config),model:this.config.model,reasoning:this.config.reasoning??null,toolRound:0,priceAssumptions:this.costs.snapshot()},this.config.apiKey);
+    const trace=this.traces.start(JSON.parse(body),{nodeId:request.nodeId,fen:request.fen,provider:providerOf(this.config),model:this.config.model,reasoning:this.config.reasoning??null,toolRound:0,analysisPhase:'strategy',priceAssumptions:this.costs.snapshot()},this.config.apiKey);
     let status:number|undefined,code:CoachFailureCode='network';
     try{
       trace.sent();
@@ -142,8 +142,8 @@ export class ModelService {
       messages:[{role:'system',content:instructionsPrompt},...turns.map(t=>({role:t.role,content:`[Stellung ${t.nodeId}${t.fen?`, FEN ${t.fen}`:''}] ${t.text}`})),{role:'user',content:JSON.stringify(finalRequest)},...(providerOf(this.config)==='openrouter'?this.continuity.restore(coachProviderMessages(request)):coachProviderMessages(request))]});
     let reservation:number;
     try {reservation=this.costs.reserve(Buffer.byteLength(body),JSON.parse(body).max_tokens??JSON.parse(body).max_completion_tokens);}catch{throw new ApiError(402,'Verbrauch konnte nicht gespeichert werden.');}
-    const trace=this.traces.start(JSON.parse(body),{nodeId:request.nodeId,fen:request.fen,provider:providerOf(this.config),model:this.config.model,reasoning:this.config.reasoning??null,toolRound:request.toolExchanges?.length??0,priceAssumptions:this.costs.snapshot()},this.config.apiKey);
-    this.busy = true;let httpStatus:number|undefined;let failureCode:CoachFailureCode='network';
+    const trace=this.traces.start(JSON.parse(body),{nodeId:request.nodeId,fen:request.fen,provider:providerOf(this.config),model:this.config.model,reasoning:this.config.reasoning??null,toolRound:request.toolExchanges?.length??0,...(retrospective?{analysisPhase:'verification'}:{}),priceAssumptions:this.costs.snapshot()},this.config.apiKey);
+    let httpStatus:number|undefined;let failureCode:CoachFailureCode='network';
     try {
       trace.sent();const response = await this.transport(providerBase(this.config)+'/chat/completions', {
         method: 'POST', redirect: 'error',

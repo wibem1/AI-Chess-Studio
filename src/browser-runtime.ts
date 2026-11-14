@@ -166,8 +166,8 @@ export class BrowserRuntime {
   const responses=needsResponses(config);
   const body=JSON.stringify(responses?createResponsesBody(config,request,instructionsPrompt,current,turns,outputTokens,this.responseReasoning):{model:config.model,...generationOptions(config,outputTokens),...providerToolFields(config,request),...(request.topic==='chat'?{}:{response_format:{type:'json_object'}}),messages:[{role:'system',content:instructionsPrompt},...turns.map(t=>({role:t.role,content:`[Stellung ${t.nodeId}${t.fen?`, FEN ${t.fen}`:''}] ${t.text}`})),{role:'user',content:JSON.stringify(current)},...(providerOf(config)==='openrouter'?this.continuity.restore(coachProviderMessages(request)):coachProviderMessages(request))]});
   if(new TextEncoder().encode(body).length>120000)throw new ApiError(400,'Modellkontext ist zu groß.');
-  const trace=this.traces.start(JSON.parse(body),{nodeId:request.nodeId,fen:request.fen,provider:providerOf(config),model:config.model,reasoning:config.reasoning??null,toolRound:request.toolExchanges?.length??0,priceAssumptions:(await this.store.budget(l=>l.snapshot())).state},config.apiKey);
-  this.busy=true;let httpStatus:number|undefined;let reserved=0,started=false;let failureCode:CoachFailureCode='network';
+  const trace=this.traces.start(JSON.parse(body),{nodeId:request.nodeId,fen:request.fen,provider:providerOf(config),model:config.model,reasoning:config.reasoning??null,toolRound:request.toolExchanges?.length??0,...(retrospective?{analysisPhase:'verification'}:{}),priceAssumptions:(await this.store.budget(l=>l.snapshot())).state},config.apiKey);
+  let httpStatus:number|undefined;let reserved=0,started=false;let failureCode:CoachFailureCode='network';
   const requestTimeout=AbortSignal.timeout(providerTimeoutMs(config,retrospective));
   try{
    reserved=(await this.store.budget(l=>l.reserve(new TextEncoder().encode(body).length,JSON.parse(body).max_tokens??JSON.parse(body).max_completion_tokens??JSON.parse(body).max_output_tokens))).value;
