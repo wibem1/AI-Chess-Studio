@@ -22,6 +22,7 @@ test('verified deep lines reject illegal moves, mismatched FEN and duplicate can
  assert.throws(()=>verifyDeepResult({...base,fen:root},fen,'e5'));
  assert.throws(()=>verifyDeepResult({...base,lines:[{...base.lines[0]!,san:['Qh4']}]},fen,'e5'));
  assert.throws(()=>verifyDeepResult({...base,lines:[base.lines[0]!,base.lines[0]!] },fen,'e5'));
+ assert.throws(()=>verifyDeepResult({...base,playedLine:{...base.playedLine,san:['c5','Nf3']}},fen,'e5'),/Erzwungene/);
 });
 class WorkerFixture implements EngineWorker {
  onmessage:EngineWorker['onmessage']=null;onerror:EngineWorker['onerror']=null;onmessageerror:EngineWorker['onmessageerror']=null;
@@ -52,7 +53,10 @@ test('deep browser Stockfish replays exact game history and supplies legal Multi
  assert.ok(fixture.commands.includes('position fen '+root+' moves e2e4'));
  assert.ok(fixture.commands.includes('setoption name MultiPV value 3'));
  assert.ok(fixture.commands.includes('go depth 24 nodes 500000 movetime 4000'));
- assert.equal(fixture.terminated,1);
+ assert.deepEqual(report.playedLine.san,['e5','Nf3']);
+ assert.ok(fixture.commands.includes('go depth 24 nodes 500000 movetime 4000 searchmoves e7e5'));
+ assert.ok(fixture.commands.includes('setoption name MultiPV value 1'));
+ assert.equal(fixture.terminated,2);
 });
 test('deep search refuses illegal historical targets before allocating engine worker',async()=>{
  let count=0;const engine=new BrowserDeepStockfish(()=>{count++;return new WorkerFixture();});
