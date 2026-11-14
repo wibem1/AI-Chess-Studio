@@ -3,6 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches:
+      - fix/review-scroll-below-controls-20261114
       - fix/collapsible-review-summary-20261114
       - fix/review-arrows-and-guidance-20261114
       - feat/key-moment-board-arrows-20261114

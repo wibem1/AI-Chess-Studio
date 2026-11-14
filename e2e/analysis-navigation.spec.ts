@@ -14,6 +14,16 @@ test('key-moment arrows jump to checked positions, answer resizing survives rere
  await expect(page.locator('#key-review-moment')).toContainText('Der Springer entwickelt sich mit Angriff auf e5.');
  const reviewPanel=page.locator('#key-review-result'),reviewToggle=page.locator('#key-review-toggle');
  await expect(reviewPanel).toHaveAttribute('open','');
+ const scrollArea=page.locator('#key-review-scroll');
+ await expect(scrollArea).toHaveCSS('overflow-y','auto');
+ const arrangement=await page.evaluate(()=>{
+  const controls=document.querySelector('#learning-controls')!.getBoundingClientRect();
+  const card=document.querySelector('#key-review-result')!.getBoundingClientRect();
+  const scroller=document.querySelector('#key-review-scroll')!.getBoundingClientRect();
+  return {controlsBottom:controls.bottom,cardTop:card.top,scrollHeight:scroller.height};
+ });
+ expect(arrangement.cardTop).toBeGreaterThanOrEqual(arrangement.controlsBottom-1);
+ expect(arrangement.scrollHeight).toBeLessThanOrEqual(261);
  await reviewToggle.click();
  await expect(reviewPanel).not.toHaveAttribute('open','');
  await expect(page.locator('#key-review-moment')).not.toBeVisible();

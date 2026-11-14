@@ -13,7 +13,9 @@ export function installKeyMoments(current:()=>Session,jump:(node:string)=>void,r
  const momentCard=document.createElement('section');momentCard.id='key-review-moment';momentCard.className='key-review-moment';momentCard.hidden=true;
  const momentHeading=document.createElement('h3'),momentExplanation=document.createElement('p'),momentAlternative=document.createElement('p'),momentReason=document.createElement('p');
  momentCard.append(momentHeading,momentExplanation,momentAlternative,momentReason);
- card.append(heading,summary,lesson,notice,momentCard);
+ const scroll=document.createElement('div');scroll.id='key-review-scroll';scroll.className='key-review-scroll';
+ scroll.append(summary,lesson,notice,momentCard);
+ card.append(heading,scroll);
  nav.closest('.board-heading')?.after(card);
  let latest:{session:Session;index:number}|undefined;
  let marksVisible=true,demonstrationIndex=0,demonstrationKey='';

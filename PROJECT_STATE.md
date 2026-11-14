@@ -1,3 +1,13 @@
+# Korrigierter Analysebereich – Releasekandidat 1.11.2 geprüft (14. November 2026)
+
+**Auftrag:** Während der Veröffentlichung von 1.11.1 präzisierte der Nutzer: Die Partieanalyse muss unter den Steuerungsbuttons stehen (wie zuvor) und der Text innerhalb des Analysefelds muss scrollbar sein. Die veröffentlichte Zwischenfassung 1.11.1 genügte dieser Anforderung noch nicht.
+
+**Umsetzung:** [PR #28](https://github.com/wibem1/AI-Chess-Studio/pull/28), Branch `fix/review-scroll-below-controls-20261114`. Die eingeklappte/ausgeklappte Analysekarte besitzt einen separaten scrollbaren Textkörper mit maximal 260 px bzw. 32 % der dynamischen Viewporthöhe. Die Karte ist im Lernmodus korrekt **nach** den Steuerelementen für Zugnavigation und **vor** weiteren Werkzeugen angeordnet. Ein CSS-Spezifitätskonflikt mit vorhandenen `#board-area #learning-controls{order:3}` wurde durch explizite Kartenposition `order:4` behoben. Die Schachstellung und Schlüsselstellen-Navigation bleiben unabhängig von Kartenstatus und Scrollposition.
+
+**Verifikation:** [GitHub Actions 43628911683](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43628911683) auf Codecommit `fbda59c080ffe22ba7b8ab102eaad8a3cb9c899c` **success**: TypeScript, Node-Tests, Pages-Build, vollständige Chromium-Browserregression. Der Browsertest prüft tatsächliche Elementkoordinaten (Analysekarte unter Steuerleiste), `overflow-y:auto`, begrenzte Höhe, Einklappen und Zustandsbeibehaltung beim Stellungswechsel. Zwei vorherige Prüfläufe (43628362873 und 43628701447) scheiterten erwartungsgemäß am zunächst übersehenen CSS-Ordnungskonflikt. Der erneute vollständige Lauf bestätigte die Korrektur. Releaseversion in Paket und Workflow auf **1.11.2** vorbereitet. Zum Zeitpunkt dieser Dokumentation noch nicht veröffentlicht; eine Veröffentlichung ist im laufenden, ausdrücklich beauftragten Releasevorgang vorgesehen.
+
+---
+
 # Einklappbare Partieanalyse unter dem Brett – geprüft, noch nicht veröffentlicht (14. November 2026)
 
 **Nutzerwunsch:** Die ausführliche Partieanalyse nimmt unter dem Schachbrett zu viel Platz ein; die darunterliegenden Bedienfelder sollen erreichbar bleiben. **Branch:** `fix/collapsible-review-summary-20261114`; [PR #27](https://github.com/wibem1/AI-Chess-Studio/pull/27) (Entwurf). Öffentliche Version bleibt **1.11.0**.
