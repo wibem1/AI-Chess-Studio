@@ -60,6 +60,11 @@ test('key-position browser flow salvages one illegal alternative and keeps navig
  await expect(page.locator('#dialogue')).not.toContainText('Dieser erfundene Alternativzug');
  await expect(page.locator('#dialogue')).toContainText('Alternative zum Prüfen: g3');
  await expect(page.locator('#key-moment-links button')).toHaveCount(2);
+ await expect(page.locator('#key-review-result')).toContainText('Partieanalyse abgeschlossen');
+ await expect(page.locator('#find-key-moments')).toHaveText('Analyse ansehen');
+ await expect(page.locator('#review-reanalyze')).toBeVisible();
+ await page.locator('#find-key-moments').click();
+ expect(calls).toBe(2); // Viewing a saved analysis triggers no paid call.
  await page.locator('#key-moment-links button').nth(0).click();
  await expect(page.locator('#position-status')).toHaveAttribute('data-node-id','n0');
  await expect(page.locator('#board .board-marks line')).toHaveCount(2);

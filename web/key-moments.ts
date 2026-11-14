@@ -5,6 +5,11 @@ import {reviewLocked,visibleReviewNodes} from '../src/review.js';
 export function installKeyMoments(current:()=>Session,jump:(node:string)=>void,refresh:()=>void=()=>{}){
  const nav=document.getElementById('key-moment-nav')!,previous=document.getElementById('key-moment-prev') as HTMLButtonElement,next=document.getElementById('key-moment-next') as HTMLButtonElement,status=document.getElementById('key-moment-status')!;
  nav.tabIndex=0;
+ const card=document.createElement('section');card.id='key-review-result';card.className='key-review-result';card.hidden=true;card.setAttribute('aria-label','Gespeicherte Partieanalyse');
+ const heading=document.createElement('strong');heading.textContent='Partieanalyse abgeschlossen';
+ const summary=document.createElement('p'),lesson=document.createElement('p'),notice=document.createElement('p');notice.className='hint';
+ card.append(heading,summary,lesson,notice);
+ nav.closest('.board-heading')?.after(card);
  let latest:{session:Session;index:number}|undefined;
  let marksVisible=true,demonstrationIndex=0,demonstrationKey='';
  const toggle=document.createElement('button');toggle.type='button';toggle.className='secondary';toggle.id='key-moment-arrows';toggle.hidden=true;
@@ -25,6 +30,12 @@ export function installKeyMoments(current:()=>Session,jump:(node:string)=>void,r
   if(nav.hidden||e.defaultPrevented||e.ctrlKey||e.metaKey||e.altKey||e.shiftKey||!['ArrowLeft','ArrowRight'].includes(e.key)||!(e.target instanceof Element)||!e.target.closest('#board,#current-answer')||e.target.closest('input,textarea,select,[contenteditable],[role=separator]')||getSelection()?.toString())return;
   e.preventDefault();step(e.key==='ArrowLeft'?-1:1);
  });
+ const latestReview=()=>{
+  const data=current().snapshot();
+  const entries=data.annotations.map((a,i)=>({a,i,anchors:reviewAnchors(data,a)})).filter(x=>!!x.a.gameReview&&x.anchors.length&&x.anchors.every(anchor=>visibleReviewNodes(data).has(anchor.nodeId)));
+  return entries.at(-1);
+ };
+ const showLatest=()=>{const latest=latestReview();if(latest)choose(latest.i,0);};
  const momentAt=(data:SessionData)=>{
   if(!selected||selected.session!==current())return undefined;
   const annotation=data.annotations[selected.index];
@@ -47,7 +58,7 @@ export function installKeyMoments(current:()=>Session,jump:(node:string)=>void,r
   if(demonstrationIndex===0)return moment.marks?.length?moment.marks:moment.steps?.flatMap(s=>s.marks).slice(0,4)??[];
   return staged(data)[demonstrationIndex-1]?.marks??[];
  };
- return {choose,marks:(data:SessionData)=>activeMarks(data),render(){
+ return {choose,showLatest,hasReview:()=>!!latestReview(),marks:(data:SessionData)=>activeMarks(data),render(){
   const focused=nav.contains(document.activeElement);
   for(const id of ['find-key-moments','analyze-position'])document.getElementById(id)!.hidden=document.getElementById('workspace')?.dataset.activeView!=='learn';
   const session=current(),data=session.snapshot(),allowed=visibleReviewNodes(data);const candidates=data.annotations.map((a,i)=>({i,anchors:reviewAnchors(data,a)})).filter(x=>x.anchors.length&&x.anchors.every(m=>allowed.has(m.nodeId)));
@@ -59,6 +70,14 @@ export function installKeyMoments(current:()=>Session,jump:(node:string)=>void,r
   nav.hidden=!anchors.length||reviewLocked(data)||document.getElementById('workspace')?.dataset.activeView!=='learn';
   const stamp=`${selected?.index??-1}:${data.activeNodeId}`;
   if(demonstrationKey!==stamp){demonstrationKey=stamp;demonstrationIndex=0;}
+  const report=selected?data.annotations[selected.index]?.gameReview:undefined;
+  card.hidden=nav.hidden||!report;
+  if(report){
+   const decorated=report.moments.filter(m=>!!m.marks?.length||!!m.steps?.length).length;
+   heading.textContent=`Partieanalyse abgeschlossen · ${report.moments.length} Schlüsselstellungen`;
+   summary.textContent=report.summary;lesson.textContent=`Für die nächste Partie: ${report.lesson}`;
+   notice.textContent=decorated?`${decorated} Schlüsselstellungen mit KI-Pfeilen. Wähle unten eine Stellung, um sie am Brett zu sehen.`:'Die KI hat keine strategischen Pfeile geliefert. Die Schlüsselstellungen und ihre Texte sind trotzdem gespeichert. Für grafische Pläne wäre eine neue kostenpflichtige Analyse nötig.';
+  }
   const moment=momentAt(data),frames=staged(data);
   const available=!!moment&&(!!moment.marks?.length||frames.length>0);
   toggle.hidden=!available;toggle.textContent=marksVisible?'Pfeile ausblenden':'Pfeile anzeigen';toggle.setAttribute('aria-pressed',String(marksVisible));
