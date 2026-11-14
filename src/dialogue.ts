@@ -134,7 +134,8 @@ export class Studio {
       session.annotate({nodeId,kind:'dialogue',source:'model',text:TOOL_RECORD+(result.ok?'Ausgeführt. ':'Nicht vollständig ausgeführt. ')+(result.diagram?(result.diagram.fen?'Lehrstellung aufgebaut. ':'')+result.diagram.marks.length+' Brettmarkierungen. ':result.moves.length?'Gezeigte Züge: '+result.moves.join(' ')+' . ':'Keine Züge ausgeführt. ')+(result.engine?'Antwort von '+result.engine+'. ':'')+(result.error??'')+'\n\nAnalyse-Details:\n'+JSON.stringify(result),hypothesis:false,openQuestions:[]});
       request.toolExchanges!.push({call,content:(reply.message??'').slice(0,1000),result});
       if(result.error?.startsWith('Stockfish-Planprüfung:')){
-        reply={...reply,toolCall:undefined,message:'Die vorgeschlagene Zugvorführung wurde durch Stockfish nicht freigegeben. '+result.error+' Keine Empfehlung aus dieser Vorführung übernehmen.',plan:'',opponent:'',risks:'',playability:'',candidates:[],assessment:undefined,humanFactors:undefined,openQuestions:[]};
+        const {toolCall:_rejected,assessment:_assessment,humanFactors:_humanFactors,...safe}=reply;
+        reply={...safe,message:'Die vorgeschlagene Zugvorführung wurde durch Stockfish nicht freigegeben. '+result.error+' Keine Empfehlung aus dieser Vorführung übernehmen.',plan:'',opponent:'',risks:'',playability:'',candidates:[],openQuestions:[]};
         break;
       }
       if(new TextEncoder().encode(JSON.stringify(request)).byteLength>16000)throw new Error('Werkzeugkontext zu groß; keine weitere KI-Anfrage ausgeführt.');

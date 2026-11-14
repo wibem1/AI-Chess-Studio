@@ -22,5 +22,5 @@ test('engine preferred first move is checked with a single result',async()=>{
 test('acceptable alternatives are not falsely described as strategically best',async()=>{assert.equal((await checkProposedFirstMove(fen,'d4',adapter('e4',50,10))).lossCp,40);});
 test('illegal and mismatched results do not authorize a move',async()=>{
  await assert.rejects(checkProposedFirstMove(fen,'e5',adapter()),/nicht legal/);
- await assert.rejects(checkProposedFirstMove(fen,'d4',{async check(f,c){return {...await adapter().check(f,c),fen:'wrong'};}}),/Ungültiger Stockfish-Befund/);
+ await assert.rejects(checkProposedFirstMove(fen,'d4',{async check(f,c){return {...await adapter().check(f,c) as object,fen:'wrong'};}}),/Ungültiger Stockfish-Befund/);
 });
