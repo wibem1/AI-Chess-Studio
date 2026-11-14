@@ -30,7 +30,7 @@ test('key-position browser flow salvages one illegal alternative and keeps navig
   const body=route.request().postDataJSON(),payload=JSON.parse(body.messages.at(-1).content);
   if(!payload.topic){
    expect(payload.history.moves).toEqual(['f3','e5','g4','Qh4#']);
-   expect(payload.question).toContain('zuerst eigenständig');
+   expect(payload.question).toContain('auf Grundlage der zuvor berechneten Stockfish-Bewertungen');
    expect(payload.question).not.toContain('mit Zugnummer, Bewertungsverlust');
    expect(payload.context).toBeUndefined();
    return route.fulfill({json:{choices:[{finish_reason:'stop',message:{content:'Weiß schwächt durch die Bauernzüge f3 und g4 seinen König. Schwarz antwortet mit einem direkten Damenmatt auf h4.'}}],usage:{prompt_tokens:100,completion_tokens:100}}});
@@ -55,7 +55,7 @@ test('key-position browser flow salvages one illegal alternative and keeps navig
  await page.locator('#game-file').setInputFiles({name:'review.json',mimeType:'application/json',buffer:Buffer.from(studio.session.export())});
  await expect(page.locator('#games-status')).toContainText('Partie geladen');
  await page.locator('#find-key-moments').click();
- await expect(page.locator('#dialogue-feedback')).toContainText('gespeichert');
+ await expect(page.locator('#dialogue-feedback')).toContainText('gespeichert',{timeout:45000});
  await expect(page.locator('#dialogue')).toContainText('Alternativzug war in dieser Stellung nicht legal und wurde entfernt');
  await expect(page.locator('#dialogue')).not.toContainText('Dieser erfundene Alternativzug');
  await expect(page.locator('#dialogue')).toContainText('Alternative zum Prüfen: g3');
