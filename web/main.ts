@@ -91,6 +91,7 @@ const coachBoard=new CoachBoard(()=>studio.session,()=>studio.session.snapshot()
 });
 let directAnalysisHint:'explain'|undefined;
 let directAnalysisTopic:'review'|'chat'|undefined;
+let reviewInProgress=false;
 let tacticalPending = false;
 let modelAvailable = false;
 let modelConfigured=false,modelSaved=false,modelBlocked='Kein KI-Zugang eingerichtet.';
@@ -295,7 +296,7 @@ function render() {
         const show=document.createElement('button');show.type='button';show.textContent=`Zug zeigen: ${germanSan(san)}`;
         show.addEventListener('click',()=>attempt(()=>{game.analyse(a.nodeId);const board=new Chess(data.nodes.find(n=>n.id===a.nodeId)!.fen),shown=board.move(san);const node=game.play(san);shownMove={node,from:shown.from,to:shown.to};},'move-feedback',`${germanSan(san)} im Lernzweig gezeigt. Die Partie bleibt unverändert.`));entry.append(show);
       }
-      if(kind==='dialogue'&&a.source==='model'&&!locked){
+      if(kind==='dialogue'&&a.source==='model'&&!locked&&!a.gameReview){
         const anchors=reviewAnchors(data,a),analysis=data.annotations.indexOf(a);
         for(const [i,moment] of anchors.entries()){
           const button=document.createElement('button');button.type='button';button.textContent=`Vor ${moment.label} ansehen`;button.setAttribute('aria-current',String(current.id===moment.nodeId));button.onclick=()=>keyMoments.choose(analysis,i);entry.append(button);
@@ -308,6 +309,12 @@ function render() {
     }
   }
   keyMoments.render();
+  const savedReview=keyMoments.hasReview();
+  const reviewButton=$<HTMLButtonElement>('find-key-moments');
+  reviewButton.textContent=savedReview?'Analyse ansehen':'Analyse des Spiels';
+  reviewButton.setAttribute('aria-label',savedReview?'Gespeicherte Partieanalyse ohne neue KI-Anfrage ansehen':'Neue kostenpflichtige KI-Analyse der gesamten Partie starten');
+  $('review-reanalyze').hidden=!learningView||!savedReview;
+  $('review-flow').hidden=!learningView||!reviewInProgress;
   reviewUI.render(data);
   updateMode();
   syncStockfishBoard();
@@ -541,20 +548,21 @@ $('dialogue-form').addEventListener('submit', async event => {
   game.pause();
   const question = text('question').value,hintOverride=directAnalysisHint,topicOverride=directAnalysisTopic;directAnalysisHint=undefined;directAnalysisTopic=undefined;
   const session = studio.session,chatRevision=session.dialogueRevision();
-  chatStopped=false;pending = true;lastAiStage='request_started';lastAiError='';updateMode();
-  message('dialogue-feedback', 'Modellanfrage läuft … Stellungswechsel ist weiterhin möglich.');
+  chatStopped=false;pending = true;reviewInProgress=topicOverride==='review';lastAiStage='request_started';lastAiError='';updateMode();
+  if(reviewInProgress)render();
+  message('dialogue-feedback',reviewInProgress?'Partieanalyse läuft: Sol untersucht die Partie, Stockfish prüft bei Bedarf ausgewählte Stellungen, danach entsteht der Partierückblick.':'Modellanfrage läuft … Stellungswechsel ist weiterhin möglich.');
   try {
     activeAdapter=new ServerModelAdapter(platformFetch,()=>generalAiInstructions,enrichWithStockfish);let toolStarted=false;
     const result = await studio.ask(question, activeAdapter!,topicOverride??'chat',hintOverride,async(call,node)=>{if(!toolStarted){pendingCoachAnchor={session,node};toolStarted=true;}message('dialogue-feedback',call.function.name==='play_engine'?'Spielengine antwortet …':call.function.name==='show_line'?'Variante wird vorgeführt …':'Brettdarstellung wird aufgebaut …');if(call.function.name==='show_line'||call.function.name==='play_engine')illustration=undefined;
       const result=await coachBoard.execute(call,node);boardActions.push({at:new Date().toISOString(),call,result});if(boardActions.length>20)boardActions.shift();if(!chatStopped)message('dialogue-feedback','Brettergebnis liegt vor; die Lernengine erläutert es …');return result;});
     lastAskFailed=false;lastAiError='';lastAiStage=result==='stored'?'answer_saved':'answer_discarded';
-    message('dialogue-feedback', result === 'stored' ? 'Modellantwort an der angefragten Stellung gespeichert.' : chatStopped?'Angehalten. Gezeigte Züge bleiben als Lernvariante erhalten.':'Veraltete Antwort nach Sitzungs- oder Chatwechsel verworfen.');
+    message('dialogue-feedback', result === 'stored' ? (reviewInProgress?'Partieanalyse gespeichert. Schlüsselstellungen oben am Brett auswählen; die Ansicht kostet nichts.':'Modellantwort an der angefragten Stellung gespeichert.') : chatStopped?'Angehalten. Gezeigte Züge bleiben als Lernvariante erhalten.':'Veraltete Antwort nach Sitzungs- oder Chatwechsel verworfen.');
     render();
   } catch (error) {
     lastAskFailed=true;lastAiError=error instanceof Error?error.message:'Anfrage fehlgeschlagen';lastAiStage=lastAiStage==='stockfish_context'?'stockfish_preparation_failed':lastAiStage==='context_prepared'?'request_or_provider_failed':'request_failed';
     render();
     message('dialogue-feedback', chatStopped?'Angehalten. Gezeigte Züge bleiben als Lernvariante erhalten.':studio.session !== session ? 'Veraltete Anfrage nach Sitzungswechsel verworfen.' : session.dialogueRevision()!==chatRevision ? 'Chatverlauf gelöscht; die frühere Anfrage wurde nicht übernommen.' : (error instanceof Error ? error.message : 'Anfrage fehlgeschlagen.')+' Die bisherigen Chatbeiträge stammen von früheren Anfragen.');
-  } finally { pending = false;activeAdapter=undefined; updateMode(); void refreshModelStatus();void refreshCosts(); }
+  } finally { pending = false;reviewInProgress=false;activeAdapter=undefined;render();updateMode(); void refreshModelStatus();void refreshCosts(); }
 });
 render();
 
@@ -791,8 +799,10 @@ const navigation=installNavigation(cancelBoardDrag,view=>{
  else if(studio.session.snapshot().game?.paused&&!studio.session.snapshot().review?.guiding)game.resume();
  selected=null;render();if(view==='play')void engineTurn();
 });
-function beginAnalysis(wholeGame:boolean){
+function beginAnalysis(wholeGame:boolean,forceNew=false){
  if(pending||match.running)return;
+ if(wholeGame&&keyMoments.hasReview()&&!forceNew){keyMoments.showLatest();message('dialogue-feedback','Gespeicherte Analyse geöffnet. Keine KI-Anfrage und keine Kosten.');return;}
+ if(wholeGame&&forceNew&&!confirm('Eine neue vollständige KI-Analyse starten? Die gespeicherte Analyse bleibt erhalten, aber Modellanfragen können Kosten verursachen.'))return;
  const data=studio.session.snapshot();
  if(reviewLocked(data)){message('dialogue-feedback','Zuerst den aktuellen Rückblick-Schritt beantworten oder aufdecken.');return;}
  if(!modelAvailable||!accessReady||accessReadError){
@@ -810,6 +820,7 @@ function beginAnalysis(wholeGame:boolean){
  $<HTMLFormElement>('dialogue-form').requestSubmit();
 }
 $('find-key-moments').addEventListener('click',()=>beginAnalysis(true));
+$('review-reanalyze').addEventListener('click',()=>beginAnalysis(true,true));
 $('analyze-position').addEventListener('click',()=>beginAnalysis(false));
 $('ai-access-edit').addEventListener('click',()=>{navigation.select('settings');$<HTMLDetailsElement>('api-settings').open=true;$('api-settings').scrollIntoView({block:'start'});});
 $('chat-open-access').addEventListener('click',()=>{navigation.select('settings');const section=$('api-settings');(section as HTMLDetailsElement).open=true;section.scrollIntoView({block:'start'});});

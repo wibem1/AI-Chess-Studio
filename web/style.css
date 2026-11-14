@@ -576,3 +576,13 @@ html:has(#workspace[data-active-view=learn]),body:has(#workspace[data-active-vie
 #key-moment-stages:not([hidden]){display:flex;align-items:center;justify-content:center;gap:6px;flex:1 1 100%;flex-wrap:wrap}
 #key-stage-text{max-width:min(100%,450px);font-size:.85rem;line-height:1.3;overflow-wrap:anywhere;text-align:center}
 #key-moment-stages button{min-height:32px}
+
+/* One clear workflow: start once, inspect cached results without another API request. */
+#key-review-result:not([hidden]){margin:8px 0 12px;padding:12px 14px;border:1px solid var(--border, #b4bbc4);border-radius:10px;background:var(--panel, #f8f9fa);line-height:1.4}
+#key-review-result p{margin:6px 0;max-width:80ch}
+#key-review-result strong{font-size:1rem}
+#review-flow:not([hidden]){padding:9px 12px;margin:8px 0;border-left:4px solid var(--accent, #3563af);background:var(--panel, #f5f6f8);line-height:1.45}
+
+#key-review-moment:not([hidden]){margin-top:12px;padding-top:10px;border-top:1px solid var(--border,#b4bbc4)}
+#key-review-moment h3{font-size:1rem;margin:0 0 6px}
+#key-review-moment p{margin:5px 0;white-space:pre-wrap;overflow-wrap:anywhere}

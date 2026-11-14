@@ -1,3 +1,27 @@
+# Schlüsselstellen-Erklärung direkt am Brett – erfolgreich geprüft (14. November 2026)
+
+**Entwicklung:** [PR #26](https://github.com/wibem1/AI-Chess-Studio/pull/26), Branch `fix/review-arrows-and-guidance-20261114`, öffentliche Version weiterhin **1.10.0**. Der vereinfachte Partieanalyse-Bildschirm zeigt jetzt beim Auswählen einer Schlüsselstellung unmittelbar bei der Brettansicht die historische Zugnummer, die konkrete KI-Erklärung, die legale Alternative (falls vorhanden) und ihre Begründung. Ungültige Modellalternativen werden ausdrücklich als fehlende begründbare Alternative dargestellt, nicht erfunden. Beim Wechsel der Stellung wechselt die Erklärung synchron. Bei mehreren Dialogbeiträgen erhält ein gespeicherter strukturierter Partierückblick Vorrang vor neueren allgemeinen Textnachrichten/älteren Textanalysen.
+
+**Prüfgrundlage:** [GitHub Actions 43612902023](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43612902023), Commit `8dfa885d832dc857df40465963c753fb449fe905`, vollständig **success** (TypeScript, Node-Tests, Pages-Build, 55 Chromium-Regressionsfälle einschließlich Darstellung der ausgewählten Schlüsselstelle und Erhalt der Stellungsnavigation, Manifestprüfung). Vorheriger Lauf 43612469040 scheiterte nur an der falschen Testerwartung, eine vom Validator entfernte illegale Alternative müsse dennoch angezeigt werden; die korrekte Abwesenheitsmeldung ist jetzt explizit getestet. Kein echter Sol-API-Test, keine Veröffentlichung.
+
+**Nächster Schritt:** Nutzer kann die vereinfachte Ansicht nach ausdrücklicher Freigabe für Release erhalten. Eine neue Versionsnummer und Deployment werden erst im Rahmen einer gesondert beauftragten Veröffentlichung vorbereitet. Die Qualität echter von Sol generierter Strategie-Pfeile ist weiterhin offen; blauer Fallback zeigt nur den historischen Zug.
+
+---
+
+# Vereinfachte Partieanalyse – technisch geprüft, noch nicht veröffentlicht (14. November 2026)
+
+**Branch:** `fix/review-arrows-and-guidance-20261114`, [PR #26](https://github.com/wibem1/AI-Chess-Studio/pull/26), Entwurf; öffentliche Version **1.10.0** unverändert.
+
+**Umgesetzt:** Ein einziger Einstiegsbutton „Analyse des Spiels“ startet die bestehende zweistufige Sol/Stockfish-Analyse. Während des Aufrufs wird ein verständlicher Überblick des dreiteiligen Ablaufs angezeigt; eine nicht existierende phasengenaue Live-Verfolgung wird ausdrücklich nicht behauptet. Nach Speichern lautet der Button „Analyse ansehen“ und ruft **keine** kostenpflichtige KI erneut auf. Die gesicherte Zusammenfassung samt Lernfolgerung erscheint direkt am Brett; Schlüsselstellungen können dort navigiert werden. „Neu analysieren“ ist separat verfügbar und fragt ausdrücklich nach Kostenbestätigung. Im Chat entfallen die doppelten Navigationsknöpfe pro Schlüsselstellung, während historische textbasierte Rückblicke weiter navigierbar bleiben.
+
+**Grafische Transparenz:** Wenn das Modell keinen strategischen Pfeil geliefert hat, kann die Oberfläche stattdessen die **tatsächlich gespielte, lokal legalitätsgeprüfte** Zugbewegung als **blauen** Pfeil zeigen. Die UI nennt diesen ausdrücklich einen historischen Zug und *keinen* KI-Plan. Sol-eigene strategische Pfeile bleiben davon getrennt; fehlende Strategiepfeile werden in der Zusammenfassung ehrlich ausgewiesen. Der historische Fallback benötigt weder einen weiteren KI-Aufruf noch eine Enginebehauptung.
+
+**Prüfgrundlage:** [GitHub Actions 43611028412](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43611028412) auf Implementierungscommit `324482827ab6df80882f961705547fb18db8fda4` vollständig **success**: TypeScript, vollständige Node-Tests, Pages-Build, reale Chromium-Browserregression und Produktionsmanifest. E2E prüft, dass bereits vorhandene Analysen kostenfrei geöffnet werden, die Zusammenfassung erscheint und der historische Ersatzpfeil die geprüfte Stellung begleitet. Kein echter kostenpflichtiger Sol-Aufruf; strategische Pfeilqualität weiterhin offen.
+
+**Nächster Schritt:** Beurteilung und Freigabe der vereinfachten Oberfläche durch den Nutzer; eine Veröffentlichung muss ausdrücklich beauftragt werden. Der letzte Live-Stand bleibt 1.10.0.
+
+---
+
 # Chess Studio 1.10.0 veröffentlicht – 14. November 2026
 
 **Freigabe des Nutzers:** „veröffentlichen“. [PR #25](https://github.com/wibem1/AI-Chess-Studio/pull/25) mit grafischen Schlüsselstellungs-Pfeilen, schrittweiser Erläuterung und Diagnoseexport per Squash nach `work` übernommen (Releasequellcommit `07c6597981c7009277b6f11476777e0a5d366d58`). Versionsnummer in `package.json` und `package-lock.json` auf **1.10.0**, Freigabeworkflow aktualisiert.
