@@ -1,3 +1,9 @@
+# Testkorrektur und laufende Freigabeprüfung (14. November 2026)
+
+Letzter vollständiger GitHub-Actions-Lauf [43567663187](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43567663187): TypeScript, Node-Tests und Build erfolgreich; Chromium 53/55 bestanden. Die zwei Fehler in `e2e/analysis-navigation.spec.ts` wurden durch fehlende ausdrückliche OpenAI-Anbieterauswahl im Testsetup ausgelöst, nicht durch eine nachgewiesene Analysefehlfunktion. Der Test wurde auf dem PR-Branch mit Commit `50874dbc983060e91c5f43513b028d6f18ec7924` korrigiert. Ein erneuter Workflow [43570185508](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43570185508) ist gestartet, **Ergebnis noch offen**. Kein Merge, keine Versionsanhebung und keine Veröffentlichung bis zum erfolgreichen Abschluss und zur Prüfung der Release-Schritte. Kein kostenpflichtiger KI-Test ausgeführt.
+
+---
+
 # Zweistufige Partieanalyse – technische Korrektur (14. November 2026)
 
 PR #22 / Branch `feat/strategy-first-game-analysis-20261114`, weiterhin Version 1.7.2, nicht veröffentlicht.
