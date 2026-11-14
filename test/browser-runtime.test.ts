@@ -205,7 +205,7 @@ test('Sol direct tool call returns a legal app-level command without invoking th
 
 test('Sol Responses gets 90 seconds even at model-standard thinking; other providers retain their limits',()=>{
  assert.equal(providerTimeoutMs({enabled:true,apiKey:'fixture-sol-key',model:'gpt-6.1-sol',provider:'openai'}),90000);
- assert.equal(providerTimeoutMs({enabled:true,apiKey:'fixture-sol-key',model:'gpt-6.1-sol',provider:'openai'},true),90000);
+ assert.equal(providerTimeoutMs({enabled:true,apiKey:'fixture-sol-key',model:'gpt-6.1-sol',provider:'openai'},true),180000);
  assert.equal(providerTimeoutMs({enabled:true,apiKey:'fixture-sol-key',model:'gpt-4.1-mini',provider:'openai'},true),15000);
  assert.equal(providerTimeoutMs({enabled:true,apiKey:'fixture-sol-key',model:'gpt-6.1-sol',provider:'openai',reasoning:'high'}),90000);
  assert.equal(providerTimeoutMs({enabled:true,apiKey:'fixture-sol-key',model:'gpt-4.1-mini',provider:'openai'}),15000);
