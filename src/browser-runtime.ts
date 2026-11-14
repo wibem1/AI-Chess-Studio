@@ -13,6 +13,8 @@ import {ApiError,parseRequest,SYSTEM_PROMPT,FREE_CHAT_PROMPT,promptWithUserInstr
 import {validateReply} from './dialogue.js';
 import {APP_VERSION} from './version.js';
 import {BrowserTacticalAdapter} from './browser-tactics.js';
+import type {EngineWorker} from './browser-uci.js';
+import {BrowserDeepStockfish,deepReviewPlies,cleanStrategicDraft,reviewDeepChecks,validateDeepChecksForGame,type DeepReviewResult} from './deep-stockfish.js';
 
 async function readProvider(response:Response,maxBytes=65536):Promise<any>{
  const reader=response.body?.getReader();if(!reader)throw new Error();
@@ -31,7 +33,7 @@ export class BrowserRuntime {
  private tactics=new BrowserTacticalAdapter();
  private restoring:Promise<void>|undefined;
  private channel=typeof window!=='undefined'&&typeof BroadcastChannel!=='undefined'?new BroadcastChannel('chess-studio-vault'):null;
- constructor(readonly store=new BrowserStore(),private transport:typeof fetch=(input,init)=>fetch(input,init)){if(this.channel)this.channel.onmessage=event=>{this.vaultEpoch++;this.config=null;this.responseReasoning.clear();this.continuity.clear();this.restoreIssue=null;this.restoring=event.data==='changed'?undefined:Promise.resolve();window.dispatchEvent(new Event('chess-vault-change'));};}
+ constructor(readonly store=new BrowserStore(),private transport:typeof fetch=(input,init)=>fetch(input,init),private deepWorker?:()=>EngineWorker){if(this.channel)this.channel.onmessage=event=>{this.vaultEpoch++;this.config=null;this.responseReasoning.clear();this.continuity.clear();this.restoreIssue=null;this.restoring=event.data==='changed'?undefined:Promise.resolve();window.dispatchEvent(new Event('chess-vault-change'));};}
  private restoreIssue:'unreadable'|null=null;
  private restoreDevice(){
   if(this.restoring)return this.restoring;
@@ -159,8 +161,22 @@ export class BrowserRuntime {
   const retrospective=request.topic==='review'&&(request.hintMode??'explain')==='explain';
   const qualitativePass=retrospective?await this.qualitativeGamePass(config,request,signal):undefined;
   signal?.throwIfAborted();
+  let deepChecks:DeepReviewResult[]=[];
+  if(qualitativePass&&request.history){
+   const chosen=deepReviewPlies(qualitativePass.draft,request.history.moves);
+   if(chosen.length){
+    const cached=validateDeepChecksForGame(request.history.rootFen,request.history.moves,request.cachedDeepChecks??[]).filter(r=>chosen.includes(r.ply));
+    const needed=chosen.filter(ply=>!cached.some(r=>r.ply===ply));
+    const deepEngine=new BrowserDeepStockfish(this.deepWorker);
+    const cancel=()=>deepEngine.cancel();
+    signal?.addEventListener('abort',cancel,{once:true});
+    try{deepChecks=[...cached,...await reviewDeepChecks(request.history.rootFen,request.history.moves,needed,deepEngine,signal)];}
+    finally{signal?.removeEventListener('abort',cancel);}
+   }
+  }
+  signal?.throwIfAborted();
   const {generalInstructions:_,turns=[],toolExchanges,...original}=request;
-  const current=qualitativePass?verifiedRequest(original,qualitativePass.draft):original;
+  const current=qualitativePass?verifiedRequest(original,cleanStrategicDraft(qualitativePass.draft),deepChecks):original;
   const instructionsPrompt=promptWithUserInstructions(request.topic==='chat'?FREE_CHAT_PROMPT:SYSTEM_PROMPT,request.generalInstructions);
   const outputTokens=retrospective?2600:request.topic==='chat'?1800:800;
   const responses=needsResponses(config);
@@ -185,7 +201,7 @@ export class BrowserRuntime {
    const reply=normalizeModelReply(decodeModelContent(envelope.choices[0].message.content,request.topic!=='chat'),request.legalMoves);
    if(!reply.message?.trim()||request.hintMode==='question'&&(!reply.openQuestions.length||reply.candidates.length))throw new Error();
    failureCode='review_format';if(retrospective)reply.gameReview=validateGameReview(reply.gameReview,request.history,true);
-   trace.finish('accepted');const tagged=taggedReply(reply,config,envelope,trace.id);return qualitativePass?combineReviewCost(tagged,qualitativePass.costUsd,config,trace.id):tagged;
+   trace.finish('accepted');const tagged=taggedReply(reply,config,envelope,trace.id);if(qualitativePass){const combined=combineReviewCost(tagged,qualitativePass.costUsd,config,trace.id);if(deepChecks.length)combined.deepEngineChecks=deepChecks;return combined;}return tagged;
   }catch(error){
    if(!started){trace.finish('failed','accounting');throw new ApiError(402,'Verbrauch konnte nicht gespeichert werden.');}
    const code=classifyRequestFailure(error,requestTimeout.aborted,signal?.aborted===true,failureCode);trace.finish('failed',code,httpStatus,error instanceof ReviewValidationError?error.message:undefined);

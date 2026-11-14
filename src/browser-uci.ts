@@ -4,11 +4,11 @@ export interface EngineWorker {
  postMessage(message:string):void;terminate():void;
  onmessage:((event:MessageEvent)=>void)|null;onerror:((event:ErrorEvent)=>void)|null;onmessageerror:((event:MessageEvent)=>void)|null;
 }
-export interface BrowserSearch<T>{position:string;go:string;options:string[];requireSkill?:boolean;line?:(line:string)=>void;complete:(uci:string,engine:string)=>T}
+export interface BrowserSearch<T>{position:string;go:string;options:string[];maxOutputBytes?:number;requireSkill?:boolean;line?:(line:string)=>void;complete:(uci:string,engine:string)=>T}
 /** One bounded UCI worker; used by both the opponent and explicit factcheck. */
 export class BrowserUciProcess {
  private pendingCancel:(()=>void)|undefined;
- constructor(private createWorker:()=>EngineWorker=()=>new Worker(appPath(ENGINE_ASSET_BASE+ENGINE_FILES.script)),private timeoutMs=8000){if(!Number.isInteger(timeoutMs)||timeoutMs<1||timeoutMs>8000)throw new Error('Ungültiges Engine-Zeitlimit.');}
+ constructor(private createWorker:()=>EngineWorker=()=>new Worker(appPath(ENGINE_ASSET_BASE+ENGINE_FILES.script)),private timeoutMs=8000){if(!Number.isInteger(timeoutMs)||timeoutMs<1||timeoutMs>20000)throw new Error('Ungültiges Engine-Zeitlimit.');}
  cancel(){this.pendingCancel?.();}
  async search<T>(search:BrowserSearch<T>):Promise<T>{
   if(this.pendingCancel)throw new Error('Die Browser-Spielengine ist beschäftigt.');
@@ -23,7 +23,7 @@ export class BrowserUciProcess {
    worker.onmessageerror=()=>finish(new Error('Browser-Spielengine: unlesbare Nachricht.'));
    worker.onmessage=event=>{
     if(done)return;if(typeof event.data!=='string'){finish(new Error('Browser-Spielengine: ungültige Ausgabe.'));return;}
-    bytes+=new TextEncoder().encode(event.data).length;if(bytes>65536){finish(new Error('Browser-Spielengine: Ausgabe zu groß.'));return;}
+    bytes+=new TextEncoder().encode(event.data).length;if(bytes>(search.maxOutputBytes??65536)){finish(new Error('Browser-Spielengine: Ausgabe zu groß.'));return;}
     for(const line of event.data.split(/\r?\n/)){
      if(done)return;
      try{

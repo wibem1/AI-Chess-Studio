@@ -314,3 +314,45 @@ test('strategy phase holds the request lock and cancellation prevents phase two'
  controller.abort();finish(new Response(JSON.stringify({choices:[{finish_reason:'stop',message:{content:strategicText}}],usage:{prompt_tokens:20,completion_tokens:20}})));
  await assert.rejects(pending);assert.equal(calls,1);await runtime.handle('/api/model-config','POST',{action:'disconnect'});
 });
+
+
+test('browser two-stage review gives model-requested deep Stockfish MultiPV to verification stage',async()=>{
+ const game=new Session();game.play('e4');game.play('e5');
+ const req={...request(),nodeId:'n2',fen:game.snapshot().nodes[2]!.fen,legalMoves:game.legalMoves(),
+  topic:'review' as const,hintMode:'explain' as const,
+  history:{rootFen:game.snapshot().nodes[0]!.fen,moves:['e4','e5'],truncated:false}};
+ let calls=0,workers=0,second:any;
+ const factory=():EngineWorker=>{
+  workers++;
+  return {onmessage:null,onerror:null,onmessageerror:null,terminate(){},
+   postMessage(command:string){
+    const emit=(line:string)=>this.onmessage?.(new MessageEvent('message',{data:line}));
+    if(command==='uci'){emit('id name Stockfish 19 fixture');emit('uciok');}
+    if(command==='isready')emit('readyok');
+    if(command.startsWith('go ')){
+     emit('info depth 17 nodes 3000 multipv 1 score cp 35 pv e7e5 g1f3');
+     emit('info depth 17 nodes 3000 multipv 2 score cp 25 pv c7c5 g1f3');
+     emit('bestmove e7e5');
+    }
+   }};
+ };
+ const runtime=new BrowserRuntime(new MemoryStore(),(async(_url,init)=>{
+  calls++;const body=JSON.parse(String(init!.body));
+  if(calls===2)second=body;
+  const content=calls===1
+   ?'Weiß öffnet das Zentrum mit e4 und Schwarz muss überlegen, ob es mit e5 oder c5 Gegenspiel aufbauen soll.\nENGINE_CHECK_PLIES: 2'
+   :JSON.stringify(reply);
+  return new Response(JSON.stringify({choices:[{finish_reason:'stop',message:{content}}],usage:{prompt_tokens:20,completion_tokens:20}}));
+ }) as typeof fetch,factory);
+ await connect(runtime);
+ // The fixture is intentionally not a valid complete game review; we verify the payload before validation rejects it.
+ await assert.rejects(runtime.handle('/api/dialogue','POST',req),e=>(e as {code?:string}).code==='review_format');
+ assert.equal(calls,2);assert.equal(workers,2);
+ const payload=JSON.parse(second.messages.find((x:{role:string})=>x.role==='user').content);
+ assert.equal(payload.deepEngineChecks.length,1);
+ assert.equal(payload.deepEngineChecks[0].ply,2);
+ assert.equal(payload.deepEngineChecks[0].played,'e5');
+ assert.deepEqual(payload.deepEngineChecks[0].lines[0].san,['e5','Nf3']);
+ assert.deepEqual(payload.deepEngineChecks[0].playedLine.san,['e5','Nf3']);
+ assert.ok(!payload.qualitativeDraft.includes('ENGINE_CHECK_PLIES'));
+});

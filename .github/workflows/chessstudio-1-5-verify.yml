@@ -3,6 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches:
+      - feat/deep-stockfish-review-20261114
       - fix/review-verification-timeout-20261114
       - feat/strategy-first-game-analysis-20261114
       - feat/human-strategic-analysis-1-5

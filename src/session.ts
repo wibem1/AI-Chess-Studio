@@ -5,6 +5,7 @@ import { pathTo, type GameState } from './game.js';
 import { Chess, DEFAULT_POSITION } from 'chess.js';
 import { validateTacticalReport, type TacticalReport } from './tactics.js';
 import {makeFullGameAnalysis,type FullGameAnalysis} from './full-game-analysis.js';
+import {validateDeepChecksForGame,type DeepReviewResult} from './deep-stockfish.js';
 
 export type MoveInput = string | { from: string; to: string; promotion?: string };
 export interface PositionNode { id: string; parentId: string | null; san: string | null; fen: string }
@@ -32,6 +33,7 @@ export interface SessionData {
   comparison?: {a:string;b:string};
   fullGameAnalysis?:FullGameAnalysis;
   positionScores?:Record<string,{fen:string;cp:number;depth:number;line?:string[]}>;
+  deepReview?:{endNodeId:string;rootFen:string;moves:string[];checks:DeepReviewResult[]};
 }
 
 /** Branch identity is retained even when two nodes share the same FEN. */
@@ -158,6 +160,14 @@ export class Session {
       }
     }
   }
+  /** Cache independent engine evidence only when it belongs to this exact mainline. */
+  storeDeepReview(endNodeId:string,rootFen:string,moves:string[],raw:unknown):void{
+    const path=pathTo(this.data,endNodeId);
+    if(path[0]?.fen!==rootFen||JSON.stringify(path.slice(1).map(n=>n.san))!==JSON.stringify(moves))
+      throw new Error('Engine-Nachprüfung gehört nicht zu dieser Partie.');
+    const checks=validateDeepChecksForGame(rootFen,moves,raw);
+    this.data.deepReview={endNodeId,rootFen,moves:[...moves],checks};
+  }
   dialogueRevision():number{return this.chatRevision;}
   /** Clear only the current session's conversations, including other branches. */
   clearDialogue():void{
@@ -179,8 +189,8 @@ export class Session {
   }
   compare(a:string,b:string):void {this.node(a);this.node(b);if(a===b)throw new Error('Zwei unterschiedliche Stellungen wählen.');this.data.comparison={a,b};}
   export(): string {
-    const {schemaVersion,activeNodeId,nodes,annotations,game,labels,comparison,reflections,orientation,review,fullGameAnalysis,positionScores}=this.data;
-    return JSON.stringify({schemaVersion,activeNodeId,nodes,annotations,game,labels,comparison,reflections,orientation,review,fullGameAnalysis,positionScores},null,2);
+    const {schemaVersion,activeNodeId,nodes,annotations,game,labels,comparison,reflections,orientation,review,fullGameAnalysis,positionScores,deepReview}=this.data;
+    return JSON.stringify({schemaVersion,activeNodeId,nodes,annotations,game,labels,comparison,reflections,orientation,review,fullGameAnalysis,positionScores,deepReview},null,2);
   }
 
   static import(json: string): Session {
@@ -220,6 +230,7 @@ export class Session {
       }
     }
     if(d.fullGameAnalysis!==undefined)session.storeFullGameAnalysis(d.fullGameAnalysis as FullGameAnalysis);
+    if(d.deepReview!==undefined){const deep=record(d.deepReview);if(typeof deep.endNodeId!=='string'||typeof deep.rootFen!=='string'||!Array.isArray(deep.moves))throw new Error('Ungültiger gespeicherter Engine-Nachprüfungsbezug.');session.storeDeepReview(deep.endNodeId,deep.rootFen,deep.moves as string[],deep.checks);}
     if(d.orientation!==undefined)session.orient(d.orientation as PlayerColor);else if(session.data.review)session.orient(session.data.review.human);
     session.select(d.activeNodeId);
     return session;

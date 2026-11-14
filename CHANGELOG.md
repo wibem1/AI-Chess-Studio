@@ -1,5 +1,12 @@
 # Änderungen
 
+## 1.9.0 – KI-gesteuerte vertiefte Stockfish-Prüfung (14. November 2026)
+
+- Die erste strategische KI-Phase kann bis zu fünf historische Halbzüge zur tieferen lokalen Engineprüfung auswählen.
+- Stockfish prüft je Stellung drei Kandidatenzüge und separat den tatsächlich gespielten Zug per erzwungener Suche (`searchmoves`), jeweils begrenzt auf Tiefe 24, 500.000 Knoten und vier Sekunden.
+- Alle Varianten werden auf Zuglegalität und Partiebezug geprüft; Ergebnisse erscheinen im zweiten KI-Aufruf und können mit der Partie gespeichert werden.
+- Technische Freigabeprüfung mit echtem lokalem Stockfish und simulierten KI-Aufrufen: [GitHub Actions 43595453444](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43595453444) erfolgreich. Echte Sol-Qualität, API-Kosten und native Geräte weiterhin nicht überprüft.
+
 ## 1.8.1 – längere Verifikationsfrist für zweistufige Partieanalyse (14. November 2026)
 
 - Fehlerdiagnose einer realen 59-Züge-Partie: Die erste strategische KI-Phase antwortete nach rund 55 Sekunden; der zweite OpenRouter-Sol-Aufruf scheiterte nach 90 Sekunden am lokalen Zeitlimit. Dabei war die erste Phase bereits kostenpflichtig abgeschlossen, aber kein vollständiger Rückblick gespeichert worden.
