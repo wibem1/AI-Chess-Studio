@@ -18,6 +18,7 @@ export interface DialogueTurn {role:'user'|'assistant';nodeId:string;text:string
 export interface DialogueRequest {generalInstructions?:string;expectedModel?:string;matchTest?:{runId:string;color:'w'|'b';turn:number}; nodeId: string; fen: string; question: string; legalMoves: string[]; positionFacts?:PositionFacts;strategicFeatures?:StrategicFeatures;strategicPlans?:StrategicPlanReport;planDevelopment?:PlanDevelopment[];historyFacts?:ReturnType<typeof historyFacts>;toolsEnabled?:boolean;toolExchanges?:CoachExchange[];conversationTruncated?:boolean;gameHistory?:{rootFen:string;moves:string[];truncated:boolean;human:'w'|'b'|null};context?: string[];hintMode?:HintMode;topic?:DialogueTopic;turns?:DialogueTurn[];history?:{rootFen:string;moves:string[];truncated:boolean};cachedDeepChecks?:DeepReviewResult[] }
 export interface StrategicReply {
   provenance?:{provider:string;model:string;requestedModel:string;reasoning:string|null;costUsd:number|null;traceId:number;calls?:number};
+  deepEngineChecks?:DeepReviewResult[];
   message?:string;
   toolCall?:CoachCall;
   formatNotes?:string[];
