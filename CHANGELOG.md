@@ -1,5 +1,13 @@
 # Änderungen
 
+## 1.8.1 – längere Verifikationsfrist für zweistufige Partieanalyse (14. November 2026)
+
+- Fehlerdiagnose einer realen 59-Züge-Partie: Die erste strategische KI-Phase antwortete nach rund 55 Sekunden; der zweite OpenRouter-Sol-Aufruf scheiterte nach 90 Sekunden am lokalen Zeitlimit. Dabei war die erste Phase bereits kostenpflichtig abgeschlossen, aber kein vollständiger Rückblick gespeichert worden.
+- Für ausschließlich den zweiten KI-Aufruf einer vollständigen Partieanalyse gilt nun ein Zeitlimit von 180 statt 90 Sekunden, der Gesamtclient erlaubt 300 statt 200 Sekunden. Gewöhnliche Analysefragen behalten ihre bisherigen Grenzen.
+- Bestehende Abbruchfunktion, Kostenschutz und fehlende automatische Wiederholungen bleiben unverändert. Längere Rechenzeit kann höhere API-Kosten verursachen und garantiert keine erfolgreiche Modellantwort.
+- Technische Tests des Hotfixes: [GitHub Actions 43575451914](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43575451914) erfolgreich. Keine zusätzlichen kostenpflichtigen Modelltests ausgeführt.
+
+
 ## 1.8.0 – Strategieorientierte zweistufige Partieanalyse (14. November 2026)
 
 - Die KI analysiert den Partieverlauf zunächst strategisch ohne Stockfish-Bewertungen; ein zweiter eigenständiger Modellaufruf prüft die vorläufigen Aussagen anhand der Engine-Daten.

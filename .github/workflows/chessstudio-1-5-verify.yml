@@ -3,6 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches:
+      - fix/review-verification-timeout-20261114
       - feat/strategy-first-game-analysis-20261114
       - feat/human-strategic-analysis-1-5
       - fix/sol-browser-timeout-90s-20261109
