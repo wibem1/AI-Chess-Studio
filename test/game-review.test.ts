@@ -198,3 +198,15 @@ test('teaching steps are position-scoped, validated and stripped when invalid',(
  assert.equal(salvaged.moments[0]!.steps,undefined);
  assert.equal(salvaged.moments[0]!.played,'f3');
 });
+
+test('a teaching arrow must originate on a piece in the historical position; lines may connect empty fields',()=>{
+ const raw={...review,moments:[{...review.moments[0]!,marks:[{from:'f3',to:'f5',kind:'arrow' as const,color:'green' as const}]},review.moments[1]!]};
+ assert.throws(()=>validateGameReview(raw,history),/Brettpfeile/);
+ const safe=validateGameReview(raw,history,true);
+ assert.equal(safe.moments[0]!.marks,undefined);
+ const line={...review,moments:[{...review.moments[0]!,marks:[{from:'f3',to:'f5',kind:'line' as const,color:'blue' as const}]},review.moments[1]!]};
+ assert.equal(validateGameReview(line,history).moments[0]!.marks?.length,1);
+ const step={...review,moments:[{...review.moments[0]!,steps:[{text:'Ein falscher Pfeil',marks:[{from:'f3',to:'f5',kind:'arrow' as const,color:'red' as const}]}]},review.moments[1]!]};
+ assert.throws(()=>validateGameReview(step,history),/Lernschritte/);
+ assert.equal(validateGameReview(step,history,true).moments[0]!.steps,undefined);
+});

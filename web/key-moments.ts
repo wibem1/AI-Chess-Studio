@@ -41,7 +41,10 @@ export function installKeyMoments(current:()=>Session,jump:(node:string)=>void,r
   if(!marksVisible||!selected||selected.session!==current())return [];
   const moment=momentAt(data);
   if(!moment)return [];
-  if(demonstrationIndex===0)return moment.marks??moment.steps?.flatMap(s=>s.marks).slice(0,4)??[];
+  // Never render a stage belonging to a position or analysis that is no longer visible.
+  const stamp=`${selected.index}:${data.activeNodeId}`;
+  if(demonstrationKey!==stamp)demonstrationIndex=0;
+  if(demonstrationIndex===0)return moment.marks?.length?moment.marks:moment.steps?.flatMap(s=>s.marks).slice(0,4)??[];
   return staged(data)[demonstrationIndex-1]?.marks??[];
  };
  return {choose,marks:(data:SessionData)=>activeMarks(data),render(){

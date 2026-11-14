@@ -66,9 +66,11 @@ test('key-position browser flow salvages one illegal alternative and keeps navig
  await expect(page.locator('#key-moment-arrows')).toHaveText('Pfeile ausblenden');
  await page.locator('#key-stage-next').click();
  await expect(page.locator('#key-stage-text')).toContainText('Weiß rückt den f-Bauern vor.');
+ await expect(page.locator('#position-status')).toHaveAttribute('data-node-id','n0');
  await expect(page.locator('#board .board-marks line')).toHaveCount(1);
  await page.locator('#key-stage-next').click();
  await expect(page.locator('#key-stage-text')).toContainText('schwarze Dame');
+ await expect(page.locator('#position-status')).toHaveAttribute('data-node-id','n0');
  await expect(page.locator('#board .board-marks line')).toHaveCount(1);
  await page.locator('#key-stage-prev').click();
  await expect(page.locator('#key-stage-text')).toContainText('Weiß rückt');

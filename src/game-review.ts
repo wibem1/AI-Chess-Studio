@@ -44,11 +44,19 @@ export function validateGameReview(raw:unknown,history:{rootFen:string;moves:str
  let previous=0;
  for(const m of r.moments){
   if(!m||!Number.isInteger(m.ply)||m.ply<=previous||m.ply>before.length||m.played!==history.moves[m.ply-1]||!text(m.explanation,1000)||!text(m.reason,700)||typeof m.alternative!=='string'){problems.push('Eine Schlüsselstellung enthält einen ungültigen Bezug zur Zugfolge oder eine fehlende Beschreibung.');continue;}
-  // A diagram is only geometry bound to this exact historical position, never an engine proof.
+  // Illustrative arrows originate at an occupied square in the historical position.
+  // Use lines for connections without a source piece; neither implies a legal move.
+  const position=new Chess(before[m.ply-1]!);
+  const checkedMarks=(value:unknown):BoardMark[]=>{
+   const checked=parseMarks(value);
+   if(checked.some(mark=>mark.kind==='arrow'&&!position.get(mark.from as import('chess.js').Square)))
+    throw new Error('Ein Pfeil hat keine Ausgangsfigur.');
+   return checked;
+  };
   let marks:BoardMark[]|undefined;
   if(m.marks!==undefined){
    try{
-    marks=parseMarks(m.marks);
+    marks=checkedMarks(m.marks);
     if(marks.length>4)throw new Error('Zu viele Erklärungspfeile.');
    }catch{
     if(!sanitizeInvalidAlternatives){problems.push('Eine Schlüsselstellung enthält ungültige Brettpfeile.');continue;}
@@ -61,7 +69,7 @@ export function validateGameReview(raw:unknown,history:{rootFen:string;moves:str
     if(!Array.isArray(m.steps)||m.steps.length<1||m.steps.length>3)throw new Error('Ungültige Lernschritte.');
     steps=m.steps.map(s=>{
      if(!s||typeof s.text!=='string'||!s.text.trim()||s.text.length>180)throw new Error('Ungültiger Lernschritt.');
-     const checked=parseMarks(s.marks);
+     const checked=checkedMarks(s.marks);
      if(checked.length<1||checked.length>3)throw new Error('Ungültige Lernpfeile.');
      return {text:s.text.trim(),marks:checked};
     });
@@ -73,7 +81,6 @@ export function validateGameReview(raw:unknown,history:{rootFen:string;moves:str
   const clean={...m};
   if(marks===undefined)delete clean.marks;else clean.marks=marks;
   if(steps===undefined)delete clean.steps;else clean.steps=steps;
-  const position=new Chess(before[m.ply-1]!);
   if(m.alternative && (m.alternative===m.played||!position.moves().includes(m.alternative))){
    const label=germanMoveFromFen(position.fen(),m.played);
    if(sanitizeInvalidAlternatives){
