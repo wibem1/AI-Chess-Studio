@@ -1,3 +1,15 @@
+# Kompakter Smartphone-Lernmodus – Browserprüfung erfolgreich (14. November 2026)
+
+**Auftrag und Grundlage:** Nutzer hat einen Screenshot des Android-Lernmodus mit raumgreifenden Analyse-, Zug- und Schlüsselstellungsbuttons vorgelegt und um ein kompakteres Layout gebeten. Die veröffentlichte Version bleibt **1.11.2**; Änderungen liegen in Branch `fix/compact-mobile-learning-layout-20261114`, [PR #29](https://github.com/wibem1/AI-Chess-Studio/pull/29) (Entwurf).
+
+**Implementiert:** Responsive CSS für bis zu 600 px Breite: sparsamere Abstände am Brett und in der Chat-Eingabe, Analyse-/Bedienbuttons im vierteiligen Raster statt mehrzeiliger Flex-Wrap-Zeilen, Schlüsselstellungsbuttons in einer horizontal scrollbareren Reihe (alle bleiben vorhanden), kompakte Stellungsauswahl, Plan-/Engineanzeige weiterhin verfügbar. Die ausklappbare Analyse mit eigener vertikaler Scrollfläche bleibt unter den Lern-Steuerbuttons; KI-Daten und Analysekosten unverändert. Keine Funktion aus der Oberfläche entfernt.
+
+**Qualitätsprüfung:** [GitHub Actions 43637127822](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43637127822) auf Commit `47c5f59af5818d3e709c62716cab8daf31d1ba1f` **success** (TypeScript, Node-Tests, Pages-Build, vollständige Chromium-Browsertests). Neuer Browserfall prüft bei 390 px Breite, dass die wichtigsten Buttons ausreichend breit sind, unterhalb des Bretts erscheinen, sichtbar sind und kein horizontales Seiten-Überlaufen erzeugen. Der anfängliche Lauf 43636759064 fand einen echten Geometriefehler: Ein Versuch, den leeren Matchstatus einzusparen, ließ während des Engineantwortwechsels das Brett springen; dieser Versuch wurde gezielt zurückgenommen und der nachfolgende Gesamttest bestand. Kein echter Endgerätevergleich mit dem Nutzer-Screenshot und kein Release.
+
+**Nächster Schritt:** Smartphone-Layout im Endgerät nach Freigabe einer neuen Version beurteilen; Release nur auf ausdrücklichen Nutzerauftrag.
+
+---
+
 # Chess Studio 1.11.2 veröffentlicht – 14. November 2026
 
 **Nutzerkorrektur während des 1.11.1-Releases:** Analysefeld nicht unmittelbar unter dem Schachbrett vor den Steuerbuttons, sondern **unter den Steuerbuttons** wie zuvor; Analysetext **innerhalb der Karte scrollbar** und Karte weiterhin einklappbar. Die zuvor veröffentlichte Zwischenversion 1.11.1 wurde deshalb durch 1.11.2 ersetzt.
