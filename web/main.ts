@@ -40,6 +40,7 @@ import {installGameLibrary} from './game-library.js';
 import {installFontScale} from './font-scale.js';
 import {installStrategicQualityUI} from './strategic-quality-ui.js';
 import {diagnosticGameHistory} from '../src/diagnostic-game-history.js';
+import {diagnosticReviewIllustrations} from '../src/diagnostic-review-illustrations.js';
 
 document.getElementById('app-version')!.textContent = `Version ${APP_VERSION}`;
 document.title = `AI-Chess-Studio ${APP_VERSION}`;
@@ -515,7 +516,7 @@ installStrategicQualityUI(()=>studio.session,(fen,question)=>{
  render();
  text('question').focus();
 });
-const modelControls=installModelControls(localPost,async()=>{updateMode();await refreshModelStatus();await refreshCosts();},()=>({nodeId:studio.session.snapshot().activeNodeId,fen:studio.session.snapshot().nodes.find(n=>n.id===studio.session.snapshot().activeNodeId)!.fen,gameHistory:diagnosticGameHistory(studio.session.snapshot()),automaticStockfishError:automaticScores?.error??'',lastAiError,lastAiStage,fullGameStockfish:(()=>{
+const modelControls=installModelControls(localPost,async()=>{updateMode();await refreshModelStatus();await refreshCosts();},()=>({nodeId:studio.session.snapshot().activeNodeId,fen:studio.session.snapshot().nodes.find(n=>n.id===studio.session.snapshot().activeNodeId)!.fen,gameHistory:diagnosticGameHistory(studio.session.snapshot()),reviewIllustrations:diagnosticReviewIllustrations(studio.session.snapshot()),automaticStockfishError:automaticScores?.error??'',lastAiError,lastAiStage,fullGameStockfish:(()=>{
  const report=matchingFullGameAnalysis(studio.session);
  const issue=report?.records.filter(m=>m.lossCp!==null&&m.grade!=='gut').sort((a,b)=>b.lossCp!-a.lossCp!)[0];
  return report?{state:'stored',plies:report.records.length,critical:issue?{ply:issue.ply,san:issue.san,grade:issue.grade,lossCp:issue.lossCp}:null}:{state:'missing_or_other_game'};
