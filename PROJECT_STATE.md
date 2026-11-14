@@ -1,3 +1,15 @@
+# Chess Studio 1.11.2 veröffentlicht – 14. November 2026
+
+**Nutzerkorrektur während des 1.11.1-Releases:** Analysefeld nicht unmittelbar unter dem Schachbrett vor den Steuerbuttons, sondern **unter den Steuerbuttons** wie zuvor; Analysetext **innerhalb der Karte scrollbar** und Karte weiterhin einklappbar. Die zuvor veröffentlichte Zwischenversion 1.11.1 wurde deshalb durch 1.11.2 ersetzt.
+
+**Änderung:** [PR #28](https://github.com/wibem1/AI-Chess-Studio/pull/28) erfolgreich in `work` übernommen (Commit `03900a6450e61dcf07a999f9106ab34888ea2ec8`). Flexbox-Reihenfolge: Schachbrett und Lernchat → Lern-Steuerbuttons → Analysekarte → weitere Werkzeuge. Analysetext in eigener Scrollfläche mit begrenzter Höhe (max. 260 px bzw. 32dvh). Die Karte bleibt einklappbar und das Navigieren zwischen Schlüsselstellungen ändert die Einklappung nicht.
+
+**Verifikation:** Nach der Diagnose eines CSS-Spezifitätskonflikts erfolgreich bestätigter Releasekandidat [43628911683](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43628911683): TypeScript, Node-Tests, Pages-Build und Chromium-Browsertests inkl. realer Messung, dass die Analyse unter der Steuerleiste angezeigt wird. Produktionsrelease [43629330142](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43629330142) **success** einschließlich erneuter Browserprüfung, Veröffentlichung und Deploymentstatus. `gh-pages/BUILD.json` bestätigt **Version 1.11.2**, korrekten Basis-Pfad und Quellcommit `03900a6450e61dcf07a999f9106ab34888ea2ec8`. Live: https://wibem1.github.io/AI-Chess-Studio/.
+
+**Grenzen:** Noch keine Bedienprüfung auf dem Endgerät durch den Nutzer dokumentiert. Kostenpflichtige KI-Tests und qualitative Bewertung von Sol-Pfeilen weiterhin offen. Der Release verändert nicht die KI-Analysekette.
+
+---
+
 # Korrigierter Analysebereich – Releasekandidat 1.11.2 geprüft (14. November 2026)
 
 **Auftrag:** Während der Veröffentlichung von 1.11.1 präzisierte der Nutzer: Die Partieanalyse muss unter den Steuerungsbuttons stehen (wie zuvor) und der Text innerhalb des Analysefelds muss scrollbar sein. Die veröffentlichte Zwischenfassung 1.11.1 genügte dieser Anforderung noch nicht.
