@@ -149,3 +149,15 @@ test('failed qualitative first pass is not mistaken for a completed review or si
  await assert.rejects(service.reply({nodeId:'n4',fen:board.fen(),question:'Analysiere die Partie',legalMoves:[],context:[],topic:'review',hintMode:'explain',history}),/Strategische Voranalyse fehlgeschlagen/);
  assert.equal(calls,1,'no paid second-stage call after an incomplete draft');
 });
+
+test('59-move diagnostic game is complete in the isolated strategic payload and retains historical anchors',async()=>{
+ const {readFileSync}=await import('node:fs');const {strategicPayload}=await import('../src/strategic-pass.js');
+ const moves=JSON.parse(readFileSync('test/fixtures/strategy-59-moves.json','utf8')) as string[];
+ const board=new Chess();for(const san of moves)board.move(san);assert.equal(moves.length,117);assert.equal(board.isCheckmate(),true);
+ const data={rootFen:new Chess().fen(),moves,truncated:false};
+ const payload=strategicPayload({nodeId:'n117',fen:board.fen(),legalMoves:[],question:'Analysiere die Partie',history:{...data,engineScore:999} as any,context:['Stockfish beforeCp 530'],turns:[{role:'assistant',nodeId:'n70',text:'ENGINE_SENTINEL'}]});
+ assert.deepEqual(payload.history,data);assert.doesNotMatch(JSON.stringify(payload),/Stockfish|engineScore|ENGINE_SENTINEL|beforeCp/);
+ const moments=[13,42,70,91,99,113].map(ply=>({ply,played:moves[ply-1]!,explanation:'Konkrete Figurenkoordination und Gegenplan an dieser Stellung prüfen.',alternative:'',reason:'Keine berechnete Alternative vorhanden.'}));
+ assert.equal(moves[69],'Rc8');assert.equal(moves[98],'Qf3');
+ assert.equal(validateGameReview({summary:'Raumgewinn, Zentrumsabtausch, Freibauernrennen und Königsangriff.',moments,lesson:'Nach der Umwandlung die Priorität von Freibauernkontrolle zu Königssicherheit neu prüfen.'},data).moments.length,6);
+});

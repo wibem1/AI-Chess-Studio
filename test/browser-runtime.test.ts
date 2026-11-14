@@ -132,8 +132,8 @@ test('browser coach distinguishes provider rejection, output limit and invalid r
  const session=new Session();session.play('e4');session.play('e5');
  const req={...request(),nodeId:'n2',fen:session.snapshot().nodes[2]!.fen,legalMoves:session.legalMoves(),topic:'review',hintMode:'explain',history:{rootFen:session.snapshot().nodes[0]!.fen,moves:['e4','e5'],truncated:false}};
  for(const [code,result] of [['provider_auth',()=>new Response(config.apiKey,{status:401})],['output_limit',()=>new Response(JSON.stringify({choices:[{finish_reason:'length'}]}))],['review_format',()=>new Response(JSON.stringify({choices:[{finish_reason:'stop',message:{content:JSON.stringify(reply)}}],usage:{prompt_tokens:20,completion_tokens:20}}))]] as const){
-  const store=new MemoryStore();let calls=0;const runtime=new BrowserRuntime(store,(async()=>{calls++;return result();}) as typeof fetch);await connect(runtime);
-  await assert.rejects(runtime.handle('/api/dialogue','POST',req),e=>e instanceof Error&&(e as {code?:string}).code===code&&!e.message.includes(config.apiKey));assert.equal(calls,1);assert.equal((await store.budget(l=>l.snapshot())).state.requests,1);
+  const store=new MemoryStore();let calls=0;const runtime=new BrowserRuntime(store,(async()=>{calls++;if(calls===1&&code==='review_format')return new Response(JSON.stringify({choices:[{finish_reason:'stop',message:{content:'Weiß und Schwarz besetzen mit ihren Bauern das Zentrum und bereiten die Entwicklung ihrer Figuren vor.'}}],usage:{prompt_tokens:20,completion_tokens:20}}));return result();}) as typeof fetch);await connect(runtime);
+  await assert.rejects(runtime.handle('/api/dialogue','POST',req),e=>e instanceof Error&&(e as {code?:string}).code===code&&!e.message.includes(config.apiKey));assert.equal(calls,code==='review_format'?2:1);assert.equal((await store.budget(l=>l.snapshot())).state.requests,code==='review_format'?2:1);
  }
 });
 
@@ -278,4 +278,38 @@ test('general coaching preferences reach provider system prompt, never party dat
  assert.equal(prompts.length,2);
  await assert.rejects(runtime.handle('/api/dialogue','POST',{...request(),generalInstructions:'X'.repeat(2001)}),/2.000 Zeichen/);
  assert.equal(prompts.length,2);
+});
+
+const strategicText='Weiß gewinnt Raum am Damenflügel, während Schwarz Gegenspiel im Zentrum sucht. Die Freibauern verändern später die Prioritäten.';
+const reviewRequest=()=>{const s=new Session();s.play('e4');s.play('e5');return {...request(),nodeId:'n2',fen:s.snapshot().nodes[2]!.fen,legalMoves:s.legalMoves(),topic:'review',hintMode:'explain',context:['ENGINE_ONLY_SENTINEL beforeCp 250'],history:{rootFen:s.snapshot().nodes[0]!.fen,moves:['e4','e5'],truncated:false}};};
+const completeReview={message:'Die Bauern besetzen das Zentrum.',gameReview:{summary:'Beide Seiten besetzen das Zentrum.',moments:[{ply:1,played:'e4',explanation:'Weiß öffnet die Diagonale des Läufers f1.',alternative:'',reason:'Keine Variante geprüft.'},{ply:2,played:'e5',explanation:'Schwarz kontrolliert d4 und öffnet den Läufer f8.',alternative:'',reason:'Keine Variante geprüft.'}],lesson:'Bauernzüge mit der Figurenentwicklung verbinden.'}};
+for(const provider of ['openrouter','openai'] as const)test(`two-stage browser review isolates strategy, records both phases and settles costs: ${provider}`,async()=>{
+ const store=new MemoryStore();let calls=0;
+ const runtime=new BrowserRuntime(store,(async(url,init)=>{
+  calls++;const body=JSON.parse(String(init!.body));
+  const messages=body.messages??body.input,payload=JSON.parse(messages.at(-1).content);
+  if(calls===1){assert.deepEqual(Object.keys(payload).sort(),['history','human','question']);assert.doesNotMatch(JSON.stringify(body),/ENGINE_ONLY_SENTINEL|beforeCp/);assert.equal(body.tools,undefined);}
+  else{assert.match(JSON.stringify(body),/ENGINE_ONLY_SENTINEL/);assert.equal(payload.qualitativeDraft,strategicText);}
+  const content=calls===1?strategicText:JSON.stringify(completeReview);
+  return new Response(JSON.stringify(provider==='openai'?{status:'completed',output:[{type:'message',content:[{type:'output_text',text:content}]}],usage:{input_tokens:100,output_tokens:50}}:{model:'fixture/model',choices:[{finish_reason:'stop',message:{content}}],usage:{prompt_tokens:100,completion_tokens:50,cost:calls===1?0.01:0.02}}));
+ }) as typeof fetch);
+ await runtime.handle('/api/model-config','POST',{action:'connect',provider,model:provider==='openai'?'gpt-6.1-sol':'fixture/model',apiKey:config.apiKey,allowPaid:true});
+ const answer=await runtime.handle('/api/dialogue','POST',reviewRequest());assert.equal(calls,2);assert.deepEqual(answer.gameReview,completeReview.gameReview);assert.equal(answer.provenance.calls,2);assert.equal(answer.provenance.costUsd,provider==='openai'?null:0.03);
+ const report=await runtime.handle('/api/ai-diagnostics','POST',{});assert.equal(report.requests.length,2);assert.ok(report.requests.every((r:any)=>r.status==='accepted'));assert.ok(!JSON.stringify(report).includes(config.apiKey));
+ const costs=(await store.budget(l=>l.snapshot())).state;assert.equal(costs.requests,2);assert.equal(costs.promptTokens,200);assert.equal(costs.completionTokens,100);assert.equal(costs.uncertainRequests,0);
+});
+for(const phase of [1,2])test(`browser review phase ${phase} failure stops without retry and preserves accounted usage`,async()=>{
+ const store=new MemoryStore();let calls=0;const runtime=new BrowserRuntime(store,async()=>{calls++;return new Response(JSON.stringify({choices:[{finish_reason:calls===phase?'length':'stop',message:{content:strategicText}}],usage:{prompt_tokens:50,completion_tokens:30}}));});await connect(runtime);
+ await assert.rejects(runtime.handle('/api/dialogue','POST',reviewRequest()),e=>(e as any).code==='output_limit');assert.equal(calls,phase);assert.equal((await store.budget(l=>l.snapshot())).state.uncertainRequests,0);
+ const traces=(await runtime.handle('/api/ai-diagnostics','POST',{})).requests;assert.equal(traces.at(-1).status,'failed');
+ await runtime.handle('/api/model-config','POST',{action:'disconnect'}); // busy lock released on both error paths
+});
+test('strategy phase holds the request lock and cancellation prevents phase two',async()=>{
+ const controller=new AbortController();let started!:()=>void,finish!:(r:Response)=>void,calls=0;const ready=new Promise<void>(r=>started=r);
+ const runtime=new BrowserRuntime(new MemoryStore(),async()=>{calls++;started();return new Promise<Response>(r=>finish=r);});await connect(runtime);
+ const pending=runtime.handle('/api/dialogue','POST',reviewRequest(),controller.signal);await ready;
+ await assert.rejects(runtime.handle('/api/dialogue','POST',reviewRequest()),/läuft bereits/);
+ await assert.rejects(runtime.handle('/api/model-config','POST',{action:'disconnect'}),/läuft/);
+ controller.abort();finish(new Response(JSON.stringify({choices:[{finish_reason:'stop',message:{content:strategicText}}],usage:{prompt_tokens:20,completion_tokens:20}})));
+ await assert.rejects(pending);assert.equal(calls,1);await runtime.handle('/api/model-config','POST',{action:'disconnect'});
 });

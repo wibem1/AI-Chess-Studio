@@ -1,3 +1,5 @@
+import {STRATEGIC_PASS_PROMPT,strategicPayload,strategicDraft,verifiedRequest,combineReviewCost} from './strategic-pass.js';
+import type {DialogueRequest} from './dialogue.js';
 import {ModelDiagnostics} from './model-diagnostics.js';
 import {needsResponses,createResponsesBody,normalizeResponses,encryptedReasoningForCall} from './openai-responses.js';
 import {providerBase,providerOf,providerOptions,validModel,isBatchModel,generationOptions,modelCatalog} from './model-provider.js';
@@ -114,6 +116,36 @@ export class BrowserRuntime {
    await r.body?.cancel();return {ok:r.ok,httpStatus:r.status,message:r.ok?(providerOf(this.config)==='openrouter'?'OpenRouter-Schlüssel akzeptiert; Modellzugriff und Brettwerkzeuge noch nicht geprüft.':'Schlüssel und Modellzugriff bestätigt. Keine Textgenerierung ausgeführt.'):r.status===401?'Der gewählte Anbieter lehnt den Schlüssel ab.':'Modellzugriff nicht bestätigt. Anbieterfreigabe und Kontingent prüfen.'};
   }catch{return {ok:false,httpStatus:null,message:'Anbieter nicht erreichbar. Internet, Browserfreigaben und CORS prüfen. Keine Textgenerierung ausgeführt.'};}
  }
+ private async qualitativeGamePass(config:LocalModelConfig,request:DialogueRequest,signal?:AbortSignal){
+  const payload=strategicPayload(request),responses=needsResponses(config);
+  // A separate context with no tools, prior turns or provider continuation.
+  const body=JSON.stringify(responses?createResponsesBody(config,{nodeId:request.nodeId,fen:request.fen,question:request.question,legalMoves:[],topic:'position'},STRATEGIC_PASS_PROMPT,payload,[],1100):{
+   model:config.model,...generationOptions(config,1100),messages:[{role:'system',content:STRATEGIC_PASS_PROMPT},{role:'user',content:JSON.stringify(payload)}]
+  });
+  const trace=this.traces.start(JSON.parse(body),{nodeId:request.nodeId,fen:request.fen,provider:providerOf(config),model:config.model,analysisPhase:'strategy',priceAssumptions:(await this.store.budget(l=>l.snapshot())).state},config.apiKey);
+  let httpStatus:number|undefined,started=false;let failureCode:CoachFailureCode='network';
+  const timeout=AbortSignal.timeout(providerTimeoutMs(config,true));
+  try{
+   signal?.throwIfAborted();
+   const parsed=JSON.parse(body),reserved=(await this.store.budget(l=>l.reserve(new TextEncoder().encode(body).length,parsed.max_tokens??parsed.max_completion_tokens??parsed.max_output_tokens))).value;
+   if(this.config!==config)throw new Error('Zugang geändert');
+   signal?.throwIfAborted();started=true;trace.sent();
+   const response=await this.transport(providerBase(config)+(responses?'/responses':'/chat/completions'),{method:'POST',mode:'cors',credentials:'omit',referrerPolicy:'no-referrer',redirect:'error',headers:{Authorization:'Bearer '+config.apiKey,'Content-Type':'application/json'},body,signal:AbortSignal.any([timeout,...(signal?[signal]:[])])});
+   httpStatus=response.status;
+   if(!response.ok){await response.body?.cancel();throw new CoachFailure(providerFailure(response.status));}
+   failureCode='provider_format';
+   const received=await readProvider(response,providerOf(config)==='openrouter'?524288:262144),envelope=responses?normalizeResponses(received):received;
+   trace.received(envelope,response.status);await this.store.budget(l=>l.settle(reserved,envelope.usage));
+   if(envelope.choices?.[0]?.finish_reason==='length')throw new CoachFailure('output_limit');
+   if(envelope.choices?.[0]?.finish_reason!=='stop')throw new Error('Incomplete strategic draft');
+   const draft=strategicDraft(envelope.choices[0].message.content),cost=envelope?.usage?.cost;
+   trace.finish('accepted');return {draft,costUsd:typeof cost==='number'&&Number.isFinite(cost)&&cost>=0?cost:null};
+  }catch(error){
+   const code=started?classifyRequestFailure(error,timeout.aborted,signal?.aborted===true,failureCode):'accounting';
+   trace.finish('failed',code,httpStatus);
+   throw new ApiError(502,(code==='accounting'?'Verbrauch konnte nicht gespeichert werden.':COACH_ERRORS[code])+' Strategische Voranalyse fehlgeschlagen; kein fertiger Partierückblick gespeichert.',code);
+  }
+ }
  private async respond(raw:unknown,signal?:AbortSignal){
   if(!this.config)throw new ApiError(403,'Lokales Schlüsselfach ist gesperrt.');
   const config=this.config;
@@ -122,9 +154,15 @@ export class BrowserRuntime {
   if(isBatchModel(config.model))throw new ApiError(400,'Das gespeicherte Modell ist eine Batch-Variante und kann keine direkte Chatantwort liefern. Wähle unter KI-Modell das reguläre Modell ohne :batch. Keine Anfrage gesendet.');
   const request=parseRequest(raw);if(request.expectedModel&&request.expectedModel!==config.model)throw new ApiError(409,'Modell während des Testlaufs gewechselt.');
   if(this.busy)throw new ApiError(429,'Eine Modellanfrage läuft bereits.');
-  const {generalInstructions:_,turns=[],toolExchanges,...current}=request;
+  this.busy=true;
+  try {
+  const retrospective=request.topic==='review'&&(request.hintMode??'explain')==='explain';
+  const qualitativePass=retrospective?await this.qualitativeGamePass(config,request,signal):undefined;
+  signal?.throwIfAborted();
+  const {generalInstructions:_,turns=[],toolExchanges,...original}=request;
+  const current=qualitativePass?verifiedRequest(original,qualitativePass.draft):original;
   const instructionsPrompt=promptWithUserInstructions(request.topic==='chat'?FREE_CHAT_PROMPT:SYSTEM_PROMPT,request.generalInstructions);
-  const retrospective=request.topic==='review'&&(request.hintMode??'explain')==='explain',outputTokens=retrospective||request.topic==='chat'?1800:800;
+  const outputTokens=retrospective?2600:request.topic==='chat'?1800:800;
   const responses=needsResponses(config);
   const body=JSON.stringify(responses?createResponsesBody(config,request,instructionsPrompt,current,turns,outputTokens,this.responseReasoning):{model:config.model,...generationOptions(config,outputTokens),...providerToolFields(config,request),...(request.topic==='chat'?{}:{response_format:{type:'json_object'}}),messages:[{role:'system',content:instructionsPrompt},...turns.map(t=>({role:t.role,content:`[Stellung ${t.nodeId}${t.fen?`, FEN ${t.fen}`:''}] ${t.text}`})),{role:'user',content:JSON.stringify(current)},...(providerOf(config)==='openrouter'?this.continuity.restore(coachProviderMessages(request)):coachProviderMessages(request))]});
   if(new TextEncoder().encode(body).length>120000)throw new ApiError(400,'Modellkontext ist zu groß.');
@@ -147,12 +185,13 @@ export class BrowserRuntime {
    const reply=normalizeModelReply(decodeModelContent(envelope.choices[0].message.content,request.topic!=='chat'),request.legalMoves);
    if(!reply.message?.trim()||request.hintMode==='question'&&(!reply.openQuestions.length||reply.candidates.length))throw new Error();
    failureCode='review_format';if(retrospective)reply.gameReview=validateGameReview(reply.gameReview,request.history,true);
-   trace.finish('accepted');return taggedReply(reply,config,envelope,trace.id);
+   trace.finish('accepted');const tagged=taggedReply(reply,config,envelope,trace.id);return qualitativePass?combineReviewCost(tagged,qualitativePass.costUsd,config,trace.id):tagged;
   }catch(error){
    if(!started){trace.finish('failed','accounting');throw new ApiError(402,'Verbrauch konnte nicht gespeichert werden.');}
    const code=classifyRequestFailure(error,requestTimeout.aborted,signal?.aborted===true,failureCode);trace.finish('failed',code,httpStatus,error instanceof ReviewValidationError?error.message:undefined);
    const statusHint=code==='provider_http'&&httpStatus?` (HTTP ${httpStatus}${httpStatus===400||httpStatus===422?' · Anfrageparameter oder Modellunterstützung prüfen':httpStatus===404?' · Modell oder API-Endpunkt nicht gefunden':''})`:'';
    throw new ApiError(502,(error instanceof ReviewValidationError?error.message:COACH_ERRORS[code])+statusHint+' Keine neue Antwort gespeichert. Die Kostenschätzung bleibt bei unklarer Nutzung bestehen.',code);
+  }
   }finally{this.busy=false;}
  }
 }

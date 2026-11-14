@@ -12,8 +12,8 @@ const base=await new SimulationAdapter().respond(request);
 const envelope=(content:unknown,finish='stop')=>new Response(JSON.stringify({choices:[{finish_reason:finish,message:{content:JSON.stringify(content)}}],usage:{prompt_tokens:20,completion_tokens:20}}));
 test('provider rejection, truncation, malformed reply and invalid retrospective have distinct safe error codes',async()=>{
  for(const [code,response] of [['provider_auth',()=>new Response('secret-provider-body',{status:401})],['provider_limit',()=>new Response('secret-provider-body',{status:429})],['output_limit',()=>envelope(base,'length')],['provider_format',()=>new Response('not-json secret-provider-body')],['reply_format',()=>envelope({})],['review_format',()=>envelope(base)]] as const){
-  let calls=0;const service=new ModelService({enabled:true,apiKey:'secret-config-key',model:'fixture'},(async()=>{calls++;return response();}) as typeof fetch);
-  await assert.rejects(service.reply(request),e=>e instanceof ApiError&&e.status===502&&e.code===code&&!e.message.includes('secret'));assert.equal(calls,1);
+  let calls=0;const service=new ModelService({enabled:true,apiKey:'secret-config-key',model:'fixture'},(async()=>{calls++;if(calls===1&&['reply_format','review_format'].includes(code))return envelope('Weiß und Schwarz besetzen mit ihren Bauern das Zentrum und bereiten die Entwicklung ihrer Figuren vor.');return response();}) as typeof fetch);
+  await assert.rejects(service.reply(request),e=>e instanceof ApiError&&e.status===502&&e.code===code&&!e.message.includes('secret'));assert.equal(calls,['reply_format','review_format'].includes(code)?2:1);
  }
 });
 test('client displays only recognized safe error codes, never provider or server exception text',async()=>{

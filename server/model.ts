@@ -1,3 +1,4 @@
+import {STRATEGIC_PASS_PROMPT,strategicPayload,strategicDraft,verifiedRequest,combineReviewCost} from '../src/strategic-pass.js';
 import {ModelDiagnostics} from '../src/model-diagnostics.js';
 import {providerBase,providerOf,providerOptions,validModel,generationOptions,modelCatalog,type ProviderOptions} from '../src/model-provider.js';
 import {taggedReply,providerToolFields,ProviderContinuity,coachProviderFields,coachProviderMessages,coachToolReply} from '../src/coach-provider.js';
@@ -85,12 +86,12 @@ export class ModelService {
    * Both phases have separate cost reservations and diagnostic traces.
    */
   private async qualitativeGamePass(request:DialogueRequest,signal?:AbortSignal):Promise<{draft:string;costUsd:number|null}>{
-    if(!request.history||request.history.truncated)throw new ApiError(400,'Vollständige Partie für die strategische Voranalyse erforderlich.');
-    const payload={question:request.question,history:request.history,human:request.gameHistory?.human??null};
+    signal?.throwIfAborted();
+    const payload=strategicPayload(request);
     const body=JSON.stringify({
       model:this.config.model,...generationOptions(this.config,1100),
       messages:[
-        {role:'system',content:'Du bist ein deutschsprachiger Schachanalytiker. Dies ist STUFE 1 von 2. Du erhältst ausschließlich die tatsächliche Zugfolge, keine Stockfish-Bewertungen. Untersuche die Partie eigenständig: Ziele und Gegenpläne beider Seiten, Figurenkoordination, Bauernstruktur, Planwechsel, gelungene Entscheidungen und Übergänge. Begründe Aussagen durch Züge und Felder. Unterstelle Spielern keine unbekannten Gedanken. Benenne offene taktische Fragen ausdrücklich; erfinde weder Enginewerte noch als bewiesen bezeichnete Alternativen. Antworte als knappe, zusammenhängende strategische Arbeitshypothese auf Deutsch mit Zugbezügen, kein JSON. Diese Notiz wird anschließend anhand von Stockfish und Brettregeln kritisch geprüft.'},
+        {role:'system',content:STRATEGIC_PASS_PROMPT},
         {role:'user',content:JSON.stringify(payload)}
       ]
     });
@@ -98,7 +99,6 @@ export class ModelService {
     try{const parsed=JSON.parse(body);reservation=this.costs.reserve(Buffer.byteLength(body),parsed.max_tokens??parsed.max_completion_tokens);}
     catch{throw new ApiError(402,'Verbrauch für die strategische Voranalyse konnte nicht reserviert werden.');}
     const trace=this.traces.start(JSON.parse(body),{nodeId:request.nodeId,fen:request.fen,provider:providerOf(this.config),model:this.config.model,reasoning:this.config.reasoning??null,toolRound:0,priceAssumptions:this.costs.snapshot()},this.config.apiKey);
-    this.busy=true;
     let status:number|undefined,code:CoachFailureCode='network';
     try{
       trace.sent();
@@ -114,9 +114,7 @@ export class ModelService {
       this.costs.settle(reservation,envelope.usage);
       if(envelope.choices?.[0]?.finish_reason==='length')throw new CoachFailure('output_limit');
       if(envelope.choices?.[0]?.finish_reason!=='stop')throw new Error('Incomplete strategic draft');
-      const decoded=decodeModelContent(envelope.choices[0].message.content,false) as {message?:unknown};
-      const draft=decoded.message;
-      if(typeof draft!=='string'||draft.trim().length<50||draft.length>6500)throw new Error('Ungültige strategische Voranalyse');
+      const draft=strategicDraft(envelope.choices[0].message.content);
       trace.finish('accepted');
       const cost=envelope?.usage?.cost;
       return {draft:draft.trim(),costUsd:typeof cost==='number'&&Number.isFinite(cost)&&cost>=0?cost:null};
@@ -124,17 +122,20 @@ export class ModelService {
       const failure=error instanceof CoachFailure?error.code:code;
       trace.finish('failed',failure,status);
       throw new ApiError(502,COACH_ERRORS[failure]+' Strategische Voranalyse fehlgeschlagen; kein fertiger Partierückblick gespeichert.',failure);
-    }finally{this.busy=false;}
+    }
   }
   async reply(raw: unknown,signal?:AbortSignal): Promise<StrategicReply> {
     if (!this.status().available) throw new ApiError(403, 'Modellanbindung gesperrt oder nicht konfiguriert.');
     const request = parseRequest(raw);if(request.expectedModel&&request.expectedModel!==this.config.model)throw new ApiError(409,'Modell während des Testlaufs gewechselt.');
     if (this.busy) throw new ApiError(429, 'Eine Modellanfrage läuft bereits.');
+    this.busy=true;
+    try {
     const retrospective=request.topic==='review'&&(request.hintMode??'explain')==='explain';
     // Deliberately exclude context/engine data from phase one. A partial draft is never saved.
     const qualitativePass=retrospective?await this.qualitativeGamePass(request,signal):undefined;
+    signal?.throwIfAborted();
     const {generalInstructions:_,turns=[],toolExchanges,...currentRequest}=request;
-    const finalRequest=qualitativePass?{...currentRequest,qualitativeDraft:qualitativePass.draft,analysisPhases:'Stufe 1 (nur Züge) ist eine ungeprüfte Hypothese. Stufe 2: Vergleiche mit Stockfish, korrigiere Irrtümer anhand konkreter historischer Stellungen und stelle nur das überprüfbare Ergebnis dar. Keine Zahlenliste.'}:currentRequest;
+    const finalRequest=qualitativePass?verifiedRequest(currentRequest,qualitativePass.draft):currentRequest;
     const instructionsPrompt=promptWithUserInstructions(request.topic==='chat'?FREE_CHAT_PROMPT:SYSTEM_PROMPT,request.generalInstructions);
   const outputTokens=retrospective?2600:request.topic==='chat'?1800:800;
     const body=JSON.stringify({model:this.config.model,...generationOptions(this.config,outputTokens),...providerToolFields(this.config,request),...(request.topic==='chat'?{}:{response_format:{type:'json_object'}}),
@@ -165,12 +166,8 @@ export class ModelService {
       failureCode='review_format';if(retrospective)reply.gameReview=validateGameReview(reply.gameReview,request.history,true);
       trace.finish('accepted');
       const tagged=taggedReply(reply,this.config,envelope,trace.id);
-      if(qualitativePass&&tagged.provenance){
-        const current=tagged.provenance.costUsd;
-        tagged.provenance={...tagged.provenance,costUsd:current!==null&&qualitativePass.costUsd!==null?current+qualitativePass.costUsd:null,calls:2};
-      }
-      return tagged;
+      return qualitativePass?combineReviewCost(tagged,qualitativePass.costUsd,this.config,trace.id):tagged;
     } catch(error) { const code=error instanceof CoachFailure?error.code:failureCode;trace.finish('failed',code,httpStatus,error instanceof ReviewValidationError?error.message:undefined);throw new ApiError(502,(error instanceof ReviewValidationError?error.message:COACH_ERRORS[code])+' Keine neue Antwort gespeichert.',code); }
-    finally { this.busy = false; }
+    } finally { this.busy = false; }
   }
 }

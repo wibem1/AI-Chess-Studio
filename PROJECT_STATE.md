@@ -1,3 +1,15 @@
+# Zweistufige Partieanalyse – technische Korrektur (14. November 2026)
+
+PR #22 / Branch `feat/strategy-first-game-analysis-20261114`, weiterhin Version 1.7.2, nicht veröffentlicht.
+
+Bei der Übernahme fehlte die zweiteilige Analyse vollständig im Browseradapter. Ergänzt für Chat Completions/OpenRouter und direkte Sol Responses, mit gemeinsamem strikt ausgewähltem Strategie-Payload ohne Enginekontext oder gespeicherte Dialoge. Beide Phasen besitzen eigene Diagnosespuren und Kostenabrechnung; Aufrufanzahl und Gesamtpreis werden jetzt auch im gespeicherten Partierückblick sichtbar. Die Anfragesperre gilt für beide Phasen und Abbrüche verhindern Phase zwei.
+
+Prüfung: ursprüngliche 295 Node-Tests nach Fehlerfixture-Anpassung bestanden; weitere Regressionen für beide Browserprovider, Abbruch/Fehler und den anonymisierten 59-Züge-Verlauf ergänzt. Vollständige erneute Prüfung läuft. Lokaler Chromium-Start scheitert an einer Unix-Socket-Sperre der Ausführungsumgebung, nicht an einer getesteten Appfunktion. Deshalb wird der vorhandene Verifikationsworkflow für diesen Branch mit allen Chromiumtests verwendet. Keine bezahlten Provideranfragen.
+
+Qualitätsmaßstab aus der Originaldiagnose: Pläne und Ursachen vor Zahlen; insbesondere Damenflügel-Raumgewinn, schwarzes Zentrum/Gegenspiel, Freibauernrennen, 35…Tc8, 46.Tb8, 50.Df3 und Übergang zum Mattangriff. Technische Fixtures belegen keine bessere reale Modellanalyse. Keine Veröffentlichung vor erfolgreicher Gesamtprüfung.
+
+---
+
 # Zweistufige KI-Partieanalyse – Entwicklungsfortsetzung (14. November 2026)
 
 **Status:** Entwicklungsbranch `feat/strategy-first-game-analysis-20261114`, Entwurfs-PR #22. Nicht gemergt, nicht veröffentlicht, Versionsnummer weiterhin 1.7.2. Technische und reale KI-Tests noch nicht ausgeführt.
