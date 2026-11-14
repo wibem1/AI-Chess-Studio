@@ -1,6 +1,5 @@
 import {Chess} from 'chess.js';
 import {BrowserUciProcess,type EngineWorker} from './browser-uci.js';
-import {replayHistory} from './history.js';
 
 /** Machine-readable requests appended by the first, engine-blind strategic pass. */
 export function deepReviewPlies(draft:string,moves:readonly string[]):number[]{
@@ -48,7 +47,7 @@ export class BrowserDeepStockfish {
   const position='position fen '+rootFen+(uci.length?' moves '+uci.join(' '):'');
   const lines=new Map<number,{depth:number;score:{unit:'cp'|'mate';value:number};pv:string[]}>();
   const started=performance.now(),turn=board.turn();
-  return this.process.search({position,go:'go depth 24 nodes 500000 movetime 4000',
+  return this.process.search({position,go:'go depth 24 nodes 500000 movetime 4000',maxOutputBytes:262144,
    options:['setoption name MultiPV value 3'],line:message=>{
     if(!message.startsWith('info ')||/lowerbound|upperbound/.test(message))return;
     const idx=/\bmultipv (\d+)/.exec(message),dep=/\bdepth (\d+)/.exec(message),
