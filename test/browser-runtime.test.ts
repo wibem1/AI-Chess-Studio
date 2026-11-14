@@ -347,11 +347,12 @@ test('browser two-stage review gives model-requested deep Stockfish MultiPV to v
  await connect(runtime);
  // The fixture is intentionally not a valid complete game review; we verify the payload before validation rejects it.
  await assert.rejects(runtime.handle('/api/dialogue','POST',req),e=>(e as {code?:string}).code==='review_format');
- assert.equal(calls,2);assert.equal(workers,1);
+ assert.equal(calls,2);assert.equal(workers,2);
  const payload=JSON.parse(second.messages.find((x:{role:string})=>x.role==='user').content);
  assert.equal(payload.deepEngineChecks.length,1);
  assert.equal(payload.deepEngineChecks[0].ply,2);
  assert.equal(payload.deepEngineChecks[0].played,'e5');
  assert.deepEqual(payload.deepEngineChecks[0].lines[0].san,['e5','Nf3']);
+ assert.deepEqual(payload.deepEngineChecks[0].playedLine.san,['e5','Nf3']);
  assert.ok(!payload.qualitativeDraft.includes('ENGINE_CHECK_PLIES'));
 });
