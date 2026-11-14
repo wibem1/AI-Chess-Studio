@@ -1,3 +1,9 @@
+# Freigabeprüfung Chess Studio 1.8.1 (14. November 2026)
+
+Die in der Nutzerdiagnose reproduzierte 90-Sekunden-Timeout-Störung der zweiten Modellphase wurde auf dem Hotfix-Branch korrigiert. Der Code für den zweiten vollständigen Partie-Review erlaubt nun 180 Sekunden; der äußere Client 300 Sekunden. Normale KI-Anfragen unverändert. [Nicht veröffentlichender Hotfix-Test 43575451914](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43575451914) war erfolgreich. Auf dem Hotfix-Branch sind Version 1.8.1, passendes Lockfile, Changelog und Releaseworkflow aktualisiert. Die abschließende erneute Versionierungsprüfung ist [43589781355](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43589781355) (bei diesem Eintrag noch nicht abgeschlossen). Nutzer hat Veröffentlichung ausdrücklich freigegeben. **Noch nicht in `work` integriert, noch nicht veröffentlicht.** Keine bezahlten Provideranfragen ausgeführt. Nächster Schritt: CI nach Abschluss prüfen, dann PR #23 integrieren; Release-Lauf und `gh-pages/BUILD.json` verifizieren. Reale schachliche KI-Qualität bleibt gesondert zu prüfen.
+
+---
+
 # Diagnose 1.8.0: OpenRouter-Sol-Timeout in Stufe 2 (14. November 2026)
 
 Original-Nutzerdiagnose: Erste strategische Phase `accepted` nach 55,3 Sekunden (0,024908 USD), zweite Phase `verification` `failed` mit `timeout` nach 90,0 Sekunden, HTTP-Status 200; kein vollständiger Partierückblick gespeichert. Reale Prüfung bestätigt, dass die separate Strategiephase läuft, aber der bisherige lokale Verifikations-Timeout zu kurz sein kann. Das beweist noch keine Qualitätssteigerung.
