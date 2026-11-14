@@ -801,7 +801,7 @@ function beginAnalysis(wholeGame:boolean){
  // Do not jump to the end: the user may be examining an earlier moment.
  // The whole played game is transmitted separately from the visible position.
  text('question').value=wholeGame
-  ?'Analysiere die gesamte gespielte Partie anhand der gespeicherten Stockfish-Bewertungen. Priorisiere die wichtigsten Wendepunkte und Fehler mit Zugnummer, Bewertungsverlust und konkreter Ursache. Erkläre auch gelungene Pläne und welche Erkenntnisse ich daraus ziehen kann. Führe die Schlüsselstellungen auf, damit ich sie anspringen kann.'
+  ?'Analysiere die gesamte gespielte Partie zuerst eigenständig aus schachlich-strategischer Sicht: Welche Pläne verfolgen beide Seiten, was gelingt ihnen, wie verändern sich Bauernstruktur und Figurenkoordination, und wo wechseln die entscheidenden Aufgaben? Erkläre die Ursachen anhand konkreter Züge und Felder. Überprüfe diese Deutung anschließend kritisch mit den gespeicherten Stockfish-Daten; zähle nicht bloß Bewertungsänderungen auf. Führe bis zu sechs chronologische Lernmomente und eine konkrete Lehre für die nächste Partie auf.'
   :'Analysiere die aktuell angezeigte Stellung anhand der gespeicherten Stockfish-Bewertung: Wer steht besser und warum? Welche konkreten Gefahren, Kandidatenzüge, Pläne und Gegenpläne sind wichtig? Priorisiere deine wichtigste Empfehlung und erkläre ihre Grenzen.';
  directAnalysisHint='explain';directAnalysisTopic=wholeGame?'review':'chat';
  render();
