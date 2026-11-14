@@ -1,3 +1,13 @@
+# Schrittweise KI-Bretterklärung erfolgreich geprüft – 14. November 2026
+
+**Entwicklung:** Auf PR #25 wurden neben den gespeicherten Schlüsselstellungs-Pfeilen auch schrittweise Erklärungen ergänzt. Je historischem Lernmoment optional bis zu drei KI-beschriftete Demonstrationsschritte mit jeweils bis zu drei validierten Pfeilen. Auf der unveränderten Stellung vor dem zu besprechenden Zug kann der Nutzer „Gesamtansicht“ und Schritte 1–3 mit Zurück/Weiter durchgehen. Wenn ein Modell nur normale Pfeile liefert, können diese ebenfalls einzeln durchgegangen werden; ältere Analysen ohne Zeichenanweisungen bleiben unverändert. Ein-/Ausblenden und Brettdrehung bleiben erhalten, keine zusätzlichen KI-Anfragen beim Durchgehen. Alle Diagramme sind visualisierte Ideen, keine nachgespielten oder durch Stockfish bestätigten Varianten.
+
+**Nachweis:** [GitHub Actions 43599729799](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43599729799) auf Commit `4a84d7c3f64a205e9f2761dafecddd5b7daba48c` vollständig erfolgreich: TypeScript, Node-Tests, Web-Build, Chromium-Regression einschließlich Schritt-für-Schritt-Navigation, ein-/ausgeblendeten Markierungen, Brettdrehung und normaler Schlüsselstellen-Navigation, Dateimanifest. Das Modell war im Test simuliert. **Nicht veröffentlicht:** PR #25 bleibt Entwicklungsentwurf, öffentliche Version 1.9.0.
+
+**Noch offen:** Keine reale Sol-Antwort mit echten gestuften Markierungen qualitativ bewertet. Keine automatischen Züge während der Erklärschritte; ein echtes Varianten-Vorspielen mit Zuglegalitätskontrolle wäre ein getrenntes Feature. Keine native Geräteabnahme. Nächster Schritt: reale Schachpartie mit Sol analysieren, didaktische Qualität der gezeichneten Pfeile und Schritte beurteilen, danach über Freigabe und Versionsnummer entscheiden.
+
+---
+
 # Grafische Schlüsselstellungs-Pfeile – technische Prüfung erfolgreich (14. November 2026)
 
 **Branch:** `feat/key-moment-board-arrows-20261114`, [PR #25](https://github.com/wibem1/AI-Chess-Studio/pull/25), weiterhin Entwurf. **GitHub Actions [43598511772](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43598511772) vollständig erfolgreich** auf Commit `07d653458603fe1f77afe71a0f3ba6642ba2bd60`: TypeScript, Node-Tests, Web-Build, Chromium-Browsertests einschließlich Ein-/Ausblenden, Brettdrehung und Wechsel zwischen Schlüsselstellungen, Produktionsmanifest. Keine bezahlten KI-Anfragen.
