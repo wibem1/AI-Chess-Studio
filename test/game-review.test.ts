@@ -161,3 +161,10 @@ test('59-move diagnostic game is complete in the isolated strategic payload and 
  assert.equal(moves[69],'Rc8');assert.equal(moves[98],'Qf3');
  assert.equal(validateGameReview({summary:'Raumgewinn, Zentrumsabtausch, Freibauernrennen und Königsangriff.',moments,lesson:'Nach der Umwandlung die Priorität von Freibauernkontrolle zu Königssicherheit neu prüfen.'},data).moments.length,6);
 });
+
+test('two-stage model receipt survives game export together with the validated review',async()=>{
+ const {Session}=await import('../src/session.js');const studio=new Studio();for(const san of history.moves)studio.session.play(san);
+ await studio.ask('Analysiere die Partie',{source:'model',respond:async()=>({message:review.summary,gameReview:review,provenance:{provider:'OpenRouter',model:'fixture/model',requestedModel:'fixture/model',reasoning:null,costUsd:0.03,traceId:2,calls:2}})},'review','explain');
+ const saved=Session.import(studio.session.export()).snapshot().annotations.at(-1)!;
+ assert.deepEqual(saved.gameReview,review);assert.match(saved.text,/2 Aufruf\(e\)/);assert.match(saved.text,/0\.030000 USD/);
+});
