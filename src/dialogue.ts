@@ -127,12 +127,16 @@ export class Studio {
       if(!execute||!active()||session.snapshot().activeNodeId!==expectedNode)return 'discarded';
       if(request.toolExchanges!.length>=2)throw new Error('Grenze der Brettaktionen erreicht.');
       const call=parseCoachCall(reply.toolCall);if(request.toolExchanges!.some(e=>e.call.id===call.id))throw new Error('Wiederholter Brettauftrag verworfen.');let result:CoachResult;
-      try{result=await execute(call,expectedNode);}catch(error){if(!active()||session.snapshot().activeNodeId!==expectedNode)return 'discarded';result={ok:false,fromFen:session.snapshot().nodes.find(n=>n.id===expectedNode)!.fen,fen:session.snapshot().nodes.find(n=>n.id===expectedNode)!.fen,nodeId:expectedNode,moves:[],error:'Brettaktion nicht ausgeführt: Zugfolge unzulässig oder Vorführung angehalten.'};}
+      try{result=await execute(call,expectedNode);}catch(error){if(!active()||session.snapshot().activeNodeId!==expectedNode)return 'discarded';result={ok:false,fromFen:session.snapshot().nodes.find(n=>n.id===expectedNode)!.fen,fen:session.snapshot().nodes.find(n=>n.id===expectedNode)!.fen,nodeId:expectedNode,moves:[],error:error instanceof Error&&error.message.startsWith('Stockfish-Planprüfung:')?error.message.slice(0,200):'Brettaktion nicht ausgeführt: Zugfolge unzulässig oder Vorführung angehalten.'};}
       if(!active()||session.snapshot().activeNodeId!==result.nodeId)return 'discarded';
       expectedNode=result.nodeId;
       if(!recordedQuestion){session.annotate({nodeId,kind:'dialogue',source:'human',text:request.question,hypothesis:false,openQuestions:[]});recordedQuestion=true;}
       session.annotate({nodeId,kind:'dialogue',source:'model',text:TOOL_RECORD+(result.ok?'Ausgeführt. ':'Nicht vollständig ausgeführt. ')+(result.diagram?(result.diagram.fen?'Lehrstellung aufgebaut. ':'')+result.diagram.marks.length+' Brettmarkierungen. ':result.moves.length?'Gezeigte Züge: '+result.moves.join(' ')+' . ':'Keine Züge ausgeführt. ')+(result.engine?'Antwort von '+result.engine+'. ':'')+(result.error??'')+'\n\nAnalyse-Details:\n'+JSON.stringify(result),hypothesis:false,openQuestions:[]});
       request.toolExchanges!.push({call,content:(reply.message??'').slice(0,1000),result});
+      if(result.error?.startsWith('Stockfish-Planprüfung:')){
+        reply={...reply,toolCall:undefined,message:'Die vorgeschlagene Zugvorführung wurde durch Stockfish nicht freigegeben. '+result.error+' Keine Empfehlung aus dieser Vorführung übernehmen.',plan:'',opponent:'',risks:'',playability:'',candidates:[],assessment:undefined,humanFactors:undefined,openQuestions:[]};
+        break;
+      }
       if(new TextEncoder().encode(JSON.stringify(request)).byteLength>16000)throw new Error('Werkzeugkontext zu groß; keine weitere KI-Anfrage ausgeführt.');
       raw=await adapter.respond(request);if(!active())return 'discarded';
       reply=normalizeModelReply(raw,request.legalMoves,true);if(reply.provenance)receipts.push(reply.provenance);

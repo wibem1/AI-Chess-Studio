@@ -83,7 +83,7 @@ export class ModelService {
     this.continuity.clear();this.config = next;
     return this.status();
   }
-  /** First paid phase of a complete-game review: historical moves, no engine scores.
+  /** First paid phase of a complete-game review: historical moves and bounded engine scores.
    * The draft is deliberately not saved as an answer; phase two must verify it.
    * Both phases have separate cost reservations and diagnostic traces.
    */
@@ -133,7 +133,7 @@ export class ModelService {
     this.busy=true;
     try {
     const retrospective=request.topic==='review'&&(request.hintMode??'explain')==='explain';
-    // Deliberately exclude context/engine data from phase one. A partial draft is never saved.
+    // The engine report is the starting evidence; the first qualitative draft is provisional and never saved alone.
     const qualitativePass=retrospective?await this.qualitativeGamePass(request,signal):undefined;
     signal?.throwIfAborted();
     let deepChecks:DeepReviewResult[]=[];
