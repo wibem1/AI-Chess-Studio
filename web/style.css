@@ -592,3 +592,8 @@ html:has(#workspace[data-active-view=learn]),body:has(#workspace[data-active-vie
 #key-review-result[open] > summary{list-style:disclosure-open inside}
 #key-review-result:not([open]){padding-top:7px;padding-bottom:7px}
 #key-review-result:not([open]) > summary{margin:0}
+
+/* Keep the analysis below navigation buttons, with independently scrollable text. */
+.workspace[data-active-view=learn] #key-review-result{order:3;align-self:stretch;min-width:0;width:100%;margin:8px 0 10px}
+#key-review-scroll{max-height:min(260px,32dvh);min-height:0;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;-webkit-overflow-scrolling:touch;user-select:text;-webkit-user-select:text;padding:0 6px 2px 0}
+#key-review-result:not([open]) #key-review-scroll{display:none}
