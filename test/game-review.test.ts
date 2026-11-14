@@ -168,3 +168,20 @@ test('two-stage model receipt survives game export together with the validated r
  const saved=Session.import(studio.session.export()).snapshot().annotations.at(-1)!;
  assert.deepEqual(saved.gameReview,review);assert.match(saved.text,/2 Aufruf\(e\)/);assert.match(saved.text,/0\.030000 USD/);
 });
+
+test('review teaching arrows stay tied to the position before a key move and survive export/import',async()=>{
+ const {Session}=await import('../src/session.js');
+ const {reviewAnchors}=await import('../src/game-review.js');
+ const annotated={...review,moments:review.moments.map((m,i)=>({...m,marks:i===0?[{from:'f2',to:'f3',kind:'arrow' as const,color:'green' as const},{from:'d8',to:'h4',kind:'arrow' as const,color:'red' as const}]:[]}))};
+ const checked=validateGameReview(annotated,history);
+ const session=new Session();for(const m of history.moves)session.play(m);
+ session.annotate({nodeId:'n4',kind:'dialogue',source:'model',text:formatGameReview(checked,history),hypothesis:true,openQuestions:[],gameReview:checked});
+ const restored=Session.import(session.export());
+ assert.deepEqual(restored.snapshot().annotations[0]!.gameReview!.moments[0]!.marks,annotated.moments[0]!.marks);
+ assert.deepEqual(reviewAnchors(restored.snapshot(),restored.snapshot().annotations[0]!).map(a=>a.nodeId),['n0','n2']);
+ const malformed={...annotated,moments:[{...annotated.moments[0]!,marks:[{from:'a9',to:'h8',kind:'arrow',color:'red'}]},annotated.moments[1]!]};
+ assert.throws(()=>validateGameReview(malformed,history),/Brettpfeile/);
+ const cleaned=validateGameReview(malformed,history,true);
+ assert.equal(cleaned.moments[0]!.marks,undefined);
+ assert.equal(checked.moments[0]!.marks!.length,2);
+});

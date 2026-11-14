@@ -1,11 +1,12 @@
 import type {Annotation,SessionData} from './session.js';
 import {pathTo} from './game.js';
 import {Chess} from 'chess.js';
+import {parseMarks,type BoardMark} from './coach-tools.js';
 import {germanSan,germanMoveFromFen} from './german-notation.js';
 
 export interface GameReview {
  summary:string;
- moments:{ply:number;played:string;explanation:string;alternative:string;reason:string}[];
+ moments:{ply:number;played:string;explanation:string;alternative:string;reason:string;marks?:BoardMark[]}[];
  lesson:string;
 }
 export function asksForKeyMoments(question:string):boolean{
@@ -43,14 +44,27 @@ export function validateGameReview(raw:unknown,history:{rootFen:string;moves:str
  let previous=0;
  for(const m of r.moments){
   if(!m||!Number.isInteger(m.ply)||m.ply<=previous||m.ply>before.length||m.played!==history.moves[m.ply-1]||!text(m.explanation,1000)||!text(m.reason,700)||typeof m.alternative!=='string'){problems.push('Eine Schlüsselstellung enthält einen ungültigen Bezug zur Zugfolge oder eine fehlende Beschreibung.');continue;}
+  // A diagram is only geometry bound to this exact historical position, never an engine proof.
+  let marks:BoardMark[]|undefined;
+  if(m.marks!==undefined){
+   try{
+    marks=parseMarks(m.marks);
+    if(marks.length>4)throw new Error('Zu viele Erklärungspfeile.');
+   }catch{
+    if(!sanitizeInvalidAlternatives){problems.push('Eine Schlüsselstellung enthält ungültige Brettpfeile.');continue;}
+    marks=undefined; // Keep the review, but never persist untrusted drawing instructions.
+   }
+  }
+  const clean={...m,...(marks===undefined?{}:{marks})};
+  if(marks===undefined)delete clean.marks;
   const position=new Chess(before[m.ply-1]!);
   if(m.alternative && (m.alternative===m.played||!position.moves().includes(m.alternative))){
    const label=germanMoveFromFen(position.fen(),m.played);
    if(sanitizeInvalidAlternatives){
     // Keep the checked historic move and its description, never a bogus alternative or its rationale.
-    safeMoments.push({...m,alternative:'',reason:'Der KI-Vorschlag für einen Alternativzug war in dieser Stellung nicht legal und wurde entfernt. Ein anderer Zug wurde nicht geprüft.'});
+    safeMoments.push({...clean,alternative:'',reason:'Der KI-Vorschlag für einen Alternativzug war in dieser Stellung nicht legal und wurde entfernt. Ein anderer Zug wurde nicht geprüft.'});
    }else problems.push(`Bei ${label}: Der Alternativzug ${/^[a-zA-Z0-9=+#-]{1,16}$/.test(m.alternative)?m.alternative:'(ungültige Schreibweise)'} ist nicht legal oder entspricht dem gespielten Zug.`);
-  }else safeMoments.push({...m});
+  }else safeMoments.push(clean);
   previous=m.ply;
  }
  if(problems.length)throw new ReviewValidationError('Analyse verworfen: '+problems.join(' '));
