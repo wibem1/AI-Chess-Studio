@@ -1,4 +1,5 @@
 import {parseCoachCall,TOOL_RECORD,type CoachCall,type CoachResult,type CoachExchange} from './coach-tools.js';
+import type {DeepReviewResult} from './deep-stockfish.js';
 import {normalizeModelReply} from './model-reply.js';
 import {asksForKeyMoments,asksForGameReview,validateGameReview,formatGameReview,type GameReview} from './game-review.js';
 import {Chess} from 'chess.js';
