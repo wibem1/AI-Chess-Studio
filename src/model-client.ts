@@ -13,7 +13,7 @@ export class ServerModelAdapter implements DialogueAdapter {
       request = await this.enrich(request);
       response = await this.transport('/api/dialogue', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({...request,...(this.preferences().trim()?{generalInstructions:this.preferences().trim()}: {})}), signal: AbortSignal.any([this.controller.signal,AbortSignal.timeout(request.topic==='review'&&(request.hintMode??'explain')==='explain'?200_000:100_000)])
+        body: JSON.stringify({...request,...(this.preferences().trim()?{generalInstructions:this.preferences().trim()}: {})}), signal: AbortSignal.any([this.controller.signal,AbortSignal.timeout(request.topic==='review'&&(request.hintMode??'explain')==='explain'?300_000:100_000)])
       });
     } catch(error) { throw new Error(error instanceof Error?error.message:'Modellserver nicht erreichbar oder Zeitlimit überschritten.'); }
     if(!response.ok){
