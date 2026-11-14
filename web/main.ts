@@ -565,12 +565,16 @@ $('dialogue-form').addEventListener('submit', async event => {
         if(moves.length){
           const origin=studio.session.snapshot().nodes.find(x=>x.id===node);
           if(!origin)throw new Error('Stockfish-Planprüfung: Ausgangsstellung nicht mehr vorhanden.');
-          message('dialogue-feedback','Stockfish prüft den ersten Zug der vorgeschlagenen Variante …');
-          await checkProposedFirstMove(origin.fen,moves[0]!,{
-            check:(fen,candidate)=>candidate===null?getStockfishReport(fen):
-              (isWebPlatform()?new BrowserTacticalAdapter():new ServerTacticalAdapter(platformFetch)).check(fen,candidate)
-          });
-          if(chatStopped)throw new Error('Stockfish-Planprüfung: Anfrage wurde angehalten.');
+          const board=new Chess(origin.fen);
+          for(const [i,san] of moves.entries()){
+            message('dialogue-feedback',`Stockfish prüft KI-Variante, Zug ${i+1}/${moves.length} …`);
+            await checkProposedFirstMove(board.fen(),san,{
+              check:(fen,candidate)=>candidate===null?getStockfishReport(fen):
+                (isWebPlatform()?new BrowserTacticalAdapter():new ServerTacticalAdapter(platformFetch)).check(fen,candidate)
+            });
+            if(chatStopped)throw new Error('Stockfish-Planprüfung: Anfrage wurde angehalten.');
+            board.move(san);
+          }
         }
       }
       const result=await coachBoard.execute(call,node);boardActions.push({at:new Date().toISOString(),call,result});if(boardActions.length>20)boardActions.shift();if(!chatStopped)message('dialogue-feedback','Brettergebnis liegt vor; die Lernengine erläutert es …');return result;});

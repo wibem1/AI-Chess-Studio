@@ -21,6 +21,6 @@ test('structured explanations prioritize without weakening hint and review rules
 
 test('partie review uses engine evidence before human interpretation',()=>{
  assert.match(FREE_CHAT_PROMPT,/beginne mit den geprüften Enginebefunden/);
- assert.match(SYSTEM_PROMPT,/zuerst eigenständige strategische Interpretation/);
+ assert.match(SYSTEM_PROMPT,/zuerst die begrenzten Stockfish-Befunde/);
  assert.match(SYSTEM_PROMPT,/zwei bis sechs konkrete Lernmomente/);
 });

@@ -8,7 +8,7 @@ export const STRATEGIC_PASS_PROMPT='Du bist ein deutschsprachiger Schachanalytik
 export function strategicPayload(request:DialogueRequest){
  if(!request.history||request.history.truncated)throw new ApiError(400,'Vollständige Partie für die strategische Voranalyse erforderlich.');
  const {rootFen,moves,truncated}=request.history;
- return {question:request.question,history:{rootFen,moves,truncated},human:request.gameHistory?.human??null,stockfishEvidence:(request.context??[]).filter(c=>/Stockfish|STOCKFISH|Zentibauern|Bewertung/.test(c)).slice(0,6)};
+ return {question:request.question,history:{rootFen,moves,truncated},human:request.gameHistory?.human??null,stockfishEvidence:(()=>{const ctx=request.context??[],index=ctx.findIndex(c=>c.startsWith('ANALYSEAUFTRAG – STOCKFISH ALS GRUNDLAGE'));return index>=0?ctx.slice(index,index+5):ctx.filter(c=>/Stockfish|STOCKFISH|Zentibauern|Bewertung/.test(c)).slice(0,6);})()};
 }
 export function strategicDraft(content:unknown):string{
  const decoded=decodeModelContent(content,false) as {message?:unknown};
