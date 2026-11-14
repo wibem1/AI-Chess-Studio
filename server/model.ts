@@ -1,5 +1,5 @@
 import {STRATEGIC_PASS_PROMPT,strategicPayload,strategicDraft,verifiedRequest,combineReviewCost} from '../src/strategic-pass.js';
-import {BrowserDeepStockfish,deepReviewPlies,cleanStrategicDraft,reviewDeepChecks,type DeepReviewResult} from '../src/deep-stockfish.js';
+import {BrowserDeepStockfish,deepReviewPlies,cleanStrategicDraft,reviewDeepChecks,validateDeepChecksForGame,type DeepReviewResult} from '../src/deep-stockfish.js';
 import {createNodeReviewWorker} from './deep-stockfish.js';
 import {ModelDiagnostics} from '../src/model-diagnostics.js';
 import {providerBase,providerOf,providerOptions,validModel,generationOptions,modelCatalog,type ProviderOptions} from '../src/model-provider.js';
@@ -140,10 +140,12 @@ export class ModelService {
     if(qualitativePass&&request.history){
       const chosen=deepReviewPlies(qualitativePass.draft,request.history.moves);
       if(chosen.length){
+        const cached=validateDeepChecksForGame(request.history.rootFen,request.history.moves,request.cachedDeepChecks??[]).filter(r=>chosen.includes(r.ply));
+        const needed=chosen.filter(ply=>!cached.some(r=>r.ply===ply));
         const engine=new BrowserDeepStockfish(createNodeReviewWorker);
         const cancel=()=>engine.cancel();
         signal?.addEventListener('abort',cancel,{once:true});
-        try{deepChecks=await reviewDeepChecks(request.history.rootFen,request.history.moves,chosen,engine,signal);}
+        try{deepChecks=[...cached,...await reviewDeepChecks(request.history.rootFen,request.history.moves,needed,engine,signal)];}
         finally{signal?.removeEventListener('abort',cancel);}
       }
     }
@@ -180,7 +182,7 @@ export class ModelService {
       failureCode='review_format';if(retrospective)reply.gameReview=validateGameReview(reply.gameReview,request.history,true);
       trace.finish('accepted');
       const tagged=taggedReply(reply,this.config,envelope,trace.id);
-      return qualitativePass?combineReviewCost(tagged,qualitativePass.costUsd,this.config,trace.id):tagged;
+      if(qualitativePass){const combined=combineReviewCost(tagged,qualitativePass.costUsd,this.config,trace.id);if(deepChecks.length)combined.deepEngineChecks=deepChecks;return combined;}return tagged;
     } catch(error) { const code=error instanceof CoachFailure?error.code:failureCode;trace.finish('failed',code,httpStatus,error instanceof ReviewValidationError?error.message:undefined);throw new ApiError(502,(error instanceof ReviewValidationError?error.message:COACH_ERRORS[code])+' Keine neue Antwort gespeichert.',code); }
     } finally { this.busy = false; }
   }
