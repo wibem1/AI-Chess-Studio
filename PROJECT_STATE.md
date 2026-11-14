@@ -1,3 +1,15 @@
+# Einklappbare Partieanalyse unter dem Brett – geprüft, noch nicht veröffentlicht (14. November 2026)
+
+**Nutzerwunsch:** Die ausführliche Partieanalyse nimmt unter dem Schachbrett zu viel Platz ein; die darunterliegenden Bedienfelder sollen erreichbar bleiben. **Branch:** `fix/collapsible-review-summary-20261114`; [PR #27](https://github.com/wibem1/AI-Chess-Studio/pull/27) (Entwurf). Öffentliche Version bleibt **1.11.0**.
+
+**Implementierung:** Die gespeicherte Zusammenfassung mit Schlüsselstellungsdetails steckt nun in einem nativen zugänglichen `<details>`-Element. Über die kompakte Titelzeile „Partieanalyse abgeschlossen · N Schlüsselstellungen“ lässt sich der ganze Text einklappen und wieder ausklappen. Die Anzeige ist beim ersten Öffnen ausgeklappt; eine vom Nutzer gewählte Einklappung bleibt beim Wechsel zwischen Schlüsselstellungen und bei normalen Neudarstellungen erhalten. Die Schlüsselmoment-Navigation und die weiteren Bedienfelder bleiben unabhängig von der Textansicht nutzbar. Keine Änderung der KI-Anfragen oder gespeicherten Analysedaten.
+
+**Prüfgrundlage:** [GitHub Actions 43625225166](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43625225166) auf Commit `74a5dd74482818c01140283b3046a3314cd498b1` vollständig **success**, einschließlich TypeScript, Node-Tests, Pages-Build und Chromium-Browsertests. Neuer Browsertest prüft Einklappen, ausgeblendeten Analysetext, sichtbar bleibende Bedienfelder, Stellungswechsel bei eingeklapptem Text und Wiederaufklappen mit korrekt aktualisierter Erklärung.
+
+**Weiter:** Keine Veröffentlichung/Versionsänderung ohne ausdrückliche Freigabe. Bei einem Release muss die zugehörige Versionsnummer erst nach weiteren Releaseprüfungen vergeben werden.
+
+---
+
 # Chess Studio 1.11.0 veröffentlicht – 14. November 2026
 
 **Nutzerfreigabe:** „veröffentlichen“. [PR #26](https://github.com/wibem1/AI-Chess-Studio/pull/26) nach erfolgreichem Releasekandidatenlauf [43616809471](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43616809471) per Squash in `work` integriert (Releasequellcommit `faa3fa8500c6b6d3e0e29c9cd118bd3f6586304c`). Versionsnummer auf **1.11.0** in `package.json` und `package-lock.json` sowie Releaseworkflow angepasst. Der produktive Lauf [43617186122](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43617186122) hat **success** gemeldet, einschließlich Typprüfung, Node-Tests, Browserintegration mit lokalen Engines, Veröffentlichung nach `gh-pages` und Deploymentprüfung. `gh-pages/BUILD.json` bestätigt **1.11.0** sowie den Quellcommit `faa3fa8500c6b6d3e0e29c9cd118bd3f6586304c`. App: https://wibem1.github.io/AI-Chess-Studio/.
