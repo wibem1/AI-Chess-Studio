@@ -49,7 +49,7 @@ export function unverifiedProseMoves(fen:string,prose:string,approved:readonly s
  const legal=new Set(new Chess(fen).moves());
  const accepted=new Set(approved);
  const detected=new Set<string>();
- for(const match of prose.matchAll(/(?<![\\p{L}\\p{N}])(?:O-O-O|O-O|[KQRBN]?[a-h]?[1-8]?x?[a-h][1-8](?:=[QRBN])?[+#]?)(?![\\p{L}\\p{N}])/gu)){
+ for(const match of prose.matchAll(/(?<![\p{L}\p{N}])(?:O-O-O|O-O|[KQRBN]?[a-h]?[1-8]?x?[a-h][1-8](?:=[QRBN])?[+#]?)(?![\p{L}\p{N}])/gu)){
    const san=match[0];
    if(legal.has(san)&&!accepted.has(san))detected.add(san);
  }
