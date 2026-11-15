@@ -49,11 +49,12 @@ export function unverifiedProseMoves(fen:string,prose:string,approved:readonly s
  // Validate that the reference position exists; all move-like mentions (including
  // illegal model hallucinations) must be backed by approved candidates.
  new Chess(fen);
- const accepted=new Set(approved),historical=new Set(historicalMoves);
+ const normalize=(san:string)=>san.replace(/^([KDTLS])(?=[a-h1-8x])/u,(_,piece:string)=>({D:'Q',T:'R',L:'B',S:'N'} as Record<string,string>)[piece]??piece).replace(/=([DTLS])/u,(_,piece:string)=>({D:'Q',T:'R',L:'B',S:'N'} as Record<string,string>)[piece]??piece);
+ const accepted=new Set(approved.map(normalize)),historical=new Set(historicalMoves.map(normalize));
  const detected=new Set<string>();
- for(const match of prose.matchAll(/(?<![\p{L}\p{N}])(?:O-O-O|O-O|[KQRBN]?[a-h]?[1-8]?x?[a-h][1-8](?:=[QRBN])?[+#]?)(?![\p{L}\p{N}])/gu)){
+ for(const match of prose.matchAll(/(?<![\p{L}\p{N}])(?:O-O-O|O-O|[KQRTDLSBN]?[a-h]?[1-8]?x?[a-h][1-8](?:=[QRBNDTLS])?[+#]?)(?![\p{L}\p{N}])/gu)){
    const san=match[0];
-   if(!accepted.has(san)&&!historical.has(san))detected.add(san);
+   if(!accepted.has(normalize(san))&&!historical.has(normalize(san)))detected.add(san);
  }
  return [...detected];
 }
