@@ -1,4 +1,22 @@
-# Chess Studio 1.12.0 veröffentlicht – 15. November 2026
+# Chess Studio 1.12.1 veröffentlicht – 15. November 2026
+
+PR #31 wurde nach erfolgreicher vollständiger Kandidaten-CI in `work` übernommen. Der produktive GitHub Actions Releaseworkflow [Run 40](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43707250333) ist erfolgreich: Typprüfung, Node-Tests, Pages-Build, Chromium-Browser-/Engineprüfungen, Manifestvorbereitung, Übertragung nach `gh-pages` und Deploymentstatuskontrolle.
+
+Das öffentliche `BUILD.json` auf `gh-pages` bestätigt Version **1.12.1**, Basis `/AI-Chess-Studio/` und Quellcommit `f6f18a39b965a563b4dfa4d62aeb765e769ebb1e`. Live-Adresse: https://wibem1.github.io/AI-Chess-Studio/ .
+
+## Inhalt dieses Releases
+
+- Einfache Zugfragen erzwingen eine frische Stockfish-Hauptvariante, auch wenn eine gespeicherte Partiebewertung dieselbe Stellung enthält.
+- Für einzelne Zugvorschläge wird die Modellanfrage auf die aktuelle Stellung, legale Züge und den Engine-Befund begrenzt; langer Partieverlauf und alte Gesprächs-/Analysekontexte entfallen.
+- Ein Remisanspruch aus dreifacher Stellungswiederholung bleibt im kompakten Kontext erhalten.
+- Deutsche Figurenkürzel wie „Tb3+“ werden für die Sicherheitsprüfung mit Stockfish-SAN wie „Rb3+“ abgeglichen.
+- Es wurde kein kostenpflichtiger Modellaufruf für die Prüfung ausgeführt.
+
+## Prüfnachweis
+
+Der vollständige Release-Kandidatenlauf [Run 280](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43706863452) und der Produktionslauf [Run 40](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43707250333) sind erfolgreich. `BUILD.json` bestätigt die veröffentlichte Version **1.12.1**.
+
+## Vorheriger Release: 1.12.0 – 15. November 2026
 
 Der ausdrücklich beauftragte Release ist abgeschlossen. PR #30 wurde nach vollständig erfolgreicher CI in `work` übernommen. Der produktive GitHub Actions Releaseworkflow [Run 43698975121](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43698975121) ist erfolgreich: TypeScript, Node-Tests, Pages-Build, Chromium-Browser-/Engineprüfungen, Manifestvorbereitung, Übertragung nach `gh-pages` und anschließende Deployment-Statuskontrolle.
 
