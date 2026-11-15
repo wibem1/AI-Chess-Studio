@@ -54,7 +54,7 @@ test('model candidate safety gate suppresses convincing plan prose when Stockfis
  assert.deepEqual(received,['a3','e4']);
  const answer=studio.session.snapshot().annotations.at(-1)!;
  assert.deepEqual(answer.suggestions,[]);
- assert.match(answer.text,/nicht freigegebenen Zugvorschlag/);
+ assert.match(answer.text,/Nicht freigegebene Zugnennungen/);
  assert.doesNotMatch(answer.text,/a3 gewinnt|beste strategische Plan/);
 });
 test('verified structured model suggestions retain a bounded caveat',async()=>{
