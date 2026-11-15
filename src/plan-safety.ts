@@ -40,3 +40,18 @@ export async function verifyModelCandidates(fen:string,moves:readonly string[],e
  }
  return {approved,rejected,notes};
 }
+
+/** Conservatively find legal SAN tokens in freely worded model advice.
+ * Unexpected move mentions are blocked rather than trusted as a tactical plan.
+ * A false positive may hide prose, but must never license an unsafe move.
+ */
+export function unverifiedProseMoves(fen:string,prose:string,approved:readonly string[]):string[]{
+ const legal=new Set(new Chess(fen).moves());
+ const accepted=new Set(approved);
+ const detected=new Set<string>();
+ for(const match of prose.matchAll(/(?<![\\p{L}\\p{N}])(?:O-O-O|O-O|[KQRBN]?[a-h]?[1-8]?x?[a-h][1-8](?:=[QRBN])?[+#]?)(?![\\p{L}\\p{N}])/gu)){
+   const san=match[0];
+   if(legal.has(san)&&!accepted.has(san))detected.add(san);
+ }
+ return [...detected];
+}
