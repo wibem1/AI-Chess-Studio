@@ -21,7 +21,7 @@ test('optional coach assessments remain bounded and concrete dangers display out
  await studio.ask('Beurteilung?',{source:'model',respond:async()=>({...base,assessment:undefined})});assert.doesNotMatch(studio.session.snapshot().annotations.at(-1)!.text,/Stellungsbeurteilung/);
  for(const assessment of [{verdict:'winning',reason:'Test',dangers:[]},{verdict:'unclear',reason:'',dangers:[]},{verdict:'unclear',reason:'Test',dangers:[5]}])assert.throws(()=>validateReply({...base,assessment},[]),/Stellungsbeurteilung/);
  for(const m of ['f3','e5','g4'])studio.session.play(m);
- await studio.ask('Gefahr?',{source:'model',respond:async r=>{assert.deepEqual(r.positionFacts!.mateInOne,['Qh4#']);return {...base,candidates:['f3','g4','Qh4#'],assessment:{verdict:'black_advantage',reason:'Weiß hat seinen König durch f3 und g4 geöffnet.',dangers:['Schwarz droht Qh4# auf der Diagonale h4–e1.']}};}},'chat','explain',undefined,async(_fen,moves)=>({approved:moves,rejected:[],notes:[]}));
+ await studio.ask('Gefahr?',{source:'model',respond:async r=>{assert.deepEqual(r.positionFacts!.mateInOne,['Qh4#']);return {...base,candidates:['f3','g4','Qh4#'],assessment:{verdict:'black_advantage',reason:'Weiß hat seinen König durch f3 und g4 geöffnet.',dangers:['Schwarz droht mit Qh4# matt.']}};}},'chat','explain',undefined,async(_fen,moves)=>({approved:moves,rejected:[],notes:[]}));
  const visible=studio.session.snapshot().annotations.at(-1)!.text.split('\n\nAnalyse-Details:')[0]!;
  assert.match(visible,/Vorteil Schwarz/);assert.match(visible,/Konkrete Gefahren: Schwarz droht Qh4#/);assert.doesNotMatch(visible,/Material Weiß/);assert.match(studio.session.snapshot().annotations.at(-1)!.text,/Brettfakten/);
 });
