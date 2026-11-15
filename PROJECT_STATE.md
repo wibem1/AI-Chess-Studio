@@ -1,3 +1,11 @@
+# Veröffentlichungsauftrag vom 15. November 2026 – noch blockiert
+
+Der Nutzer hat ausdrücklich „veröffentlichen“ beauftragt. Die Freigabe zum Deployment liegt damit vor, **nicht jedoch der nach Entwicklungsstandards erforderliche Nachweis erfolgreicher Releaseprüfungen**. Für den aktuellen Entwicklungsbranch-Commit `4b7b224f152643977e114381325e85f414e79fea` liefert die GitHub-Anbindung weder PR-Workflowläufe noch Statuschecks. Das private Repository ist aus der lokalen Containerumgebung wegen fehlender DNS-Auflösung (`github.com`) nicht abrufbar. Der verfügbare GitHub-Connector kann Dateien/PRs bearbeiten, bietet aber keinen Workflow-Dispatch für einen neuen CI-Lauf. Ein Re-Run einer älteren Aktion würde den alten Code prüfen und gilt nicht als Nachweis für den neuen Commit.
+
+**Ergebnis:** Keine Veröffentlichung, keine Versionsanhebung und kein Merge in `work`; die letzte bestätigte Web-App bleibt `1.11.3`. Der Releaseauftrag ist als ausstehend dokumentiert, nicht als erledigt. **Nächster Schritt:** vorhandenen CI-Workflow auf den aktuellen Branch-Commit auslösen und TypeScript-/Node-/Chromium-Prüfungen sowie Manifest kontrollieren; nur bei Erfolg Version/Lockfile/Changelog synchron ändern und den bestehenden Releaseworkflow zur Auslieferung nutzen. Keine kostenpflichtige Sol-Probe ohne gesonderte Notwendigkeit.
+
+---
+
 # Stockfish-Sicherheit für freie KI-Zugempfehlungen – Code und Regressionstests bereit, CI ausstehend (15. November 2026)
 
 **Fortsetzung „weiter und fertigmachen“:** In PR #30 sind nun auch nicht strukturierte SAN-Zugnennungen in KI-Stellungsantworten abgesichert: `src/plan-safety.ts` erkennt eigenständige SAN-ähnliche Zugtokens im Modell-Fließtext einschließlich illegaler Modellhalluzinationen. `src/dialogue.ts` unterdrückt die gesamte freie Empfehlung und ihre zugehörigen Begründungen, falls eine Zugnennung nicht zu den zuvor freigegebenen strukturierten Stockfish-Kandidaten gehört. Dadurch kann ein Modell das Kandidatenfeld nicht mit einer überzeugenden ungesicherten Prosaempfehlung umgehen. Ein möglicher Fehlalarm wird bewusst gegenüber einer ungeprüften Freigabe in Kauf genommen. Bloße natürliche Strategiebeschreibungen ohne konkrete Zugnotation bleiben möglich. Die Sicherung betrifft SAN-ähnliche Nennungen, keine alltagssprachlich umschriebenen Züge.
