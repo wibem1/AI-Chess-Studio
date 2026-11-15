@@ -3,6 +3,7 @@ import type {DeepReviewResult} from './deep-stockfish.js';
 import {normalizeModelReply} from './model-reply.js';
 import {asksForKeyMoments,asksForGameReview,validateGameReview,formatGameReview,type GameReview} from './game-review.js';
 import {Chess} from 'chess.js';
+import {unverifiedProseMoves} from './plan-safety.js';
 import {MAIA_PROFILES} from './maia-files.js';
 import {positionFacts,describeFacts,historyFacts,type PositionFacts} from './position-facts.js';
 import {strategicFeatures,type StrategicFeatures} from './strategic-features.js';
@@ -54,7 +55,7 @@ export class Studio {
   constructor(public session = new Session()) {}
   restore(json: string): void { const next = Session.import(json); this.session = next; }
 
-  async ask(question: string, adapter: DialogueAdapter, topic:DialogueTopic='position',hintOverride?:HintMode,execute?:(call:CoachCall,expectedNode:string)=>Promise<CoachResult>): Promise<'stored' | 'discarded'> {
+  async ask(question: string, adapter: DialogueAdapter, topic:DialogueTopic='position',hintOverride?:HintMode,execute?:(call:CoachCall,expectedNode:string)=>Promise<CoachResult>,verifyCandidates?:(fen:string,moves:string[])=>Promise<{approved:string[];rejected:{san:string;reason:string}[];notes:string[]}>): Promise<'stored' | 'discarded'> {
     if (!question.trim()) throw new Error('Bitte eine Planfrage eingeben.');
     if(topic!=='chat'&&asksForGameReview(question)||asksForKeyMoments(question)){topic='review';hintOverride='explain';}
     const run=this.runRevision;
@@ -127,20 +128,90 @@ export class Studio {
       if(!execute||!active()||session.snapshot().activeNodeId!==expectedNode)return 'discarded';
       if(request.toolExchanges!.length>=2)throw new Error('Grenze der Brettaktionen erreicht.');
       const call=parseCoachCall(reply.toolCall);if(request.toolExchanges!.some(e=>e.call.id===call.id))throw new Error('Wiederholter Brettauftrag verworfen.');let result:CoachResult;
-      try{result=await execute(call,expectedNode);}catch(error){if(!active()||session.snapshot().activeNodeId!==expectedNode)return 'discarded';result={ok:false,fromFen:session.snapshot().nodes.find(n=>n.id===expectedNode)!.fen,fen:session.snapshot().nodes.find(n=>n.id===expectedNode)!.fen,nodeId:expectedNode,moves:[],error:'Brettaktion nicht ausgeführt: Zugfolge unzulässig oder Vorführung angehalten.'};}
+      try{result=await execute(call,expectedNode);}catch(error){if(!active()||session.snapshot().activeNodeId!==expectedNode)return 'discarded';result={ok:false,fromFen:session.snapshot().nodes.find(n=>n.id===expectedNode)!.fen,fen:session.snapshot().nodes.find(n=>n.id===expectedNode)!.fen,nodeId:expectedNode,moves:[],error:error instanceof Error&&error.message.startsWith('Stockfish-Planprüfung:')?error.message.slice(0,200):'Brettaktion nicht ausgeführt: Zugfolge unzulässig oder Vorführung angehalten.'};}
       if(!active()||session.snapshot().activeNodeId!==result.nodeId)return 'discarded';
       expectedNode=result.nodeId;
       if(!recordedQuestion){session.annotate({nodeId,kind:'dialogue',source:'human',text:request.question,hypothesis:false,openQuestions:[]});recordedQuestion=true;}
       session.annotate({nodeId,kind:'dialogue',source:'model',text:TOOL_RECORD+(result.ok?'Ausgeführt. ':'Nicht vollständig ausgeführt. ')+(result.diagram?(result.diagram.fen?'Lehrstellung aufgebaut. ':'')+result.diagram.marks.length+' Brettmarkierungen. ':result.moves.length?'Gezeigte Züge: '+result.moves.join(' ')+' . ':'Keine Züge ausgeführt. ')+(result.engine?'Antwort von '+result.engine+'. ':'')+(result.error??'')+'\n\nAnalyse-Details:\n'+JSON.stringify(result),hypothesis:false,openQuestions:[]});
       request.toolExchanges!.push({call,content:(reply.message??'').slice(0,1000),result});
+      if(result.error?.startsWith('Stockfish-Planprüfung:')){
+        const {toolCall:_rejected,assessment:_assessment,humanFactors:_humanFactors,...safe}=reply;
+        reply={...safe,message:'Die vorgeschlagene Zugvorführung wurde durch Stockfish nicht freigegeben. '+result.error+' Keine Empfehlung aus dieser Vorführung übernehmen.',plan:'',opponent:'',risks:'',playability:'',candidates:[],openQuestions:[]};
+        break;
+      }
       if(new TextEncoder().encode(JSON.stringify(request)).byteLength>16000)throw new Error('Werkzeugkontext zu groß; keine weitere KI-Anfrage ausgeführt.');
       raw=await adapter.respond(request);if(!active())return 'discarded';
       reply=normalizeModelReply(raw,request.legalMoves,true);if(reply.provenance)receipts.push(reply.provenance);
     }
     const answerNode=recordedQuestion?expectedNode:nodeId,answerFacts=positionFacts(session.snapshot().nodes.find(n=>n.id===answerNode)!.fen);
     if(recordedQuestion)reply.candidates=[];
+    // Structured candidates are not independently verified by chess.js: legality alone is insufficient.
+    // A failed validation must also suppress the surrounding persuasive plan text.
+    if(adapter.source==='model'&&topic!=='review'&&hintMode==='explain'&&reply.candidates.length&&verifyCandidates){
+      const original=reply.candidates.slice();
+      const result=await verifyCandidates(request.fen,original);
+      if(!active())return 'discarded';
+      const accepted=new Set(result.approved);
+      if(result.rejected.length||original.some(san=>!accepted.has(san))){
+        const explanation=result.rejected.map(r=>r.san+': '+r.reason).join(' / ').slice(0,950);
+        const {assessment:_a,humanFactors:_h,...safe}=reply;
+        reply={...safe,message:'Die KI-Antwort enthielt mindestens einen nicht freigegebenen Zugvorschlag. Die zugehörige strategische Erklärung wurde vorsorglich zurückgehalten. '+(explanation||'Nicht alle Vorschläge sind bestätigt.'),plan:'',opponent:'',risks:'',playability:'',candidates:[],openQuestions:[],formatNotes:['Stockfish hat mindestens einen Vorschlag nicht bestätigt; die App zeigt keine ungeprüfte Planempfehlung.']};
+      }else{
+        reply.candidates=result.approved;
+        reply.formatNotes=[...(reply.formatNotes??[]),'Stockfish: '+result.notes.join(' ').slice(0,700)];
+      }
+    }else if(adapter.source==='model'&&topic!=='review'&&hintMode==='explain'&&!recordedQuestion){
+      reply.formatNotes=[...(reply.formatNotes??[]),'Freie KI-Formulierungen und Zugangaben im Text sind keine eigenständig geprüften Stockfish-Empfehlungen.'];
+    }
+    // Free prose is not a bypass for the structured Stockfish candidate gate.
+    // If a legal SAN occurs outside approved structured candidates, suppress the
+    // entire persuasive answer rather than leaving its unchecked rationale visible.
+    if(adapter.source==='model'&&topic!=='review'&&hintMode==='explain'&&!recordedQuestion){
+      const prose=[reply.message,reply.plan,reply.opponent,reply.risks,reply.playability,
+        reply.assessment?.reason,...(reply.assessment?.dangers??[]),
+        reply.humanFactors?.idea,reply.humanFactors?.calculation,
+        reply.humanFactors?.pitfalls,reply.humanFactors?.continuation].filter((v):v is string=>typeof v==='string').join(' ');
+      const unexpected=unverifiedProseMoves(request.fen,prose,reply.candidates,request.gameHistory?.moves??request.history.moves);
+      if(unexpected.length){
+        reply={message:'Die KI hat konkrete Züge im freien Text genannt, die nicht als Stockfish-geprüfte Kandidaten nachgewiesen sind. Die Antwort wurde vorsorglich zurückgehalten. Bitte eine neue Stellungserklärung auf Grundlage geprüfter Engine-Kandidaten anfordern.',
+          plan:'',opponent:'',risks:'',playability:'',candidates:[],openQuestions:[],
+          formatNotes:['Nicht freigegebene Zugnennungen: '+unexpected.slice(0,3).join(', ')+'. Es erfolgte kein zusätzlicher kostenpflichtiger Modellaufruf.']};
+      }
+    }
     if(adapter.source==='model' && !reply.message?.trim())throw new Error('Dialogantwort fehlt.');
-    const retrospective=adapter.source==='model'&&topic==='review'&&hintMode==='explain'?validateGameReview(reply.gameReview,history,true):undefined;
+    let retrospective=adapter.source==='model'&&topic==='review'&&hintMode==='explain'?validateGameReview(reply.gameReview,history,true):undefined;
+    // Every proposed alternative in a historical review must pass the same local
+    // tactical veto as an ordinary recommendation. Never present a merely legal
+    // alternative as engine-approved; on failure keep the historical teaching point.
+    if(retrospective){
+      const board=new Chess(history.rootFen),positions:string[]=[];
+      for(const san of history.moves){positions.push(board.fen());board.move(san);}
+      const verified=retrospective.moments.map(m=>({...m}));
+      for(const moment of verified){
+        if(!moment.alternative)continue;
+        let approved=false;
+        if(verifyCandidates){
+          try {
+            const result=await verifyCandidates(positions[moment.ply-1]!,[moment.alternative]);
+            if(!active())return 'discarded';
+            approved=result.rejected.length===0&&result.approved.length===1&&result.approved[0]===moment.alternative;
+          }catch {
+            if(!active())return 'discarded';
+            // Engine failure is not permission to display a tactical recommendation.
+          }
+        }
+        if(!approved){
+          moment.alternative='';
+          moment.reason='Der alternative KI-Zug wurde taktisch nicht freigegeben oder Stockfish war nicht verfügbar. Keine Zugempfehlung.';
+          // Model illustrations may visualize the unsafe move; do not display them.
+          delete moment.marks;
+          delete moment.steps;
+        }else{
+          moment.reason+=' (Alternative durch begrenzte Stockfish-Suche taktisch geprüft; keine strategische Garantie.)';
+        }
+      }
+      retrospective={...retrospective,moments:verified};
+    }
     if(adapter.source==='model' && topic!=='review' && hintMode==='explain' && reply.assessment){
       const f=answerFacts,winner=f.checkmate?(f.sideToMove==='w'?'black_advantage':'white_advantage'):f.mateInOne.length?(f.sideToMove==='w'?'white_advantage':'black_advantage'):undefined;
       if(winner&&reply.assessment.verdict!==winner)throw new Error('KI-Beurteilung widerspricht der regelgeprüften Mattsituation. Antwort nicht gespeichert.');

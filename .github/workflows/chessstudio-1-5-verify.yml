@@ -3,6 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches:
+      - feat/engine-first-human-coaching-20261115
       - fix/compact-mobile-learning-layout-20261114
       - fix/review-scroll-below-controls-20261114
       - fix/collapsible-review-summary-20261114

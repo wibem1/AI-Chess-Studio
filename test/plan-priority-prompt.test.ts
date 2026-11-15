@@ -19,8 +19,8 @@ test('structured explanations prioritize without weakening hint and review rules
  assert.match(SYSTEM_PROMPT,/hintMode: question bedeutet nur eine weiterführende Leitfrage/);
 });
 
-test('partie review requires strategic interpretation before engine scores',()=>{
- assert.match(FREE_CHAT_PROMPT,/zuerst den tatsächlichen Partieverlauf strategisch/);
- assert.match(SYSTEM_PROMPT,/zuerst eigenständige strategische Interpretation/);
+test('partie review uses engine evidence before human interpretation',()=>{
+ assert.match(FREE_CHAT_PROMPT,/beginne mit den geprüften Enginebefunden/);
+ assert.match(SYSTEM_PROMPT,/zuerst die begrenzten Stockfish-Befunde/);
  assert.match(SYSTEM_PROMPT,/zwei bis sechs konkrete Lernmomente/);
 });

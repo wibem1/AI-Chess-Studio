@@ -24,7 +24,7 @@ test('review anchors and alternatives are checked at the historical position, in
 test('typed game analysis uses the actual game line even from an earlier study branch and overrides hints',async()=>{
  const studio=new Studio(),game=new LearningGame(()=>studio.session);game.start('w',1);game.play('f3');await game.reply({move:async()=>({san:'e5',level:1,engine:'Stockfish fixture'})});game.play('g4');await game.reply({move:async()=>({san:'Qh4#',level:1,engine:'Stockfish fixture'})});game.learn();game.analyse('n1');
  const base=await new SimulationAdapter().respond({nodeId:'n0',fen:history.rootFen,question:'',legalMoves:[]}) as Record<string,unknown>;
- await studio.ask('Analysiere das Spiel',{source:'model',respond:async r=>{assert.equal(r.topic,'review');assert.equal(r.hintMode,'explain');assert.deepEqual(r.history!.moves,history.moves);assert.equal(r.positionFacts!.checkmate,true);return {...base,assessment:undefined,gameReview:review};}},'position','question');
+ await studio.ask('Analysiere das Spiel',{source:'model',respond:async r=>{assert.equal(r.topic,'review');assert.equal(r.hintMode,'explain');assert.deepEqual(r.history!.moves,history.moves);assert.equal(r.positionFacts!.checkmate,true);return {...base,assessment:undefined,gameReview:review};}},'position','question',undefined,async (_fen,moves)=>({approved:moves,rejected:[],notes:[]}));
  assert.equal(studio.session.snapshot().activeNodeId,'n1');const a=studio.session.snapshot().annotations.at(-1)!;assert.equal(a.nodeId,'n4');assert.match(a.text,/Partierückblick/);assert.match(a.text,/Alternative zum Prüfen: e4/);assert.doesNotMatch(a.text,/Stellungsbeurteilung/);assert.deepEqual(a.suggestions,[]);
  await assert.rejects(studio.ask('Analysiere das Spiel',{source:'model',respond:async()=>base}),/Lernmomente/);
 });
@@ -41,7 +41,7 @@ test('server transport requires a retrospective and reserves its larger output w
    assert.equal(payload.max_completion_tokens,calls%2===1?1100:2600);
    if(calls%2===1){
      assert.equal(payload.messages.length,2);
-     assert.doesNotMatch(JSON.stringify(payload.messages[1]),/Stockfish|centipawn|lossCp|beforeCp|afterCp/);
+     assert.deepEqual(JSON.parse(payload.messages[1].content).stockfishEvidence,[]);
    }else{
      assert.match(JSON.stringify(payload.messages),/qualitativeDraft/);
      assert.match(JSON.stringify(payload.messages),/Weiß schwächt/);
@@ -58,8 +58,8 @@ test('explicit key-moment requests in free chat store checked analysis and navig
  for(const q of ['Welche Schlüsselstellen hatte das Spiel?','Zeige die Schlüsselmomente der Partie','Nenne mir Wendepunkte','Was waren die Schlüsselstellen?','Zeige die Schlüsselstellungen des Spiels','Zeige die Schlüsselstellung','Zeige die Schlüsselpositionen der Partie','Zeige die Schluesselstellungen des Spiels'])assert.equal(asksForKeyMoments(q),true);
  assert.equal(asksForKeyMoments('Was bedeutet das Wort Schlüsselstelle?'),false);
  const studio=new Studio(),game=new LearningGame(()=>studio.session);game.start('w',1);game.pause();for(const move of history.moves)studio.session.play(move);studio.session.setGame({...studio.session.snapshot().game!,cursor:'n4'});studio.session.select('n1');
- await studio.ask('Welche Schlüsselstellen hatte das Spiel?',{source:'model',respond:async r=>{assert.equal(r.topic,'review');assert.deepEqual(r.history!.moves,history.moves);return {message:review.summary,gameReview:review};}},'chat');
- const saved=Session.import(studio.session.export()),a=saved.snapshot().annotations.at(-1)!;assert.deepEqual(a.gameReview,review);assert.deepEqual(reviewAnchors(saved.snapshot(),a).map(m=>m.nodeId),['n0','n2']);assert.equal(saved.snapshot().activeNodeId,'n1');
+ await studio.ask('Welche Schlüsselstellen hatte das Spiel?',{source:'model',respond:async r=>{assert.equal(r.topic,'review');assert.deepEqual(r.history!.moves,history.moves);return {message:review.summary,gameReview:review};}},'chat','explain',undefined,async (_fen,moves)=>({approved:moves,rejected:[],notes:[]}));
+ const saved=Session.import(studio.session.export()),a=saved.snapshot().annotations.at(-1)!;assert.deepEqual(a.gameReview!.moments.map(m=>m.alternative),review.moments.map(m=>m.alternative));assert.deepEqual(reviewAnchors(saved.snapshot(),a).map(m=>m.nodeId),['n0','n2']);assert.equal(saved.snapshot().activeNodeId,'n1');
  const d=saved.snapshot();d.annotations.at(-1)!.gameReview!.moments[0]!.played='d4';assert.throws(()=>Session.import(JSON.stringify(d)),/Zugfolge/);
 });
 test('previously saved text-only reviews retain their checked move anchors',async()=>{
@@ -156,7 +156,7 @@ test('59-move diagnostic game is complete in the isolated strategic payload and 
  const board=new Chess();for(const san of moves)board.move(san);assert.equal(moves.length,117);assert.equal(board.isCheckmate(),true);
  const data={rootFen:new Chess().fen(),moves,truncated:false};
  const payload=strategicPayload({nodeId:'n117',fen:board.fen(),legalMoves:[],question:'Analysiere die Partie',history:{...data,engineScore:999} as any,context:['Stockfish beforeCp 530'],turns:[{role:'assistant',nodeId:'n70',text:'ENGINE_SENTINEL'}]});
- assert.deepEqual(payload.history,data);assert.doesNotMatch(JSON.stringify(payload),/Stockfish|engineScore|ENGINE_SENTINEL|beforeCp/);
+ assert.deepEqual(payload.history,data);assert.deepEqual(payload.stockfishEvidence,['Stockfish beforeCp 530']);assert.doesNotMatch(JSON.stringify(payload),/engineScore|ENGINE_SENTINEL/);
  const moments=[13,42,70,91,99,113].map(ply=>({ply,played:moves[ply-1]!,explanation:'Konkrete Figurenkoordination und Gegenplan an dieser Stellung prüfen.',alternative:'',reason:'Keine berechnete Alternative vorhanden.'}));
  assert.equal(moves[69],'Rc8');assert.equal(moves[98],'Qf3');
  assert.equal(validateGameReview({summary:'Raumgewinn, Zentrumsabtausch, Freibauernrennen und Königsangriff.',moments,lesson:'Nach der Umwandlung die Priorität von Freibauernkontrolle zu Königssicherheit neu prüfen.'},data).moments.length,6);
@@ -164,9 +164,9 @@ test('59-move diagnostic game is complete in the isolated strategic payload and 
 
 test('two-stage model receipt survives game export together with the validated review',async()=>{
  const {Session}=await import('../src/session.js');const studio=new Studio();for(const san of history.moves)studio.session.play(san);
- await studio.ask('Analysiere die Partie',{source:'model',respond:async()=>({message:review.summary,gameReview:review,provenance:{provider:'OpenRouter',model:'fixture/model',requestedModel:'fixture/model',reasoning:null,costUsd:0.03,traceId:2,calls:2}})},'review','explain');
+ await studio.ask('Analysiere die Partie',{source:'model',respond:async()=>({message:review.summary,gameReview:review,provenance:{provider:'OpenRouter',model:'fixture/model',requestedModel:'fixture/model',reasoning:null,costUsd:0.03,traceId:2,calls:2}})},'review','explain',undefined,async (_fen,moves)=>({approved:moves,rejected:[],notes:[]}));
  const saved=Session.import(studio.session.export()).snapshot().annotations.at(-1)!;
- assert.deepEqual(saved.gameReview,review);assert.match(saved.text,/2 Aufruf\(e\)/);assert.match(saved.text,/0\.030000 USD/);
+ assert.deepEqual(saved.gameReview!.moments.map(m=>m.alternative),review.moments.map(m=>m.alternative));assert.match(saved.text,/2 Aufruf\(e\)/);assert.match(saved.text,/0\.030000 USD/);
 });
 
 test('review teaching arrows stay tied to the position before a key move and survive export/import',async()=>{
@@ -209,4 +209,35 @@ test('a teaching arrow must originate on a piece in the historical position; lin
  const step={...review,moments:[{...review.moments[0]!,steps:[{text:'Ein falscher Pfeil',marks:[{from:'f3',to:'f5',kind:'arrow' as const,color:'red' as const}]}]},review.moments[1]!]};
  assert.throws(()=>validateGameReview(step,history),/Lernschritte/);
  assert.equal(validateGameReview(step,history,true).moments[0]!.steps,undefined);
+});
+
+test('game-review alternatives are vetoed at their own historical FEN; failed checks also suppress illustrations',async()=>{
+ const studio=new Studio();
+ for(const move of history.moves)studio.session.play(move);
+ const expected=new Chess(history.rootFen),positions:string[]=[];
+ for(const move of history.moves){positions.push(expected.fen());expected.move(move);}
+ const calls:{fen:string;move:string}[]=[];
+ const model={source:'model' as const,respond:async()=>({message:'Ein Überblick.',gameReview:{...review,moments:review.moments.map(m=>({...m,marks:[{kind:'arrow',from:'e2',to:'e4',color:'green'}]}))}})};
+ await studio.ask('Analysiere das Spiel',model,'review','explain',undefined,async(fen,moves)=>{
+  calls.push({fen,move:moves[0]!});
+  return moves[0]==='e4'
+   ?{approved:[],rejected:[{san:'e4',reason:'Taktischer Fehler'}],notes:[]}
+   :{approved:moves,rejected:[],notes:[]};
+ });
+ assert.deepEqual(calls,[{fen:positions[0],move:'e4'},{fen:positions[2],move:'g3'}]);
+ const stored=studio.session.snapshot().annotations.at(-1)!.gameReview!;
+ assert.equal(stored.moments[0]!.alternative,'');
+ assert.equal(stored.moments[0]!.marks,undefined);
+ assert.match(stored.moments[0]!.reason,/nicht freigegeben/);
+ assert.equal(stored.moments[1]!.alternative,'g3');
+ assert.match(stored.moments[1]!.reason,/begrenzte Stockfish-Suche/);
+});
+
+test('engine outage strips unverified historical alternatives without breaking review',async()=>{
+ const studio=new Studio();
+ for(const move of history.moves)studio.session.play(move);
+ await studio.ask('Analysiere das Spiel',{source:'model',respond:async()=>({message:'Partie.',gameReview:review})},'review','explain',undefined,async()=>{throw Error('Stockfish offline');});
+ const stored=studio.session.snapshot().annotations.at(-1)!.gameReview!;
+ assert.ok(stored.moments.every(m=>!m.alternative));
+ assert.match(stored.moments[0]!.reason,/nicht freigegeben/);
 });

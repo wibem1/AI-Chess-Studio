@@ -22,6 +22,7 @@ import { ServerModelAdapter } from '../src/model-client.js';
 import { checkTactics, ServerTacticalAdapter, validateTacticalReport, type TacticalReport } from '../src/tactics.js';
 import {BrowserTacticalAdapter} from '../src/browser-tactics.js';
 import {withStockfishAssessment} from '../src/stockfish-assist.js';
+import {checkProposedFirstMove,verifyModelCandidates} from '../src/plan-safety.js';
 import {fullGameContext,asksAboutGameQuality} from '../src/full-game-analysis.js';
 import {matchingFullGameAnalysis} from './full-game-ui.js';
 import {AutomaticStockfish} from './automatic-stockfish.js';
@@ -469,15 +470,20 @@ const enrichWithStockfish=async(request:import('../src/dialogue.js').DialogueReq
  lastAiStage='stockfish_context';
  const session=studio.session,data=session.snapshot(),position=data.nodes.find(n=>n.id===request.nodeId);
  if(!position||position.fen!==request.fen)throw new Error('Stellung während der Prüfung gewechselt. Keine KI-Anfrage gesendet.');
- if(!matchingFullGameAnalysis(session)&&asksAboutGameQuality(request.question)){
+ if(!matchingFullGameAnalysis(session)&&(request.topic==='review'||asksAboutGameQuality(request.question))){
    message('dialogue-feedback','Stockfish stellt die noch fehlenden Partiebewertungen zusammen …');
-   await automaticScores?.ensure();
+   const ready=await automaticScores?.ensure();
+   if(request.topic==='review'&&!ready)throw new Error('Stockfish konnte die Partie nicht vollständig bewerten. Keine kostenpflichtige KI-Partieanalyse gestartet; Engine-Diagnose prüfen.');
  }
  const whole=matchingFullGameAnalysis(session);
  const reportContexts=whole?fullGameContext(whole):[];
  const reportPositions=whole?new Set([whole.rootFen,...whole.records.map(r=>r.after)]):undefined;
  const needsCurrent=!reportPositions?.has(request.fen);
  let positionContext:string|undefined;
+ if(!needsCurrent){
+   const node=data.nodes.find(n=>n.id===request.nodeId),score=node&&data.positionScores?.[node.id];
+   if(score?.fen===request.fen)positionContext=`STOCKFISH für aktuelle FEN: ${(score.cp/100).toFixed(2)} Bauerneinheiten aus Weißsicht, Tiefe ${score.depth}. ${score.line?.length?'Hauptvariante: '+score.line.slice(0,8).join(' '):'Keine geprüfte Hauptvariante.'} Menschliche Spielbarkeit nicht aus dem Wert allein ableiten.`;
+ }
  if(needsCurrent){
   if(new Chess(request.fen).isGameOver())positionContext='Die angefragte Stellung ist beendet; dort gibt es keine weitere Stockfish-Hauptvariante. Matt/Remis ist regelgeprüft, nicht numerisch aus einer Suche abgeleitet.';
   else {
@@ -495,7 +501,7 @@ const enrichWithStockfish=async(request:import('../src/dialogue.js').DialogueReq
  // The report is primary evidence. The current position is added only when it
  // is not already part of the report; existing learning notes fill free slots.
  const extra=[...(positionContext?[positionContext]:[]),...(qualityNotice?[qualityNotice]:[])];
- const context=[...reportContexts,...extra,...(request.context??[])].slice(0,6);
+ const context=[...extra,...reportContexts,...(request.context??[])].slice(0,6);
  lastAiStage='context_prepared';
  return {...request,context};
 };
@@ -550,11 +556,38 @@ $('dialogue-form').addEventListener('submit', async event => {
   const session = studio.session,chatRevision=session.dialogueRevision();
   chatStopped=false;pending = true;reviewInProgress=topicOverride==='review';lastAiStage='request_started';lastAiError='';updateMode();
   if(reviewInProgress)render();
-  message('dialogue-feedback',reviewInProgress?'Partieanalyse läuft: Sol untersucht die Partie, Stockfish prüft bei Bedarf ausgewählte Stellungen, danach entsteht der Partierückblick.':'Modellanfrage läuft … Stellungswechsel ist weiterhin möglich.');
+  message('dialogue-feedback',reviewInProgress?'Stockfish-Bewertungen werden zuerst gesichert; danach interpretiert Sol die Pläne und lässt kritische Varianten tiefer prüfen.':'Stockfish prüft die Stellung; anschließend erklärt Sol die möglichen Pläne.');
   try {
     activeAdapter=new ServerModelAdapter(platformFetch,()=>generalAiInstructions,enrichWithStockfish);let toolStarted=false;
     const result = await studio.ask(question, activeAdapter!,topicOverride??'chat',hintOverride,async(call,node)=>{if(!toolStarted){pendingCoachAnchor={session,node};toolStarted=true;}message('dialogue-feedback',call.function.name==='play_engine'?'Spielengine antwortet …':call.function.name==='show_line'?'Variante wird vorgeführt …':'Brettdarstellung wird aufgebaut …');if(call.function.name==='show_line'||call.function.name==='play_engine')illustration=undefined;
-      const result=await coachBoard.execute(call,node);boardActions.push({at:new Date().toISOString(),call,result});if(boardActions.length>20)boardActions.shift();if(!chatStopped)message('dialogue-feedback','Brettergebnis liegt vor; die Lernengine erläutert es …');return result;});
+      if(call.function.name==='show_line'||call.function.name==='play_engine'){
+        const moves=JSON.parse(call.function.arguments).moves as string[];
+        if(moves.length){
+          const origin=studio.session.snapshot().nodes.find(x=>x.id===node);
+          if(!origin)throw new Error('Stockfish-Planprüfung: Ausgangsstellung nicht mehr vorhanden.');
+          const board=new Chess(origin.fen);
+          for(const [i,san] of moves.entries()){
+            message('dialogue-feedback',`Stockfish prüft KI-Variante, Zug ${i+1}/${moves.length} …`);
+            await checkProposedFirstMove(board.fen(),san,{
+              check:(fen,candidate)=>candidate===null?getStockfishReport(fen):
+                (isWebPlatform()?new BrowserTacticalAdapter():new ServerTacticalAdapter(platformFetch)).check(fen,candidate)
+            });
+            if(chatStopped)throw new Error('Stockfish-Planprüfung: Anfrage wurde angehalten.');
+            board.move(san);
+          }
+        }
+      }
+      const result=await coachBoard.execute(call,node);boardActions.push({at:new Date().toISOString(),call,result});if(boardActions.length>20)boardActions.shift();if(!chatStopped)message('dialogue-feedback','Brettergebnis liegt vor; die Lernengine erläutert es …');return result;},
+      async(fen,moves)=>{
+        if(chatStopped)throw new Error('KI-Empfehlungsprüfung angehalten.');
+        message('dialogue-feedback','Stockfish überprüft die konkreten KI-Kandidaten …');
+        const check=await verifyModelCandidates(fen,moves,{
+          check:(f,candidate)=>candidate===null?getStockfishReport(f):
+            (isWebPlatform()?new BrowserTacticalAdapter():new ServerTacticalAdapter(platformFetch)).check(f,candidate)
+        });
+        if(chatStopped)throw new Error('KI-Empfehlungsprüfung angehalten.');
+        return check;
+      });
     lastAskFailed=false;lastAiError='';lastAiStage=result==='stored'?'answer_saved':'answer_discarded';
     message('dialogue-feedback', result === 'stored' ? (reviewInProgress?'Partieanalyse gespeichert. Schlüsselstellungen oben am Brett auswählen; die Ansicht kostet nichts.':'Modellantwort an der angefragten Stellung gespeichert.') : chatStopped?'Angehalten. Gezeigte Züge bleiben als Lernvariante erhalten.':'Veraltete Antwort nach Sitzungs- oder Chatwechsel verworfen.');
     render();
@@ -813,7 +846,7 @@ function beginAnalysis(wholeGame:boolean,forceNew=false){
  // Do not jump to the end: the user may be examining an earlier moment.
  // The whole played game is transmitted separately from the visible position.
  text('question').value=wholeGame
-  ?'Analysiere die gesamte gespielte Partie zuerst eigenständig aus schachlich-strategischer Sicht: Welche Pläne verfolgen beide Seiten, was gelingt ihnen, wie verändern sich Bauernstruktur und Figurenkoordination, und wo wechseln die entscheidenden Aufgaben? Erkläre die Ursachen anhand konkreter Züge und Felder. Überprüfe diese Deutung anschließend kritisch mit den gespeicherten Stockfish-Daten; zähle nicht bloß Bewertungsänderungen auf. Führe bis zu sechs chronologische Lernmomente und eine konkrete Lehre für die nächste Partie auf.'
+  ?'Erkläre die gesamte gespielte Partie auf Grundlage der zuvor berechneten Stockfish-Bewertungen und geprüften Varianten, ohne nur die Zahlen nachzusprechen: Welche Pläne verfolgen beide Seiten, was gelingt ihnen, wie verändern sich Bauernstruktur und Figurenkoordination, und wo wechseln die entscheidenden Aufgaben? Erkläre die Ursachen anhand konkreter Züge und Felder. Überprüfe diese Deutung anschließend kritisch mit den gespeicherten Stockfish-Daten; zähle nicht bloß Bewertungsänderungen auf. Führe bis zu sechs chronologische Lernmomente und eine konkrete Lehre für die nächste Partie auf.'
   :'Analysiere die aktuell angezeigte Stellung anhand der gespeicherten Stockfish-Bewertung: Wer steht besser und warum? Welche konkreten Gefahren, Kandidatenzüge, Pläne und Gegenpläne sind wichtig? Priorisiere deine wichtigste Empfehlung und erkläre ihre Grenzen.';
  directAnalysisHint='explain';directAnalysisTopic=wholeGame?'review':'chat';
  render();
