@@ -171,7 +171,7 @@ export class Studio {
         reply.assessment?.reason,...(reply.assessment?.dangers??[]),
         reply.humanFactors?.idea,reply.humanFactors?.calculation,
         reply.humanFactors?.pitfalls,reply.humanFactors?.continuation].filter((v):v is string=>typeof v==='string').join(' ');
-      const unexpected=unverifiedProseMoves(request.fen,prose,reply.candidates);
+      const unexpected=unverifiedProseMoves(request.fen,prose,reply.candidates,request.gameHistory?.moves??request.history.moves);
       if(unexpected.length){
         reply={message:'Die KI hat konkrete Züge im freien Text genannt, die nicht als Stockfish-geprüfte Kandidaten nachgewiesen sind. Die Antwort wurde vorsorglich zurückgehalten. Bitte eine neue Stellungserklärung auf Grundlage geprüfter Engine-Kandidaten anfordern.',
           plan:'',opponent:'',risks:'',playability:'',candidates:[],openQuestions:[],
