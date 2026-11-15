@@ -1,3 +1,15 @@
+# Historische KI-Alternativen mit Stockfish-Sperre – Implementierung noch ungeprüft (15. November 2026)
+
+**Fortsetzung:** In PR #30 wurde zusätzlich die taktische Prüfung für konkrete Alternativzüge des Partierückblicks eingebaut. Für jede Modellalternative wird die FEN unmittelbar vor dem betreffenden historischen Halbzug rekonstruiert und die vorhandene lokale Stockfish-Kandidatenprüfung aufgerufen. Nicht freigegebene Kandidaten und ihre Begründung werden entfernt; zugehörige Modellpfeile und Vorführschritte werden zur Sicherheit ebenfalls unterdrückt. Bei Engineausfall erfolgt ausdrücklich keine Freigabe; die Beschreibung des tatsächlich gespielten Zuges bleibt erhalten. Ein bestätigter Alternativzug erhält einen Hinweis auf die begrenzte Suchtiefe.
+
+**Commits:** Code `2de558d49b34ba17ad5d57adf5f150d47aaed7e1`; zwei gezielte Regressionstests `ad2a85242fa368f5cd2ac8f451467ad339727d94` für stellungsgenaue Prüfungen und fehlende Engine.
+
+**Prüfstatus:** Implementiert und Testfälle geschrieben, **noch kein erfolgreicher neuer CI-Lauf** nachgewiesen. Keine echte Sol-Antwort oder Endgeräteprüfung. Die vorige erfolgreiche CI 43688844657 gilt ausschließlich für den vorherigen Commit, nicht für diese Fortsetzung. PR bleibt ungeöffnet zur Veröffentlichung; öffentlich bleibt **1.11.3**.
+
+**Nächster einzelner Schritt:** TypeScript-, Node- und Chromium-Prüfungen des neuen Commits durchführen. Bei bestandener Prüfung fortfahren mit der noch offenen Lücke nicht strukturiert formulierter Modell-Zugtipps (Extraktion bzw. verlässlich geprüfte Engine-Kandidaten als einzige Quelle konkreter Empfehlungen). Keine Veröffentlichung ohne neue ausdrückliche Freigabe.
+
+---
+
 # Stockfish-Prüfung für konkrete KI-Kandidaten – abgeschlossen, ungeöffentlicht (15. November 2026)
 
 **Entwicklungsschritt nach Nutzerauftrag „weiter“:** Erweiterung von [PR #30](https://github.com/wibem1/AI-Chess-Studio/pull/30), weiterhin Branch `feat/engine-first-human-coaching-20261115`, keine Veröffentlichung. Die bisherige schachliche Vorprüfung von KI-Brettvarianten wird um **strukturierte Zugempfehlungen in gewöhnlichen KI-Antworten** ergänzt. Die öffentliche App bleibt **1.11.3**.
