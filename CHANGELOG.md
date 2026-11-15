@@ -3,6 +3,7 @@
 ## 1.13.0 – PGN-Export
 
 - Partien und importierte PGN-Aufzeichnungen können als `.pgn`-Datei exportiert werden. Importierte PGN-Kopfzeilen und Kommentare bleiben bei unveränderter Partie erhalten; eigene Startstellungen werden mit FEN exportiert.
+- Kandidatenlauf [43726272670](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43726272670) und Produktionslauf [43726664943](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43726664943) erfolgreich; `gh-pages/BUILD.json` bestätigt 1.13.0.
 
 
 ## 1.12.1 – günstiger und zuverlässiger Zugvorschlag (15. November 2026)

@@ -1,6 +1,18 @@
-# Chess Studio 1.13.0 – PGN-Export (Kandidat, 15. November 2026)
+# Chess Studio 1.13.0 veröffentlicht – 15. November 2026
 
-PGN-Dateiexport ist auf Branch `feat/pgn-export-20261115` implementiert. Importierte Aufzeichnungen behalten beim Export ihre PGN-Kopfzeilen und Kommentare; laufende Partien und veränderte Stellungen werden als Zugfolge exportiert, einschließlich FEN bei abweichender Startstellung. Branch-Run 282 bestand Typprüfung, Node-Tests, Produktionsbuild, vollständige Chromium-Regression und Manifestprüfung. Die vollständige Kandidatenprüfung für den finalen Stand [Run 43723673653](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43723673653) bestand Typprüfung, Node-Tests, Produktionsbuild, Chromium-Regression und Manifestprüfung. PR #32 ist zur Veröffentlichung freigegeben; die veröffentlichte Version bleibt bis zum erfolgreichen Produktionslauf 1.12.1.
+PR #32 wurde nach erfolgreicher vollständiger Kandidaten-CI in `work` übernommen (Quellcommit `029b6fa63e4d24f419f4a213e79c3f706898e24b`). Der produktive GitHub-Actions-Lauf [Run 43726664943](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43726664943) ist vollständig erfolgreich: Typprüfung, Node-Tests, Pages-Build, Chromium-Browser-/Engineprüfungen, Übertragung nach `gh-pages` und Deploymentstatuskontrolle.
+
+Das öffentliche `BUILD.json` auf `gh-pages` bestätigt Version **1.13.0**, Basis `/AI-Chess-Studio/` und Quellcommit `029b6fa63e4d24f419f4a213e79c3f706898e24b`. Live: https://wibem1.github.io/AI-Chess-Studio/ .
+
+## Inhalt dieses Releases
+
+- Partien lassen sich zusätzlich zum vollständigen JSON-Sitzungsexport als standardisierte `.pgn`-Datei exportieren.
+- Unveränderte importierte PGNs behalten ihre Kopfzeilen und Kommentare; eigene Startstellungen erhalten die nötigen FEN-Angaben.
+- Exportiert werden vollständige importierte Partien oder die aktuell gespielte Zugfolge.
+
+## Prüfnachweis
+
+Der vollständige Kandidatenlauf [Run 43726272670](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43726272670) und der Produktionslauf [Run 43726664943](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43726664943) sind vollständig erfolgreich. `BUILD.json` bestätigt die veröffentlichte Version 1.13.0. Es wurden keine kostenpflichtigen Modellaufrufe für die Prüfungen ausgeführt.
 
 ---
 
