@@ -1,5 +1,13 @@
 # Änderungen
 
+## 1.12.0 – Stockfish zuerst, KI-Erklärungen taktisch abgesichert (15. November 2026)
+
+- Vollständige lokale Stockfish-Partiebewertungen bilden die Grundlage des KI-Partierückblicks; unvollständige Prüfungen sperren den Modellaufruf.
+- Konkrete Modellzüge in Brettvorführungen, strukturierten Empfehlungen, freiem Stellungsdialog und Spielrückblick-Alternativen werden an der jeweiligen Stellung mit Stockfish geprüft. Nicht freigegebene Vorschläge werden unterdrückt.
+- Historische Züge dürfen im Dialog als Kontext zitiert werden. Begrenzte Suchbedingungen werden als Einschränkung ausgewiesen; Suchwerte sind keine absolute Schachwahrheit.
+- GitHub Actions Run 274 (Commit 8ee3a2f) bestand TypeScript, Node-Tests, Build, vollständige Chromium-Regression und Manifestprüfung. Der produktive Releaseworkflow prüft den Versionsstand erneut vor dem Deployment.
+
+
 ## 1.9.0 – KI-gesteuerte vertiefte Stockfish-Prüfung (14. November 2026)
 
 - Die erste strategische KI-Phase kann bis zu fünf historische Halbzüge zur tieferen lokalen Engineprüfung auswählen.
