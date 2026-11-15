@@ -65,3 +65,22 @@ test('verified structured model suggestions retain a bounded caveat',async()=>{
  assert.deepEqual(answer.suggestions,['e4']);
  assert.match(answer.text,/begrenzte Stockfish-Suche/);
 });
+
+test('unguarded legal move in free-form model text is suppressed even without candidates',async()=>{
+ const studio=new Studio();
+ const model:DialogueAdapter={source:'model',respond:async()=>({message:'Spiele a3! Dann gewinnst du sofort.',candidates:[]})};
+ await studio.ask('Was soll ich spielen?',model,'chat','explain');
+ const answer=studio.session.snapshot().annotations.at(-1)!;
+ assert.deepEqual(answer.suggestions,[]);
+ assert.match(answer.text,/nicht als Stockfish-geprüfte Kandidaten/);
+ assert.doesNotMatch(answer.text,/Dann gewinnst du sofort/);
+});
+test('an unrelated legal SAN in model prose cannot hide behind an approved different candidate',async()=>{
+ const studio=new Studio();
+ const model:DialogueAdapter={source:'model',respond:async()=>({message:'Spiele e4, danach ist a3 hervorragend.',candidates:['e4']})};
+ await studio.ask('Was soll ich spielen?',model,'chat','explain',undefined,async()=>({approved:['e4'],rejected:[],notes:[]}));
+ const answer=studio.session.snapshot().annotations.at(-1)!;
+ assert.deepEqual(answer.suggestions,[]);
+ assert.doesNotMatch(answer.text,/a3 hervorragend/);
+ assert.match(answer.text,/nicht als Stockfish-geprüfte Kandidaten/);
+});
