@@ -45,15 +45,15 @@ export async function verifyModelCandidates(fen:string,moves:readonly string[],e
  * Unexpected move mentions are blocked rather than trusted as a tactical plan.
  * A false positive may hide prose, but must never license an unsafe move.
  */
-export function unverifiedProseMoves(fen:string,prose:string,approved:readonly string[]):string[]{
+export function unverifiedProseMoves(fen:string,prose:string,approved:readonly string[],historicalMoves:readonly string[]=[]):string[]{
  // Validate that the reference position exists; all move-like mentions (including
  // illegal model hallucinations) must be backed by approved candidates.
  new Chess(fen);
- const accepted=new Set(approved);
+ const accepted=new Set(approved),historical=new Set(historicalMoves);
  const detected=new Set<string>();
  for(const match of prose.matchAll(/(?<![\p{L}\p{N}])(?:O-O-O|O-O|[KQRBN]?[a-h]?[1-8]?x?[a-h][1-8](?:=[QRBN])?[+#]?)(?![\p{L}\p{N}])/gu)){
    const san=match[0];
-   if(!accepted.has(san))detected.add(san);
+   if(!accepted.has(san)&&!historical.has(san))detected.add(san);
  }
  return [...detected];
 }
