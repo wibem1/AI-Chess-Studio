@@ -502,14 +502,19 @@ const enrichWithStockfish=async(request:import('../src/dialogue.js').DialogueReq
  // The report is primary evidence. The current position is added only when it
  // is not already part of the report; existing learning notes fill free slots.
  const extra=[...(positionContext?[positionContext]:[]),...(qualityNotice?[qualityNotice]:[])];
+ let repetitionNotice='';
+ if(moveSuggestion&&request.history){
+  try{
+   const pathBoard=new Chess(request.history.rootFen);
+   for(const san of request.history.moves)pathBoard.move(san);
+   if(pathBoard.fen()===request.fen&&pathBoard.isThreefoldRepetition())repetitionNotice='Die aktuelle Stellung ist dreimal aufgetreten; der Spieler am Zug kann Remis durch dreifache Stellungswiederholung beanspruchen.';
+  }catch{/* Invalid/truncated history is not used as a rule claim. */}
+ }
  const context=moveSuggestion
-  ?[...(positionContext?[positionContext]:[]),'Zugvorschlag: Verwende als Empfehlung ausschließlich den ersten Zug der Stockfish-Hauptvariante für diese Stellung. Keine ungeprüften Vergleichszüge nennen; knapp auf Deutsch erklären.']
+  ?[...(positionContext?[positionContext]:[]),...(repetitionNotice?[repetitionNotice]:[]),'Zugvorschlag: Verwende als Empfehlung ausschließlich den ersten Zug der Stockfish-Hauptvariante für diese Stellung. Keine ungeprüften Vergleichszüge nennen; knapp auf Deutsch erklären.']
   :[...extra,...reportContexts,...(request.context??[])].slice(0,6);
  lastAiStage='context_prepared';
- if(moveSuggestion){
-  const {gameHistory,history,turns,positionFacts,strategicFeatures,strategicPlans,planDevelopment,historyFacts,cachedDeepChecks,conversationTruncated,toolsEnabled,toolExchanges,...compact}=request;
-  return {...compact,context};
- }
+ if(moveSuggestion)return {nodeId:request.nodeId,fen:request.fen,question:request.question,legalMoves:request.legalMoves,context,hintMode:request.hintMode,topic:request.topic};
  return {...request,context};
 };
 const instructionsEditor=$<HTMLTextAreaElement>('general-ai-instructions');
