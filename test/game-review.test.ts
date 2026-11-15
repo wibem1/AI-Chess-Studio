@@ -24,7 +24,7 @@ test('review anchors and alternatives are checked at the historical position, in
 test('typed game analysis uses the actual game line even from an earlier study branch and overrides hints',async()=>{
  const studio=new Studio(),game=new LearningGame(()=>studio.session);game.start('w',1);game.play('f3');await game.reply({move:async()=>({san:'e5',level:1,engine:'Stockfish fixture'})});game.play('g4');await game.reply({move:async()=>({san:'Qh4#',level:1,engine:'Stockfish fixture'})});game.learn();game.analyse('n1');
  const base=await new SimulationAdapter().respond({nodeId:'n0',fen:history.rootFen,question:'',legalMoves:[]}) as Record<string,unknown>;
- await studio.ask('Analysiere das Spiel',{source:'model',respond:async r=>{assert.equal(r.topic,'review');assert.equal(r.hintMode,'explain');assert.deepEqual(r.history!.moves,history.moves);assert.equal(r.positionFacts!.checkmate,true);return {...base,assessment:undefined,gameReview:review};}},'position','question');
+ await studio.ask('Analysiere das Spiel',{source:'model',respond:async r=>{assert.equal(r.topic,'review');assert.equal(r.hintMode,'explain');assert.deepEqual(r.history!.moves,history.moves);assert.equal(r.positionFacts!.checkmate,true);return {...base,assessment:undefined,gameReview:review};}},'position','question',undefined,async (_fen,moves)=>({approved:moves,rejected:[],notes:[]}));
  assert.equal(studio.session.snapshot().activeNodeId,'n1');const a=studio.session.snapshot().annotations.at(-1)!;assert.equal(a.nodeId,'n4');assert.match(a.text,/Partierückblick/);assert.match(a.text,/Alternative zum Prüfen: e4/);assert.doesNotMatch(a.text,/Stellungsbeurteilung/);assert.deepEqual(a.suggestions,[]);
  await assert.rejects(studio.ask('Analysiere das Spiel',{source:'model',respond:async()=>base}),/Lernmomente/);
 });
@@ -209,4 +209,35 @@ test('a teaching arrow must originate on a piece in the historical position; lin
  const step={...review,moments:[{...review.moments[0]!,steps:[{text:'Ein falscher Pfeil',marks:[{from:'f3',to:'f5',kind:'arrow' as const,color:'red' as const}]}]},review.moments[1]!]};
  assert.throws(()=>validateGameReview(step,history),/Lernschritte/);
  assert.equal(validateGameReview(step,history,true).moments[0]!.steps,undefined);
+});
+
+test('game-review alternatives are vetoed at their own historical FEN; failed checks also suppress illustrations',async()=>{
+ const studio=new Studio();
+ for(const move of history.moves)studio.session.play(move);
+ const expected=new Chess(history.rootFen),positions:string[]=[];
+ for(const move of history.moves){positions.push(expected.fen());expected.move(move);}
+ const calls:{fen:string;move:string}[]=[];
+ const model={source:'model' as const,respond:async()=>({message:'Ein Überblick.',gameReview:{...review,moments:review.moments.map(m=>({...m,marks:[{kind:'arrow',from:'e2',to:'e4',color:'green'}]}))}})};
+ await studio.ask('Analysiere das Spiel',model,'review','explain',undefined,async(fen,moves)=>{
+  calls.push({fen,move:moves[0]!});
+  return moves[0]==='e4'
+   ?{approved:[],rejected:[{san:'e4',reason:'Taktischer Fehler'}],notes:[]}
+   :{approved:moves,rejected:[],notes:[]};
+ });
+ assert.deepEqual(calls,[{fen:positions[0],move:'e4'},{fen:positions[2],move:'g3'}]);
+ const stored=studio.session.snapshot().annotations.at(-1)!.gameReview!;
+ assert.equal(stored.moments[0]!.alternative,'');
+ assert.equal(stored.moments[0]!.marks,undefined);
+ assert.match(stored.moments[0]!.reason,/nicht freigegeben/);
+ assert.equal(stored.moments[1]!.alternative,'g3');
+ assert.match(stored.moments[1]!.reason,/begrenzte Stockfish-Suche/);
+});
+
+test('engine outage strips unverified historical alternatives without breaking review',async()=>{
+ const studio=new Studio();
+ for(const move of history.moves)studio.session.play(move);
+ await studio.ask('Analysiere das Spiel',{source:'model',respond:async()=>({message:'Partie.',gameReview:review})},'review','explain',undefined,async()=>{throw Error('Stockfish offline');});
+ const stored=studio.session.snapshot().annotations.at(-1)!.gameReview!;
+ assert.ok(stored.moments.every(m=>!m.alternative));
+ assert.match(stored.moments[0]!.reason,/nicht freigegeben/);
 });
