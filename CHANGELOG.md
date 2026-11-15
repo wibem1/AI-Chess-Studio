@@ -5,7 +5,7 @@
 - Vollständige lokale Stockfish-Partiebewertungen bilden die Grundlage des KI-Partierückblicks; unvollständige Prüfungen sperren den Modellaufruf.
 - Konkrete Modellzüge in Brettvorführungen, strukturierten Empfehlungen, freiem Stellungsdialog und Spielrückblick-Alternativen werden an der jeweiligen Stellung mit Stockfish geprüft. Nicht freigegebene Vorschläge werden unterdrückt.
 - Historische Züge dürfen im Dialog als Kontext zitiert werden. Begrenzte Suchbedingungen werden als Einschränkung ausgewiesen; Suchwerte sind keine absolute Schachwahrheit.
-- GitHub Actions Run 274 (Commit 8ee3a2f) bestand TypeScript, Node-Tests, Build, vollständige Chromium-Regression und Manifestprüfung. Der produktive Releaseworkflow prüft den Versionsstand erneut vor dem Deployment.
+- GitHub Actions Run 274 (Commit 8ee3a2f) bestand TypeScript, Node-Tests, Build, vollständige Chromium-Regression und Manifestprüfung. Der produktive Releaseworkflow [Run 43698975121](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43698975121) bestand alle Prüfungen, übertrug Version 1.12.0 nach `gh-pages` und bestätigte den Deploymentstatus. Öffentliches BUILD.json bestätigt Version 1.12.0 und Quellcommit `289663e`.
 
 
 ## 1.9.0 – KI-gesteuerte vertiefte Stockfish-Prüfung (14. November 2026)
