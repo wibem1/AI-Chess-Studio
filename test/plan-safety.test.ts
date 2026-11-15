@@ -55,6 +55,10 @@ test('free prose recognizes illegal and legal SAN tokens, but not embedded ordin
  assert.deepEqual(unverifiedProseMoves(fen,'Spiele e4, vermeide e5.', ['e4']),['e5']);
  assert.deepEqual(unverifiedProseMoves(fen,'Strategie, Bauernstruktur und Raumgewinn.',[]),[]);
 });
+test('German prose SAN matches Stockfish SAN and still catches unchecked moves',()=>{
+ assert.deepEqual(unverifiedProseMoves(fen,'Tb3+ ist der Vorschlag; a2 wäre ein Vergleich.', ['Rb3+']),['a2']);
+ assert.deepEqual(unverifiedProseMoves(fen,'Txa2 ist nicht geprüft.', ['Rxa2']),[]);
+});
 test('free prose permits verified historical game references but still blocks an unchecked suggestion',()=>{
  assert.deepEqual(unverifiedProseMoves(fen,'Nach 1. e4 wurde d4 als Alternative genannt.',[],['e4']),['d4']);
 });
