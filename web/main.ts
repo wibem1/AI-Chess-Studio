@@ -22,7 +22,7 @@ import { ServerModelAdapter } from '../src/model-client.js';
 import { checkTactics, ServerTacticalAdapter, validateTacticalReport, type TacticalReport } from '../src/tactics.js';
 import {BrowserTacticalAdapter} from '../src/browser-tactics.js';
 import {withStockfishAssessment} from '../src/stockfish-assist.js';
-import {checkProposedFirstMove} from '../src/plan-safety.js';
+import {checkProposedFirstMove,verifyModelCandidates} from '../src/plan-safety.js';
 import {fullGameContext,asksAboutGameQuality} from '../src/full-game-analysis.js';
 import {matchingFullGameAnalysis} from './full-game-ui.js';
 import {AutomaticStockfish} from './automatic-stockfish.js';
@@ -577,7 +577,17 @@ $('dialogue-form').addEventListener('submit', async event => {
           }
         }
       }
-      const result=await coachBoard.execute(call,node);boardActions.push({at:new Date().toISOString(),call,result});if(boardActions.length>20)boardActions.shift();if(!chatStopped)message('dialogue-feedback','Brettergebnis liegt vor; die Lernengine erläutert es …');return result;});
+      const result=await coachBoard.execute(call,node);boardActions.push({at:new Date().toISOString(),call,result});if(boardActions.length>20)boardActions.shift();if(!chatStopped)message('dialogue-feedback','Brettergebnis liegt vor; die Lernengine erläutert es …');return result;},
+      async(fen,moves)=>{
+        if(chatStopped)throw new Error('KI-Empfehlungsprüfung angehalten.');
+        message('dialogue-feedback','Stockfish überprüft die konkreten KI-Kandidaten …');
+        const check=await verifyModelCandidates(fen,moves,{
+          check:(f,candidate)=>candidate===null?getStockfishReport(f):
+            (isWebPlatform()?new BrowserTacticalAdapter():new ServerTacticalAdapter(platformFetch)).check(f,candidate)
+        });
+        if(chatStopped)throw new Error('KI-Empfehlungsprüfung angehalten.');
+        return check;
+      });
     lastAskFailed=false;lastAiError='';lastAiStage=result==='stored'?'answer_saved':'answer_discarded';
     message('dialogue-feedback', result === 'stored' ? (reviewInProgress?'Partieanalyse gespeichert. Schlüsselstellungen oben am Brett auswählen; die Ansicht kostet nichts.':'Modellantwort an der angefragten Stellung gespeichert.') : chatStopped?'Angehalten. Gezeigte Züge bleiben als Lernvariante erhalten.':'Veraltete Antwort nach Sitzungs- oder Chatwechsel verworfen.');
     render();

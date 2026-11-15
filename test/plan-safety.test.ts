@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {Chess} from 'chess.js';
-import {checkProposedFirstMove} from '../src/plan-safety.js';
+import {checkProposedFirstMove,verifyModelCandidates} from '../src/plan-safety.js';
 import {TACTICAL_LIMITS,type TacticalAdapter} from '../src/tactics.js';
 const fen=new Chess().fen();
 function adapter(best='e4',bestCp=50,forcedCp=-250):TacticalAdapter{
@@ -31,4 +31,21 @@ test('real Stockfish vetoes the lost-rook move in the reported endgame',async()=
  const engine=new StockfishService();
  const position='8/8/7k/R6P/1r6/p4K2/8/8 b - - 9 70';
  await assert.rejects(checkProposedFirstMove(position,'Rb5',{check:(fen,candidate)=>engine.check({fen,candidate})}),/Stockfish-Planprüfung: Rb5.*nicht vorgeführt/);
+});
+
+test('two model candidates share one baseline; losing candidate is explicitly excluded',async()=>{
+ const base=adapter(),calls:string[]=[];
+ const engine:TacticalAdapter={check:(f,c)=>{calls.push(c??'best');return base.check(f,c);}};
+ const result=await verifyModelCandidates(fen,['e4','a3'],engine);
+ assert.deepEqual(calls,['best','a3']);
+ assert.deepEqual(result.approved,['e4']);
+ assert.equal(result.rejected[0]?.san,'a3');
+ assert.match(result.rejected[0]!.reason,/nicht vorgeführt/);
+});
+test('engine outage never authorizes an unchecked candidate',async()=>{
+ const result=await verifyModelCandidates(fen,['d4'],{
+  async check(f,c){if(c!==null)throw new Error('Engine nicht erreichbar');return adapter().check(f,null);}
+ });
+ assert.equal(result.approved.length,0);
+ assert.match(result.rejected[0]!.reason,/Engine nicht erreichbar/);
 });

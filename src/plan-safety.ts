@@ -15,3 +15,28 @@ export async function checkProposedFirstMove(fen:string,san:string,engine:Tactic
  if(lossCp>=150)throw new Error(`Stockfish-Planprüfung: ${san} ist nach begrenzter Suche mindestens ${Math.round(lossCp)} Zentibauern schlechter als ${baseline.line[0]}. Die KI-Variante wird nicht vorgeführt; sie muss neu überdacht werden.`);
  return {best:baseline.line[0]!,proposed:san,lossCp:Math.round(lossCp),depth:Math.min(baseline.depth,forced.depth)};
 }
+
+/** Compare a short model-supplied list against one shared Stockfish baseline.
+ * Never convert a tentative result to a best-move/strategic certificate.
+ */
+export async function verifyModelCandidates(fen:string,moves:readonly string[],engine:TacticalAdapter):Promise<{approved:string[];rejected:{san:string;reason:string}[];notes:string[]}>{
+ if(moves.length>3||new Set(moves).size!==moves.length)throw new Error('Stockfish-Empfehlungsprüfung: zu viele oder doppelte Züge.');
+ const base=validateTacticalReport(await engine.check(fen,null),fen);
+ if(base.candidate!==null)throw new Error('Stockfish-Empfehlungsprüfung: Ausgangsbewertung fehlt.');
+ const approved:string[]=[],rejected:{san:string;reason:string}[]=[],notes:string[]=[];
+ const cached:TacticalAdapter={check:(position,candidate)=>{
+   if(position!==fen)throw new Error('Stockfish-Empfehlungsprüfung: Stellung gewechselt.');
+   return candidate===null?Promise.resolve(base):engine.check(position,candidate);
+ }};
+ for(const san of moves){
+   try{
+     const result=await checkProposedFirstMove(fen,san,cached);
+     approved.push(san);
+     notes.push(`${san}: begrenzter taktischer Check (Tiefe ${result.depth}, Abweichung etwa ${result.lossCp} cp). Keine Garantie für einen guten strategischen Plan.`);
+   }catch(error){
+     // Tactical rejection and unavailable engines both fail closed.
+     rejected.push({san,reason:error instanceof Error?error.message:'Stockfish-Prüfung fehlgeschlagen.'});
+   }
+ }
+ return {approved,rejected,notes};
+}

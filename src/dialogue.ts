@@ -54,7 +54,7 @@ export class Studio {
   constructor(public session = new Session()) {}
   restore(json: string): void { const next = Session.import(json); this.session = next; }
 
-  async ask(question: string, adapter: DialogueAdapter, topic:DialogueTopic='position',hintOverride?:HintMode,execute?:(call:CoachCall,expectedNode:string)=>Promise<CoachResult>): Promise<'stored' | 'discarded'> {
+  async ask(question: string, adapter: DialogueAdapter, topic:DialogueTopic='position',hintOverride?:HintMode,execute?:(call:CoachCall,expectedNode:string)=>Promise<CoachResult>,verifyCandidates?:(fen:string,moves:string[])=>Promise<{approved:string[];rejected:{san:string;reason:string}[];notes:string[]}>): Promise<'stored' | 'discarded'> {
     if (!question.trim()) throw new Error('Bitte eine Planfrage eingeben.');
     if(topic!=='chat'&&asksForGameReview(question)||asksForKeyMoments(question)){topic='review';hintOverride='explain';}
     const run=this.runRevision;
@@ -144,6 +144,24 @@ export class Studio {
     }
     const answerNode=recordedQuestion?expectedNode:nodeId,answerFacts=positionFacts(session.snapshot().nodes.find(n=>n.id===answerNode)!.fen);
     if(recordedQuestion)reply.candidates=[];
+    // Structured candidates are not independently verified by chess.js: legality alone is insufficient.
+    // A failed validation must also suppress the surrounding persuasive plan text.
+    if(adapter.source==='model'&&topic!=='review'&&hintMode==='explain'&&reply.candidates.length&&verifyCandidates){
+      const original=reply.candidates.slice();
+      const result=await verifyCandidates(request.fen,original);
+      if(!active())return 'discarded';
+      const accepted=new Set(result.approved);
+      if(result.rejected.length||original.some(san=>!accepted.has(san))){
+        const explanation=result.rejected.map(r=>r.san+': '+r.reason).join(' / ').slice(0,950);
+        const {assessment:_a,humanFactors:_h,...safe}=reply;
+        reply={...safe,message:'Die KI-Antwort enthielt mindestens einen nicht freigegebenen Zugvorschlag. Die zugehörige strategische Erklärung wurde vorsorglich zurückgehalten. '+(explanation||'Nicht alle Vorschläge sind bestätigt.'),plan:'',opponent:'',risks:'',playability:'',candidates:[],openQuestions:[],formatNotes:['Stockfish hat mindestens einen Vorschlag nicht bestätigt; die App zeigt keine ungeprüfte Planempfehlung.']};
+      }else{
+        reply.candidates=result.approved;
+        reply.formatNotes=[...(reply.formatNotes??[]),'Stockfish: '+result.notes.join(' ').slice(0,700)];
+      }
+    }else if(adapter.source==='model'&&topic!=='review'&&hintMode==='explain'&&!recordedQuestion){
+      reply.formatNotes=[...(reply.formatNotes??[]),'Freie KI-Formulierungen und Zugangaben im Text sind keine eigenständig geprüften Stockfish-Empfehlungen.'];
+    }
     if(adapter.source==='model' && !reply.message?.trim())throw new Error('Dialogantwort fehlt.');
     const retrospective=adapter.source==='model'&&topic==='review'&&hintMode==='explain'?validateGameReview(reply.gameReview,history,true):undefined;
     if(adapter.source==='model' && topic!=='review' && hintMode==='explain' && reply.assessment){
