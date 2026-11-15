@@ -3,6 +3,7 @@ import type {DeepReviewResult} from './deep-stockfish.js';
 import {normalizeModelReply} from './model-reply.js';
 import {asksForKeyMoments,asksForGameReview,validateGameReview,formatGameReview,type GameReview} from './game-review.js';
 import {Chess} from 'chess.js';
+import {unverifiedProseMoves} from './plan-safety.js';
 import {MAIA_PROFILES} from './maia-files.js';
 import {positionFacts,describeFacts,historyFacts,type PositionFacts} from './position-facts.js';
 import {strategicFeatures,type StrategicFeatures} from './strategic-features.js';
@@ -161,6 +162,21 @@ export class Studio {
       }
     }else if(adapter.source==='model'&&topic!=='review'&&hintMode==='explain'&&!recordedQuestion){
       reply.formatNotes=[...(reply.formatNotes??[]),'Freie KI-Formulierungen und Zugangaben im Text sind keine eigenständig geprüften Stockfish-Empfehlungen.'];
+    }
+    // Free prose is not a bypass for the structured Stockfish candidate gate.
+    // If a legal SAN occurs outside approved structured candidates, suppress the
+    // entire persuasive answer rather than leaving its unchecked rationale visible.
+    if(adapter.source==='model'&&topic!=='review'&&hintMode==='explain'&&!recordedQuestion){
+      const prose=[reply.message,reply.plan,reply.opponent,reply.risks,reply.playability,
+        reply.assessment?.reason,...(reply.assessment?.dangers??[]),
+        reply.humanFactors?.idea,reply.humanFactors?.calculation,
+        reply.humanFactors?.pitfalls,reply.humanFactors?.continuation].filter((v):v is string=>typeof v==='string').join(' ');
+      const unexpected=unverifiedProseMoves(request.fen,prose,reply.candidates);
+      if(unexpected.length){
+        reply={message:'Die KI hat konkrete Züge im freien Text genannt, die nicht als Stockfish-geprüfte Kandidaten nachgewiesen sind. Die Antwort wurde vorsorglich zurückgehalten. Bitte eine neue Stellungserklärung auf Grundlage geprüfter Engine-Kandidaten anfordern.',
+          plan:'',opponent:'',risks:'',playability:'',candidates:[],openQuestions:[],
+          formatNotes:['Nicht freigegebene Zugnennungen: '+unexpected.slice(0,3).join(', ')+'. Es erfolgte kein zusätzlicher kostenpflichtiger Modellaufruf.']};
+      }
     }
     if(adapter.source==='model' && !reply.message?.trim())throw new Error('Dialogantwort fehlt.');
     let retrospective=adapter.source==='model'&&topic==='review'&&hintMode==='explain'?validateGameReview(reply.gameReview,history,true):undefined;
