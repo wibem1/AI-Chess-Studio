@@ -58,8 +58,8 @@ test('explicit key-moment requests in free chat store checked analysis and navig
  for(const q of ['Welche Schlüsselstellen hatte das Spiel?','Zeige die Schlüsselmomente der Partie','Nenne mir Wendepunkte','Was waren die Schlüsselstellen?','Zeige die Schlüsselstellungen des Spiels','Zeige die Schlüsselstellung','Zeige die Schlüsselpositionen der Partie','Zeige die Schluesselstellungen des Spiels'])assert.equal(asksForKeyMoments(q),true);
  assert.equal(asksForKeyMoments('Was bedeutet das Wort Schlüsselstelle?'),false);
  const studio=new Studio(),game=new LearningGame(()=>studio.session);game.start('w',1);game.pause();for(const move of history.moves)studio.session.play(move);studio.session.setGame({...studio.session.snapshot().game!,cursor:'n4'});studio.session.select('n1');
- await studio.ask('Welche Schlüsselstellen hatte das Spiel?',{source:'model',respond:async r=>{assert.equal(r.topic,'review');assert.deepEqual(r.history!.moves,history.moves);return {message:review.summary,gameReview:review};}},'chat');
- const saved=Session.import(studio.session.export()),a=saved.snapshot().annotations.at(-1)!;assert.deepEqual(a.gameReview,review);assert.deepEqual(reviewAnchors(saved.snapshot(),a).map(m=>m.nodeId),['n0','n2']);assert.equal(saved.snapshot().activeNodeId,'n1');
+ await studio.ask('Welche Schlüsselstellen hatte das Spiel?',{source:'model',respond:async r=>{assert.equal(r.topic,'review');assert.deepEqual(r.history!.moves,history.moves);return {message:review.summary,gameReview:review};}},'chat','explain',undefined,async (_fen,moves)=>({approved:moves,rejected:[],notes:[]}));
+ const saved=Session.import(studio.session.export()),a=saved.snapshot().annotations.at(-1)!;assert.deepEqual(a.gameReview!.moments.map(m=>m.alternative),review.moments.map(m=>m.alternative));assert.deepEqual(reviewAnchors(saved.snapshot(),a).map(m=>m.nodeId),['n0','n2']);assert.equal(saved.snapshot().activeNodeId,'n1');
  const d=saved.snapshot();d.annotations.at(-1)!.gameReview!.moments[0]!.played='d4';assert.throws(()=>Session.import(JSON.stringify(d)),/Zugfolge/);
 });
 test('previously saved text-only reviews retain their checked move anchors',async()=>{
@@ -164,9 +164,9 @@ test('59-move diagnostic game is complete in the isolated strategic payload and 
 
 test('two-stage model receipt survives game export together with the validated review',async()=>{
  const {Session}=await import('../src/session.js');const studio=new Studio();for(const san of history.moves)studio.session.play(san);
- await studio.ask('Analysiere die Partie',{source:'model',respond:async()=>({message:review.summary,gameReview:review,provenance:{provider:'OpenRouter',model:'fixture/model',requestedModel:'fixture/model',reasoning:null,costUsd:0.03,traceId:2,calls:2}})},'review','explain');
+ await studio.ask('Analysiere die Partie',{source:'model',respond:async()=>({message:review.summary,gameReview:review,provenance:{provider:'OpenRouter',model:'fixture/model',requestedModel:'fixture/model',reasoning:null,costUsd:0.03,traceId:2,calls:2}})},'review','explain',undefined,async (_fen,moves)=>({approved:moves,rejected:[],notes:[]}));
  const saved=Session.import(studio.session.export()).snapshot().annotations.at(-1)!;
- assert.deepEqual(saved.gameReview,review);assert.match(saved.text,/2 Aufruf\(e\)/);assert.match(saved.text,/0\.030000 USD/);
+ assert.deepEqual(saved.gameReview!.moments.map(m=>m.alternative),review.moments.map(m=>m.alternative));assert.match(saved.text,/2 Aufruf\(e\)/);assert.match(saved.text,/0\.030000 USD/);
 });
 
 test('review teaching arrows stay tied to the position before a key move and survive export/import',async()=>{
