@@ -1,5 +1,5 @@
 import {BrowserStore} from '../src/browser-store.js';
-import {importGameFile} from '../src/game-file.js';
+import {exportSessionPgn,importGameFile} from '../src/game-file.js';
 import {Session} from '../src/session.js';
 interface SavedGame {id:string;title:string;date:string;json:string}
 export function installGameLibrary(store:BrowserStore,read:()=>string,restore:(json:string)=>void,beforeLoad:()=>void|(()=>void)=()=>{}){
@@ -13,6 +13,8 @@ export function installGameLibrary(store:BrowserStore,read:()=>string,restore:(j
  $('save-game').addEventListener('click',async()=>{try{const entry=snapshot(title.value.trim()||'Meine Partie');await store.savedGames(entry);await refresh();list.value=entry.id;status('Partie mit Analyse, Schlüsselstellen, Kommentaren, Varianten und Lernchat auf diesem Gerät gespeichert.');}catch{status('Speichern fehlgeschlagen. Bitte die Partie als Datei sichern.');}});
  $('load-game').addEventListener('click',async()=>{try{const entry=(await store.savedGames()).find(g=>g.id===list.value);if(!entry)throw new Error();await load(entry.json);title.value=entry.title;}catch{status('Partie konnte nicht geladen werden. Die aktuelle Sitzung bleibt erhalten.');}});
  $('download-game').addEventListener('click',()=>{const url=URL.createObjectURL(new Blob([read()],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download=(title.value.trim()||'Meine Partie').replace(/[^\p{L}\p{N} _-]/gu,'_').slice(0,80)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);status('Partiedatei mit Kommentaren, Varianten und Lernchat exportiert. Sie enthält keinen API-Schlüssel.');});
+ $('download-pgn-game').addEventListener('click',()=>{try{const pgn=exportSessionPgn(Session.import(read()).snapshot(),title.value.trim()||'Chess Studio'),url=URL.createObjectURL(new Blob([pgn],{type:'application/x-chess-pgn;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download=(title.value.trim()||'Chess Studio').replace(/[^\p{L}\p{N} _-]/gu,'_').slice(0,80)+'.pgn';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);status('Partie als PGN-Datei exportiert.');}catch(error){failure(error);}});
+
  const failure=(error:unknown)=>{const reason=error instanceof Error&&error.message?error.message:'Datei oder Sicherung nicht lesbar.';status('Datei konnte nicht geladen werden: '+reason.slice(0,350)+' Die aktuelle Sitzung bleibt erhalten.');};
  const importText=async(text:string,name:string)=>{
   const imported=importGameFile(text,name,Session.import(read()).snapshot().orientation??'w');

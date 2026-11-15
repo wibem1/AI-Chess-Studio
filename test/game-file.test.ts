@@ -1,7 +1,8 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {importGameFile} from '../src/game-file.js';
+import {exportSessionPgn,importGameFile} from '../src/game-file.js';
 import {Session} from '../src/session.js';
+import {Chess} from 'chess.js';
 import {parsePgn,visibleReviewNodes,reviewLocked} from '../src/review.js';
 import {REVIEW_PGN} from './fixtures/review-game.js';
 test('foreign PGN opens fully browsable without assigning a player and survives JSON saving',()=>{
@@ -90,4 +91,21 @@ test('diagnosis retains the precise validation reason without leaking credential
  const {ModelDiagnostics}=await import('../src/model-diagnostics.js');const d=new ModelDiagnostics();
  d.start({}, {},'private-fixture-key').finish('failed','review_format',200,'Analyse verworfen: Bei 1. e4 ist Qh8 nicht legal. private-fixture-key');
  const report=JSON.stringify(d.export());assert.match(report,/Bei 1. e4/);assert.match(report,/Qh8/);assert.ok(!report.includes('private-fixture-key'));
+});
+
+test('PGN export preserves imported headers and comments and exports the full game, not the browsing cursor',()=>{
+ const imported=importGameFile(REVIEW_PGN,'foreign.pgn','b'),session=imported.session;
+ session.select('n2');
+ const output=exportSessionPgn(session.snapshot(),imported.title);
+ const parsed=parsePgn(output);
+ assert.deepEqual(parsed.moves.map(move=>move.san),parsePgn(REVIEW_PGN).moves.map(move=>move.san));
+ assert.equal(parsed.headers.White,'Ada');assert.equal(parsed.headers.Black,'wibem');
+ assert.match(output,/<img/);
+});
+test('PGN export serializes the current played line and a nonstandard starting FEN',()=>{
+ const start=new Chess();start.move('e4');
+ const session=new Session(start.fen());session.play('e5');session.play('Nf3');
+ const output=exportSessionPgn(session.snapshot(),'Exporttest'),parsed=parsePgn(output);
+ assert.deepEqual(parsed.moves.map(move=>move.san),['e5','Nf3']);
+ assert.equal(parsed.rootFen,start.fen());assert.equal(parsed.headers.Event,'Exporttest');
 });
