@@ -1,30 +1,20 @@
-# Chess Studio 1.12.0 – Veröffentlichungsprüfung läuft (15. November 2026)
+# Chess Studio 1.12.0 veröffentlicht – 15. November 2026
 
-Der ausdrückliche Veröffentlichungsauftrag liegt vor. PR #30 wurde nach erfolgreichem vollständigem CI-Lauf in `work` gemergt (Merge-Commit `b5b99c092c5e3860af800a3df4ec65f4e5ddad03`). Für den Release wurde die Version von 1.11.3 auf 1.12.0 angehoben; Paketdateien, Changelog und Releaseworkflow werden synchronisiert. Anschließend startet der vorhandene Releaseworkflow, der TypeScript, Node-Tests, Produktions-Build, Chromium-Regression, Manifest und erst danach das Pages-Deployment prüft. Die Veröffentlichung gilt erst nach erfolgreichem Workflow und verifiziertem BUILD.json als abgeschlossen.
+Der ausdrücklich beauftragte Release ist abgeschlossen. PR #30 wurde nach vollständig erfolgreicher CI in `work` übernommen. Der produktive GitHub Actions Releaseworkflow [Run 43698975121](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43698975121) ist erfolgreich: TypeScript, Node-Tests, Pages-Build, Chromium-Browser-/Engineprüfungen, Manifestvorbereitung, Übertragung nach `gh-pages` und anschließende Deployment-Statuskontrolle.
+
+Öffentliches `BUILD.json` auf `gh-pages` bestätigt Version **1.12.0**, Basis `/AI-Chess-Studio/` und Quellcommit `289663e73ecaaeef04f0de78911774bd796a0b25`. Live-Adresse: https://wibem1.github.io/AI-Chess-Studio/ .
 
 ## Inhalt dieses Releases
 
 - Stockfish-Partiebewertungen liegen vor der ersten Sol-Partieanalyse vor; eine unvollständige lokale Prüfung verhindert einen voreiligen Modellaufruf.
-- Strukturierte und frei formulierte konkrete Zugempfehlungen sowie Brettvorführungen und Alternativzüge in der Spielanalyse werden an der jeweiligen Stellung taktisch geprüft.
+- Strukturierte und frei formulierte konkrete Zugempfehlungen, Brettvorführungen und Alternativzüge in der Spielanalyse werden an der jeweiligen Stellung taktisch geprüft.
 - Nicht freigegebene Empfehlungen werden mit einem lokalen Hinweis unterdrückt. Historische Zugnennungen bleiben als Kontext zulässig.
-- Die Suchprüfung ist begrenzt und garantiert keine absolute Schachwahrheit; eine echte kostenpflichtige Sol-Antwort wurde nicht als Releaseprüfung ausgeführt.
+- Die Suchprüfung ist begrenzt und garantiert keine absolute Schachwahrheit. Es wurde keine kostenpflichtige Sol-Antwort als Releaseprüfung ausgeführt.
 
-## Prüfstand
+## Prüfnachweis
 
-Der Entwicklungsbranch-Workflow [Run 274](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43698384118) für Commit `8ee3a2f` war vollständig erfolgreich: TypeScript, Node-Test-Suite, Build, vollständige Chromium-Browserregression und Manifestprüfung. Der produktive Workflow für Version 1.12.0 steht noch aus.
+Der Entwicklungsbranch-Workflow [Run 274](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43698384118) und der produktive Releaseworkflow [Run 39](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43698975121) sind erfolgreich. Der produktive Lauf hat die App nach `gh-pages` übertragen und die Deploymentstatuskontrolle bestanden.
 
-
-# Stockfish-Sicherheit für freie KI-Zugempfehlungen – Code und Regressionstests bereit, CI ausstehend (15. November 2026)
-
-**Fortsetzung „weiter und fertigmachen“:** In PR #30 sind nun auch nicht strukturierte SAN-Zugnennungen in KI-Stellungsantworten abgesichert: `src/plan-safety.ts` erkennt eigenständige SAN-ähnliche Zugtokens im Modell-Fließtext einschließlich illegaler Modellhalluzinationen. `src/dialogue.ts` unterdrückt die gesamte freie Empfehlung und ihre zugehörigen Begründungen, falls eine Zugnennung nicht zu den zuvor freigegebenen strukturierten Stockfish-Kandidaten gehört. Dadurch kann ein Modell das Kandidatenfeld nicht mit einer überzeugenden ungesicherten Prosaempfehlung umgehen. Ein möglicher Fehlalarm wird bewusst gegenüber einer ungeprüften Freigabe in Kauf genommen. Bloße natürliche Strategiebeschreibungen ohne konkrete Zugnotation bleiben möglich. Die Sicherung betrifft SAN-ähnliche Nennungen, keine alltagssprachlich umschriebenen Züge.
-
-Zusätzlich werden in historischen Partieanalysen alternative SAN-Züge an der richtigen historischen FEN mit derselben begrenzten Stockfish-Sperre verifiziert; bei Verwerfung oder Engineausfall verschwinden Alternativzug, dessen Begründung und zugehörige optionale Pfeile/Schritte. Gespielte historische Züge und ihre Erklärung bleiben erhalten. Keine zusätzlichen KI-Provideraufrufe.
-
-**Neue Tests committed:** `test/dialogue.test.ts`, `test/plan-safety.test.ts`, `test/game-review.test.ts`. Bestehende Review-Fixtures an die Pflichtverifikation angepasst. Auf Commit `6b771ed5226ac68a3d1e2a3233c36e15ca62b82e` (vor dieser Statusdokumentation) ist noch **kein CI-Workflowlauf** nachgewiesen; GitHub liefert keinen PR-Workflow und keine kombinierten Statuschecks. Lokale vollständige Prüfung ist in dieser Sitzung nicht möglich, da das private Repository im Container nicht erreichbar ist (DNS/Netz). Daher **keine Behauptung bestandener TypeScript-/Node-/Chromium-Tests**, kein Versionssprung, keine Veröffentlichung. Öffentliche Version bleibt 1.11.3.
-
-**Nächster Pflichtschritt:** CI/Build/Browserregression für den aktualisierten PR #30 veranlassen, etwa über die vorhandenen Projektprüfmechanismen; Fehler ggf. beheben. Danach reale Sol-Qualität separat mit bewusstem Nutzer-Test und Diagnosedatei beurteilen; keine automatische kostenpflichtige KI-Probe. `AGENTS.md` untersagt Releases ohne ausdrücklichen Auftrag.
-
----
 
 # Historische KI-Alternativen mit Stockfish-Sperre – Implementierung noch ungeprüft (15. November 2026)
 
