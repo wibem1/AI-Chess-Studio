@@ -475,10 +475,11 @@ const enrichWithStockfish=async(request:import('../src/dialogue.js').DialogueReq
    const ready=await automaticScores?.ensure();
    if(request.topic==='review'&&!ready)throw new Error('Stockfish konnte die Partie nicht vollständig bewerten. Keine kostenpflichtige KI-Partieanalyse gestartet; Engine-Diagnose prüfen.');
  }
+ const moveSuggestion=/\b(?:zugvorschlag|welchen\s+zug|was\s+soll\s+ich\s+spielen|bester\s+zug)\b/i.test(request.question);
  const whole=matchingFullGameAnalysis(session);
- const reportContexts=whole?fullGameContext(whole):[];
+ const reportContexts=moveSuggestion?[]:whole?fullGameContext(whole):[];
  const reportPositions=whole?new Set([whole.rootFen,...whole.records.map(r=>r.after)]):undefined;
- const needsCurrent=!reportPositions?.has(request.fen);
+ const needsCurrent=moveSuggestion||!reportPositions?.has(request.fen);
  let positionContext:string|undefined;
  if(!needsCurrent){
    const node=data.nodes.find(n=>n.id===request.nodeId),score=node&&data.positionScores?.[node.id];
@@ -501,8 +502,14 @@ const enrichWithStockfish=async(request:import('../src/dialogue.js').DialogueReq
  // The report is primary evidence. The current position is added only when it
  // is not already part of the report; existing learning notes fill free slots.
  const extra=[...(positionContext?[positionContext]:[]),...(qualityNotice?[qualityNotice]:[])];
- const context=[...extra,...reportContexts,...(request.context??[])].slice(0,6);
+ const context=moveSuggestion
+  ?[...(positionContext?[positionContext]:[]),'Zugvorschlag: Verwende als Empfehlung ausschließlich den ersten Zug der Stockfish-Hauptvariante für diese Stellung. Keine ungeprüften Vergleichszüge nennen; knapp auf Deutsch erklären.']
+  :[...extra,...reportContexts,...(request.context??[])].slice(0,6);
  lastAiStage='context_prepared';
+ if(moveSuggestion){
+  const {gameHistory,history,turns,positionFacts,strategicFeatures,strategicPlans,planDevelopment,historyFacts,cachedDeepChecks,conversationTruncated,toolsEnabled,toolExchanges,...compact}=request;
+  return {...compact,context};
+ }
  return {...request,context};
 };
 const instructionsEditor=$<HTMLTextAreaElement>('general-ai-instructions');
