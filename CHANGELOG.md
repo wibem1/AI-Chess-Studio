@@ -1,5 +1,10 @@
 # Änderungen
 
+## 1.13.0 – PGN-Export
+
+- Partien und importierte PGN-Aufzeichnungen können als `.pgn`-Datei exportiert werden. Importierte PGN-Kopfzeilen und Kommentare bleiben bei unveränderter Partie erhalten; eigene Startstellungen werden mit FEN exportiert.
+
+
 ## 1.12.1 – günstiger und zuverlässiger Zugvorschlag (15. November 2026)
 
 - Einfache Zugfragen verwenden eine frische Stockfish-Hauptvariante und senden der KI nur Stellung, legale Züge und den knappen Engine-Befund statt des gesamten Partieverlaufs und alter Analyse.

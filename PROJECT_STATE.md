@@ -1,3 +1,9 @@
+# Chess Studio 1.13.0 – PGN-Export (Kandidat, 15. November 2026)
+
+PGN-Dateiexport ist auf Branch `feat/pgn-export-20261115` implementiert. Importierte Aufzeichnungen behalten beim Export ihre PGN-Kopfzeilen und Kommentare; laufende Partien und veränderte Stellungen werden als Zugfolge exportiert, einschließlich FEN bei abweichender Startstellung. Branch-Run 282 bestand Typprüfung, Node-Tests, Produktionsbuild, vollständige Chromium-Regression und Manifestprüfung. Die Versionsmetadaten 1.13.0 sind ergänzt; ein abschließender Kandidatenlauf für diesen Stand steht noch aus. Keine Veröffentlichung ohne gesonderte ausdrückliche Freigabe.
+
+---
+
 # Chess Studio 1.12.1 veröffentlicht – 15. November 2026
 
 PR #31 wurde nach erfolgreicher vollständiger Kandidaten-CI in `work` übernommen. Der produktive GitHub Actions Releaseworkflow [Run 40](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43707250333) ist erfolgreich: Typprüfung, Node-Tests, Pages-Build, Chromium-Browser-/Engineprüfungen, Manifestvorbereitung, Übertragung nach `gh-pages` und Deploymentstatuskontrolle.
