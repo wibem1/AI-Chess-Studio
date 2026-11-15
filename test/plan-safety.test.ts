@@ -55,3 +55,6 @@ test('free prose recognizes illegal and legal SAN tokens, but not embedded ordin
  assert.deepEqual(unverifiedProseMoves(fen,'Spiele e4, vermeide e5.', ['e4']),['e5']);
  assert.deepEqual(unverifiedProseMoves(fen,'Strategie, Bauernstruktur und Raumgewinn.',[]),[]);
 });
+test('free prose permits verified historical game references but still blocks an unchecked suggestion',()=>{
+ assert.deepEqual(unverifiedProseMoves(fen,'Nach 1. e4 wurde d4 als Alternative genannt.',[],['e4']),['d4']);
+});
