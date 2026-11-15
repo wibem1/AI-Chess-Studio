@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {Chess} from 'chess.js';
-import {checkProposedFirstMove,verifyModelCandidates} from '../src/plan-safety.js';
+import {checkProposedFirstMove,verifyModelCandidates,unverifiedProseMoves} from '../src/plan-safety.js';
 import {TACTICAL_LIMITS,type TacticalAdapter} from '../src/tactics.js';
 const fen=new Chess().fen();
 function adapter(best='e4',bestCp=50,forcedCp=-250):TacticalAdapter{
@@ -48,4 +48,10 @@ test('engine outage never authorizes an unchecked candidate',async()=>{
  });
  assert.equal(result.approved.length,0);
  assert.match(result.rejected[0]!.reason,/Engine nicht erreichbar/);
+});
+
+test('free prose recognizes illegal and legal SAN tokens, but not embedded ordinary words',()=>{
+ assert.deepEqual(unverifiedProseMoves(fen,'Spiele a3, statt e4.',[]),['a3','e4']);
+ assert.deepEqual(unverifiedProseMoves(fen,'Spiele e4, vermeide e5.', ['e4']),['e5']);
+ assert.deepEqual(unverifiedProseMoves(fen,'Strategie, Bauernstruktur und Raumgewinn.',[]),[]);
 });
