@@ -163,7 +163,39 @@ export class Studio {
       reply.formatNotes=[...(reply.formatNotes??[]),'Freie KI-Formulierungen und Zugangaben im Text sind keine eigenständig geprüften Stockfish-Empfehlungen.'];
     }
     if(adapter.source==='model' && !reply.message?.trim())throw new Error('Dialogantwort fehlt.');
-    const retrospective=adapter.source==='model'&&topic==='review'&&hintMode==='explain'?validateGameReview(reply.gameReview,history,true):undefined;
+    let retrospective=adapter.source==='model'&&topic==='review'&&hintMode==='explain'?validateGameReview(reply.gameReview,history,true):undefined;
+    // Every proposed alternative in a historical review must pass the same local
+    // tactical veto as an ordinary recommendation. Never present a merely legal
+    // alternative as engine-approved; on failure keep the historical teaching point.
+    if(retrospective){
+      const board=new Chess(history.rootFen),positions:string[]=[];
+      for(const san of history.moves){positions.push(board.fen());board.move(san);}
+      const verified=retrospective.moments.map(m=>({...m}));
+      for(const moment of verified){
+        if(!moment.alternative)continue;
+        let approved=false;
+        if(verifyCandidates){
+          try {
+            const result=await verifyCandidates(positions[moment.ply-1]!,[moment.alternative]);
+            if(!active())return 'discarded';
+            approved=result.rejected.length===0&&result.approved.length===1&&result.approved[0]===moment.alternative;
+          }catch {
+            if(!active())return 'discarded';
+            // Engine failure is not permission to display a tactical recommendation.
+          }
+        }
+        if(!approved){
+          moment.alternative='';
+          moment.reason='Der alternative KI-Zug wurde taktisch nicht freigegeben oder Stockfish war nicht verfügbar. Keine Zugempfehlung.';
+          // Model illustrations may visualize the unsafe move; do not display them.
+          delete moment.marks;
+          delete moment.steps;
+        }else{
+          moment.reason+=' (Alternative durch begrenzte Stockfish-Suche taktisch geprüft; keine strategische Garantie.)';
+        }
+      }
+      retrospective={...retrospective,moments:verified};
+    }
     if(adapter.source==='model' && topic!=='review' && hintMode==='explain' && reply.assessment){
       const f=answerFacts,winner=f.checkmate?(f.sideToMove==='w'?'black_advantage':'white_advantage'):f.mateInOne.length?(f.sideToMove==='w'?'white_advantage':'black_advantage'):undefined;
       if(winner&&reply.assessment.verdict!==winner)throw new Error('KI-Beurteilung widerspricht der regelgeprüften Mattsituation. Antwort nicht gespeichert.');
