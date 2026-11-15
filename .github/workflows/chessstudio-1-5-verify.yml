@@ -25,6 +25,7 @@ on:
       - feat/automatic-stockfish-evaluations-20261112
       - fix/analysis-buttons-snapshot-20261113
       - fix/repetition-aware-auto-stockfish-20261113
+      - feat/stockfish-move-advice-cost-20261115
       - fix/stockfish-silent-navigation-20261111
     paths:
       - .github/workflows/chessstudio-1-5-verify.yml

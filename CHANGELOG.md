@@ -1,5 +1,12 @@
 # Änderungen
 
+## 1.12.1 – günstiger und zuverlässiger Zugvorschlag (15. November 2026)
+
+- Einfache Zugfragen verwenden eine frische Stockfish-Hauptvariante und senden der KI nur Stellung, legale Züge und den knappen Engine-Befund statt des gesamten Partieverlaufs und alter Analyse.
+- Ein Remisanspruch durch dreifache Stellungswiederholung bleibt dabei berücksichtigt.
+- Deutsche Figurenkürzel wie „Tb3+“ werden mit der internationalen Stockfish-Zugnotation abgeglichen; so wird ein geprüfter Zug nicht wegen seiner deutschen Schreibweise fälschlich zurückgehalten.
+
+
 ## 1.12.0 – Stockfish zuerst, KI-Erklärungen taktisch abgesichert (15. November 2026)
 
 - Vollständige lokale Stockfish-Partiebewertungen bilden die Grundlage des KI-Partierückblicks; unvollständige Prüfungen sperren den Modellaufruf.

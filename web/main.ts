@@ -364,9 +364,9 @@ function stopStockfishSearch(){
  stockfishSearch?.cancel?.();
  stockfishSearch=undefined;
 }
-async function getStockfishReport(fen:string):Promise<TacticalReport>{
+async function getStockfishReport(fen:string,force=false):Promise<TacticalReport>{
  const cached=stockfishCache.get(fen);
- if(cached)return cached;
+ if(cached&&!force)return cached;
  if(stockfishSearch?.fen===fen)return stockfishSearch.promise;
  stopStockfishSearch();
  const adapter=isWebPlatform()?new BrowserTacticalAdapter():new ServerTacticalAdapter(platformFetch);
@@ -475,10 +475,11 @@ const enrichWithStockfish=async(request:import('../src/dialogue.js').DialogueReq
    const ready=await automaticScores?.ensure();
    if(request.topic==='review'&&!ready)throw new Error('Stockfish konnte die Partie nicht vollständig bewerten. Keine kostenpflichtige KI-Partieanalyse gestartet; Engine-Diagnose prüfen.');
  }
+ const moveSuggestion=/\b(?:zugvorschlag|welchen\s+zug|was\s+soll\s+ich\s+spielen|bester\s+zug)\b/i.test(request.question);
  const whole=matchingFullGameAnalysis(session);
- const reportContexts=whole?fullGameContext(whole):[];
+ const reportContexts=moveSuggestion?[]:whole?fullGameContext(whole):[];
  const reportPositions=whole?new Set([whole.rootFen,...whole.records.map(r=>r.after)]):undefined;
- const needsCurrent=!reportPositions?.has(request.fen);
+ const needsCurrent=moveSuggestion||!reportPositions?.has(request.fen);
  let positionContext:string|undefined;
  if(!needsCurrent){
    const node=data.nodes.find(n=>n.id===request.nodeId),score=node&&data.positionScores?.[node.id];
@@ -487,7 +488,7 @@ const enrichWithStockfish=async(request:import('../src/dialogue.js').DialogueReq
  if(needsCurrent){
   if(new Chess(request.fen).isGameOver())positionContext='Die angefragte Stellung ist beendet; dort gibt es keine weitere Stockfish-Hauptvariante. Matt/Remis ist regelgeprüft, nicht numerisch aus einer Suche abgeleitet.';
   else {
-   const checked=await withStockfishAssessment({...request,topic:'chat',context:[]},{check:(fen)=>getStockfishReport(fen)});
+   const checked=await withStockfishAssessment({...request,topic:'chat',context:[]},{check:(fen)=>getStockfishReport(fen,moveSuggestion)});
    positionContext=checked.context?.[0];
   }
  }
@@ -501,8 +502,19 @@ const enrichWithStockfish=async(request:import('../src/dialogue.js').DialogueReq
  // The report is primary evidence. The current position is added only when it
  // is not already part of the report; existing learning notes fill free slots.
  const extra=[...(positionContext?[positionContext]:[]),...(qualityNotice?[qualityNotice]:[])];
- const context=[...extra,...reportContexts,...(request.context??[])].slice(0,6);
+ let repetitionNotice='';
+ if(moveSuggestion&&request.history){
+  try{
+   const pathBoard=new Chess(request.history.rootFen);
+   for(const san of request.history.moves)pathBoard.move(san);
+   if(pathBoard.fen()===request.fen&&pathBoard.isThreefoldRepetition())repetitionNotice='Die aktuelle Stellung ist dreimal aufgetreten; der Spieler am Zug kann Remis durch dreifache Stellungswiederholung beanspruchen.';
+  }catch{/* Invalid/truncated history is not used as a rule claim. */}
+ }
+ const context=moveSuggestion
+  ?[...(positionContext?[positionContext]:[]),...(repetitionNotice?[repetitionNotice]:[]),'Zugvorschlag: Verwende als Empfehlung ausschließlich den ersten Zug der Stockfish-Hauptvariante für diese Stellung. Keine ungeprüften Vergleichszüge nennen; knapp auf Deutsch erklären.']
+  :[...extra,...reportContexts,...(request.context??[])].slice(0,6);
  lastAiStage='context_prepared';
+ if(moveSuggestion)return {nodeId:request.nodeId,fen:request.fen,question:request.question,legalMoves:request.legalMoves,context,...(request.hintMode?{hintMode:request.hintMode}:{}),topic:request.topic??'chat'};
  return {...request,context};
 };
 const instructionsEditor=$<HTMLTextAreaElement>('general-ai-instructions');
