@@ -1,3 +1,15 @@
+# Stockfish-Sicherheit für freie KI-Zugempfehlungen – Code und Regressionstests bereit, CI ausstehend (15. November 2026)
+
+**Fortsetzung „weiter und fertigmachen“:** In PR #30 sind nun auch nicht strukturierte SAN-Zugnennungen in KI-Stellungsantworten abgesichert: `src/plan-safety.ts` erkennt eigenständige SAN-ähnliche Zugtokens im Modell-Fließtext einschließlich illegaler Modellhalluzinationen. `src/dialogue.ts` unterdrückt die gesamte freie Empfehlung und ihre zugehörigen Begründungen, falls eine Zugnennung nicht zu den zuvor freigegebenen strukturierten Stockfish-Kandidaten gehört. Dadurch kann ein Modell das Kandidatenfeld nicht mit einer überzeugenden ungesicherten Prosaempfehlung umgehen. Ein möglicher Fehlalarm wird bewusst gegenüber einer ungeprüften Freigabe in Kauf genommen. Bloße natürliche Strategiebeschreibungen ohne konkrete Zugnotation bleiben möglich. Die Sicherung betrifft SAN-ähnliche Nennungen, keine alltagssprachlich umschriebenen Züge.
+
+Zusätzlich werden in historischen Partieanalysen alternative SAN-Züge an der richtigen historischen FEN mit derselben begrenzten Stockfish-Sperre verifiziert; bei Verwerfung oder Engineausfall verschwinden Alternativzug, dessen Begründung und zugehörige optionale Pfeile/Schritte. Gespielte historische Züge und ihre Erklärung bleiben erhalten. Keine zusätzlichen KI-Provideraufrufe.
+
+**Neue Tests committed:** `test/dialogue.test.ts`, `test/plan-safety.test.ts`, `test/game-review.test.ts`. Bestehende Review-Fixtures an die Pflichtverifikation angepasst. Auf Commit `6b771ed5226ac68a3d1e2a3233c36e15ca62b82e` (vor dieser Statusdokumentation) ist noch **kein CI-Workflowlauf** nachgewiesen; GitHub liefert keinen PR-Workflow und keine kombinierten Statuschecks. Lokale vollständige Prüfung ist in dieser Sitzung nicht möglich, da das private Repository im Container nicht erreichbar ist (DNS/Netz). Daher **keine Behauptung bestandener TypeScript-/Node-/Chromium-Tests**, kein Versionssprung, keine Veröffentlichung. Öffentliche Version bleibt 1.11.3.
+
+**Nächster Pflichtschritt:** CI/Build/Browserregression für den aktualisierten PR #30 veranlassen, etwa über die vorhandenen Projektprüfmechanismen; Fehler ggf. beheben. Danach reale Sol-Qualität separat mit bewusstem Nutzer-Test und Diagnosedatei beurteilen; keine automatische kostenpflichtige KI-Probe. `AGENTS.md` untersagt Releases ohne ausdrücklichen Auftrag.
+
+---
+
 # Historische KI-Alternativen mit Stockfish-Sperre – Implementierung noch ungeprüft (15. November 2026)
 
 **Fortsetzung:** In PR #30 wurde zusätzlich die taktische Prüfung für konkrete Alternativzüge des Partierückblicks eingebaut. Für jede Modellalternative wird die FEN unmittelbar vor dem betreffenden historischen Halbzug rekonstruiert und die vorhandene lokale Stockfish-Kandidatenprüfung aufgerufen. Nicht freigegebene Kandidaten und ihre Begründung werden entfernt; zugehörige Modellpfeile und Vorführschritte werden zur Sicherheit ebenfalls unterdrückt. Bei Engineausfall erfolgt ausdrücklich keine Freigabe; die Beschreibung des tatsächlich gespielten Zuges bleibt erhalten. Ein bestätigter Alternativzug erhält einen Hinweis auf die begrenzte Suchtiefe.
