@@ -1,10 +1,18 @@
-# Veröffentlichungsauftrag vom 15. November 2026 – noch blockiert
+# Chess Studio 1.12.0 – Veröffentlichungsprüfung läuft (15. November 2026)
 
-Der Nutzer hat ausdrücklich „veröffentlichen“ beauftragt. Die Freigabe zum Deployment liegt damit vor, **nicht jedoch der nach Entwicklungsstandards erforderliche Nachweis erfolgreicher Releaseprüfungen**. Für den aktuellen Entwicklungsbranch-Commit `4b7b224f152643977e114381325e85f414e79fea` liefert die GitHub-Anbindung weder PR-Workflowläufe noch Statuschecks. Das private Repository ist aus der lokalen Containerumgebung wegen fehlender DNS-Auflösung (`github.com`) nicht abrufbar. Der verfügbare GitHub-Connector kann Dateien/PRs bearbeiten, bietet aber keinen Workflow-Dispatch für einen neuen CI-Lauf. Ein Re-Run einer älteren Aktion würde den alten Code prüfen und gilt nicht als Nachweis für den neuen Commit.
+Der ausdrückliche Veröffentlichungsauftrag liegt vor. PR #30 wurde nach erfolgreichem vollständigem CI-Lauf in `work` gemergt (Merge-Commit `b5b99c092c5e3860af800a3df4ec65f4e5ddad03`). Für den Release wurde die Version von 1.11.3 auf 1.12.0 angehoben; Paketdateien, Changelog und Releaseworkflow werden synchronisiert. Anschließend startet der vorhandene Releaseworkflow, der TypeScript, Node-Tests, Produktions-Build, Chromium-Regression, Manifest und erst danach das Pages-Deployment prüft. Die Veröffentlichung gilt erst nach erfolgreichem Workflow und verifiziertem BUILD.json als abgeschlossen.
 
-**Ergebnis:** Keine Veröffentlichung, keine Versionsanhebung und kein Merge in `work`; die letzte bestätigte Web-App bleibt `1.11.3`. Der Releaseauftrag ist als ausstehend dokumentiert, nicht als erledigt. **Nächster Schritt:** vorhandenen CI-Workflow auf den aktuellen Branch-Commit auslösen und TypeScript-/Node-/Chromium-Prüfungen sowie Manifest kontrollieren; nur bei Erfolg Version/Lockfile/Changelog synchron ändern und den bestehenden Releaseworkflow zur Auslieferung nutzen. Keine kostenpflichtige Sol-Probe ohne gesonderte Notwendigkeit.
+## Inhalt dieses Releases
 
----
+- Stockfish-Partiebewertungen liegen vor der ersten Sol-Partieanalyse vor; eine unvollständige lokale Prüfung verhindert einen voreiligen Modellaufruf.
+- Strukturierte und frei formulierte konkrete Zugempfehlungen sowie Brettvorführungen und Alternativzüge in der Spielanalyse werden an der jeweiligen Stellung taktisch geprüft.
+- Nicht freigegebene Empfehlungen werden mit einem lokalen Hinweis unterdrückt. Historische Zugnennungen bleiben als Kontext zulässig.
+- Die Suchprüfung ist begrenzt und garantiert keine absolute Schachwahrheit; eine echte kostenpflichtige Sol-Antwort wurde nicht als Releaseprüfung ausgeführt.
+
+## Prüfstand
+
+Der Entwicklungsbranch-Workflow [Run 274](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43698384118) für Commit `8ee3a2f` war vollständig erfolgreich: TypeScript, Node-Test-Suite, Build, vollständige Chromium-Browserregression und Manifestprüfung. Der produktive Workflow für Version 1.12.0 steht noch aus.
+
 
 # Stockfish-Sicherheit für freie KI-Zugempfehlungen – Code und Regressionstests bereit, CI ausstehend (15. November 2026)
 
