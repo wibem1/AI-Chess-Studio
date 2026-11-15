@@ -514,7 +514,7 @@ const enrichWithStockfish=async(request:import('../src/dialogue.js').DialogueReq
   ?[...(positionContext?[positionContext]:[]),...(repetitionNotice?[repetitionNotice]:[]),'Zugvorschlag: Verwende als Empfehlung ausschließlich den ersten Zug der Stockfish-Hauptvariante für diese Stellung. Keine ungeprüften Vergleichszüge nennen; knapp auf Deutsch erklären.']
   :[...extra,...reportContexts,...(request.context??[])].slice(0,6);
  lastAiStage='context_prepared';
- if(moveSuggestion)return {nodeId:request.nodeId,fen:request.fen,question:request.question,legalMoves:request.legalMoves,context,hintMode:request.hintMode,topic:request.topic};
+ if(moveSuggestion)return {nodeId:request.nodeId,fen:request.fen,question:request.question,legalMoves:request.legalMoves,context,...(request.hintMode?{hintMode:request.hintMode}:{}),topic:request.topic??'chat'};
  return {...request,context};
 };
 const instructionsEditor=$<HTMLTextAreaElement>('general-ai-instructions');
