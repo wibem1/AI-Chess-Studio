@@ -364,9 +364,9 @@ function stopStockfishSearch(){
  stockfishSearch?.cancel?.();
  stockfishSearch=undefined;
 }
-async function getStockfishReport(fen:string):Promise<TacticalReport>{
+async function getStockfishReport(fen:string,force=false):Promise<TacticalReport>{
  const cached=stockfishCache.get(fen);
- if(cached)return cached;
+ if(cached&&!force)return cached;
  if(stockfishSearch?.fen===fen)return stockfishSearch.promise;
  stopStockfishSearch();
  const adapter=isWebPlatform()?new BrowserTacticalAdapter():new ServerTacticalAdapter(platformFetch);
@@ -488,7 +488,7 @@ const enrichWithStockfish=async(request:import('../src/dialogue.js').DialogueReq
  if(needsCurrent){
   if(new Chess(request.fen).isGameOver())positionContext='Die angefragte Stellung ist beendet; dort gibt es keine weitere Stockfish-Hauptvariante. Matt/Remis ist regelgeprüft, nicht numerisch aus einer Suche abgeleitet.';
   else {
-   const checked=await withStockfishAssessment({...request,topic:'chat',context:[]},{check:(fen)=>getStockfishReport(fen)});
+   const checked=await withStockfishAssessment({...request,topic:'chat',context:[]},{check:(fen)=>getStockfishReport(fen,moveSuggestion)});
    positionContext=checked.context?.[0];
   }
  }
