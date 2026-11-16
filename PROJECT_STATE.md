@@ -1,5 +1,10 @@
 # Projektstand
 
+## Architekturentscheidung vom 16.11.2026 – dynamische Modellauswahl
+- Benutzerentscheidung: Jede KI-fähige App soll Modelle dynamisch aus Provider-Katalogen laden, soweit technisch möglich; bestehende funktionierende Auswahl bleibt unverändert. Maßgeblich sind die zentralen Standards v1.1, Abschnitte 17–22.
+- Im hier dokumentierten Projektstand ist noch kein realer KI-Adapter nachgewiesen. **Nur Anforderung dokumentiert, nicht implementiert, nicht getestet, kein Release.** Bei Implementierung der KI-Anbindung anwenden; aktuellen Code/Branch vorher neu prüfen.
+
+
 Stand: 4. November 2026
 
 ## Ziel
