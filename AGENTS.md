@@ -9,3 +9,5 @@
 7. Automatisierte Tests bevorzugen; den Nutzer erst nach eigenen Prüfungen um einen kurzen gezielten Anwendungstest bitten. Mock-Tests belegen keine reale KI- oder Stockfish-Integration.
 8. Keine Veröffentlichung, Releases, Deployments oder Änderung der Repository-Sichtbarkeit ohne ausdrücklichen Auftrag. Keine automatischen GitHub-Actions-Workflows einrichten. Keine API-Schlüssel im Repository oder Browser speichern.
 9. Status präzise benennen: geplant, implementiert, statisch geprüft, simuliert getestet, mit realen Komponenten getestet, vom Nutzer bestätigt.
+
+10. Bei Entwicklung der realen KI-Anbindung die dynamische, anbieterübergreifende Modellauswahl gemäß globalen Standards 17–22 implementieren; keine fest codierte Auswahl nur einzelner Modellnamen. Bei Schachanalysen bleiben Engine-/Regelprüfung und KI-Erklärung getrennt. Vorhandene Modellfunktionen erst anhand aktuellen Codes feststellen.
