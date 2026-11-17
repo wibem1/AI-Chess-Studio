@@ -6,6 +6,7 @@ on:
     branches: [work]
     paths:
       - .github/workflows/chessstudio-1.0-release.yml
+      - e2e/maia.spec.ts
 
 permissions:
   contents: write
