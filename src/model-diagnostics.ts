@@ -43,7 +43,7 @@ export function compactModelDiagnostics(input:unknown):Record<string,unknown>{
    ...(typeof payload?.topic==='string'?{topic:payload.topic}:{}),
    ...(typeof payload?.hintMode==='string'?{hintMode:payload.hintMode}:{}),
    ...(Array.isArray(payload?.history?.moves)?{historyPlies:payload.history.moves.length}:{}),
-   ...(Array.isArray(payload?.context)?{contextParts:payload.context.length,contextCharacters:payload.context.reduce((n:number,x:unknown)=>n+(typeof x==='string'?x.length:0),0):{}),
+   ...(Array.isArray(payload?.context)?{contextParts:payload.context.length,contextCharacters:payload.context.reduce((n:number,x:unknown)=>n+(typeof x==='string'?x.length:0),0)}:{}),
    ...(typeof payload?.question==='string'?{questionCharacters:payload.question.length}:{})
   };
  };
