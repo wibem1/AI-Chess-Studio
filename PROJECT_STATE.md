@@ -1,3 +1,27 @@
+# Korrekturkandidat 1.14.0 – kompakter Diagnoseexport (17. November 2026)
+
+**Status:** Implementiert auf Branch `feat/compact-diagnostics-20261117`; nicht getestet, nicht veröffentlicht.
+
+- Standardexport: technische Fehlerdaten, Anbieter/Modell, Status, Laufzeit, Token-/Kostenangaben, Anfragegrößen sowie Antwortfelder und Länge eines `gameReview`-Überblicks. Rohprompts, Partie-/Chattexte, Züge, Stellungen und Modellprosa werden weggelassen.
+- Auswahl für vollständigen Export bleibt im Diagnosebereich vorhanden und verwendet den bestehenden vollständigen Bericht.
+- Enthält auch die Korrektur aus Kandidat 1.13.1: Überblickslimit auf 2.000 Zeichen.
+- Prüfungen nicht ausgeführt. Veröffentlichung erfordert erfolgreiche Projektprüfungen und ausdrücklichen Auftrag.
+- Nächster Schritt: Diagnoseexport anhand kompakter und ausführlicher Beispieldaten prüfen; danach vollständige Kandidatenprüfung.
+
+---
+
+# Korrekturkandidat 1.13.1 – Partieanalyse-Überblick (17. November 2026)
+
+**Status:** Implementierung auf Branch `fix/review-summary-limit-20261117`; nicht getestet, nicht veröffentlicht.
+
+- Die Diagnose von App-Version 1.13.0 zeigt: Beide OpenRouter-Aufrufe erhielten HTTP 200. Die erste Strategieantwort wurde akzeptiert. Der Verifikationsschritt lieferte ein strukturell passendes `gameReview` mit sechs gültigen Lernmomenten; sein Überblick war 1.543 Zeichen lang.
+- `validateGameReview` erlaubte bislang höchstens 1.200 Zeichen und verwarf damit die gesamte Antwort mit der allgemeinen Meldung über fehlende Pflichtfelder.
+- Korrektur: maximale Länge des Überblicks auf 2.000 Zeichen erhöht. Versionskandidat 1.13.1; package.json und package-lock.json synchronisiert.
+- Prüfungen wurden nicht ausgeführt. Veröffentlichung erfordert erfolgreiche Projektprüfungen und einen ausdrücklichen Auftrag.
+- Nächster Schritt: gezielte automatische Regressionsprüfung und vollständige Kandidatenprüfung; danach erst Veröffentlichung nach ausdrücklichem Auftrag.
+
+---
+
 # Chess Studio 1.13.0 veröffentlicht – 15. November 2026
 
 PR #32 wurde nach erfolgreicher vollständiger Kandidaten-CI in `work` übernommen (Quellcommit `029b6fa63e4d24f419f4a213e79c3f706898e24b`). Der produktive GitHub-Actions-Lauf [Run 43726664943](https://github.com/wibem1/AI-Chess-Studio/actions/runs/43726664943) ist vollständig erfolgreich: Typprüfung, Node-Tests, Pages-Build, Chromium-Browser-/Engineprüfungen, Übertragung nach `gh-pages` und Deploymentstatuskontrolle.
