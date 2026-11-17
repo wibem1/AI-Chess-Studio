@@ -1,5 +1,14 @@
 # Änderungen
 
+## 1.14.0 – Diagnoseexport mit Kurzbericht als Standard (Kandidat, nicht veröffentlicht)
+
+- Der normale Diagnoseexport enthält technische Fehlerdetails, Modell-/Anbietermetadaten, Laufzeiten, Nutzung und Antwortstruktur, aber keine Rohprompts, Zugfolgen, Stellungen, Chattexte oder Modellprosa.
+- Über dieselbe Auswahl lässt sich bei Bedarf weiterhin der vollständige Diagnosebericht exportieren.
+- Enthält die Korrektur aus 1.13.1: Partieanalyse-Überblicke bis 2.000 Zeichen werden akzeptiert.
+- Nicht getestet und nicht veröffentlicht.
+
+# Änderungen
+
 ## 1.13.1 – Korrekturkandidat, noch nicht veröffentlicht
 
 - Partieanalysen mit einem Überblick zwischen 1.201 und 2.000 Zeichen werden nicht mehr wegen der internen Längenbegrenzung verworfen. Die Modellantwort der Diagnose hatte 1.543 Zeichen und erfüllte die übrigen Strukturprüfungen.
