@@ -1,5 +1,12 @@
 # Änderungen
 
+## 1.13.1 – Korrekturkandidat, noch nicht veröffentlicht
+
+- Partieanalysen mit einem Überblick zwischen 1.201 und 2.000 Zeichen werden nicht mehr wegen der internen Längenbegrenzung verworfen. Die Modellantwort der Diagnose hatte 1.543 Zeichen und erfüllte die übrigen Strukturprüfungen.
+- Noch nicht getestet und nicht veröffentlicht.
+
+# Änderungen
+
 ## 1.13.0 – PGN-Export
 
 - Partien und importierte PGN-Aufzeichnungen können als `.pgn`-Datei exportiert werden. Importierte PGN-Kopfzeilen und Kommentare bleiben bei unveränderter Partie erhalten; eigene Startstellungen werden mit FEN exportiert.
