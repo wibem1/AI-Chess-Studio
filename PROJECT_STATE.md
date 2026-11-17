@@ -1,3 +1,15 @@
+# Korrekturkandidat 1.14.0 – kompakter Diagnoseexport (17. November 2026)
+
+**Status:** Implementiert auf Branch `feat/compact-diagnostics-20261117`; nicht getestet, nicht veröffentlicht.
+
+- Standardexport: technische Fehlerdaten, Anbieter/Modell, Status, Laufzeit, Token-/Kostenangaben, Anfragegrößen sowie Antwortfelder und Länge eines `gameReview`-Überblicks. Rohprompts, Partie-/Chattexte, Züge, Stellungen und Modellprosa werden weggelassen.
+- Auswahl für vollständigen Export bleibt im Diagnosebereich vorhanden und verwendet den bestehenden vollständigen Bericht.
+- Enthält auch die Korrektur aus Kandidat 1.13.1: Überblickslimit auf 2.000 Zeichen.
+- Prüfungen nicht ausgeführt. Veröffentlichung erfordert erfolgreiche Projektprüfungen und ausdrücklichen Auftrag.
+- Nächster Schritt: Diagnoseexport anhand kompakter und ausführlicher Beispieldaten prüfen; danach vollständige Kandidatenprüfung.
+
+---
+
 # Korrekturkandidat 1.13.1 – Partieanalyse-Überblick (17. November 2026)
 
 **Status:** Implementierung auf Branch `fix/review-summary-limit-20261117`; nicht getestet, nicht veröffentlicht.
