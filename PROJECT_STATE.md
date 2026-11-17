@@ -1,14 +1,17 @@
-# Korrekturkandidat 1.14.0 – kompakter Diagnoseexport (17. November 2026)
+# Chess Studio 1.14.0 veröffentlicht – 17. November 2026
 
-**Status:** Implementiert auf Branch `feat/compact-diagnostics-20261117`; nicht getestet, nicht veröffentlicht.
+PR #33 enthält den kompakten Diagnoseexport und die Korrektur des Partieanalyse-Überblicks. PR #34 passt zwei Maia-Regressionsprüfungen an, damit sie für ihre Partiehistorie ausdrücklich den Vollbericht wählen. Der Quellstand `497f4f715cfcd80a3e2a62646c9327eb783142d4` wurde mit dem bestehenden Releaseworkflow [Run 44174370115](https://github.com/wibem1/AI-Chess-Studio/actions/runs/44174370115) geprüft und auf GitHub Pages veröffentlicht. Typprüfung, Node-Tests, Pages-Build, Browser-/Engineprüfungen und Deploymentkontrolle waren erfolgreich.
 
-- Standardexport: technische Fehlerdaten, Anbieter/Modell, Status, Laufzeit, Token-/Kostenangaben, Anfragegrößen sowie Antwortfelder und Länge eines `gameReview`-Überblicks. Rohprompts, Partie-/Chattexte, Züge, Stellungen und Modellprosa werden weggelassen.
-- Auswahl für vollständigen Export bleibt im Diagnosebereich vorhanden und verwendet den bestehenden vollständigen Bericht.
-- Enthält auch die Korrektur aus Kandidat 1.13.1: Überblickslimit auf 2.000 Zeichen.
-- Prüfungen nicht ausgeführt. Veröffentlichung erfordert erfolgreiche Projektprüfungen und ausdrücklichen Auftrag.
-- Nächster Schritt: Diagnoseexport anhand kompakter und ausführlicher Beispieldaten prüfen; danach vollständige Kandidatenprüfung.
+## Inhalt dieses Releases
+
+- Diagnoseexport nutzt standardmäßig einen Kurzbericht mit technischen Fehlerdaten, Anbieter/Modell, Status, Laufzeiten, Nutzung, Anfragegrößen sowie Antwortfeldern und Längenangaben.
+- Rohprompts, Chat- und Partietexte, Zugfolgen, Stellungen und Modellprosa werden im Kurzbericht weggelassen. Bei Bedarf bleibt der Vollbericht über dieselbe Auswahl verfügbar.
+- Partieanalyse-Überblicke bis 2.000 Zeichen werden akzeptiert; der gemeldete gültige Überblick mit 1.543 Zeichen wird nicht mehr verworfen.
+
+Live: https://wibem1.github.io/AI-Chess-Studio/
 
 ---
+
 
 # Korrekturkandidat 1.13.1 – Partieanalyse-Überblick (17. November 2026)
 
