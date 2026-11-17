@@ -48,6 +48,7 @@ test('diagnostic download contains the real Maia move even without an AI provide
  await page.locator('#settings-diagnosis > summary').click();
  if(await page.locator('#ai-diagnosis').getAttribute('open')===null)await page.locator('#ai-diagnosis > summary').click();
  const downloading=page.waitForEvent('download');
+ await page.locator('#ai-diagnose-scope').selectOption('full');
  await page.locator('#ai-diagnose-export').click();
  const download=await downloading;
  const fs=await import('node:fs/promises');
@@ -89,6 +90,7 @@ test('real Maia-2 opening move after 1.d4 excludes the reported 1-percent ...Na6
  await page.locator('#settings-diagnosis > summary').click();
  if(await page.locator('#ai-diagnosis').getAttribute('open')===null)await page.locator('#ai-diagnosis > summary').click();
  const downloading=page.waitForEvent('download');
+ await page.locator('#ai-diagnose-scope').selectOption('full');
  await page.locator('#ai-diagnose-export').click();
  const download=await downloading;
  const fs=await import('node:fs/promises');
