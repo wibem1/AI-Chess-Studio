@@ -1,11 +1,11 @@
 # Änderungen
 
-## 1.14.0 – Diagnoseexport mit Kurzbericht als Standard (Kandidat, nicht veröffentlicht)
+## 1.14.0 – Diagnoseexport mit Kurzbericht als Standard (17. November 2026)
 
 - Der normale Diagnoseexport enthält technische Fehlerdetails, Modell-/Anbietermetadaten, Laufzeiten, Nutzung und Antwortstruktur, aber keine Rohprompts, Zugfolgen, Stellungen, Chattexte oder Modellprosa.
 - Über dieselbe Auswahl lässt sich bei Bedarf weiterhin der vollständige Diagnosebericht exportieren.
 - Enthält die Korrektur aus 1.13.1: Partieanalyse-Überblicke bis 2.000 Zeichen werden akzeptiert.
-- Nicht getestet und nicht veröffentlicht.
+- Veröffentlichung nach erfolgreicher Typprüfung, Node-Tests, Pages-Build, Browser-/Engineprüfungen und Deploymentkontrolle. [Releaseworkflow 44174370115](https://github.com/wibem1/AI-Chess-Studio/actions/runs/44174370115) erfolgreich; Quellcommit `497f4f715cfcd80a3e2a62646c9327eb783142d4`.
 
 # Änderungen
 
