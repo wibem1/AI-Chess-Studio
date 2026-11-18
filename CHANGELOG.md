@@ -1,10 +1,10 @@
 # Änderungen
 
-## Korrekturkandidat – Sprung zur Beschreibung einer Schlüsselstelle (18. November 2026)
+## 1.14.3 – zur Schlüsselstellenbeschreibung springen (18. November 2026, Kandidat)
 
 - Beim Auswählen einer Schlüsselstelle scrollt die Textausgabe zur passenden Beschreibung im Partierückblick; falls diese fehlt, zum Schlüsselstellen-Beschreibungsfeld.
-- Implementiert auf Branch `fix/key-moment-text-anchor-20261118`. Noch ungeprüft, nicht gemergt und nicht veröffentlicht; aktuelle Version bleibt 1.14.2.
-- Nach erfolgreicher Prüfung eine neue Patchversion vergeben und Veröffentlichung erst nach ausdrücklichem Auftrag.
+- Browserregression prüft, dass die Beschreibung der gewählten Schlüsselstelle im sichtbaren Textbereich liegt.
+- Vollständige Veröffentlichungskontrolle steht noch aus.
 
 ## 1.14.2 – kompakterer Partierückblick (18. November 2026, veröffentlicht)
 
