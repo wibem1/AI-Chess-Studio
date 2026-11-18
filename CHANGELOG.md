@@ -1,10 +1,11 @@
 # Änderungen
 
-## 1.14.3 – zur Schlüsselstellenbeschreibung springen (18. November 2026, Kandidat)
+## 1.14.3 – zur Schlüsselstellenbeschreibung springen (18. November 2026, veröffentlicht)
 
 - Beim Auswählen einer Schlüsselstelle scrollt die Textausgabe zur passenden Beschreibung im Partierückblick; falls diese fehlt, zum Schlüsselstellen-Beschreibungsfeld.
-- Browserregression prüft, dass die Beschreibung der gewählten Schlüsselstelle im sichtbaren Textbereich liegt.
-- Vollständige Veröffentlichungskontrolle steht noch aus.
+- Die Browserregression bestätigt, dass die Beschreibung der gewählten Schlüsselstelle sichtbar wird.
+- Releaseworkflow [44335261352](https://github.com/wibem1/AI-Chess-Studio/actions/runs/44335261352) bestand Typprüfung, Node-Tests, Pages-Build, Browser-/Engineprüfungen, Veröffentlichung und Deploymentkontrolle. Kostenpflichtige Modellaufrufe waren deaktiviert.
+- GitHub Pages BUILD.json bestätigt Version 1.14.3 und Quellcommit `c5d4a077e81f20fbc1d86f3f027c178e6e2b28da`. Live: https://wibem1.github.io/AI-Chess-Studio/.
 
 ## 1.14.2 – kompakterer Partierückblick (18. November 2026, veröffentlicht)
 
