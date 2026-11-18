@@ -1,10 +1,11 @@
 # Änderungen
 
-## 1.14.1 – Partierückblick trotz fehlerhafter Einzelstellen erhalten (Kandidat, 18. November 2026)
+## 1.14.1 – Partierückblick trotz fehlerhafter Einzelstellen erhalten (18. November 2026)
 
-- Fehlerhafte oder unvollständige einzelne KI-Schlüsselstellungen werden ausgelassen; die übrige Analyse bleibt erhalten, sofern mindestens zwei sicher geprüfte Lernmomente bestehen bleiben.
-- Der gespeicherte Rückblick kennzeichnet ausgelassene Stellen. Für eine Reparatur wird keine zusätzliche Modellanfrage ausgelöst.
-- Versionsnummer auf 1.14.1 erhöht. Die Prüfung und Veröffentlichung laufen über den bestehenden Releaseworkflow; sie erfolgen nur bei erfolgreichem Prüflauf.
+- Unvollständige oder falsch verknüpfte einzelne KI-Schlüsselstellungen werden ausgelassen; die übrige Analyse bleibt erhalten, wenn mindestens zwei sichere Lernmomente verbleiben.
+- Der Rückblick kennzeichnet ausgelassene Stellen. Es erfolgt keine zusätzliche Modellanfrage zur Reparatur.
+- GitHub Actions Run [44312830605](https://github.com/wibem1/AI-Chess-Studio/actions/runs/44312830605) bestand Typprüfung, Node-Tests, Pages-Build, Browser-/Engineprüfungen und Deploymentkontrolle. Kostenpflichtige Modellaufrufe waren deaktiviert.
+- GitHub Pages BUILD.json bestätigt Version 1.14.1 und Quellcommit `ce3ebe65f553de609d11e01ce0a5cbe46e619fcd`. Live: https://wibem1.github.io/AI-Chess-Studio/.
 
 
 ## 1.14.0 – Diagnoseexport mit Kurzbericht als Standard (17. November 2026)

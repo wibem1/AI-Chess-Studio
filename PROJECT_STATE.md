@@ -1,14 +1,20 @@
-# Korrekturkandidat 1.14.1 – Einzelne fehlerhafte Schlüsselstellungen abfangen (18. November 2026)
+# Chess Studio 1.14.1 veröffentlicht – 18. November 2026
 
-**Status:** Implementierung auf Branch `fix/review-partial-validation-20261118`; Prüfungen noch nicht ausgeführt, nicht veröffentlicht.
+PR #35 wurde in `work` übernommen. Der erste Releaseversuch [Run 44312617245](https://github.com/wibem1/AI-Chess-Studio/actions/runs/44312617245) stoppte in der Typprüfung an der strikten Optionaltypisierung des lokalen Prüfhinweises. Der Fehler wurde auf `work` korrigiert. Der vollständige Releaseworkflow [Run 44312830605](https://github.com/wibem1/AI-Chess-Studio/actions/runs/44312830605) war erfolgreich: Typprüfung, Node-Tests, Pages-Build, Browser-/Engineprüfungen, Veröffentlichung und Deploymentkontrolle.
 
-- `validateGameReview` verwirft nicht länger den vollständigen Modellrückblick, wenn einzelne Schlüsselstellungen fehlerhafte Zugbezüge oder unvollständige Beschreibungen enthalten.
-- Unsichere Einzelstellen werden nur bei der Live-Modellantwort ausgelassen; mindestens zwei geprüfte Stellen müssen übrig bleiben. Gespeicherte/importierte Analysen bleiben streng validiert.
-- Der Rückblick kennzeichnet das Auslassen, ohne eine weitere kostenpflichtige Reparaturanfrage auszulösen.
-- Versionskandidat 1.14.1; `package.json`, `package-lock.json` und `CHANGELOG.md` angepasst.
-- Regressionstest ergänzt: ein fehlerhafter Zugbezug wird ausgelassen; fünf gültige Stellen, der Hinweis und die Speicherung nach Neuladen bleiben erhalten, ohne zusätzliche Modellanfrage.
-- Der bestehende Releaseworkflow wird auf die betroffenen Quelldateien erweitert und auf Version 1.14.1 aktualisiert; Veröffentlichung nur bei erfolgreichem Lauf.
-- Nächster Schritt: PR #35 freigeben und Releaseworkflow abwarten.
+GitHub Pages `BUILD.json` bestätigt Version **1.14.1** und Quellcommit `ce3ebe65f553de609d11e01ce0a5cbe46e619fcd`. Live: https://wibem1.github.io/AI-Chess-Studio/.
+
+## Inhalt
+
+- Fehlerhafte oder unvollständige einzelne Schlüsselstellen werden ausgelassen, wenn mindestens zwei sicher geprüfte Lernmomente übrig bleiben.
+- Die übrige Analyse bleibt gespeichert und kennzeichnet ausgelassene Stellen. Es wird keine zusätzliche Reparaturanfrage gesendet.
+- Gespeicherte und importierte Rückblicke bleiben streng validiert.
+- Regressionstest deckt den falschen Zugbezug, fünf erhaltene Stellen, Hinweis, Speicherung/Neuladen und den einzelnen Modellantwort-Durchlauf ab.
+- Der Releaseworkflow lief mit `CHESS_ENABLE_PAID_API=0`; für die Prüfungen wurden keine kostenpflichtigen Modellaufrufe ausgelöst.
+
+## Prüfnachweis
+
+Run 44312830605 ist vollständig **success**. Die erste Typprüfung schlug fehl, wurde korrigiert und der vollständige Ablauf danach erfolgreich wiederholt.
 
 ---
 
