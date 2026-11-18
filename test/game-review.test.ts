@@ -38,7 +38,7 @@ test('server transport requires a retrospective and reserves its larger output w
  const draft='Weiß schwächt mit f3 und g4 den König; Schwarz nutzt mit der Dame die offene Diagonale h4–e1.';
  const service=new ModelService({enabled:true,apiKey:'fixture-only-secret',model:'fixture'},(async(_url,init)=>{
    calls++;const payload=JSON.parse(String(init!.body));
-   assert.equal(payload.max_completion_tokens,calls%2===1?1100:2600);
+   assert.equal(payload.max_completion_tokens,calls%2===1?1100:1600);
    if(calls%2===1){
      assert.equal(payload.messages.length,2);
      assert.deepEqual(JSON.parse(payload.messages[1].content).stockfishEvidence,[]);
