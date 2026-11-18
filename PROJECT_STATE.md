@@ -5,6 +5,7 @@
 - Analysekontext enthält weiterhin die vollständige SAN-Zugfolge und lokale Stockfish-Prüfung, aber nur noch vier auffällige Bewertungswechsel statt einer Bewertungstabelle für jeden Halbzug und wiederholter FENs.
 - Für den Partierückblick wird ein kurzer, themenspezifischer Systemprompt verwendet. Die Antwort soll zwei bis vier Lernmomente knapp erläutern.
 - Überlange Modelltexte werden begrenzt und die Kürzung in der Ausgabe gekennzeichnet. Die finale Tokenobergrenze sinkt auf 1.600; die zweistufige Prüfung und der lokal geprüfte Stockfish-Ablauf bleiben erhalten.
+- Vor-/Zurücknavigation durch Schlüsselstellen bewahrt die Scrollposition der Textausgabe.
 - Bestehende Prüfungen wurden an den kompakten Kontext angepasst. Tests wurden in diesem Auftrag nicht ausgeführt. Nicht veröffentlicht.
 
 ---
