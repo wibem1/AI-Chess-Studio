@@ -1,12 +1,15 @@
-# Chess Studio 1.14.2 – Kürzungskandidat, noch nicht veröffentlicht (18. November 2026)
+# Chess Studio 1.14.2 veröffentlicht – 18. November 2026
 
-## Geplante Änderung
+Der vollständige Releaseworkflow [Run 44323998251](https://github.com/wibem1/AI-Chess-Studio/actions/runs/44323998251) war erfolgreich: Typprüfung, Node-Tests, Pages-Build, Browser-/Engineprüfungen, Veröffentlichung und Deploymentkontrolle. Kostenpflichtige Modellaufrufe waren deaktiviert.
 
-- Analysekontext enthält weiterhin die vollständige SAN-Zugfolge und lokale Stockfish-Prüfung, aber nur noch vier auffällige Bewertungswechsel statt einer Bewertungstabelle für jeden Halbzug und wiederholter FENs.
-- Für den Partierückblick wird ein kurzer, themenspezifischer Systemprompt verwendet. Die Antwort soll zwei bis vier Lernmomente knapp erläutern.
-- Überlange Modelltexte werden begrenzt und die Kürzung in der Ausgabe gekennzeichnet. Die finale Tokenobergrenze sinkt auf 1.600; die zweistufige Prüfung und der lokal geprüfte Stockfish-Ablauf bleiben erhalten.
-- Vor-/Zurücknavigation durch Schlüsselstellen bewahrt die Scrollposition der Textausgabe.
-- Bestehende Prüfungen wurden an den kompakten Kontext angepasst. Tests wurden in diesem Auftrag nicht ausgeführt. Nicht veröffentlicht.
+GitHub Pages `BUILD.json` bestätigt Version **1.14.2** und Quellcommit `2e1ade8a489060e61b815bda6fccc3a3402a148a`. Live: https://wibem1.github.io/AI-Chess-Studio/.
+
+## Inhalt
+
+- Die vollständige SAN-Zugfolge und lokale Stockfish-Prüfung bleiben erhalten; der KI-Kontext enthält nur noch einen kompakten Kurzbefund statt des ausführlichen Bewertungsverlaufs und wiederholter FENs.
+- Der spezialisierte Partierückblick konzentriert sich auf zwei bis vier Lernmomente. Überlange Antworten werden begrenzt und gekennzeichnet; das finale Tokenlimit liegt bei 1.600.
+- Beim Vor-/Zurückspringen durch Schlüsselstellen bleibt die Scrollposition der Textausgabe erhalten.
+- Die Browserprüfungen sichern die vollständige Partiehistorie getrennt vom kompakten KI-Kontext und prüfen die neue Ausgabeform.
 
 ---
 
