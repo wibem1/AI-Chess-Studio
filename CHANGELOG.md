@@ -1,5 +1,11 @@
 # Änderungen
 
+## Korrekturkandidat – Sprung zur Beschreibung einer Schlüsselstelle (18. November 2026)
+
+- Beim Auswählen einer Schlüsselstelle scrollt die Textausgabe zur passenden Beschreibung im Partierückblick; falls diese fehlt, zum Schlüsselstellen-Beschreibungsfeld.
+- Implementiert auf Branch `fix/key-moment-text-anchor-20261118`. Noch ungeprüft, nicht gemergt und nicht veröffentlicht; aktuelle Version bleibt 1.14.2.
+- Nach erfolgreicher Prüfung eine neue Patchversion vergeben und Veröffentlichung erst nach ausdrücklichem Auftrag.
+
 ## 1.14.2 – kompakterer Partierückblick (18. November 2026, veröffentlicht)
 
 - Für die KI bleiben vollständige Zugfolge und lokale Partieprüfung erhalten; der wiederholte Bewertungsverlauf und lange FEN-Listen entfallen aus dem Kontext.
