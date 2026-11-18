@@ -1,4 +1,4 @@
-name: ChessStudio 1.14.0 - kompakter Diagnoseexport
+name: ChessStudio 1.14.1 - rueckblick mit sicheren Schluesselstellen
 
 on:
   workflow_dispatch:
@@ -7,6 +7,10 @@ on:
     paths:
       - .github/workflows/chessstudio-1.0-release.yml
       - e2e/maia.spec.ts
+      - src/game-review.ts
+      - test/game-review.test.ts
+      - package.json
+      - package-lock.json
 
 permissions:
   contents: write
@@ -38,7 +42,7 @@ jobs:
         run: npm ci
       - name: Chromium fuer Browsertests installieren
         run: npx playwright install chromium
-      - name: Typpruefung fuer 1.14.0
+      - name: Typpruefung fuer 1.14.1
         run: npm run check
       - name: Build und Einzeltests
         run: npm test

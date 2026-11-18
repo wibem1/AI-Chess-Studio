@@ -6,7 +6,9 @@
 - Unsichere Einzelstellen werden nur bei der Live-Modellantwort ausgelassen; mindestens zwei geprüfte Stellen müssen übrig bleiben. Gespeicherte/importierte Analysen bleiben streng validiert.
 - Der Rückblick kennzeichnet das Auslassen, ohne eine weitere kostenpflichtige Reparaturanfrage auszulösen.
 - Versionskandidat 1.14.1; `package.json`, `package-lock.json` und `CHANGELOG.md` angepasst.
-- Nächster Schritt: Prüfungen durchführen, danach Kandidaten-PR/Veröffentlichung erst nach Auftrag.
+- Regressionstest ergänzt: ein fehlerhafter Zugbezug wird ausgelassen; fünf gültige Stellen, der Hinweis und die Speicherung nach Neuladen bleiben erhalten, ohne zusätzliche Modellanfrage.
+- Der bestehende Releaseworkflow wird auf die betroffenen Quelldateien erweitert und auf Version 1.14.1 aktualisiert; Veröffentlichung nur bei erfolgreichem Lauf.
+- Nächster Schritt: PR #35 freigeben und Releaseworkflow abwarten.
 
 ---
 
