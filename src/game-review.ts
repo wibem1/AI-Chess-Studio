@@ -131,6 +131,6 @@ export function validateGameReview(raw:unknown,history:{rootFen:string;moves:str
 export function formatGameReview(r:GameReview,history:{rootFen:string;moves:string[]}):string {
  const board=new Chess(history.rootFen),labels:string[]=[];
  for(const san of history.moves){labels.push(germanMoveFromFen(board.fen(),san));board.move(san);}
- const notice=r.notice==='invalid-moments-omitted'||r.notice==='text-shortened-and-invalid-moments-omitted'?'\n\nHinweis: Unvollständige Schlüsselstellungen wurden ausgelassen; es gab keine zusätzliche Modellanfrage.':r.notice==='text-shortened'?'\n\nHinweis: Zu lange Abschnitte wurden für die kompakte Anzeige gekürzt.':'';
+ const notice=r.notice==='invalid-moments-omitted'?'\n\nHinweis: Eine oder mehrere unvollständige KI-Schlüsselstellungen wurden ausgelassen. Keine zusätzliche Reparaturanfrage.':r.notice==='text-shortened-and-invalid-moments-omitted'?'\n\nHinweis: Eine oder mehrere unvollständige KI-Schlüsselstellungen wurden ausgelassen; lange Abschnitte wurden gekürzt. Keine zusätzliche Anfrage.':r.notice==='text-shortened'?'\n\nHinweis: Zu lange Abschnitte wurden für die kompakte Anzeige gekürzt.':'';
  return `Partierückblick\n${r.summary}${notice}\n\n${r.moments.map(m=>`${labels[m.ply-1]}\n${m.explanation}\n${m.alternative?`Alternative zum Prüfen: ${germanSan(m.alternative)}. `:''}${m.reason}`).join('\n\n')}\n\nFür deine nächste Partie: ${r.lesson}\n\nZüge und Alternativen sind regelgeprüft; strategische Einschätzungen bleiben vorläufig.`;
 }
