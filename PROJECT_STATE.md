@@ -1,3 +1,11 @@
+# Korrekturkandidat: Schlüsselstelle im Analysetext auffinden (18. November 2026)
+
+Branch: `fix/key-moment-text-anchor-20261118`. Beim Anklicken einer Schlüsselstelle springt die Textausgabe nun zur passenden Beschreibung des Lernmoments. Wenn im Analysetext kein passender Beschreibungsabschnitt gefunden wird, scrollt die Ansicht zur Beschreibung im Schlüsselstellenfeld.
+
+Der Code ist implementiert, aber noch nicht geprüft, gemergt oder veröffentlicht. Die Live-Version bleibt 1.14.2. Nächster Schritt: vorhandene Typ- und Browserprüfungen ausführen; erst nach erfolgreichem Nachweis eine Patchversion vergeben und über einen ausdrücklichen Veröffentlichungsauftrag ausliefern.
+
+---
+
 # Chess Studio 1.14.2 veröffentlicht – 18. November 2026
 
 Der vollständige Releaseworkflow [Run 44323998251](https://github.com/wibem1/AI-Chess-Studio/actions/runs/44323998251) war erfolgreich: Typprüfung, Node-Tests, Pages-Build, Browser-/Engineprüfungen, Veröffentlichung und Deploymentkontrolle. Kostenpflichtige Modellaufrufe waren deaktiviert.
