@@ -97,7 +97,7 @@ export function validateGameReview(raw:unknown,history:{rootFen:string;moves:str
  // A retrospective must discuss the path to the result, not only the last move.
  if(history.moves.length>=8 && safeMoments.every(m=>m.ply>history.moves.length-2))throw new ReviewValidationError('Analyse verworfen: Alle Schlüsselstellungen betreffen nur die Schlusszüge (letzten beiden Halbzüge).');
  if(!sanitizeInvalidAlternatives)return r;
- return {...r,moments:safeMoments,...(problems.length?{notice:'invalid-moments-omitted' as const}:{notice:undefined})};
+ return {...r,moments:safeMoments,...(problems.length||r.notice==='invalid-moments-omitted'?{notice:'invalid-moments-omitted' as const}:{notice:undefined})};
 }
 export function formatGameReview(r:GameReview,history:{rootFen:string;moves:string[]}):string {
  const board=new Chess(history.rootFen),labels:string[]=[];
