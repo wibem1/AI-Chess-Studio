@@ -6,6 +6,8 @@ import {germanSan,germanMoveFromFen} from './german-notation.js';
 
 export interface GameReview {
  summary:string;
+ /** Local note added when unsafe model key moments are omitted. */
+ notice?:'invalid-moments-omitted';
  moments:{ply:number;played:string;explanation:string;alternative:string;reason:string;marks?:BoardMark[];steps?:{text:string;marks:BoardMark[]}[]}[];
  lesson:string;
 }
@@ -37,6 +39,7 @@ export function validateGameReview(raw:unknown,history:{rootFen:string;moves:str
  const r=raw as GameReview|undefined;
  const text=(s:unknown,max:number)=>typeof s==='string'&&s.trim().length>0&&s.length<=max;
  if(!r||!text(r.summary,2000)||!text(r.lesson,800)||!Array.isArray(r.moments)||r.moments.length<Math.min(2,history.moves.length)||r.moments.length>6)throw new ReviewValidationError('Analyse verworfen: Erwartet werden ein Überblick, eine Lernfolgerung und zwei bis sechs Schlüsselstellungen (Lernmomente) mit Beschreibung.');
+ if(r.notice!==undefined&&r.notice!=='invalid-moments-omitted')throw new ReviewValidationError('Analyse verworfen: Unbekannter Prüfhinweis.');
  const board=new Chess(history.rootFen),before:string[]=[];
  for(const san of history.moves){before.push(board.fen());board.move(san);}
  const problems:string[]=[];
@@ -90,13 +93,15 @@ export function validateGameReview(raw:unknown,history:{rootFen:string;moves:str
   }else safeMoments.push(clean);
   previous=m.ply;
  }
- if(problems.length)throw new ReviewValidationError('Analyse verworfen: '+problems.join(' '));
+ if(problems.length&&(!sanitizeInvalidAlternatives||safeMoments.length<Math.min(2,history.moves.length)))throw new ReviewValidationError('Analyse verworfen: '+problems.join(' '));
  // A retrospective must discuss the path to the result, not only the last move.
- if(history.moves.length>=8 && r.moments.every(m=>m.ply>history.moves.length-2))throw new ReviewValidationError('Analyse verworfen: Alle Schlüsselstellungen betreffen nur die Schlusszüge (letzten beiden Halbzüge).');
- return sanitizeInvalidAlternatives?{...r,moments:safeMoments}:r;
+ if(history.moves.length>=8 && safeMoments.every(m=>m.ply>history.moves.length-2))throw new ReviewValidationError('Analyse verworfen: Alle Schlüsselstellungen betreffen nur die Schlusszüge (letzten beiden Halbzüge).');
+ if(!sanitizeInvalidAlternatives)return r;
+ return {...r,moments:safeMoments,...(problems.length?{notice:'invalid-moments-omitted' as const}:{notice:undefined})};
 }
 export function formatGameReview(r:GameReview,history:{rootFen:string;moves:string[]}):string {
  const board=new Chess(history.rootFen),labels:string[]=[];
  for(const san of history.moves){labels.push(germanMoveFromFen(board.fen(),san));board.move(san);}
- return `Partierückblick\n${r.summary}\n\n${r.moments.map(m=>`${labels[m.ply-1]}\n${m.explanation}\n${m.alternative?`Alternative zum Prüfen: ${germanSan(m.alternative)}. `:''}${m.reason}`).join('\n\n')}\n\nFür deine nächste Partie: ${r.lesson}\n\nDie genannten Züge und Alternativen sind regelgeprüft. Ihre strategische Bewertung ist eine KI-Einschätzung; ohne gesonderten Faktencheck keine bestätigte Engineanalyse.`;
+ const notice=r.notice==='invalid-moments-omitted'?'\n\nHinweis: Eine oder mehrere unvollständige KI-Schlüsselstellungen wurden ausgelassen. Es wurde keine zusätzliche Modellanfrage zur Reparatur ausgelöst.':'';
+ return `Partierückblick\n${r.summary}${notice}\n\n${r.moments.map(m=>`${labels[m.ply-1]}\n${m.explanation}\n${m.alternative?`Alternative zum Prüfen: ${germanSan(m.alternative)}. `:''}${m.reason}`).join('\n\n')}\n\nFür deine nächste Partie: ${r.lesson}\n\nDie genannten Züge und Alternativen sind regelgeprüft. Ihre strategische Bewertung ist eine KI-Einschätzung; ohne gesonderten Faktencheck keine bestätigte Engineanalyse.`;
 }
