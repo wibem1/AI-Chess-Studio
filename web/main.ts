@@ -157,11 +157,14 @@ installScrollHelp(cancelBoardDrag);
 installPagePan();
 const reviewUI=installReviewUI(()=>studio.session,next=>{game.pause();studio.session=next;selected=null;},render);
 $('board-flip').addEventListener('click',()=>{const data=studio.session.snapshot();studio.session.orient((data.orientation??data.game?.human??'w')==='w'?'b':'w');render();});
+let lastRenderedAnswerNode:string|undefined;
 function render() {
   match.checkSelection();
   if(coachBoard.checkSelection()){studio.cancelAsk();activeAdapter?.cancel();}
   cancelBoardDrag();
   const data = studio.session.snapshot();
+  const answerScrollTop=lastRenderedAnswerNode!==undefined&&lastRenderedAnswerNode!==data.activeNodeId?document.getElementById('current-answer-body')?.scrollTop:undefined;
+  lastRenderedAnswerNode=data.activeNodeId;
   if(initialized)automaticScores?.sync();
   const current = data.nodes.find(n => n.id === data.activeNodeId)!;
   const learningView=$('workspace').dataset.activeView==='learn';
@@ -309,6 +312,7 @@ function render() {
       if(kind==='dialogue')(a===currentAnswer?answerBody:historyBody).append(entry);else container.append(entry);
     }
   }
+  if(answerScrollTop!==undefined){const answerBody=document.getElementById('current-answer-body');if(answerBody)answerBody.scrollTop=answerScrollTop;}
   keyMoments.render();
   const savedReview=keyMoments.hasReview();
   const reviewButton=$<HTMLButtonElement>('find-key-moments');
