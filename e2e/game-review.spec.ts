@@ -190,7 +190,7 @@ test('game analysis retains its original game position if user navigates during 
    return;
   }
   expect(payload.topic).toBe('review');expect(payload.history.moves).toEqual(['f3','e5','g4','Qh4#']);
-  expect(payload.context.join('')).toContain('Lokal geprüfte Stockfish-Partieanalyse');
+  expect(payload.context.join('')).toContain('Stockfish-Kurzbefund:');
   const response={message:'Partie überprüft.',candidates:[],openQuestions:[],gameReview:{
    summary:'Weißs König wurde geschwächt.',lesson:'Schachs vor Bauernzügen prüfen.',
    moments:[{ply:1,played:'f3',explanation:'Schwächt die Königsstellung.',alternative:'e4',reason:'Entwicklung fördern.'},{ply:3,played:'g4',explanation:'Ermöglicht Matt auf h4.',alternative:'g3',reason:'Weniger Schwächen.'}]}};
