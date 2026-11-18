@@ -106,7 +106,7 @@ test('single malformed model key moment is omitted while the paid review remains
  assert.equal(saved.gameReview!.moments.length,5);
  assert.equal(saved.gameReview!.notice,'invalid-moments-omitted');
  assert.match(saved.text,/unvollständige KI-Schlüsselstellungen wurden ausgelassen/);
- assert.match(saved.text,/Keine zusätzliche Reparaturanfrage/);
+ assert.match(saved.text,/Eine oder mehrere unvollständige KI-Schlüsselstellungen wurden ausgelassen\. Keine zusätzliche Reparaturanfrage/);
  const restored=Session.import(studio.session.export()).snapshot().annotations.at(-1)!;
  assert.equal(restored.gameReview!.moments.length,5);
  assert.equal(restored.gameReview!.notice,'invalid-moments-omitted');
