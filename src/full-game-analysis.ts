@@ -95,7 +95,7 @@ export async function scanFullGame(
  * here adds cost without improving the narrative.
  */
 export function fullGameSummary(report:FullGameAnalysis,maxIssues=4):string{
- const line=(p:PlayerQuality)=>`${p.side==='w'?'Weiß':'Schwarz'}: ${p.averageLossCp??'–'} cp mittlerer Bewertungsverlust, ${p.mistakes} Fehler, ${p.blunders} grobe Fehler`;
+ const line=(p:PlayerQuality)=>`${p.averageLossCp??'–'} cp mittlerer Bewertungsverlust, ${p.mistakes} Fehler, ${p.blunders} grobe Fehler`;
  const label=(r:ScoredMove)=>`${Math.ceil(r.ply/2)}${r.side==='w'?'.':'…'}${r.san}`;
  const score=(cp:number|null)=>cp===null?'?':`${cp>=0?'+':''}${(cp/100).toFixed(2)}`;
  const issues=report.records.filter(r=>r.lossCp!==null&&r.grade!=='gut')
