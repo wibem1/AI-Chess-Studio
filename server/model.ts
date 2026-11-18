@@ -9,7 +9,7 @@ import {COACH_ERRORS,CoachFailure,providerFailure,type CoachFailureCode} from '.
 import {validateGameReview,ReviewValidationError} from '../src/game-review.js';
 import { CostControl } from './costs.js';
 import type { CredentialsStore } from './credentials.js';
-import {ApiError,SYSTEM_PROMPT,FREE_CHAT_PROMPT,parseRequest,promptWithUserInstructions} from '../src/model-contract.js';
+import {ApiError,SYSTEM_PROMPT,GAME_REVIEW_PROMPT,FREE_CHAT_PROMPT,parseRequest,promptWithUserInstructions} from '../src/model-contract.js';
 export {ApiError,SYSTEM_PROMPT,parseRequest} from '../src/model-contract.js';
 import { validateReply, type DialogueRequest, type StrategicReply } from '../src/dialogue.js';
 
@@ -152,8 +152,8 @@ export class ModelService {
     signal?.throwIfAborted();
     const {generalInstructions:_,turns=[],toolExchanges,...currentRequest}=request;
     const finalRequest=qualitativePass?verifiedRequest(currentRequest,cleanStrategicDraft(qualitativePass.draft),deepChecks):currentRequest;
-    const instructionsPrompt=promptWithUserInstructions(request.topic==='chat'?FREE_CHAT_PROMPT:SYSTEM_PROMPT,request.generalInstructions);
-  const outputTokens=retrospective?2600:request.topic==='chat'?1800:800;
+    const instructionsPrompt=promptWithUserInstructions(request.topic==='chat'?FREE_CHAT_PROMPT:retrospective?GAME_REVIEW_PROMPT:SYSTEM_PROMPT,request.generalInstructions);
+  const outputTokens=retrospective?1600:request.topic==='chat'?1800:800;
     const body=JSON.stringify({model:this.config.model,...generationOptions(this.config,outputTokens),...providerToolFields(this.config,request),...(request.topic==='chat'?{}:{response_format:{type:'json_object'}}),
       messages:[{role:'system',content:instructionsPrompt},...turns.map(t=>({role:t.role,content:`[Stellung ${t.nodeId}${t.fen?`, FEN ${t.fen}`:''}] ${t.text}`})),{role:'user',content:JSON.stringify(finalRequest)},...(providerOf(this.config)==='openrouter'?this.continuity.restore(coachProviderMessages(request)):coachProviderMessages(request))]});
     let reservation:number;
