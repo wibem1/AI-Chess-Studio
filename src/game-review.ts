@@ -6,8 +6,8 @@ import {germanSan,germanMoveFromFen} from './german-notation.js';
 
 export interface GameReview {
  summary:string;
- /** Local note added when unsafe model key moments are omitted. */
- notice?:'invalid-moments-omitted';
+ /** Local note when prose is shortened or an unsafe key moment is omitted. */
+ notice?:'invalid-moments-omitted'|'text-shortened'|'text-shortened-and-invalid-moments-omitted';
  moments:{ply:number;played:string;explanation:string;alternative:string;reason:string;marks?:BoardMark[];steps?:{text:string;marks:BoardMark[]}[]}[];
  lesson:string;
 }
@@ -34,12 +34,34 @@ export function asksForGameReview(question:string):boolean {
  return asksForKeyMoments(question)||/\b(?:analysier\w*|besprich|untersuch\w*|beurteil\w*)\s+(?:(?:bitte|mir)\s+)*(?:(?:das|die|mein(?:e)?|dieses?|gesamte|ganze|bisherige)\s+)*(?:spiel|partie)\b/iu.test(question);
 }
 export class ReviewValidationError extends Error {}
+function compactReviewText(value:string,limit:number):{text:string;shortened:boolean}{
+ const text=value.trim();
+ if(text.length<=limit)return {text,shortened:false};
+ const candidate=text.slice(0,limit);
+ const sentence=Math.max(candidate.lastIndexOf('. '),candidate.lastIndexOf('! '),candidate.lastIndexOf('? '));
+ const boundary=sentence>=limit*0.55?sentence+1:candidate.lastIndexOf(' ');
+ return {text:candidate.slice(0,boundary>0?boundary:limit).trimEnd()+'…',shortened:true};
+}
 export function validateGameReview(raw:unknown,history:{rootFen:string;moves:string[];truncated:boolean}|undefined,sanitizeInvalidAlternatives=false):GameReview {
  if(!history || history.truncated || !history.moves.length)throw new ReviewValidationError('Analyse verworfen: Die vollständige Zugfolge fehlt.');
- const r=raw as GameReview|undefined;
+ let r=raw as GameReview|undefined;
+  let textShortened=false;
+  if(sanitizeInvalidAlternatives&&r&&typeof r==='object'){
+   const summary=typeof r.summary==='string'?compactReviewText(r.summary,600):undefined;
+   const lesson=typeof r.lesson==='string'?compactReviewText(r.lesson,220):undefined;
+   const moments=Array.isArray(r.moments)?r.moments.map(m=>{
+    if(!m||typeof m!=='object')return m;
+    const explanation=typeof m.explanation==='string'?compactReviewText(m.explanation,320):undefined;
+    const reason=typeof m.reason==='string'?compactReviewText(m.reason,180):undefined;
+    textShortened=textShortened||!!explanation?.shortened||!!reason?.shortened;
+    return {...m,...(explanation?{explanation:explanation.text}:{}),...(reason?{reason:reason.text}:{})};
+   }):r.moments;
+   textShortened=!!summary?.shortened||!!lesson?.shortened||textShortened;
+   r={...r,...(summary?{summary:summary.text}:{}),...(lesson?{lesson:lesson.text}:{}),moments};
+  }
  const text=(s:unknown,max:number)=>typeof s==='string'&&s.trim().length>0&&s.length<=max;
  if(!r||!text(r.summary,2000)||!text(r.lesson,800)||!Array.isArray(r.moments)||r.moments.length<Math.min(2,history.moves.length)||r.moments.length>6)throw new ReviewValidationError('Analyse verworfen: Erwartet werden ein Überblick, eine Lernfolgerung und zwei bis sechs Schlüsselstellungen (Lernmomente) mit Beschreibung.');
- if(r.notice!==undefined&&r.notice!=='invalid-moments-omitted')throw new ReviewValidationError('Analyse verworfen: Unbekannter Prüfhinweis.');
+ if(r.notice!==undefined&&!['invalid-moments-omitted','text-shortened','text-shortened-and-invalid-moments-omitted'].includes(r.notice))throw new ReviewValidationError('Analyse verworfen: Unbekannter Prüfhinweis.');
  const board=new Chess(history.rootFen),before:string[]=[];
  for(const san of history.moves){before.push(board.fen());board.move(san);}
  const problems:string[]=[];
@@ -98,13 +120,17 @@ export function validateGameReview(raw:unknown,history:{rootFen:string;moves:str
  if(history.moves.length>=8 && safeMoments.every(m=>m.ply>history.moves.length-2))throw new ReviewValidationError('Analyse verworfen: Alle Schlüsselstellungen betreffen nur die Schlusszüge (letzten beiden Halbzüge).');
  if(!sanitizeInvalidAlternatives)return r;
  const sanitized:GameReview={...r,moments:safeMoments};
- if(problems.length||r.notice==='invalid-moments-omitted')sanitized.notice='invalid-moments-omitted';
+ const hadOmission=problems.length>0||r.notice==='invalid-moments-omitted'||r.notice==='text-shortened-and-invalid-moments-omitted';
+ const hadShortening=textShortened||r.notice==='text-shortened'||r.notice==='text-shortened-and-invalid-moments-omitted';
+ if(hadOmission&&hadShortening)sanitized.notice='text-shortened-and-invalid-moments-omitted';
+ else if(hadOmission)sanitized.notice='invalid-moments-omitted';
+ else if(hadShortening)sanitized.notice='text-shortened';
  else delete sanitized.notice;
  return sanitized;
 }
 export function formatGameReview(r:GameReview,history:{rootFen:string;moves:string[]}):string {
  const board=new Chess(history.rootFen),labels:string[]=[];
  for(const san of history.moves){labels.push(germanMoveFromFen(board.fen(),san));board.move(san);}
- const notice=r.notice==='invalid-moments-omitted'?'\n\nHinweis: Eine oder mehrere unvollständige KI-Schlüsselstellungen wurden ausgelassen. Es wurde keine zusätzliche Modellanfrage zur Reparatur ausgelöst.':'';
- return `Partierückblick\n${r.summary}${notice}\n\n${r.moments.map(m=>`${labels[m.ply-1]}\n${m.explanation}\n${m.alternative?`Alternative zum Prüfen: ${germanSan(m.alternative)}. `:''}${m.reason}`).join('\n\n')}\n\nFür deine nächste Partie: ${r.lesson}\n\nDie genannten Züge und Alternativen sind regelgeprüft. Ihre strategische Bewertung ist eine KI-Einschätzung; ohne gesonderten Faktencheck keine bestätigte Engineanalyse.`;
+ const notice=r.notice==='invalid-moments-omitted'||r.notice==='text-shortened-and-invalid-moments-omitted'?'\n\nHinweis: Unvollständige Schlüsselstellungen wurden ausgelassen; es gab keine zusätzliche Modellanfrage.':r.notice==='text-shortened'?'\n\nHinweis: Zu lange Abschnitte wurden für die kompakte Anzeige gekürzt.':'';
+ return `Partierückblick\n${r.summary}${notice}\n\n${r.moments.map(m=>`${labels[m.ply-1]}\n${m.explanation}\n${m.alternative?`Alternative zum Prüfen: ${germanSan(m.alternative)}. `:''}${m.reason}`).join('\n\n')}\n\nFür deine nächste Partie: ${r.lesson}\n\nZüge und Alternativen sind regelgeprüft; strategische Einschätzungen bleiben vorläufig.`;
 }
