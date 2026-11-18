@@ -1,14 +1,14 @@
 {
   "kind": "github-pages-static-site",
   "project": "AI-Chess-Studio",
-  "version": "1.14.1",
+  "version": "1.14.2",
   "base": "/AI-Chess-Studio/",
-  "sourceCommit": "ce3ebe65f553de609d11e01ce0a5cbe46e619fcd",
+  "sourceCommit": "2e1ade8a489060e61b815bda6fccc3a3402a148a",
   "files": {
     ".nojekyll": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "_headers": "e85fa3d2710ecc531d0cf7f6450e98b0f13897d95e3bd1a257044a0297307007",
-    "assets/index-1WkcoCuh.js": "98c7b912bae355225b3158b52a45f56b438518f6bd4cce60eb286e4c6670ae8e",
     "assets/index-Dfd-6bvs.css": "541547e79828e8533d47e44b49d3761cb1ad76c15183d6893c97567c46958cfd",
+    "assets/index-yvshpryF.js": "5cc5d65cea8931137bda239631058cd636e9ff2a33d516058ac40433967fc61f",
     "assets/maia-worker-DeKSBr_z.js": "ed1de335d2c51f2e1ebfef265dbd11b797c24bd30ea3ee824202ba86539f27b5",
     "engine/maia2-blitz-ort1.31.1/LICENSES.txt": "7afe8181443f89ea89e57757aa1d27d105d0641eab569f91c02ff90ab83b7cf2",
     "engine/maia2-blitz-ort1.31.1/SOURCE.txt": "c2d6dc6e7938f5706275da6e0904dbbbc01388c18a6d8e068b9ff67e1785ce81",
@@ -22,10 +22,10 @@
     "icons/apple-touch-icon.png": "2f9e9df0e5c58ad5b29049dfb41bdbce823fcde3ec8bc8bbfc7a81b5194ebb31",
     "icons/icon-192.png": "b77a807d34977ba014cb045c48da4b1042e5a5cf60e260a7e3ec1c1098d52d85",
     "icons/icon-512.png": "8371b7a98f6ba5a86361cfef65f8124a79c3a0404bf387cebdb1a9ca8ba14a8c",
-    "index.html": "0238ec143e868fa55cd8fa949d2b14d15e12ee4637aeca280629a1fc217711c2",
+    "index.html": "d4c777d60e7c54b48723f5f7519369fb2466600d6ab7a700d3dce45ee12d73cf",
     "licenses/chess.js-LICENSE.txt": "0b3a3c2b4432a26bb18f9d06f5bba4de015bcc980306b7db28b06025495e2186",
     "licenses.html": "3b1f1198910aa3d7ee518633ab3f5d12796361decbc7bb6930dab38aa3a0dd6e",
     "manifest.webmanifest": "d23e56f8e2a5b47841765210084aca9cd86e2b80e14c6e7d1a7aacc1f56b32fa",
-    "service-worker.js": "e93a3ea81792286679cc7cc34b9ed9bfbb452cd3af96f5743f9e8d8e66140bb2"
+    "service-worker.js": "f6327ebf361e0fda5a6447c3df0bbd2bdbb6f09c6b36ddc1f9a1ed13a0d93984"
   }
 }
