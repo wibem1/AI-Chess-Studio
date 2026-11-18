@@ -279,7 +279,10 @@ function render() {
   message('dialogue-anchor',`Gespräch zur Stellung ${current.id}${data.labels?.[current.id]?' · '+data.labels[current.id]:''}. Das bisherige Gespräch bleibt mit seinem jeweiligen Stellungsbezug sichtbar.`);
   const conversation=data.annotations.filter(a=>a.kind==='dialogue'&&allowed.has(a.nodeId));
   const lastQuestion=conversation.findLastIndex(a=>a.source==='human');
-  const currentAnswer=conversation.slice(lastQuestion+1).findLast(a=>a.source!=='human');
+  const isSavedAnswer=(a:typeof conversation[number])=>a.source!=='human'&&!a.text.startsWith(TOOL_RECORD);
+  // Board-action tool records belong in the conversation history, not in the answer panel.
+  // If a request fails, retain the most recent actual model/simulation answer, even from earlier.
+  const currentAnswer=conversation.slice(lastQuestion+1).findLast(isSavedAnswer)??(lastAskFailed?conversation.findLast(isSavedAnswer):undefined);
   const conversationRoot=$('dialogue');conversationRoot.replaceChildren();
   const answerBody=document.createElement('div'),historyBody=document.createElement('div');
   answerBody.id='current-answer-body';historyBody.id='chat-history-body';
