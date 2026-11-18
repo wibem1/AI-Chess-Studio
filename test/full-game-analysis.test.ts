@@ -74,7 +74,7 @@ test('real Maia-game move sequence: a hypothetical 6-pawn swing on 23…Nxd4 is 
  assert.equal(report.players.black.blunders,1);
  const context=fullGameContext(report).join('');
  assert.match(context,/23…Nxd4 \(grober Fehler, Verlust 600 cp/);
- assert.match(context,/Vollständiger chronologischer Verlauf aller 49 Halbzüge/);
+ assert.doesNotMatch(context,/chronologischer Verlauf aller 49 Halbzüge/);
  assert.ok(context.length<1000);
 });
 
