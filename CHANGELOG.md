@@ -1,5 +1,10 @@
 # Änderungen
 
+## 1.14.4 – gespeicherte Analyse nach Brettaktionen erhalten (Korrekturkandidat, 18. November 2026)
+
+- Brettaktionen werden nicht mehr als Antwort der KI angezeigt. Nach fehlgeschlagenen Anfragen bleibt die letzte echte Modellantwort im Antwortfeld sichtbar; Brettaktionen bleiben im Verlauf.
+- Noch nicht geprüft und nicht veröffentlicht.
+
 ## 1.14.3 – zur Schlüsselstellenbeschreibung springen (18. November 2026, veröffentlicht)
 
 - Beim Auswählen einer Schlüsselstelle scrollt die Textausgabe zur passenden Beschreibung im Partierückblick; falls diese fehlt, zum Schlüsselstellen-Beschreibungsfeld.
