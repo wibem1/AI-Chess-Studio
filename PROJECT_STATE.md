@@ -1,3 +1,9 @@
+# Chess Studio 1.14.4 – Korrekturkandidat (18. November 2026)
+
+Beim Anzeigen einer Brettaktion bleibt die letzte Modellantwort im Antwortfeld. Scheitert eine neue Anfrage, wird die vorherige echte Modell-/Simulationsantwort weiterhin angezeigt; Brettaktionen verbleiben im Verlauf. Änderung auf Branch `fix/preserve-analysis-response-20261118`; Prüfungen und Veröffentlichung stehen aus. Vorgesehener Quellstand: Version 1.14.4.
+
+---
+
 # Chess Studio 1.14.3 veröffentlicht – 18. November 2026
 
 Der vollständige Releaseworkflow [Run 44335261352](https://github.com/wibem1/AI-Chess-Studio/actions/runs/44335261352) war erfolgreich: Typprüfung, Node-Tests, Pages-Build, Browser-/Engineprüfungen, Veröffentlichung und Deploymentkontrolle. Kostenpflichtige Modellaufrufe waren deaktiviert. Die neue Browserregression zum Sprung auf die ausgewählte Schlüsselstellenbeschreibung ist im erfolgreichen Browserlauf enthalten.
