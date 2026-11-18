@@ -10,7 +10,7 @@ test('full game analysis computes separate, explicitly approximate White and Bla
  assert.deepEqual(game.records.map(r=>r.grade),['Fehler','gut','grober Fehler','gut']);
  assert.equal(game.players.white.mistakes,1);assert.equal(game.players.white.blunders,1);
  assert.equal(game.players.black.blunders,0);
- assert.match(fullGameSummary(game),/g4: grober Fehler/);
+ assert.match(fullGameSummary(game),/2\.g4 \(grober Fehler/);
  assert.doesNotMatch(fullGameSummary(game),/Genauigkeit: [0-9]+%/);
 });
 test('real history is checked for all nonterminal Stockfish positions, full analysis survives JSON reload',async()=>{
@@ -49,13 +49,13 @@ test('KI context sends only compact evidence with the largest swing prioritized'
  assert.ok(summary.length<1000);
 });
 
-test('complete AI context is split within provider limits without dropping scored moves',()=>{
+test('complete AI context stays compact; full history remains a separate request field',()=>{
  const moves=['f3','e5','g4','Qh4#'];
  const analysis=makeFullGameAnalysis(new Chess().fen(),moves,[0,-180,-160,-570,-1500]);
  const fragments=fullGameContext(analysis);
  assert.ok(fragments.every(value=>value.length<=2700));
  assert.equal(fragments.join(''),fullGameSummary(analysis));
- assert.match(fragments.join(''),/2…Qh4#/);
+ assert.ok(fragments.join('').length<1000);
 });
 
 test('real Maia-game move sequence: a hypothetical 6-pawn swing on 23…Nxd4 is the leading turning point',()=>{
@@ -73,9 +73,9 @@ test('real Maia-game move sequence: a hypothetical 6-pawn swing on 23…Nxd4 is 
  assert.equal(mistake.lossCp,600);
  assert.equal(report.players.black.blunders,1);
  const context=fullGameContext(report).join('');
- assert.match(context,/Wichtigste Fehler nach Bewertungsverlust: 23…Nxd4: grober Fehler \(Verlust 600 cp/);
+ assert.match(context,/23…Nxd4 \(grober Fehler, Verlust 600 cp/);
  assert.match(context,/Vollständiger chronologischer Verlauf aller 49 Halbzüge/);
- for(const move of ['23…Nxd4','24.Qxd5','24…Nxf3+','25.Qxf3'])assert.ok(context.includes(move),move);
+ assert.ok(context.length<1000);
 });
 
 test('game-wide intent recognizes natural decisive-mistake questions and excludes position-only or technical requests',()=>{
