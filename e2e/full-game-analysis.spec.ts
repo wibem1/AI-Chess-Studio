@@ -51,9 +51,10 @@ test('Stockfish scores the whole game automatically, without display switch or s
   const data=route.request().postDataJSON();
   const user=JSON.parse(data.messages.filter((m:{role:string})=>m.role==='user').at(-1).content);
   const context=user.context.join('');
-  expect(context).toContain('Lokal geprüfte Stockfish-Partieanalyse');
-  expect(context).toContain('Vollständiger chronologischer Verlauf aller 4 Halbzüge');
-  for(const move of ['1.f3','1…e5','2.g4','2…Qh4#'])expect(context).toContain(move);
+  expect(user.gameHistory.moves).toHaveLength(4);
+  expect(context).toContain('Stockfish-Kurzbefund:');
+  expect(context).toContain('2.g4');
+  expect(context.length).toBeLessThan(1000);
   return route.fulfill({json:{choices:[{finish_reason:'stop',message:{content:'Weiß machte kritische Fehler; Schwarz nutzte die offenen Diagonalen.'}}],usage:{prompt_tokens:100,completion_tokens:25}}});
  });
  await page.getByRole('tab',{name:'Lernmodus',exact:true}).click();
@@ -141,9 +142,10 @@ test('actual complete 109-ply Maia game gets its saved Stockfish evidence into a
   calls++;
   const data=route.request().postDataJSON(),user=JSON.parse(data.messages.filter((m:{role:string})=>m.role==='user').at(-1).content);
   const context=user.context.join('');
-  expect(context).toContain('Vollständiger chronologischer Verlauf aller 109 Halbzüge');
-  expect(context).toContain('23…Nxd4: grober Fehler');
-  expect(context).toContain('55.Qf6#');
+  expect(user.gameHistory.moves).toHaveLength(109);
+  expect(context).toContain('Stockfish-Kurzbefund:');
+  expect(context).not.toContain('Vollständiger chronologischer Verlauf');
+  expect(context.length).toBeLessThan(1500);
   return route.fulfill({json:{choices:[{finish_reason:'stop',message:{content:'23…Sxd4 ist der größte belegte Fehler; die Bewertung wechselt um ungefähr sechs Bauerneinheiten.'}}],usage:{prompt_tokens:500,completion_tokens:48}}});
  });
  await page.getByRole('tab',{name:'Lernmodus',exact:true}).click();
