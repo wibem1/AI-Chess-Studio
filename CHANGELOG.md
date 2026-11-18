@@ -1,12 +1,13 @@
 # Änderungen
 
-## 1.14.2 – kompakterer Partierückblick (18. November 2026, Kandidat)
+## 1.14.2 – kompakterer Partierückblick (18. November 2026, veröffentlicht)
 
 - Für die KI bleiben vollständige Zugfolge und lokale Partieprüfung erhalten; der wiederholte Bewertungsverlauf und lange FEN-Listen entfallen aus dem Kontext.
 - Partierückblicke verwenden einen kurzen, spezialisierten Prompt, wählen zwei bis vier Lernmomente und begrenzen überlange Abschnitte sichtbar.
 - Ausgabegrenze für den finalen Rückblick von 2.600 auf 1.600 Tokens gesenkt; die zweistufige Stockfish-Prüfung bleibt bestehen.
 - Vor-/Zurücknavigation durch Schlüsselstellen erhält die Scrollposition in der Textausgabe.
-- Kandidat, noch nicht getestet und nicht veröffentlicht.
+- Releaseworkflow [44323998251](https://github.com/wibem1/AI-Chess-Studio/actions/runs/44323998251) bestand Typprüfung, Node-Tests, Pages-Build, Browser-/Engineprüfungen, Veröffentlichung und Deploymentkontrolle. Kostenpflichtige Modellaufrufe waren deaktiviert.
+- GitHub Pages BUILD.json bestätigt Version 1.14.2 und Quellcommit `2e1ade8a489060e61b815bda6fccc3a3402a148a`. Live: https://wibem1.github.io/AI-Chess-Studio/.
 
 ## 1.14.1 – Partierückblick trotz fehlerhafter Einzelstellen erhalten (18. November 2026)
 
