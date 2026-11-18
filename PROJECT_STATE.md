@@ -1,3 +1,10 @@
+# Chess Studio 1.14.3 – Releasekandidat (18. November 2026)
+
+Beim Anklicken einer Schlüsselstelle scrollt die Textausgabe zur passenden Beschreibung des Lernmoments. Falls der Abschnitt dort nicht vorhanden ist, springt die Ansicht zur Beschreibung im Schlüsselstellenfeld. Eine Browserregression deckt den Textsprung ab.
+
+Branch: `fix/key-moment-text-anchor-20261118`. Paket- und Workflowversion sind auf 1.14.3 angehoben. Vollständige Prüfungen und Veröffentlichung stehen aus; zuletzt bestätigte Live-Version ist 1.14.2.
+---
+
 # Chess Studio 1.14.2 veröffentlicht – 18. November 2026
 
 Der vollständige Releaseworkflow [Run 44323998251](https://github.com/wibem1/AI-Chess-Studio/actions/runs/44323998251) war erfolgreich: Typprüfung, Node-Tests, Pages-Build, Browser-/Engineprüfungen, Veröffentlichung und Deploymentkontrolle. Kostenpflichtige Modellaufrufe waren deaktiviert.

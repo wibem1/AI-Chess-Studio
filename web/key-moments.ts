@@ -4,7 +4,7 @@ import {germanSan} from '../src/german-notation.js';
 import type {Session,SessionData} from '../src/session.js';
 import type {BoardMark} from '../src/coach-tools.js';
 import {reviewLocked,visibleReviewNodes} from '../src/review.js';
-export function installKeyMoments(current:()=>Session,jump:(node:string)=>void,refresh:()=>void=()=>{}){
+export function installKeyMoments(current:()=>Session,jump:(node:string)=>void,refresh:()=>void=()=>{},scrollToDescription:(analysis:number,ply:number)=>void=()=>{}){
  const nav=document.getElementById('key-moment-nav')!,previous=document.getElementById('key-moment-prev') as HTMLButtonElement,next=document.getElementById('key-moment-next') as HTMLButtonElement,status=document.getElementById('key-moment-status')!;
  nav.tabIndex=0;
  const card=document.createElement('details');card.id='key-review-result';card.className='key-review-result';card.hidden=true;card.open=true;card.setAttribute('aria-label','Gespeicherte Partieanalyse');
@@ -29,7 +29,7 @@ export function installKeyMoments(current:()=>Session,jump:(node:string)=>void,r
  const nextStage=(delta:number)=>{demonstrationIndex=Math.max(0,demonstrationIndex+delta);refresh();};
  stagePrevious.onclick=()=>nextStage(-1);stageNext.onclick=()=>nextStage(1);
  let selected:{session:Session;index:number;text:string}|undefined,anchors:ReviewAnchor[]=[],index=-1;
- const choose=(analysis:number,moment:number)=>{demonstrationIndex=0;demonstrationKey='';const session=current(),data=session.snapshot(),a=data.annotations[analysis];if(!a||reviewLocked(data))return;const items=reviewAnchors(data,a),item=items[moment];if(!item||!visibleReviewNodes(data).has(item.nodeId))return;selected={session,index:analysis,text:a.text};jump(item.nodeId);nav.focus({preventScroll:true});};
+ const choose=(analysis:number,moment:number)=>{demonstrationIndex=0;demonstrationKey='';const session=current(),data=session.snapshot(),a=data.annotations[analysis];if(!a||reviewLocked(data))return;const items=reviewAnchors(data,a),item=items[moment];if(!item||!visibleReviewNodes(data).has(item.nodeId))return;selected={session,index:analysis,text:a.text};jump(item.nodeId);nav.focus({preventScroll:true});scrollToDescription(analysis,item.ply);};
  const step=(offset:number)=>{if(!selected)return;choose(selected.index,index<0?(offset>0?0:anchors.length-1):index+offset);};
  previous.onclick=()=>step(-1);next.onclick=()=>step(1);
  nav.addEventListener('keydown',e=>{if(e.key!=='ArrowLeft'&&e.key!=='ArrowRight')return;e.preventDefault();e.stopPropagation();step(e.key==='ArrowLeft'?-1:1);});

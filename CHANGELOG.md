@@ -1,5 +1,11 @@
 # Änderungen
 
+## 1.14.3 – zur Schlüsselstellenbeschreibung springen (18. November 2026, Kandidat)
+
+- Beim Auswählen einer Schlüsselstelle scrollt die Textausgabe zur passenden Beschreibung im Partierückblick; falls diese fehlt, zum Schlüsselstellen-Beschreibungsfeld.
+- Browserregression prüft, dass die Beschreibung der gewählten Schlüsselstelle im sichtbaren Textbereich liegt.
+- Vollständige Veröffentlichungskontrolle steht noch aus.
+
 ## 1.14.2 – kompakterer Partierückblick (18. November 2026, veröffentlicht)
 
 - Für die KI bleiben vollständige Zugfolge und lokale Partieprüfung erhalten; der wiederholte Bewertungsverlauf und lange FEN-Listen entfallen aus dem Kontext.

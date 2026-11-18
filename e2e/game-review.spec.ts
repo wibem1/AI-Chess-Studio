@@ -69,6 +69,7 @@ test('key-position browser flow salvages one illegal alternative and keeps navig
  await expect(page.locator('#key-review-moment')).toContainText('Der erste Bauernvorstoß öffnete die Königsstellung.');
  await expect(page.locator('#key-review-moment')).toContainText('Keine ausreichend begründete konkrete Zug-Alternative.');
  await expect(page.locator('#position-status')).toHaveAttribute('data-node-id','n0');
+ await expect(page.locator('#dialogue .key-analysis-description').first()).toBeInViewport();
  await expect(page.locator('#board .board-marks line')).toHaveCount(2);
  await expect(page.locator('#key-moment-arrows')).toHaveText('Pfeile ausblenden');
  await page.locator('#key-stage-next').click();
