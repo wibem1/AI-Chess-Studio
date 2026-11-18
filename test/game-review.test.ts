@@ -92,6 +92,26 @@ test('model review with an illegal alternative preserves valid moments and never
  assert.throws(()=>validateGameReview(broken,history,true),/Analyse verworfen/);
 });
 
+test('single malformed model key moment is omitted while the paid review remains saved without retry',async()=>{
+ const {Session}=await import('../src/session.js');
+ const moves=['e4','e5','Nf3','Nc6','Bb5','a6','Ba4','Nf6','O-O','Be7'];
+ const candidate={...review,summary:'Weiß entwickelt sich ruhig; Schwarz antwortet aktiv und beide Seiten ringen um das Zentrum.',moments:moves.slice(0,6).map((played,index)=>({ply:index+1,played,explanation:'Dieser Zug verändert die Entwicklung oder den Kampf um das Zentrum.',alternative:'',reason:'Die konkrete Folge lässt sich an dieser Stellung prüfen.'})),lesson:'Vor jedem Plan die Gegenmöglichkeiten des Gegners prüfen.'};
+ candidate.moments[1]!.played='d4'; // Wrong link: the actual second half-move is e5.
+ const studio=new Studio();for(const move of moves)studio.session.play(move);
+ let providerRequests=0;
+ const result=await studio.ask('Analysiere die Partie',{source:'model',respond:async()=>{providerRequests++;return {message:candidate.summary,gameReview:candidate};}},'review','explain');
+ assert.equal(result,'stored');
+ assert.equal(providerRequests,1);
+ const saved=studio.session.snapshot().annotations.at(-1)!;
+ assert.equal(saved.gameReview!.moments.length,5);
+ assert.equal(saved.gameReview!.notice,'invalid-moments-omitted');
+ assert.match(saved.text,/unvollständige KI-Schlüsselstellungen wurden ausgelassen/);
+ assert.match(saved.text,/keine zusätzliche Modellanfrage zur Reparatur ausgelöst/);
+ const restored=Session.import(studio.session.export()).snapshot().annotations.at(-1)!;
+ assert.equal(restored.gameReview!.moments.length,5);
+ assert.equal(restored.gameReview!.notice,'invalid-moments-omitted');
+ assert.match(restored.text,/unvollständige KI-Schlüsselstellungen wurden ausgelassen/);
+});
 test('paid-model review with one illegal alternative is saved, navigable and exportable without retry',async()=>{
  const {Session}=await import('../src/session.js');
  const {reviewAnchors}=await import('../src/game-review.js');

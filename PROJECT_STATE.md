@@ -1,3 +1,17 @@
+# Korrekturkandidat 1.14.1 – Einzelne fehlerhafte Schlüsselstellungen abfangen (18. November 2026)
+
+**Status:** Implementierung auf Branch `fix/review-partial-validation-20261118`; Prüfungen noch nicht ausgeführt, nicht veröffentlicht.
+
+- `validateGameReview` verwirft nicht länger den vollständigen Modellrückblick, wenn einzelne Schlüsselstellungen fehlerhafte Zugbezüge oder unvollständige Beschreibungen enthalten.
+- Unsichere Einzelstellen werden nur bei der Live-Modellantwort ausgelassen; mindestens zwei geprüfte Stellen müssen übrig bleiben. Gespeicherte/importierte Analysen bleiben streng validiert.
+- Der Rückblick kennzeichnet das Auslassen, ohne eine weitere kostenpflichtige Reparaturanfrage auszulösen.
+- Versionskandidat 1.14.1; `package.json`, `package-lock.json` und `CHANGELOG.md` angepasst.
+- Regressionstest ergänzt: ein fehlerhafter Zugbezug wird ausgelassen; fünf gültige Stellen, der Hinweis und die Speicherung nach Neuladen bleiben erhalten, ohne zusätzliche Modellanfrage.
+- Der bestehende Releaseworkflow wird auf die betroffenen Quelldateien erweitert und auf Version 1.14.1 aktualisiert; Veröffentlichung nur bei erfolgreichem Lauf.
+- Nächster Schritt: PR #35 freigeben und Releaseworkflow abwarten.
+
+---
+
 # Chess Studio 1.14.0 veröffentlicht – 17. November 2026
 
 PR #33 enthält den kompakten Diagnoseexport und die Korrektur des Partieanalyse-Überblicks. PR #34 passt zwei Maia-Regressionsprüfungen an, damit sie für ihre Partiehistorie ausdrücklich den Vollbericht wählen. Der Quellstand `497f4f715cfcd80a3e2a62646c9327eb783142d4` wurde mit dem bestehenden Releaseworkflow [Run 44174370115](https://github.com/wibem1/AI-Chess-Studio/actions/runs/44174370115) geprüft und auf GitHub Pages veröffentlicht. Typprüfung, Node-Tests, Pages-Build, Browser-/Engineprüfungen und Deploymentkontrolle waren erfolgreich.

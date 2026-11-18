@@ -1,5 +1,12 @@
 # Änderungen
 
+## 1.14.1 – Partierückblick trotz fehlerhafter Einzelstellen erhalten (Kandidat, 18. November 2026)
+
+- Fehlerhafte oder unvollständige einzelne KI-Schlüsselstellungen werden ausgelassen; die übrige Analyse bleibt erhalten, sofern mindestens zwei sicher geprüfte Lernmomente bestehen bleiben.
+- Der gespeicherte Rückblick kennzeichnet ausgelassene Stellen. Für eine Reparatur wird keine zusätzliche Modellanfrage ausgelöst.
+- Versionsnummer auf 1.14.1 erhöht. Die Prüfung und Veröffentlichung laufen über den bestehenden Releaseworkflow; sie erfolgen nur bei erfolgreichem Prüflauf.
+
+
 ## 1.14.0 – Diagnoseexport mit Kurzbericht als Standard (17. November 2026)
 
 - Der normale Diagnoseexport enthält technische Fehlerdetails, Modell-/Anbietermetadaten, Laufzeiten, Nutzung und Antwortstruktur, aber keine Rohprompts, Zugfolgen, Stellungen, Chattexte oder Modellprosa.
