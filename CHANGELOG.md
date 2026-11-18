@@ -1,5 +1,13 @@
 # Änderungen
 
+## 1.14.2 – kompakterer Partierückblick (18. November 2026, Kandidat)
+
+- Für die KI bleiben vollständige Zugfolge und lokale Partieprüfung erhalten; der wiederholte Bewertungsverlauf und lange FEN-Listen entfallen aus dem Kontext.
+- Partierückblicke verwenden einen kurzen, spezialisierten Prompt, wählen zwei bis vier Lernmomente und begrenzen überlange Abschnitte sichtbar.
+- Ausgabegrenze für den finalen Rückblick von 2.600 auf 1.600 Tokens gesenkt; die zweistufige Stockfish-Prüfung bleibt bestehen.
+- Vor-/Zurücknavigation durch Schlüsselstellen erhält die Scrollposition in der Textausgabe.
+- Kandidat, noch nicht getestet und nicht veröffentlicht.
+
 ## 1.14.1 – Partierückblick trotz fehlerhafter Einzelstellen erhalten (18. November 2026)
 
 - Unvollständige oder falsch verknüpfte einzelne KI-Schlüsselstellungen werden ausgelassen; die übrige Analyse bleibt erhalten, wenn mindestens zwei sichere Lernmomente verbleiben.

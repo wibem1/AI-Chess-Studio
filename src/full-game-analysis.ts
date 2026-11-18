@@ -90,30 +90,23 @@ export async function scanFullGame(
  }
  return makeFullGameAnalysis(rootFen,moves,scores,nodeIds);
 }
-/** Complete, compact move-by-move evaluation for the learning KI.
- * The priority list is an index, not a substitute for the entire evaluated game.
- * No expensive per-move FEN duplication in the chronology; SAN plus ply identifies moves.
+/** Compact Stockfish evidence for a human-readable game review.
+ * The complete SAN history is sent separately; repeating every score and FEN
+ * here adds cost without improving the narrative.
  */
-export function fullGameSummary(report:FullGameAnalysis,maxIssues=8):string{
- const line=(p:PlayerQuality)=>`${p.side==='w'?'Weiß':'Schwarz'}: ${p.evaluated} bewertete Züge; mittlerer geschätzter Bewertungsverlust ${p.averageLossCp??'–'} cp; Ungenauigkeiten ${p.inaccuracies}; Fehler ${p.mistakes}; grobe Fehler ${p.blunders}.`;
+export function fullGameSummary(report:FullGameAnalysis,maxIssues=4):string{
+ const line=(p:PlayerQuality)=>`${p.side==='w'?'Weiß':'Schwarz'}: ${p.averageLossCp??'–'} cp mittlerer Bewertungsverlust, ${p.mistakes} Fehler, ${p.blunders} grobe Fehler`;
  const label=(r:ScoredMove)=>`${Math.ceil(r.ply/2)}${r.side==='w'?'.':'…'}${r.san}`;
  const score=(cp:number|null)=>cp===null?'?':`${cp>=0?'+':''}${(cp/100).toFixed(2)}`;
  const issues=report.records.filter(r=>r.lossCp!==null&&r.grade!=='gut')
   .sort((a,b)=>b.lossCp!-a.lossCp!).slice(0,maxIssues)
-  .map(r=>`${label(r)}: ${r.grade} (Verlust ${r.lossCp} cp, vorher ${score(r.beforeCp)}, nachher ${score(r.afterCp)}, FEN davor ${r.before})`).join(' | ');
- const timeline=report.records.map(r=>`${label(r)} ${score(r.afterCp)}${r.lossCp===null?' [nicht bewertet]':r.lossCp>=50?` [${r.grade}; -${r.lossCp}cp]`:''}`).join(' | ');
- return `ANALYSEAUFTRAG – STOCKFISH ALS GRUNDLAGE: Beginne mit den begrenzten Stockfish-Befunden, um die schachliche Tragfähigkeit zu prüfen. Erkläre anschließend die gesamte gespielte Zugfolge menschenverständlich: Eröffnungsideen beider Seiten, Planwechsel, Bauernstruktur, Figurenaktivität, praktische Verteidigung, Übergänge und gelungene Entscheidungen. Formuliere eine zusammenhängende Geschichte der Partie mit konkreten Zügen und Feldbelegen. Nutze die Stockfish-Kontrolldaten als vorrangige taktische Grundlage, aber nicht als Ersatz für eine verständliche strategische Erklärung; priorisiere mögliche Wendepunkte nach schachlicher Bedeutung, nicht bloß nach Zentibauernverlust. Hinterfrage große Ausschläge bei Tiefe 12, erkläre Ursachen nur, wenn Zugfolge oder nachgeprüfte Variante sie trägt. Benenne andernfalls ausdrücklich den fehlenden Nachweis und erfinde keine bessere Fortsetzung. Zahlen nur sparsam dort nennen, wo sie die Erklärung wirklich stützen. Würdige auch gelungene Pläne beider Seiten; keine reine Fehlerliste oder Spielstärke aus Enginezahlen ableiten.\n\nSTOCKFISH-AUSGANGSDATEN – KEIN AUTOMATISCHER LEHRPLAN: Lokal geprüfte Stockfish-Partieanalyse (keine Lichess-Genauigkeit/Elo): ${line(report.players.white)} ${line(report.players.black)} Wichtigste Fehler nach Bewertungsverlust: ${issues||'keine'}. Vollständiger chronologischer Verlauf aller ${report.records.length} Halbzüge (Bewertung aus Weißsicht nach jedem Zug, in Bauerneinheiten): ${timeline}. Anfangsbewertung: ${score(report.records[0]?.beforeCp??null)}. Grenzen je Stellung: Tiefe 12, 20.000 Knoten, 1 s. Klassifikation nur näherungsweise; Mattbewertungen auf ±1500 cp abgebildet.`;
+  .map(r=>`${label(r)} (${r.grade}, Verlust ${r.lossCp} cp; ${score(r.beforeCp)} → ${score(r.afterCp)})`).join('; ');
+ return `Stockfish-Kurzbefund: Weiß ${line(report.players.white)}; Schwarz ${line(report.players.black)}. Auffällige Züge: ${issues||'keine klaren Ausschläge'}. Prüfung je Stellung: Tiefe 12, 20.000 Knoten, 1 s; grobe Orientierung, keine bestätigte Fehlerursache.`;
 }
 
-/** Segment a complete game report without silently dropping half-moves.
- * A hard cap protects browser/provider requests on exceptionally long annotations.
- */
+/** One compact evidence block; the full SAN move history remains intact elsewhere. */
 export function fullGameContext(report:FullGameAnalysis):string[]{
- const characters=Array.from(fullGameSummary(report));
- const parts:string[]=[];
- for(let i=0;i<characters.length;i+=2700)parts.push(characters.slice(i,i+2700).join(''));
- if(parts.length>5)throw new Error('Stockfish-Partiebericht überschreitet das KI-Kontextlimit. Keine unvollständige Partieanalyse versendet.');
- return parts;
+ return [fullGameSummary(report)];
 }
 
 /** Intent gate for factual whole-game reviews. Do not depend on one exact

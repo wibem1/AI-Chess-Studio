@@ -20,13 +20,13 @@ test('actual 109-ply Maia game transports complete Stockfish review through prov
  s.storeFullGameAnalysis(report);
  assert.deepEqual(Session.import(s.export()).snapshot().fullGameAnalysis,report);
  const context=fullGameContext(report);
- assert.ok(context.length>=1&&context.length<=5);
+ assert.equal(context.length,1);
  assert.ok(context.every(chunk=>chunk.length<=2700));
  assert.ok(context.reduce((sum,chunk)=>sum+chunk.length,0)<=15000);
  const joined=context.join('');
- assert.match(joined,/Vollständiger chronologischer Verlauf aller 109 Halbzüge/);
- assert.match(joined,/23…Nxd4: grober Fehler/);
- assert.match(joined,/55.Qf6#/);
+ assert.doesNotMatch(joined,/chronologischer Verlauf aller 109 Halbzüge/);
+ assert.match(joined,/23…Nxd4 \(grober Fehler/);
+ assert.ok(joined.length<1000);
  const actual=s.snapshot(),last=actual.nodes.at(-1)!;
  const payload=parseRequest({nodeId:last.id,fen:last.fen,question:'Was war der entscheidende Fehler von Schwarz?',legalMoves:new Chess(last.fen).moves(),context,topic:'chat',
    gameHistory:{rootFen:actual.nodes[0]!.fen,moves,truncated:false,human:'w'},toolsEnabled:true});

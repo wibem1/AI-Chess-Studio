@@ -39,15 +39,14 @@ test('incomplete and aborted scans do not claim a complete player-quality report
  assert.equal(calls,0);
 });
 
-test('KI context contains every move evaluation, with the largest swing explicitly prioritized',()=>{
+test('KI context sends only compact evidence with the largest swing prioritized',()=>{
  const report=makeFullGameAnalysis(new Chess().fen(),['f3','e5','g4','Qh4#'],[0,-180,-160,-570,-1500]);
  const summary=fullGameSummary(report,1);
- assert.match(summary,/Wichtigste Fehler nach Bewertungsverlust: 2\.g4: grober Fehler/);
- assert.match(summary,/Vollständiger chronologischer Verlauf aller 4 Halbzüge/);
- for(const move of ['1.f3','1…e5','2.g4','2…Qh4#'])assert.ok(summary.includes(move),move);
- assert.ok(summary.startsWith('ANALYSEAUFTRAG – STOCKFISH ALS GRUNDLAGE'));
- assert.ok(summary.indexOf('STOCKFISH-AUSGANGSDATEN')>summary.indexOf('ANALYSEAUFTRAG – STOCKFISH ALS GRUNDLAGE'));
- assert.match(summary,/Nutze die Stockfish-Kontrolldaten als vorrangige taktische Grundlage/);
+ assert.match(summary,/2\.g4 \(grober Fehler, Verlust 410 cp/);
+ assert.doesNotMatch(summary,/chronologischer Verlauf aller/);
+ assert.ok(summary.includes('2.g4'),'key evaluated move');
+ assert.ok(summary.startsWith('Stockfish-Kurzbefund:'));
+ assert.ok(summary.length<1000);
 });
 
 test('complete AI context is split within provider limits without dropping scored moves',()=>{
