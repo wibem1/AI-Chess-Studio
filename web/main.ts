@@ -295,6 +295,11 @@ function render() {
       const body = document.createElement('div');
       const [answer,details]=a.text.split('\n\nAnalyse-Details:');body.textContent=answer!.startsWith(TOOL_RECORD)?answer!.slice(TOOL_RECORD.length):answer!;
       if(answer?.startsWith('Modellnachweis (App): ')){const split=body.textContent!.indexOf('\n\n');if(split>=0){const receipt=document.createElement('small');receipt.textContent=body.textContent!.slice(0,split);body.textContent=body.textContent!.slice(split+2);entry.append(receipt);}}
+      if(kind==='dialogue'&&a.gameReview){
+        const text=body.textContent??'',pieces:{start:number;end:number;ply:number;text:string}[]=[];let cursor=0;
+        for(const moment of a.gameReview.moments){const start=text.indexOf(moment.explanation,cursor);if(start<0)continue;pieces.push({start,end:start+moment.explanation.length,ply:moment.ply,text:moment.explanation});cursor=start+moment.explanation.length;}
+        if(pieces.length){body.replaceChildren();cursor=0;const analysis=data.annotations.indexOf(a);for(const piece of pieces){body.append(document.createTextNode(text.slice(cursor,piece.start)));const description=document.createElement('span');description.id=`key-analysis-description-${analysis}-${piece.ply}`;description.className='key-analysis-description';description.textContent=piece.text;body.append(description);cursor=piece.end;}body.append(document.createTextNode(text.slice(cursor)));}
+      }
       entry.append(meta,body);
       if(kind==='dialogue'&&a.source==='model'&&!locked)for(const san of a.suggestions??[]){
         const show=document.createElement('button');show.type='button';show.textContent=`Zug zeigen: ${germanSan(san)}`;
@@ -358,7 +363,7 @@ $('api-settings').prepend($('ai-access-card'));
 $('learning-settings').hidden=true;
 $('panel-settings').append($('learning-settings'));
 $('diagram-close').onclick=()=>{chatStopped=true;studio.cancelAsk();coachBoard.cancel();activeAdapter?.cancel();illustration=undefined;render();};
-const keyMoments=installKeyMoments(()=>studio.session,node=>{match.stop('Schlüsselstelle ansehen.');game.analyse(node);illustration=undefined;selected=null;navigation.select('learn',false,true,false);render();},render);
+const keyMoments=installKeyMoments(()=>studio.session,node=>{match.stop('Schlüsselstelle ansehen.');game.analyse(node);illustration=undefined;selected=null;navigation.select('learn',false,true,false);render();},render,(analysis,ply)=>{const description=document.getElementById(`key-analysis-description-${analysis}-${ply}`);(description??document.getElementById('key-review-moment'))?.scrollIntoView({block:'center',behavior:'smooth'});});
 // Keep optional Stockfish assessment in the same compact row as KI gegen Engine.
 $('match-stop').after($('stockfish-assist-settings'));
 const stockfishToggle=$<HTMLInputElement>('stockfish-assist-enabled'),stockfishStatus=$('stockfish-assist-status');
