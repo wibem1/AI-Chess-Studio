@@ -1,3 +1,7 @@
+## Korrekturkandidat – Vorführungstempo und Wiederholung (19. November 2026)
+
+Status: Implementiert auf Branch `fix/slow-plan-demonstration-20261119`, noch nicht geprüft und nicht veröffentlicht. Die Vorführpause wurde von 150 auf 900 ms erhöht. Beim Neuzeichnen des Bretts bleibt die Bildschirmposition erhalten. Nach „Vorführung / Anfrage anhalten“ wird die Schaltfläche „Plan zeigen“ in der Lernansicht wieder in den sichtbaren Bereich gebracht; die Meldung weist auf eine Wiederholung hin. Es wurden keine Tests ausgeführt.
+
 # Änderungen
 
 ## 1.14.3 – zur Schlüsselstellenbeschreibung springen (18. November 2026, veröffentlicht)
