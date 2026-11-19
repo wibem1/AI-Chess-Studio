@@ -1,6 +1,15 @@
-# Chess Studio 1.14.4 – Veröffentlichungskandidat
+# Chess Studio 1.14.4 veröffentlicht – 19. November 2026
 
-Geplante Veröffentlichung am 19. November 2026. Die Vorführpause wurde auf 900 ms erhöht, die Bildschirmposition bleibt beim Neuzeichnen stabil und nach dem Abbruch wird „Plan zeigen“ wieder in den sichtbaren Bereich gebracht. Ein Browserregressionstest deckt Tempo, Abbruch und Wiederholung ab. Der vorhandene Releaseworkflow muss Typprüfung, Node-Tests, Pages-Build, Browser-/Engineprüfungen und Deploymentkontrolle bestehen; bis dahin bleibt 1.14.3 live.
+Der vollständige Releaseworkflow [Run 44488640220](https://github.com/wibem1/AI-Chess-Studio/actions/runs/44488640220) war erfolgreich: Typprüfung, Node-Tests, Pages-Build, Browser-/Engineprüfungen, Veröffentlichung und Deploymentkontrolle. Kostenpflichtige Modellaufrufe waren deaktiviert.
+
+GitHub Pages `BUILD.json` bestätigt Version **1.14.4** und Quellcommit `d0ea6c5fdeb107623cc76d57852fff0ed798c235`. Live: https://wibem1.github.io/AI-Chess-Studio/.
+
+## Inhalt
+
+- „Plan zeigen“ führt die Züge langsamer mit 900 ms Pause vor.
+- Die Bildschirmposition bleibt beim Neuzeichnen des Bretts erhalten.
+- Nach Abbruch bleibt „Plan zeigen“ sichtbar und kann wiederholt werden; die bereits gezeigte Variante bleibt erhalten.
+- Browserregression prüft Tempo, Abbruch, Wiederholung, Entwurf- und Chaterhalt.
 
 ---
 
