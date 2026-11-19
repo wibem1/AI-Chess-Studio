@@ -5,6 +5,10 @@
 - Nach dem Anhalten scrollt die Lernansicht zum dauerhaft verfügbaren Button „Plan zeigen“; bereits ausgeführte Züge bleiben als Variante bestehen.
 - Ein Browserregressionstest prüft Abbruch nach dem ersten Zug, lesbares Tempo, erneuten Start, Entwurfserhalt und Chatverlauf.
 
+
+- Vollständiger Releaseworkflow [44488640220](https://github.com/wibem1/AI-Chess-Studio/actions/runs/44488640220) erfolgreich: Typprüfung, Node-Tests, Pages-Build, Browser-/Engineprüfungen, Veröffentlichung und Deploymentkontrolle. Keine kostenpflichtigen Modellaufrufe.
+- GitHub Pages `BUILD.json` bestätigt Version 1.14.4 und Quellcommit `d0ea6c5fdeb107623cc76d57852fff0ed798c235`. Live: https://wibem1.github.io/AI-Chess-Studio/.
+
 # Änderungen
 
 ## 1.14.3 – zur Schlüsselstellenbeschreibung springen (18. November 2026, veröffentlicht)
