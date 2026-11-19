@@ -1,4 +1,4 @@
-name: ChessStudio 1.14.4 - Vorfuehrung Schritt fuer Schritt
+name: ChessStudio 1.14.4 - Planvorfuehrung
 
 on:
   workflow_dispatch:
