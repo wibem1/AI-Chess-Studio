@@ -84,7 +84,7 @@ let coachAnchor:{session:typeof studio.session;node:string}|undefined,pendingCoa
 const boardActions:unknown[]=[];
 let pending = false,chatStopped=false;let lastAskFailed=false;let activeAdapter:ServerModelAdapter|undefined;
 const coachBrowserEngine=new BrowserPlayingEngine(),coachMaiaEngine=new MaiaPlayingEngine(value=>{if(pending&&!chatStopped)message('dialogue-feedback',value);});
-const coachBoard=new CoachBoard(()=>studio.session,()=>studio.session.snapshot().game?.opponent==='maia'?coachMaiaEngine:(studio.session.snapshot().game?.engine??$<HTMLSelectElement>('engine-location').value)==='browser'?coachBrowserEngine:desktopEngine,node=>{if(pendingCoachAnchor){coachAnchor=pendingCoachAnchor;pendingCoachAnchor=undefined;}const d=studio.session.snapshot(),n=d.nodes.find(n=>n.id===node)!,parent=d.nodes.find(p=>p.id===n.parentId)!;const move=new Chess(parent.fen).move(n.san!);shownMove={node,from:move.from,to:move.to};render();},150,(diagram,node)=>{
+const coachBoard=new CoachBoard(()=>studio.session,()=>studio.session.snapshot().game?.opponent==='maia'?coachMaiaEngine:(studio.session.snapshot().game?.engine??$<HTMLSelectElement>('engine-location').value)==='browser'?coachBrowserEngine:desktopEngine,node=>{if(pendingCoachAnchor){coachAnchor=pendingCoachAnchor;pendingCoachAnchor=undefined;}const d=studio.session.snapshot(),n=d.nodes.find(n=>n.id===node)!,parent=d.nodes.find(p=>p.id===n.parentId)!;const move=new Chess(parent.fen).move(n.san!);shownMove={node,from:move.from,to:move.to};const viewport={left:window.scrollX,top:window.scrollY};render();window.scrollTo({...viewport,behavior:'instant'});},900,(diagram,node)=>{
  const previousFen=illustration?.session===studio.session&&illustration.node===node?illustration.diagram.fen:undefined;
  const view={...diagram,...(!diagram.fen&&previousFen?{fen:previousFen}:{})};
  illustration=view.fen||view.marks.length?{diagram:view,session:studio.session,node}:undefined;
@@ -563,7 +563,7 @@ $('coach-show-plan').addEventListener('click',()=>{
  $<HTMLFormElement>('dialogue-form').requestSubmit();text('question').value=draft;
 });
 $('coach-origin').addEventListener('click',()=>{if(!coachAnchor||coachAnchor.session!==studio.session)return;chatStopped=true;studio.cancelAsk();coachBoard.cancel();activeAdapter?.cancel();game.analyse(coachAnchor.node);render();message('dialogue-feedback','Zum Ausgangspunkt der Vorführung zurückgekehrt. Die Variante bleibt erhalten.');});
-$('coach-stop').addEventListener('click',()=>{match.stop();chatStopped=true;studio.cancelAsk();coachBoard.cancel();activeAdapter?.cancel();message('dialogue-feedback','Angehalten. Bereits gezeigte Züge bleiben als Lernvariante erhalten.');});
+$('coach-stop').addEventListener('click',()=>{match.stop();chatStopped=true;studio.cancelAsk();coachBoard.cancel();activeAdapter?.cancel();message('dialogue-feedback','Angehalten. Gezeigte Züge bleiben erhalten. Du kannst „Plan zeigen“ erneut wählen.');window.requestAnimationFrame(()=>{if($('workspace').dataset.activeView==='learn')$('coach-plan-bar').scrollIntoView({block:'center',behavior:'smooth'});});});
 $('clear-dialogue').addEventListener('click',async()=>{
  if(!confirm('Chatverlauf dieser Partie auf allen Varianten löschen? Partie und eigene Notizen bleiben erhalten. Bereits gespeicherte Partiekopien bleiben unverändert.'))return;
  match.stop();illustration=undefined;boardActions.length=0;studio.session.clearDialogue();coachBoard.cancel();activeAdapter?.cancel();render();
