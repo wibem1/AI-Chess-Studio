@@ -8,7 +8,7 @@ export class CoachBoard{
  private guard:(()=>boolean)|undefined;
  checkSelection(){if(this.guard&&!this.guard()){this.cancel();return true;}return false;}
  private revision=0;private activeEngine:PlayingEngine|undefined;
- constructor(private current:()=>Session,private engine:()=>PlayingEngine,private changed:(node:string)=>void=()=>{},private delay=150,private illustrate:(diagram:BoardDiagram,node:string)=>void=()=>{}){}
+ constructor(private current:()=>Session,private engine:()=>PlayingEngine,private changed:(node:string)=>void=()=>{},private delay=900,private illustrate:(diagram:BoardDiagram,node:string)=>void=()=>{}){}
  cancel(){this.guard=undefined;this.revision++;this.activeEngine?.cancel?.();this.activeEngine=undefined;}
  async execute(raw:CoachCall,expectedNode:string):Promise<CoachResult>{
   const call=parseCoachCall(raw),session=this.current(),snapshot=session.snapshot(),epoch=this.revision,chat=session.dialogueRevision();

@@ -1,3 +1,10 @@
+## 1.14.4 – lesbare und wiederholbare Vorführung (19. November 2026)
+
+- Die Vorführpause beträgt 900 ms pro Zug statt 150 ms.
+- Die Bildschirmposition bleibt während des Brett-Neuzeichnens erhalten.
+- Nach dem Anhalten scrollt die Lernansicht zum dauerhaft verfügbaren Button „Plan zeigen“; bereits ausgeführte Züge bleiben als Variante bestehen.
+- Ein Browserregressionstest prüft Abbruch nach dem ersten Zug, lesbares Tempo, erneuten Start, Entwurfserhalt und Chatverlauf.
+
 # Änderungen
 
 ## 1.14.3 – zur Schlüsselstellenbeschreibung springen (18. November 2026, veröffentlicht)
