@@ -7,6 +7,9 @@ on:
     paths:
       - .github/workflows/chessstudio-1.0-release.yml
       - e2e/maia.spec.ts
+      - e2e/coach-tools.spec.ts
+      - src/coach-board.ts
+      - web/main.ts
       - src/game-review.ts
       - test/game-review.test.ts
       - package.json
